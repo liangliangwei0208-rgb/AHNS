@@ -3,14 +3,6 @@ name: RSI Email
 on:
   schedule:
     - cron: "*/5 * * * *"
-    # 北京时间 12:00 = UTC 04:00
-    #- cron: "0 4 * * 1-5"
-
-    # 北京时间 16:00 = UTC 08:00
-    #- cron: "0 8 * * 1-5"
-
-    # 北京时间 19:24 = UTC 11:24
-    #- cron: "24 11 * * 1-5"
 
   # 允许在 GitHub 网页手动运行
   workflow_dispatch:
