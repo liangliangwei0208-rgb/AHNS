@@ -2,7 +2,7 @@ name: RSI Email
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/15 * * * *"
 
   # 允许在 GitHub 网页手动运行
   workflow_dispatch:
