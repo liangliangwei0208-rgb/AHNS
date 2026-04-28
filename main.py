@@ -209,12 +209,12 @@ def main():
         log("准备发送邮件")
 
         # 如果你要正式发送，把下面注释取消即可
-        # send_email(
-        #     subject=f"发光发热—每日提醒——分析结果—{now.strftime('%Y-%m-%d %H:%M')}",
-        #     text=email_text,
-        #     image_paths=image_paths,
-        #     to_email="2569236501@qq.com",
-        # )
+        send_email(
+            subject=f"发光发热—每日提醒——分析结果—{now.strftime('%Y-%m-%d %H:%M')}",
+            text=email_text,
+            image_paths=image_paths,
+            to_email="2569236501@qq.com",
+        )
 
         log("当前代码中 send_email 仍为注释状态，因此本次未真正发送邮件")
         log("程序运行完成")
