@@ -12,41 +12,25 @@ def log(msg: str):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}", flush=True)
 
 
-def latest_trade_date(df):
-    if df is None or df.empty or "date" not in df.columns:
-        return None
+# 已不再需要交易日判断功能，因此注释掉相关函数
+# def latest_trade_date(df):
+#     if df is None or df.empty or "date" not in df.columns:
+#         return None
+#     dates = pd.to_datetime(df["date"], errors="coerce").dropna()
+#     if dates.empty:
+#         return None
+#     return dates.max().date()
 
-    dates = pd.to_datetime(df["date"], errors="coerce").dropna()
-
-    if dates.empty:
-        return None
-
-    return dates.max().date()
-
-
-def is_trade_day(results):
-    """
-    用 A 股 ETF 判断今天是否为交易日。
-    只要红利低波或上证 ETF 任意一个最新交易日为今天，就认为今天有效。
-    """
-    today = datetime.now().date()
-
-    check_keywords = [
-        "红利低波",
-        "上证指数ETF",
-        "510210",
-    ]
-
-    trade_dates = []
-
-    for item in results:
-        if any(k in item.name for k in check_keywords):
-            d = latest_trade_date(item.hist)
-            trade_dates.append((item.name, d))
-
-    log(f"交易日检查详情：{trade_dates}")
-
-    return any(d == today for _, d in trade_dates)
+# def is_trade_day(results):
+#     today = datetime.now().date()
+#     check_keywords = ["红利低波", "上证指数ETF", "510210"]
+#     trade_dates = []
+#     for item in results:
+#         if any(k in item.name for k in check_keywords):
+#             d = latest_trade_date(item.hist)
+#             trade_dates.append((item.name, d))
+#     log(f"交易日检查详情：{trade_dates}")
+#     return any(d == today for _, d in trade_dates)
 
 
 def main():
@@ -67,13 +51,9 @@ def main():
         log(f"当前图片列表: {image_paths}")
 
         # =========================================================
-        # 2. 判断交易日
+        # 2. 跳过交易日判断，直接发送邮件
         # =========================================================
-        log("开始判断今天是否为有效交易日")
-        if not is_trade_day(results):
-            log("今天不是有效交易日，或行情没有更新到今天，本次不发送邮件。")
-            raise SystemExit(0)
-        log("交易日检查通过")
+        log("已关闭交易日检查，本次运行强制发送邮件")
 
         # =========================================================
         # 3. 获取每日语录
@@ -133,9 +113,9 @@ def main():
             title="海外市场收益预估 " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             holding_mode="auto",
             proxy_normalize_weights=False,
-            us_realtime=False,   # 如果开启实时数据，则会拉取所有的美股数据，耗时较长
-            hk_realtime=False,   # 港股默认走日线，不拉全市场
-            renormalize_available_holdings=True,  # 只用可查持仓重新归一化
+            us_realtime=False,
+            hk_realtime=False,
+            renormalize_available_holdings=True,
             include_purchase_limit=True,
             include_method_col=False,
             sort_by_return=True,
@@ -179,14 +159,14 @@ def main():
                 "011103", # 天弘中证光伏产业
                 "020691", # 博时中证全指通信设备指数
             ],
-            top_n=10,  # 股票持仓估算取前 10 大股票
+            top_n=10,
             output_file="output/guonei_fund_estimate_table.png",
             title=None,
-            holding_mode="auto",  # 自动选择股票持仓或代理估算
-            proxy_normalize_weights=False,  # 代理按原始权重计算，现金按 0
-            us_realtime=False,  # 如果开启实时数据，则会拉取所有的美股数据，耗时较长
-            hk_realtime=False,  # 港股默认使用日线；True 会先尝试新浪单只港股实时行情
-            renormalize_available_holdings=True,  # 某些持仓行情缺失时，用可查持仓重新归一化估算
+            holding_mode="auto",
+            proxy_normalize_weights=False,
+            us_realtime=False,
+            hk_realtime=False,
+            renormalize_available_holdings=True,
             include_purchase_limit=True,
             include_method_col=False,
             sort_by_return=True,
@@ -208,7 +188,6 @@ def main():
         # =========================================================
         log("准备发送邮件")
 
-        # 如果你要正式发送，把下面注释取消即可
         send_email(
             subject=f"发光发热—每日提醒——分析结果—{now.strftime('%Y-%m-%d %H:%M')}",
             text=email_text,
@@ -216,7 +195,7 @@ def main():
             to_email="2569236501@qq.com",
         )
 
-        log("当前代码中 send_email 仍为注释状态，因此本次未真正发送邮件")
+        log("邮件发送完成")
         log("程序运行完成")
 
     except SystemExit:
