@@ -2,7 +2,8 @@ name: RSI Email
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    # 每 3 小时运行一次；默认按 UTC 计算
+    - cron: "0 */3 * * *"
 
   # 允许在 GitHub 网页手动运行
   workflow_dispatch:
