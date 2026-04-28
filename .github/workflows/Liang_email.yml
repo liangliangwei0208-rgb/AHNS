@@ -13,8 +13,8 @@ permissions:
 
 jobs:
   run-liang-email:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
 
     env:
       TZ: Asia/Shanghai
