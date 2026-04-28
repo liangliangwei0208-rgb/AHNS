@@ -2,17 +2,17 @@ name: Liang Email
 
 on:
   schedule:
-    # 每 6 小时运行一次；默认按 UTC 计算
+    # 每 6 小时运行一次；cron 按 UTC 计算
+    # 北京时间约为 08:00 / 14:00 / 20:00 / 02:00
     - cron: "0 */6 * * *"
 
-  # 允许在 GitHub 网页手动运行
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  run-Liang-email:
+  run-liang-email:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -46,6 +46,6 @@ jobs:
           mkdir -p output
           mkdir -p cache
 
-      - name: Run RSI email script
+      - name: Run Liang email script
         run: |
           python main.py
