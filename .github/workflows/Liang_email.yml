@@ -2,14 +2,17 @@ name: Liang Email
 
 on:
   schedule:
-    # 每 6 小时运行一次；cron 按 UTC 计算
-    # 北京时间约为 08:00 / 14:00 / 20:00 / 02:00
+    # cron 使用 UTC；这里是 UTC 00/06/12/18，对应北京时间 08/14/20/02
     - cron: "0 */6 * * *"
 
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: liang-email
+  cancel-in-progress: true
 
 jobs:
   run-liang-email:
@@ -18,12 +21,15 @@ jobs:
 
     env:
       TZ: Asia/Shanghai
+      PYTHONUNBUFFERED: "1"
       QQ_EMAIL_ACCOUNT: ${{ secrets.QQ_EMAIL_ACCOUNT }}
       QQ_EMAIL_AUTH_CODE: ${{ secrets.QQ_EMAIL_AUTH_CODE }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Install Chinese fonts
         run: |
@@ -49,3 +55,19 @@ jobs:
       - name: Run Liang email script
         run: |
           python -u main.py
+
+      - name: Commit runtime cache
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add cache/*.json investment_quote_history.json || true
+
+          if git diff --cached --quiet; then
+            echo "No runtime cache changes"
+          else
+            git commit -m "Update runtime cache"
+            git pull --rebase || true
+            git push
+          fi
