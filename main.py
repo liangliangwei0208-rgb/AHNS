@@ -181,11 +181,11 @@ log(f"最终图片列表: {image_paths}")
 
 log("准备发送邮件")
 
-# send_email(
-#     subject=f"发光发热—每日提醒——分析结果—{now.strftime('%Y-%m-%d %H:%M')}",
-#     text=email_text,
-#     image_paths=image_paths,
-#     to_email="2569236501@qq.com",
-# )
+send_email(
+    subject=f"发光发热—每日提醒——分析结果—{now.strftime('%Y-%m-%d %H:%M')}",
+    text=email_text,
+    image_paths=image_paths,
+    to_email="2569236501@qq.com",
+)
 
 log("程序运行完成")
