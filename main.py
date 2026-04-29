@@ -143,7 +143,7 @@ estimate_funds_and_save_table(
     ],
     top_n=10,
     output_file="output/guonei_fund_estimate_table.png",
-    title=None,
+    title="国内市场收益预估 " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     # 自动选择股票持仓或代理估算
     holding_mode="auto",
     # 代理按原始权重计算，现金按 0
