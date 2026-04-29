@@ -1,1 +1,12 @@
+# Python
+__pycache__/
+*.pyc
 
+# Runtime output images
+output/
+
+# Keep JSON runtime cache in git so GitHub Actions can reuse it
+cache/*
+!cache/
+!cache/.gitkeep
+!cache/*.json
