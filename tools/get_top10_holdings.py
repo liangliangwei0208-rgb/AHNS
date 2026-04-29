@@ -59,9 +59,10 @@ result_df, detail_map = estimate_funds_and_save_table(
 4. QDII 基金会受汇率、估值时点、现金仓位、费用、申赎等影响；本模块只做近似估算。
 5. 限购金额来自公开网页文本解析，可能返回“未知”。
 6. 本版本新增 JSON 文件缓存：
-   - 基金持仓默认 75 天更新一次；
+   - 基金持仓按季度披露窗口更新：1/4/7/10 月 20 日至次月 10 日内，每只基金最多约每 3 天试探一次；已经拿到目标季度持仓后停止请求，直到下一季度披露窗口；
    - 限购金额默认 7 天更新一次；
    - CN/HK 行情默认小时级缓存，US 行情默认日级缓存。
+7. 港股实时行情顺序：新浪单只港股安全价格解析优先，东方财富港股实时作为兜底，最后回落到港股历史日线。
 """
 
 import re
@@ -145,7 +146,7 @@ def _is_cache_fresh(fetched_at, max_age_days=None, max_age_hours=None) -> bool:
     判断缓存是否仍在有效期内。
 
     max_age_days:
-        日级有效期，例如基金持仓 75 天、限购 7 天。
+        日级有效期，例如限购 7 天。基金持仓当前按季度披露窗口策略更新。
     max_age_hours:
         小时级有效期，例如 A股/港股盘中行情 1-2 小时。
     """
@@ -1133,112 +1134,9 @@ def _match_hk_row(df, hk_code):
     return hit.iloc[0]
 
 
-def fetch_hk_return_pct_sina(code, retry=2, sleep_seconds=0.8):
-    """
-    使用新浪港股单只股票实时行情获取涨跌幅。
-
-    安全逻辑：
-        - 不再使用字段猜测；
-        - 只使用明确的价格字段计算：最新价 / 昨收价 - 1；
-        - 如果 latest / prev_close 不能可靠解析，直接失败；
-        - 上游 fetch_hk_return_pct() 再尝试东方财富实时与港股日线兜底。
-
-    新浪港股接口示例：
-        https://hq.sinajs.cn/list=hk00700
-
-    返回：
-        return_pct, source
-    """
-    hk_code = normalize_hk_code(code)
-    sina_symbol = "hk" + hk_code
-    url = f"https://hq.sinajs.cn/list={sina_symbol}"
-
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/128.0.0.0 Safari/537.36"
-        ),
-        "Referer": "https://finance.sina.com.cn/",
-    }
-
-    last_error = None
-
-    for i in range(max(1, retry)):
-        try:
-            resp = requests.get(url, headers=headers, timeout=10)
-            resp.encoding = "gbk"
-
-            text = resp.text.strip()
-            m = re.search(r'="(.*)"', text)
-
-            if not m:
-                raise RuntimeError(f"新浪港股返回格式异常: {text[:120]}")
-
-            raw = m.group(1)
-
-            if not raw:
-                raise RuntimeError(f"新浪港股返回空内容: {hk_code}")
-
-            values = raw.split(",")
-
-            if len(values) < 8:
-                raise RuntimeError(f"新浪港股字段数量不足: len={len(values)}, raw={values[:12]}")
-
-            # 新浪港股常见字段顺序：
-            # 0 名称
-            # 1 今日开盘价
-            # 2 昨日收盘价
-            # 3 最高价
-            # 4 最低价
-            # 5 当前价 / 最新价
-            #
-            # 这里不再读取或猜测“涨跌幅字段”，只用最新价和昨收价计算。
-            prev_close = _to_float_safe(values[2])
-            latest_price = _to_float_safe(values[5])
-
-            if latest_price is None or prev_close is None:
-                raise RuntimeError(
-                    f"新浪港股价格字段解析失败: {hk_code}, "
-                    f"prev_close_raw={values[2] if len(values) > 2 else None}, "
-                    f"latest_raw={values[5] if len(values) > 5 else None}, "
-                    f"raw_head={values[:12]}"
-                )
-
-            if float(prev_close) <= 0 or float(latest_price) <= 0:
-                raise RuntimeError(
-                    f"新浪港股价格字段无效: {hk_code}, "
-                    f"latest={latest_price}, prev_close={prev_close}, raw_head={values[:12]}"
-                )
-
-            return_pct = (float(latest_price) / float(prev_close) - 1.0) * 100.0
-
-            # 防御性校验：超过 ±40% 时优先视为字段错位或异常返回。
-            if abs(return_pct) > 40:
-                raise RuntimeError(
-                    f"新浪港股计算涨跌幅异常: {hk_code}, "
-                    f"return_pct={return_pct:.4f}%, "
-                    f"latest={latest_price}, prev_close={prev_close}, raw_head={values[:12]}"
-                )
-
-            return return_pct, "sina_hk_realtime_price_calc"
-
-        except Exception as e:
-            last_error = e
-
-            if i < max(1, retry) - 1:
-                time.sleep(sleep_seconds)
-
-    raise RuntimeError(f"新浪港股行情失败: {hk_code}, 原因: {last_error}")
-
-
 def fetch_hk_return_pct_akshare_spot_em(code):
     """
     使用 AKShare 东方财富港股实时行情获取当日涨跌幅。
-
-    该函数只作为港股实时兜底源使用：
-        1. 新浪港股安全实时解析失败后，再尝试东方财富；
-        2. 东方财富失败后，再回落到 AKShare 港股历史日线。
 
     逻辑：
         1. 通过 ak.stock_hk_spot_em() 拉取港股实时行情表；
@@ -1322,13 +1220,112 @@ def fetch_hk_return_pct_akshare_spot_em(code):
     )
 
 
+def fetch_hk_return_pct_sina(code, retry=2, sleep_seconds=0.8):
+    """
+    使用新浪港股单只股票实时行情获取涨跌幅。
+
+    安全逻辑：
+        - 不再使用字段猜测；
+        - 只使用明确的价格字段计算：最新价 / 昨收价 - 1；
+        - 如果 latest / prev_close 不能可靠解析，直接失败；
+        - 上游 fetch_hk_return_pct() 再尝试东方财富实时与港股日线兜底。
+
+    新浪港股接口示例：
+        https://hq.sinajs.cn/list=hk00700
+
+    返回：
+        return_pct, source
+    """
+    hk_code = normalize_hk_code(code)
+    sina_symbol = "hk" + hk_code
+    url = f"https://hq.sinajs.cn/list={sina_symbol}"
+
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/128.0.0.0 Safari/537.36"
+        ),
+        "Referer": "https://finance.sina.com.cn/",
+    }
+
+    last_error = None
+
+    for i in range(max(1, retry)):
+        try:
+            resp = requests.get(url, headers=headers, timeout=10)
+            resp.encoding = "gbk"
+
+            text = resp.text.strip()
+            m = re.search(r'="(.*)"', text)
+
+            if not m:
+                raise RuntimeError(f"新浪港股返回格式异常: {text[:120]}")
+
+            raw = m.group(1)
+
+            if not raw:
+                raise RuntimeError(f"新浪港股返回空内容: {hk_code}")
+
+            values = raw.split(",")
+
+            if len(values) < 8:
+                raise RuntimeError(f"新浪港股字段数量不足: len={len(values)}, raw={values[:12]}")
+
+            # 新浪港股常见字段顺序：
+            # 0 名称
+            # 1 今日开盘价
+            # 2 昨日收盘价
+            # 3 最高价
+            # 4 最低价
+            # 5 当前价 / 最新价
+            #
+            # 这里不读取或猜测“涨跌幅字段”，只用最新价和昨收价计算。
+            prev_close = _to_float_safe(values[2])
+            latest_price = _to_float_safe(values[5])
+
+            if latest_price is None or prev_close is None:
+                raise RuntimeError(
+                    f"新浪港股价格字段解析失败: {hk_code}, "
+                    f"prev_close_raw={values[2] if len(values) > 2 else None}, "
+                    f"latest_raw={values[5] if len(values) > 5 else None}, "
+                    f"raw_head={values[:12]}"
+                )
+
+            if float(prev_close) <= 0 or float(latest_price) <= 0:
+                raise RuntimeError(
+                    f"新浪港股价格字段无效: {hk_code}, "
+                    f"latest={latest_price}, prev_close={prev_close}, raw_head={values[:12]}"
+                )
+
+            return_pct = (float(latest_price) / float(prev_close) - 1.0) * 100.0
+
+            # 防御性校验：超过 ±40% 时优先视为字段错位或异常返回。
+            if abs(return_pct) > 40:
+                raise RuntimeError(
+                    f"新浪港股计算涨跌幅异常: {hk_code}, "
+                    f"return_pct={return_pct:.4f}%, "
+                    f"latest={latest_price}, prev_close={prev_close}, raw_head={values[:12]}"
+                )
+
+            return return_pct, "sina_hk_realtime_price_calc"
+
+        except Exception as e:
+            last_error = e
+
+            if i < max(1, retry) - 1:
+                time.sleep(sleep_seconds)
+
+    raise RuntimeError(f"新浪港股行情失败: {hk_code}, 原因: {last_error}")
+
+
 def fetch_hk_return_pct(code, hk_realtime=False):
     """
     获取港股涨跌幅，返回百分数。
 
     hk_realtime=True：
         1. 优先使用新浪港股单只实时行情，并通过 最新价 / 昨收价 安全计算；
-        2. 新浪失败后，再使用东方财富港股实时行情作为最后一个实时兜底源；
+        2. 新浪失败后，再使用东方财富港股实时行情作为实时兜底源；
         3. 两个实时源都失败后，回落到 AKShare 港股历史日线。
 
     hk_realtime=False：
@@ -1364,7 +1361,6 @@ def fetch_hk_return_pct(code, hk_realtime=False):
             errors.append(f"ak_hk_daily: {repr(e)}")
 
     raise RuntimeError(f"无法获取港股 {hk_code} 涨跌幅: {' | '.join(errors)}")
-
 
 def fetch_us_return_pct_akshare_daily(ticker):
     """
@@ -1802,24 +1798,303 @@ def get_latest_stock_holdings_df_uncached(fund_code="017437", top_n=10):
     return latest_df
 
 
+# ============================================================
+# 5.1 基金持仓季度披露窗口缓存策略
+# ============================================================
+
+HOLDING_DISCLOSURE_PROBE_DAYS = 3
+
+
+def _holding_quarter_info_from_df(df: pd.DataFrame):
+    """
+    从持仓 DataFrame 中提取最新持仓季度。
+
+    返回：
+        latest_quarter_key, latest_quarter_label
+
+    quarter_key 形式：
+        20261 表示 2026 年 1 季度；
+        20254 表示 2025 年 4 季度。
+    """
+    if df is None or df.empty or "季度" not in df.columns:
+        return None, ""
+
+    tmp = df.copy()
+    tmp["_quarter_key_for_cache"] = tmp["季度"].apply(quarter_key)
+    tmp = tmp[tmp["_quarter_key_for_cache"] >= 0]
+
+    if tmp.empty:
+        return None, ""
+
+    latest_key = int(tmp["_quarter_key_for_cache"].max())
+    labels = tmp.loc[tmp["_quarter_key_for_cache"] == latest_key, "季度"].dropna().astype(str)
+    label = labels.iloc[0] if not labels.empty else ""
+
+    return latest_key, label
+
+
+def _get_cached_holding_quarter_info(item: dict):
+    """
+    从缓存 item 中读取持仓季度；兼容旧缓存结构。
+    """
+    if not isinstance(item, dict):
+        return None, ""
+
+    q_key = item.get("latest_quarter_key")
+    q_label = str(item.get("latest_quarter_label") or "")
+
+    try:
+        if q_key is not None:
+            return int(q_key), q_label
+    except Exception:
+        pass
+
+    data_json = item.get("data_json")
+    if not data_json:
+        return None, q_label
+
+    try:
+        df = _df_from_cache_json(data_json)
+        return _holding_quarter_info_from_df(df)
+    except Exception:
+        return None, q_label
+
+
+def _holding_target_quarter_key_for_window(now=None):
+    """
+    返回当前披露窗口对应的目标持仓季度。
+
+    披露试探窗口：
+        1 月 20 日 - 2 月 10 日：上一年 4 季度
+        4 月 20 日 - 5 月 10 日：本年 1 季度
+        7 月 20 日 - 8 月 10 日：本年 2 季度
+        10 月 20 日 - 11 月 10 日：本年 3 季度
+
+    不在披露试探窗口时返回 None。
+    """
+    if now is None:
+        now = datetime.now()
+
+    year = int(now.year)
+    month = int(now.month)
+    day = int(now.day)
+
+    if month == 1 and day >= 20:
+        return (year - 1) * 10 + 4
+    if month == 2 and day <= 10:
+        return (year - 1) * 10 + 4
+
+    if month == 4 and day >= 20:
+        return year * 10 + 1
+    if month == 5 and day <= 10:
+        return year * 10 + 1
+
+    if month == 7 and day >= 20:
+        return year * 10 + 2
+    if month == 8 and day <= 10:
+        return year * 10 + 2
+
+    if month == 10 and day >= 20:
+        return year * 10 + 3
+    if month == 11 and day <= 10:
+        return year * 10 + 3
+
+    return None
+
+
+def _next_holding_disclosure_window_start(now=None):
+    """
+    返回下一轮基金持仓披露试探窗口的开始时间。
+    """
+    if now is None:
+        now = datetime.now()
+
+    year = int(now.year)
+    candidates = [
+        datetime(year, 1, 20),
+        datetime(year, 4, 20),
+        datetime(year, 7, 20),
+        datetime(year, 10, 20),
+        datetime(year + 1, 1, 20),
+    ]
+
+    for candidate in candidates:
+        if candidate > now:
+            return candidate
+
+    return datetime(year + 1, 1, 20)
+
+
+def _parse_iso_datetime(value):
+    """
+    解析缓存中的 ISO 时间字符串；失败时返回 None。
+    """
+    if not value:
+        return None
+
+    try:
+        t = pd.to_datetime(value)
+    except Exception:
+        return None
+
+    if pd.isna(t):
+        return None
+
+    try:
+        return t.to_pydatetime().replace(tzinfo=None)
+    except Exception:
+        try:
+            return t.tz_localize(None).to_pydatetime()
+        except Exception:
+            return None
+
+
+def _is_next_check_due(item: dict, now=None) -> bool:
+    """
+    判断是否已到下一次持仓刷新试探时间。
+    """
+    if now is None:
+        now = datetime.now()
+
+    if not isinstance(item, dict):
+        return True
+
+    next_check_after = _parse_iso_datetime(item.get("next_check_after"))
+
+    if next_check_after is None:
+        return True
+
+    return now >= next_check_after
+
+
+def _holding_next_probe_time(now=None, days=HOLDING_DISCLOSURE_PROBE_DAYS) -> str:
+    """
+    披露窗口内下一次试探时间。默认 3 天后。
+    """
+    if now is None:
+        now = datetime.now()
+
+    return (now + timedelta(days=int(days))).isoformat(timespec="seconds")
+
+
+def _build_holding_cache_item(
+    fund_code: str,
+    top_n: int,
+    df: pd.DataFrame,
+    target_quarter_key,
+    now=None,
+    previous_item: dict | None = None,
+) -> dict:
+    """
+    构造基金持仓缓存 item。
+    """
+    if now is None:
+        now = datetime.now()
+
+    latest_quarter_key, latest_quarter_label = _holding_quarter_info_from_df(df)
+    target_confirmed = bool(
+        target_quarter_key is not None
+        and latest_quarter_key is not None
+        and int(latest_quarter_key) >= int(target_quarter_key)
+    )
+
+    if target_confirmed:
+        next_check_after = _next_holding_disclosure_window_start(now).isoformat(timespec="seconds")
+    elif target_quarter_key is not None:
+        next_check_after = _holding_next_probe_time(now)
+    else:
+        next_check_after = _next_holding_disclosure_window_start(now).isoformat(timespec="seconds")
+
+    item = {
+        "fetched_at": now.isoformat(timespec="seconds"),
+        "last_checked_at": now.isoformat(timespec="seconds"),
+        "next_check_after": next_check_after,
+        "fund_code": str(fund_code).zfill(6),
+        "top_n": int(top_n),
+        "latest_quarter_label": latest_quarter_label,
+        "latest_quarter_key": latest_quarter_key,
+        "target_quarter_key": target_quarter_key,
+        "target_quarter_confirmed": target_confirmed,
+        "data_json": _df_to_cache_json(df),
+    }
+
+    if isinstance(previous_item, dict):
+        for k in ["last_error", "last_error_at"]:
+            if k in previous_item and k not in item:
+                item[k] = previous_item[k]
+
+    return item
+
+
+def _mark_holding_probe_failed(
+    item: dict,
+    error,
+    target_quarter_key,
+    now=None,
+) -> dict:
+    """
+    远程持仓刷新失败时，不覆盖旧 data_json，只记录失败时间和下一次试探时间。
+    """
+    if now is None:
+        now = datetime.now()
+
+    new_item = dict(item)
+    cached_q_key, cached_q_label = _get_cached_holding_quarter_info(new_item)
+
+    new_item["last_checked_at"] = now.isoformat(timespec="seconds")
+    new_item["last_error_at"] = now.isoformat(timespec="seconds")
+    new_item["last_error"] = repr(error)
+    new_item["target_quarter_key"] = target_quarter_key
+
+    if cached_q_key is not None:
+        new_item["latest_quarter_key"] = int(cached_q_key)
+    if cached_q_label:
+        new_item["latest_quarter_label"] = cached_q_label
+
+    target_confirmed = bool(
+        target_quarter_key is not None
+        and cached_q_key is not None
+        and int(cached_q_key) >= int(target_quarter_key)
+    )
+    new_item["target_quarter_confirmed"] = target_confirmed
+
+    if target_confirmed:
+        new_item["next_check_after"] = _next_holding_disclosure_window_start(now).isoformat(timespec="seconds")
+    elif target_quarter_key is not None:
+        new_item["next_check_after"] = _holding_next_probe_time(now)
+    else:
+        new_item["next_check_after"] = _next_holding_disclosure_window_start(now).isoformat(timespec="seconds")
+
+    return new_item
+
 
 def get_latest_stock_holdings_df(
     fund_code="017437",
     top_n=10,
-    holding_cache_days=75,
+    holding_cache_days=None,
     cache_enabled=True,
 ):
     """
-    获取基金最新披露季度前 N 大股票持仓，带文件缓存。
+    获取基金最新披露季度前 N 大股票持仓，带季度披露窗口缓存。
 
-    设计：
-        - 默认 75 天内直接使用缓存；
-        - 到期后尝试重新获取；
-        - 如果远程接口失败但旧缓存存在，自动使用旧缓存兜底。
+    新缓存策略：
+    1. 平时不主动刷新基金持仓，直接复用缓存；
+    2. 仅在季度披露试探窗口内尝试刷新：
+       - 1 月 20 日 - 2 月 10 日：上一年 Q4；
+       - 4 月 20 日 - 5 月 10 日：本年 Q1；
+       - 7 月 20 日 - 8 月 10 日：本年 Q2；
+       - 10 月 20 日 - 11 月 10 日：本年 Q3；
+    3. 窗口内每只基金最多约每 3 天试探一次；
+    4. 一旦某只基金已经抓到目标季度持仓，就停止请求它，直到下一季度披露窗口；
+    5. 如果远程接口失败，保留旧缓存，只记录 last_error 和 next_check_after。
+
+    参数 holding_cache_days 保留用于兼容旧调用；当前季度窗口策略不再依赖固定 75 天缓存周期。
     """
     fund_code = str(fund_code).zfill(6)
     top_n = int(top_n)
     cache_key = f"{fund_code}:top{top_n}"
+    now = datetime.now()
+    target_quarter_key = _holding_target_quarter_key_for_window(now)
 
     if not cache_enabled:
         return get_latest_stock_holdings_df_uncached(
@@ -1829,37 +2104,159 @@ def get_latest_stock_holdings_df(
 
     cache = _load_json_cache(FUND_HOLDINGS_CACHE_FILE, default={})
     item = cache.get(cache_key)
+    has_cached_data = bool(isinstance(item, dict) and item.get("data_json"))
 
-    if item and _is_cache_fresh(item.get("fetched_at"), max_age_days=holding_cache_days):
+    # 不在披露窗口：有缓存直接用；无缓存才首次抓取。
+    if target_quarter_key is None:
+        if has_cached_data:
+            try:
+                cached_q_key, cached_q_label = _get_cached_holding_quarter_info(item)
+                _cache_log(
+                    f"使用基金持仓缓存: {cache_key}"
+                    f"; latest_quarter={cached_q_label or cached_q_key}; policy=outside_disclosure_window"
+                )
+                return _df_from_cache_json(item["data_json"])
+            except Exception as e:
+                print(f"[WARN] 基金持仓缓存损坏，将重新获取: {cache_key}, 原因: {e}", flush=True)
+
         try:
-            _cache_log(f"使用基金持仓缓存: {cache_key}")
-            return _df_from_cache_json(item["data_json"])
+            _cache_log(f"首次获取基金持仓: {cache_key}; policy=outside_disclosure_window_no_cache")
+            df = get_latest_stock_holdings_df_uncached(
+                fund_code=fund_code,
+                top_n=top_n,
+            )
+            cache[cache_key] = _build_holding_cache_item(
+                fund_code=fund_code,
+                top_n=top_n,
+                df=df,
+                target_quarter_key=None,
+                now=now,
+                previous_item=item,
+            )
+            _save_json_cache(FUND_HOLDINGS_CACHE_FILE, cache)
+            return df
         except Exception as e:
-            print(f"[WARN] 基金持仓缓存损坏，将重新获取: {cache_key}, 原因: {e}", flush=True)
+            if has_cached_data:
+                cache[cache_key] = _mark_holding_probe_failed(
+                    item=item,
+                    error=e,
+                    target_quarter_key=None,
+                    now=now,
+                )
+                _save_json_cache(FUND_HOLDINGS_CACHE_FILE, cache)
+                print(f"[WARN] 基金持仓首次刷新失败，使用旧缓存: {cache_key}, 原因: {e}", flush=True)
+                return _df_from_cache_json(item["data_json"])
+            raise
 
+    # 披露窗口内：按单基金目标季度与 next_check_after 控制请求。
+    if has_cached_data:
+        cached_q_key, cached_q_label = _get_cached_holding_quarter_info(item)
+
+        if cached_q_key is not None and int(cached_q_key) >= int(target_quarter_key):
+            _cache_log(
+                f"使用基金持仓缓存: {cache_key}"
+                f"; latest_quarter={cached_q_label or cached_q_key}; target={target_quarter_key}; confirmed=1"
+            )
+            # 顺手补齐新缓存字段，兼容旧缓存结构。
+            if not item.get("target_quarter_confirmed") or item.get("target_quarter_key") != target_quarter_key:
+                try:
+                    df_cached = _df_from_cache_json(item["data_json"])
+                    cache[cache_key] = _build_holding_cache_item(
+                        fund_code=fund_code,
+                        top_n=top_n,
+                        df=df_cached,
+                        target_quarter_key=target_quarter_key,
+                        now=now,
+                        previous_item=item,
+                    )
+                    _save_json_cache(FUND_HOLDINGS_CACHE_FILE, cache)
+                except Exception:
+                    pass
+            return _df_from_cache_json(item["data_json"])
+
+        if not _is_next_check_due(item, now=now):
+            next_check_after = item.get("next_check_after")
+            _cache_log(
+                f"使用基金持仓缓存: {cache_key}"
+                f"; latest_quarter={cached_q_label or cached_q_key}; target={target_quarter_key}; next_check_after={next_check_after}"
+            )
+            return _df_from_cache_json(item["data_json"])
+
+    # 需要在披露窗口内进行一次远程试探。
     try:
-        _cache_log(f"重新获取基金持仓: {cache_key}")
+        _cache_log(f"披露窗口试探刷新基金持仓: {cache_key}; target={target_quarter_key}")
         df = get_latest_stock_holdings_df_uncached(
             fund_code=fund_code,
             top_n=top_n,
         )
 
-        cache[cache_key] = {
-            "fetched_at": datetime.now().isoformat(timespec="seconds"),
-            "fund_code": fund_code,
-            "top_n": top_n,
-            "data_json": _df_to_cache_json(df),
-        }
+        new_q_key, new_q_label = _holding_quarter_info_from_df(df)
+
+        # 防止远程接口偶发返回更旧的持仓，导致已缓存的较新持仓被覆盖。
+        if has_cached_data:
+            cached_q_key, cached_q_label = _get_cached_holding_quarter_info(item)
+            if (
+                cached_q_key is not None
+                and new_q_key is not None
+                and int(new_q_key) < int(cached_q_key)
+            ):
+                err = RuntimeError(
+                    f"远程返回持仓季度早于本地缓存: remote={new_q_key}, cached={cached_q_key}"
+                )
+                cache[cache_key] = _mark_holding_probe_failed(
+                    item=item,
+                    error=err,
+                    target_quarter_key=target_quarter_key,
+                    now=now,
+                )
+                _save_json_cache(FUND_HOLDINGS_CACHE_FILE, cache)
+                print(
+                    f"[WARN] 基金持仓远程结果更旧，继续使用缓存: {cache_key}, "
+                    f"remote={new_q_label or new_q_key}, cached={cached_q_label or cached_q_key}",
+                    flush=True,
+                )
+                return _df_from_cache_json(item["data_json"])
+
+        cache[cache_key] = _build_holding_cache_item(
+            fund_code=fund_code,
+            top_n=top_n,
+            df=df,
+            target_quarter_key=target_quarter_key,
+            now=now,
+            previous_item=item,
+        )
         _save_json_cache(FUND_HOLDINGS_CACHE_FILE, cache)
+
+        if new_q_key is not None and int(new_q_key) >= int(target_quarter_key):
+            _cache_log(
+                f"基金持仓已确认目标季度: {cache_key}; latest_quarter={new_q_label or new_q_key}; target={target_quarter_key}"
+            )
+        else:
+            _cache_log(
+                f"基金持仓仍未到目标季度: {cache_key}; latest_quarter={new_q_label or new_q_key}; target={target_quarter_key}; next_probe={cache[cache_key].get('next_check_after')}"
+            )
 
         return df
 
     except Exception as e:
-        if item and item.get("data_json"):
-            print(f"[WARN] 基金持仓更新失败，使用旧缓存: {cache_key}, 原因: {e}", flush=True)
+        if has_cached_data:
+            cache[cache_key] = _mark_holding_probe_failed(
+                item=item,
+                error=e,
+                target_quarter_key=target_quarter_key,
+                now=now,
+            )
+            _save_json_cache(FUND_HOLDINGS_CACHE_FILE, cache)
+            print(
+                f"[WARN] 基金持仓披露窗口刷新失败，使用旧缓存: {cache_key}, "
+                f"target={target_quarter_key}, 原因: {e}",
+                flush=True,
+            )
             return _df_from_cache_json(item["data_json"])
 
         raise
+
+
 def estimate_stock_holdings_return(
     latest_df,
     manual_returns_pct=None,
@@ -2099,7 +2496,7 @@ def estimate_one_fund(
     include_purchase_limit=True,
     purchase_limit_timeout=8,
     purchase_limit_cache_days=7,
-    holding_cache_days=75,
+    holding_cache_days=None,
     cache_enabled=True,
     security_return_cache_enabled=True,
     cn_hk_hourly_cache=True,
@@ -2231,7 +2628,7 @@ def estimate_funds(
     include_purchase_limit=True,
     purchase_limit_timeout=8,
     purchase_limit_cache_days=7,
-    holding_cache_days=75,
+    holding_cache_days=None,
     cache_enabled=True,
     security_return_cache_enabled=True,
     cn_hk_hourly_cache=True,
@@ -2651,7 +3048,7 @@ def estimate_funds_and_save_table(
     include_purchase_limit=True,
     purchase_limit_timeout=8,
     purchase_limit_cache_days=7,
-    holding_cache_days=75,
+    holding_cache_days=None,
     cache_enabled=True,
     security_return_cache_enabled=True,
     cn_hk_hourly_cache=True,
@@ -2852,7 +3249,7 @@ def get_jijin_holdings(
     include_purchase_limit=True,
     purchase_limit_timeout=8,
     purchase_limit_cache_days=7,
-    holding_cache_days=75,
+    holding_cache_days=None,
     cache_enabled=True,
     security_return_cache_enabled=True,
     cn_hk_hourly_cache=True,
