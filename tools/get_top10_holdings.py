@@ -57,9 +57,14 @@ result_df, detail_map = estimate_funds_and_save_table(
 3. ETF 联接 / FOF 的估算值默认使用代理资产的原始披露仓位，不强制归一化。
 4. QDII 基金会受汇率、估值时点、现金仓位、费用、申赎等影响；本模块只做近似估算。
 5. 限购金额来自公开网页文本解析，可能返回“未知”。
+6. 本版本新增 JSON 文件缓存：
+   - 基金持仓默认 75 天更新一次；
+   - 限购金额默认 7 天更新一次；
+   - CN/HK 行情默认小时级缓存，US 行情默认日级缓存。
 """
 
 import re
+import json
 import time
 import requests
 import akshare as ak
@@ -67,8 +72,175 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from pathlib import Path
+from io import StringIO
 from datetime import datetime, timedelta
 from matplotlib import font_manager
+
+# ============================================================
+# Runtime JSON cache utilities
+# ============================================================
+
+CACHE_DIR = Path("cache")
+FUND_HOLDINGS_CACHE_FILE = "fund_holdings_cache.json"
+FUND_PURCHASE_LIMIT_CACHE_FILE = "fund_purchase_limit_cache.json"
+SECURITY_RETURN_CACHE_FILE = "security_return_cache.json"
+
+_SECURITY_RETURN_RUNTIME_CACHE = {}
+
+
+def _cache_log(message: str) -> None:
+    """统一缓存日志输出，便于在 GitHub Actions 中定位。"""
+    print(f"[CACHE] {message}", flush=True)
+
+
+def _ensure_cache_dir() -> None:
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _load_json_cache(filename: str, default=None):
+    """
+    读取 cache/*.json。文件不存在或损坏时返回 default。
+    """
+    if default is None:
+        default = {}
+
+    _ensure_cache_dir()
+    path = CACHE_DIR / filename
+
+    if not path.exists():
+        return default
+
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if isinstance(default, dict) and not isinstance(data, dict):
+            return default
+
+        return data
+
+    except Exception as e:
+        print(f"[WARN] 缓存读取失败: {path}, 原因: {e}", flush=True)
+        return default
+
+
+def _save_json_cache(filename: str, data) -> None:
+    """
+    保存 cache/*.json。
+    """
+    _ensure_cache_dir()
+    path = CACHE_DIR / filename
+
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+
+    with tmp_path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    tmp_path.replace(path)
+
+
+def _is_cache_fresh(fetched_at, max_age_days=None, max_age_hours=None) -> bool:
+    """
+    判断缓存是否仍在有效期内。
+
+    max_age_days:
+        日级有效期，例如基金持仓 75 天、限购 7 天。
+    max_age_hours:
+        小时级有效期，例如 A股/港股盘中行情 1-2 小时。
+    """
+    if not fetched_at:
+        return False
+
+    try:
+        t = pd.to_datetime(fetched_at)
+    except Exception:
+        return False
+
+    if pd.isna(t):
+        return False
+
+    now = pd.Timestamp.now()
+
+    # 如果缓存时间带 timezone，而 now 不带 timezone，做一次兼容
+    try:
+        age_seconds = (now - t).total_seconds()
+    except TypeError:
+        age_seconds = (now.tz_localize(None) - t.tz_localize(None)).total_seconds()
+
+    if max_age_hours is not None:
+        return age_seconds <= float(max_age_hours) * 3600
+
+    if max_age_days is not None:
+        return age_seconds <= float(max_age_days) * 86400
+
+    return False
+
+
+def _df_to_cache_json(df: pd.DataFrame) -> str:
+    """
+    DataFrame 序列化为 JSON 字符串。
+    """
+    return df.to_json(
+        orient="records",
+        force_ascii=False,
+        date_format="iso",
+    )
+
+
+def _df_from_cache_json(data_json: str) -> pd.DataFrame:
+    """
+    从缓存 JSON 字符串恢复 DataFrame。
+    """
+    return pd.read_json(StringIO(data_json), orient="records")
+
+
+def _normalize_security_cache_ticker(market, ticker) -> str:
+    """
+    统一行情缓存中的 ticker 写法。
+    """
+    market = str(market).strip().upper()
+
+    if market == "CN":
+        return str(ticker).strip().zfill(6)
+
+    if market == "HK":
+        return normalize_hk_code(ticker)
+
+    if market == "US":
+        return str(ticker).strip().upper()
+
+    return str(ticker).strip().upper()
+
+
+def _security_return_cache_bucket(market, cn_hk_hourly_cache=True) -> tuple[str, float]:
+    """
+    返回行情缓存时间桶和有效期。
+
+    规则：
+        CN/HK：小时级 key，适合 A股交易日盘中估算；
+        US：日级 key，因为北京时间运行时美股通常已经收盘。
+    """
+    market = str(market).strip().upper()
+    now = datetime.now()
+
+    if cn_hk_hourly_cache and market in {"CN", "HK"}:
+        return now.strftime("%Y-%m-%d-%H"), 2.0
+
+    return now.strftime("%Y-%m-%d"), 36.0
+
+
+def _security_return_cache_key(market, ticker, cn_hk_hourly_cache=True) -> tuple[str, str, float]:
+    """
+    生成行情缓存 key。
+    """
+    market = str(market).strip().upper()
+    ticker_norm = _normalize_security_cache_ticker(market, ticker)
+    bucket, max_age_hours = _security_return_cache_bucket(
+        market=market,
+        cn_hk_hourly_cache=cn_hk_hourly_cache,
+    )
+    return f"{market}:{ticker_norm}:{bucket}", ticker_norm, max_age_hours
+
 
 
 # ============================================================
@@ -344,7 +516,7 @@ def _normalize_html_text(text):
     return text
 
 
-def get_fund_purchase_limit(fund_code: str, timeout=8) -> str:
+def get_fund_purchase_limit_uncached(fund_code: str, timeout=8) -> str:
     """
     尝试获取基金当前限购金额。
 
@@ -444,6 +616,66 @@ def get_fund_purchase_limit(fund_code: str, timeout=8) -> str:
 
     _FUND_LIMIT_CACHE[fund_code] = result
     return result
+
+
+def get_fund_purchase_limit(
+    fund_code: str,
+    timeout=8,
+    cache_days=7,
+    cache_enabled=True,
+) -> str:
+    """
+    获取基金限购金额，带文件缓存。
+
+    设计：
+        - 默认 7 天更新一次；
+        - GitHub Actions 中配合提交 cache/*.json 回仓库，可跨任务复用；
+        - 如果更新失败且旧缓存存在，优先使用旧缓存。
+    """
+    fund_code = str(fund_code).zfill(6)
+
+    if not cache_enabled:
+        return get_fund_purchase_limit_uncached(fund_code=fund_code, timeout=timeout)
+
+    cache = _load_json_cache(FUND_PURCHASE_LIMIT_CACHE_FILE, default={})
+    item = cache.get(fund_code)
+
+    if item and _is_cache_fresh(item.get("fetched_at"), max_age_days=cache_days):
+        value = item.get("value", "未知")
+        _FUND_LIMIT_CACHE[fund_code] = value
+        _cache_log(f"使用限购缓存: {fund_code} -> {value}")
+        return value
+
+    old_value = item.get("value") if isinstance(item, dict) else None
+
+    try:
+        _cache_log(f"重新获取限购信息: {fund_code}")
+        value = get_fund_purchase_limit_uncached(
+            fund_code=fund_code,
+            timeout=timeout,
+        )
+
+        # 如果本次只得到“未知”，但旧缓存有明确值，则保留旧值，避免网络异常污染缓存。
+        if value == "未知" and old_value and old_value != "未知":
+            print(f"[WARN] 限购新结果为未知，继续沿用旧缓存: {fund_code} -> {old_value}", flush=True)
+            return old_value
+
+        cache[fund_code] = {
+            "fetched_at": datetime.now().isoformat(timespec="seconds"),
+            "value": value,
+        }
+        _save_json_cache(FUND_PURCHASE_LIMIT_CACHE_FILE, cache)
+
+        _FUND_LIMIT_CACHE[fund_code] = value
+        return value
+
+    except Exception as e:
+        if old_value:
+            print(f"[WARN] 限购更新失败，使用旧缓存: {fund_code}, 原因: {e}", flush=True)
+            return old_value
+
+        print(f"[WARN] 限购获取失败且无缓存: {fund_code}, 原因: {e}", flush=True)
+        return "未知"
 
 
 # ============================================================
@@ -1138,10 +1370,19 @@ def get_stock_return_pct(
     prefer_intraday=True,
     us_realtime=False,
     hk_realtime=False,
+    security_return_cache_enabled=True,
+    cn_hk_hourly_cache=True,
 ):
     """
-    根据 market 自动选择行情接口。
+    根据 market 自动选择行情接口，并对行情涨跌幅做缓存。
+
+    缓存 key 规则：
+        CN/HK：小时级 key，例如 CN:512890:2026-04-29-13；
+               适合 A股交易日盘中预估收益。
+        US   ：日级 key，例如 US:NVDA:2026-04-29；
+               北京时间运行时美股通常已经收盘，不需要小时级刷新。
     """
+    market = str(market).strip().upper()
     key = str(ticker).strip().upper()
 
     if manual_returns_pct:
@@ -1150,23 +1391,68 @@ def get_stock_return_pct(
         if str(ticker).strip() in manual_returns_pct:
             return float(manual_returns_pct[str(ticker).strip()]), "manual"
 
+    cache_key = None
+    ticker_norm = None
+    max_age_hours = None
+
+    if security_return_cache_enabled:
+        cache_key, ticker_norm, max_age_hours = _security_return_cache_key(
+            market=market,
+            ticker=ticker,
+            cn_hk_hourly_cache=cn_hk_hourly_cache,
+        )
+
+        if cache_key in _SECURITY_RETURN_RUNTIME_CACHE:
+            _cache_log(f"使用本轮内存行情缓存: {cache_key}")
+            return _SECURITY_RETURN_RUNTIME_CACHE[cache_key]
+
+        cache = _load_json_cache(SECURITY_RETURN_CACHE_FILE, default={})
+        item = cache.get(cache_key)
+
+        if item and _is_cache_fresh(item.get("fetched_at"), max_age_hours=max_age_hours):
+            try:
+                result = (float(item["return_pct"]), item.get("source", "file_cache"))
+                _SECURITY_RETURN_RUNTIME_CACHE[cache_key] = result
+                _cache_log(f"使用文件行情缓存: {cache_key} -> {result[0]:+.4f}%")
+                return result
+            except Exception:
+                pass
+
+    if ticker_norm is None:
+        ticker_norm = _normalize_security_cache_ticker(market, ticker)
+
+    _cache_log(f"重新获取行情: {market}:{ticker_norm}")
+
     if market == "US":
-        return fetch_us_return_pct(
-            key,
+        result = fetch_us_return_pct(
+            ticker_norm,
             prefer_intraday=prefer_intraday,
             us_realtime=us_realtime,
         )
-
-    if market == "CN":
-        return fetch_cn_security_return_pct(str(ticker).zfill(6))
-
-    if market == "HK":
-        return fetch_hk_return_pct(
-            ticker,
+    elif market == "CN":
+        result = fetch_cn_security_return_pct(str(ticker_norm).zfill(6))
+    elif market == "HK":
+        result = fetch_hk_return_pct(
+            ticker_norm,
             hk_realtime=hk_realtime,
         )
+    else:
+        raise RuntimeError(f"未知市场类型: market={market}, ticker={ticker}")
 
-    raise RuntimeError(f"未知市场类型: market={market}, ticker={ticker}")
+    if security_return_cache_enabled and cache_key:
+        r_pct, source = result
+        cache = _load_json_cache(SECURITY_RETURN_CACHE_FILE, default={})
+        cache[cache_key] = {
+            "fetched_at": datetime.now().isoformat(timespec="seconds"),
+            "market": market,
+            "ticker": ticker_norm,
+            "return_pct": float(r_pct),
+            "source": source,
+        }
+        _save_json_cache(SECURITY_RETURN_CACHE_FILE, cache)
+        _SECURITY_RETURN_RUNTIME_CACHE[cache_key] = result
+
+    return result
 
 
 def get_proxy_return_pct(
@@ -1175,31 +1461,16 @@ def get_proxy_return_pct(
     prefer_intraday=True,
     us_realtime=False,
     hk_realtime=False,
+    security_return_cache_enabled=True,
+    cn_hk_hourly_cache=True,
 ):
     """
     获取 ETF 联接 / FOF 代理资产涨跌幅。
 
-    component 字段示例
-    -----------------
-    {
-        "name": "华泰柏瑞中证红利低波动ETF",
-        "code": "512890",
-        "type": "cn_etf",
-        "weight_pct": 92.31,
-    }
-
-    type 可用值
-    ----------
-    cn_etf / cn_stock / cn_security:
-        A股场内证券，走新浪实时。
-    us_ticker / us_stock / us_etf:
-        美股 ticker，走美股接口。
-    hk_stock / hk_etf / hk_security:
-        港股或港股 ETF，走港股行情接口。
-    us_index / eu_index / index:
-        当前版本不再支持指数直连接口。请改用可交易 ETF 代理，例如 SPY、VOO、513030。
-    manual:
-        直接从 component["return_pct"] 或 manual_returns_pct 读取。
+    代理资产也进入 security_return_cache.json：
+        cn_etf -> CN 小时级缓存；
+        hk_etf -> HK 小时级缓存；
+        us_etf -> US 日级缓存。
     """
     code = str(component.get("code", "")).strip()
     ctype = str(component.get("type", "")).strip().lower()
@@ -1221,19 +1492,39 @@ def get_proxy_return_pct(
         return float(component["return_pct"]), "manual_component"
 
     if ctype in {"cn_etf", "cn_stock", "cn_security", "cn_fund"}:
-        return fetch_cn_security_return_pct(code)
-
-    if ctype in {"us_ticker", "us_stock", "us_etf"}:
-        return fetch_us_return_pct(
+        return get_stock_return_pct(
+            market="CN",
             ticker=code,
+            manual_returns_pct=manual_returns_pct,
             prefer_intraday=prefer_intraday,
             us_realtime=us_realtime,
+            hk_realtime=hk_realtime,
+            security_return_cache_enabled=security_return_cache_enabled,
+            cn_hk_hourly_cache=cn_hk_hourly_cache,
+        )
+
+    if ctype in {"us_ticker", "us_stock", "us_etf"}:
+        return get_stock_return_pct(
+            market="US",
+            ticker=code,
+            manual_returns_pct=manual_returns_pct,
+            prefer_intraday=prefer_intraday,
+            us_realtime=us_realtime,
+            hk_realtime=hk_realtime,
+            security_return_cache_enabled=security_return_cache_enabled,
+            cn_hk_hourly_cache=cn_hk_hourly_cache,
         )
 
     if ctype in {"hk_stock", "hk_etf", "hk_security"}:
-        return fetch_hk_return_pct(
-            code,
+        return get_stock_return_pct(
+            market="HK",
+            ticker=code,
+            manual_returns_pct=manual_returns_pct,
+            prefer_intraday=prefer_intraday,
+            us_realtime=us_realtime,
             hk_realtime=hk_realtime,
+            security_return_cache_enabled=security_return_cache_enabled,
+            cn_hk_hourly_cache=cn_hk_hourly_cache,
         )
 
     if ctype in {"us_index", "eu_index", "index", "fx"}:
@@ -1249,7 +1540,7 @@ def get_proxy_return_pct(
 # 5. 股票持仓估算
 # ============================================================
 
-def get_latest_stock_holdings_df(fund_code="017437", top_n=10):
+def get_latest_stock_holdings_df_uncached(fund_code="017437", top_n=10):
     """
     获取基金最新披露季度前 N 大股票持仓。
     """
@@ -1319,6 +1610,64 @@ def get_latest_stock_holdings_df(fund_code="017437", top_n=10):
     return latest_df
 
 
+
+def get_latest_stock_holdings_df(
+    fund_code="017437",
+    top_n=10,
+    holding_cache_days=75,
+    cache_enabled=True,
+):
+    """
+    获取基金最新披露季度前 N 大股票持仓，带文件缓存。
+
+    设计：
+        - 默认 75 天内直接使用缓存；
+        - 到期后尝试重新获取；
+        - 如果远程接口失败但旧缓存存在，自动使用旧缓存兜底。
+    """
+    fund_code = str(fund_code).zfill(6)
+    top_n = int(top_n)
+    cache_key = f"{fund_code}:top{top_n}"
+
+    if not cache_enabled:
+        return get_latest_stock_holdings_df_uncached(
+            fund_code=fund_code,
+            top_n=top_n,
+        )
+
+    cache = _load_json_cache(FUND_HOLDINGS_CACHE_FILE, default={})
+    item = cache.get(cache_key)
+
+    if item and _is_cache_fresh(item.get("fetched_at"), max_age_days=holding_cache_days):
+        try:
+            _cache_log(f"使用基金持仓缓存: {cache_key}")
+            return _df_from_cache_json(item["data_json"])
+        except Exception as e:
+            print(f"[WARN] 基金持仓缓存损坏，将重新获取: {cache_key}, 原因: {e}", flush=True)
+
+    try:
+        _cache_log(f"重新获取基金持仓: {cache_key}")
+        df = get_latest_stock_holdings_df_uncached(
+            fund_code=fund_code,
+            top_n=top_n,
+        )
+
+        cache[cache_key] = {
+            "fetched_at": datetime.now().isoformat(timespec="seconds"),
+            "fund_code": fund_code,
+            "top_n": top_n,
+            "data_json": _df_to_cache_json(df),
+        }
+        _save_json_cache(FUND_HOLDINGS_CACHE_FILE, cache)
+
+        return df
+
+    except Exception as e:
+        if item and item.get("data_json"):
+            print(f"[WARN] 基金持仓更新失败，使用旧缓存: {cache_key}, 原因: {e}", flush=True)
+            return _df_from_cache_json(item["data_json"])
+
+        raise
 def estimate_stock_holdings_return(
     latest_df,
     manual_returns_pct=None,
@@ -1327,6 +1676,8 @@ def estimate_stock_holdings_return(
     hk_realtime=False,
     failed_return_as_zero=True,
     renormalize_available_holdings=True,
+    security_return_cache_enabled=True,
+    cn_hk_hourly_cache=True,
 ):
     """
     使用前 N 大股票持仓估算基金收益。
@@ -1361,6 +1712,8 @@ def estimate_stock_holdings_return(
                 prefer_intraday=prefer_intraday,
                 us_realtime=us_realtime,
                 hk_realtime=hk_realtime,
+                security_return_cache_enabled=security_return_cache_enabled,
+                cn_hk_hourly_cache=cn_hk_hourly_cache,
             )
         except Exception as e:
             if failed_return_as_zero:
@@ -1438,6 +1791,8 @@ def estimate_proxy_components_return(
     hk_realtime=False,
     proxy_normalize_weights=False,
     failed_return_as_zero=True,
+    security_return_cache_enabled=True,
+    cn_hk_hourly_cache=True,
 ):
     """
     根据 proxy_map 中的底层 ETF / 指数组件估算基金涨跌幅。
@@ -1499,6 +1854,8 @@ def estimate_proxy_components_return(
                 prefer_intraday=prefer_intraday,
                 us_realtime=us_realtime,
                 hk_realtime=hk_realtime,
+                security_return_cache_enabled=security_return_cache_enabled,
+                cn_hk_hourly_cache=cn_hk_hourly_cache,
             )
         except Exception as e:
             if failed_return_as_zero:
@@ -1549,6 +1906,11 @@ def estimate_one_fund(
     renormalize_available_holdings=True,
     include_purchase_limit=True,
     purchase_limit_timeout=8,
+    purchase_limit_cache_days=7,
+    holding_cache_days=75,
+    cache_enabled=True,
+    security_return_cache_enabled=True,
+    cn_hk_hourly_cache=True,
     holding_mode="auto",
     proxy_map=None,
     proxy_normalize_weights=False,
@@ -1626,11 +1988,15 @@ def estimate_one_fund(
             us_realtime=us_realtime,
             hk_realtime=hk_realtime,
             proxy_normalize_weights=proxy_normalize_weights,
+            security_return_cache_enabled=security_return_cache_enabled,
+            cn_hk_hourly_cache=cn_hk_hourly_cache,
         )
     else:
         latest_df = get_latest_stock_holdings_df(
             fund_code=fund_code,
             top_n=top_n,
+            holding_cache_days=holding_cache_days,
+            cache_enabled=cache_enabled,
         )
 
         detail_df, summary = estimate_stock_holdings_return(
@@ -1640,6 +2006,8 @@ def estimate_one_fund(
             us_realtime=us_realtime,
             hk_realtime=hk_realtime,
             renormalize_available_holdings=renormalize_available_holdings,
+            security_return_cache_enabled=security_return_cache_enabled,
+            cn_hk_hourly_cache=cn_hk_hourly_cache,
         )
 
     result_row = {
@@ -1653,6 +2021,8 @@ def estimate_one_fund(
         result_row["限购金额"] = get_fund_purchase_limit(
             fund_code=fund_code,
             timeout=purchase_limit_timeout,
+            cache_days=purchase_limit_cache_days,
+            cache_enabled=cache_enabled,
         )
 
     return result_row, detail_df, summary
@@ -1668,6 +2038,11 @@ def estimate_funds(
     renormalize_available_holdings=True,
     include_purchase_limit=True,
     purchase_limit_timeout=8,
+    purchase_limit_cache_days=7,
+    holding_cache_days=75,
+    cache_enabled=True,
+    security_return_cache_enabled=True,
+    cn_hk_hourly_cache=True,
     sort_by_return=True,
     holding_mode="auto",
     proxy_map=None,
@@ -1723,6 +2098,11 @@ def estimate_funds(
                 renormalize_available_holdings=renormalize_available_holdings,
                 include_purchase_limit=include_purchase_limit,
                 purchase_limit_timeout=purchase_limit_timeout,
+                purchase_limit_cache_days=purchase_limit_cache_days,
+                holding_cache_days=holding_cache_days,
+                cache_enabled=cache_enabled,
+                security_return_cache_enabled=security_return_cache_enabled,
+                cn_hk_hourly_cache=cn_hk_hourly_cache,
                 holding_mode=holding_mode,
                 proxy_map=proxy_map,
                 proxy_normalize_weights=proxy_normalize_weights,
@@ -1750,6 +2130,8 @@ def estimate_funds(
                 error_row["限购金额"] = get_fund_purchase_limit(
                     fund_code=code,
                     timeout=purchase_limit_timeout,
+                    cache_days=purchase_limit_cache_days,
+                    cache_enabled=cache_enabled,
                 )
 
             rows.append(error_row)
@@ -2076,6 +2458,11 @@ def estimate_funds_and_save_table(
     renormalize_available_holdings=True,
     include_purchase_limit=True,
     purchase_limit_timeout=8,
+    purchase_limit_cache_days=7,
+    holding_cache_days=75,
+    cache_enabled=True,
+    security_return_cache_enabled=True,
+    cn_hk_hourly_cache=True,
     print_table=True,
     save_table=True,
     watermark_text="鱼师",
@@ -2197,6 +2584,11 @@ def estimate_funds_and_save_table(
         renormalize_available_holdings=renormalize_available_holdings,
         include_purchase_limit=include_purchase_limit,
         purchase_limit_timeout=purchase_limit_timeout,
+        purchase_limit_cache_days=purchase_limit_cache_days,
+        holding_cache_days=holding_cache_days,
+        cache_enabled=cache_enabled,
+        security_return_cache_enabled=security_return_cache_enabled,
+        cn_hk_hourly_cache=cn_hk_hourly_cache,
         sort_by_return=sort_by_return,
         holding_mode=holding_mode,
         proxy_map=proxy_map,
@@ -2267,6 +2659,11 @@ def get_jijin_holdings(
     renormalize_available_holdings=True,
     include_purchase_limit=True,
     purchase_limit_timeout=8,
+    purchase_limit_cache_days=7,
+    holding_cache_days=75,
+    cache_enabled=True,
+    security_return_cache_enabled=True,
+    cn_hk_hourly_cache=True,
     return_summary=False,
     return_text=False,
     holding_mode="auto",
@@ -2286,6 +2683,8 @@ def get_jijin_holdings(
         latest_df = get_latest_stock_holdings_df(
             fund_code=fund_code,
             top_n=top_n,
+            holding_cache_days=holding_cache_days,
+            cache_enabled=cache_enabled,
         )
         print(latest_df)
         return latest_df
@@ -2300,6 +2699,11 @@ def get_jijin_holdings(
         renormalize_available_holdings=renormalize_available_holdings,
         include_purchase_limit=include_purchase_limit,
         purchase_limit_timeout=purchase_limit_timeout,
+        purchase_limit_cache_days=purchase_limit_cache_days,
+        holding_cache_days=holding_cache_days,
+        cache_enabled=cache_enabled,
+        security_return_cache_enabled=security_return_cache_enabled,
+        cn_hk_hourly_cache=cn_hk_hourly_cache,
         holding_mode=holding_mode,
         proxy_map=proxy_map,
         proxy_normalize_weights=proxy_normalize_weights,
