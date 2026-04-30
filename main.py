@@ -8,6 +8,7 @@ from tools.email_send import send_email
 from tools.get_top10_holdings import (
     estimate_funds_and_save_table,
     DEFAULT_FUND_PROXY_MAP,
+    get_us_index_benchmark_items,
 )
 
 Path("output").mkdir(parents=True, exist_ok=True)
@@ -60,6 +61,7 @@ GUONEI_FUND_CODES = [
     "011103",  # 天弘中证光伏产业
     "020691",  # 博时中证全指通信设备指数
 ]
+
 
 def log(msg: str):
     """打印带时间戳的日志，方便查看运行进度"""
@@ -322,9 +324,22 @@ quote_text = get_daily_quote_text(
 log("每日语录获取完成")
 
 if now.hour < 14:
-    time_note = "注：本邮件包含午盘盘中临时行情，RSI 与量化因子并非收盘确认值。"
+    time_note = (
+        "注：本邮件包含午盘盘中临时行情，RSI 与量化因子并非收盘确认值；"
+        "海外基金表采用自动估值口径：含美股持仓按统一收盘估算，纯港股基金保留盘中实时估算。"
+    )
 else:
-    time_note = "注：本邮件为收盘后或接近收盘后的行情摘要。"
+    time_note = (
+        "注：本邮件为收盘后或接近收盘后的行情摘要；"
+        "海外基金表采用自动估值口径：含美股持仓按统一收盘估算，纯港股基金保留盘中实时估算。"
+    )
+
+# ============================================================
+# 海外市场指数基准：直接获取指数涨跌幅，不使用 ETF 代理
+# ============================================================
+log("开始获取海外市场指数基准")
+haiwai_benchmark_footer_items = get_us_index_benchmark_items(cache_enabled=True)
+log(f"海外市场指数基准: {haiwai_benchmark_footer_items}")
 
 # ============================================================
 # 海外基金持仓估算表格
@@ -334,7 +349,7 @@ estimate_funds_and_save_table(
     fund_codes=HAIWAI_FUND_CODES,
     top_n=10,
     output_file="output/haiwai_fund_estimate_table.png",
-    title="海外市场收益预估 " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    title="海外市场收益率预估 " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
 
     # 自动选择：在 proxy_map 中的基金走 ETF / 指数代理，不在的走前十大持仓
     holding_mode="auto",
@@ -342,8 +357,15 @@ estimate_funds_and_save_table(
     proxy_normalize_weights=False,
     # 美股默认使用最新交易日日线，不拉实时全市场
     us_realtime=False,
-    # 港股优先使用新浪安全实时；失败后东方财富兜底；再失败回落日线
+    # 海外表采用自动估值口径：
+    # - 含美股持仓的全球 / QDII 基金使用统一收盘口径；
+    # - 纯港股基金保留盘中实时估算，降低港股日线接口失败导致整只基金失败的概率。
     hk_realtime=True,
+    valuation_mode="auto",
+    benchmark_footer_items=haiwai_benchmark_footer_items,
+    benchmark_footer_fontsize=15,
+    footnote_text="基金收益为披露持仓近似估算；指数基准为直接获取的最新交易日收盘涨跌幅",
+
     # 某些持仓行情缺失时，用可查持仓重新归一化估算
     renormalize_available_holdings=True,
     # 显示限购金额
@@ -378,15 +400,16 @@ estimate_funds_and_save_table(
     fund_codes=GUONEI_FUND_CODES,
     top_n=10,
     output_file="output/guonei_fund_estimate_table.png",
-    title="国内市场收益预估 " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    title="国内市场收益率预估 " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     # 自动选择股票持仓或代理估算
     holding_mode="auto",
     # 代理按原始权重计算，现金按 0
     proxy_normalize_weights=False,
     # 美股默认使用最新交易日日线
     us_realtime=False,
-    # 港股优先使用新浪安全实时；失败后东方财富兜底；再失败回落日线
+    # 国内 / 港股通类基金使用盘中实时口径
     hk_realtime=True,
+    valuation_mode="intraday",
     # 某些持仓行情缺失时，用可查持仓重新归一化估算
     renormalize_available_holdings=True,
 
@@ -436,10 +459,10 @@ log(f"最终图片列表: {image_paths}")
 # 发送邮件
 # ============================================================
 log("准备发送邮件")
-send_email(
-    subject=f"发光发热—每日提醒——分析结果—{now.strftime('%Y-%m-%d %H:%M')}",
-    text=email_text,
-    image_paths=image_paths,
-    to_email="2569236501@qq.com",
-)
+# send_email(
+#     subject=f"发光发热—每日提醒——分析结果—{now.strftime('%Y-%m-%d %H:%M')}",
+#     text=email_text,
+#     image_paths=image_paths,
+#     to_email="2569236501@qq.com",
+# )
 log("程序运行完成")
