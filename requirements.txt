@@ -1,0 +1,8 @@
+akshare
+pandas
+numpy
+matplotlib
+requests
+yfinance
+openpyxl
+pillow
