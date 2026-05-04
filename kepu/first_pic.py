@@ -32,7 +32,7 @@ GREEN = "#2b855f"
 RED = "#be3b3b"
 
 
-def load_font(size: int, *, bold: bool = False) -> ImageFont.FreeTypeFont:
+def load_font(size: int, *, bold: bool = False) -> ImageFont.ImageFont:
     """优先使用 Windows 中文字体，保证中文在本地绘图中稳定显示。"""
     if bold:
         candidates = [
@@ -40,12 +40,24 @@ def load_font(size: int, *, bold: bool = False) -> ImageFont.FreeTypeFont:
             r"C:\Windows\Fonts\simhei.ttf",
             r"C:\Windows\Fonts\msyh.ttc",
             r"C:\Windows\Fonts\simsun.ttc",
+            "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+            "/usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc",
+            "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
+            "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+            "/System/Library/Fonts/PingFang.ttc",
+            "/System/Library/Fonts/STHeiti Medium.ttc",
         ]
     else:
         candidates = [
             r"C:\Windows\Fonts\msyh.ttc",
             r"C:\Windows\Fonts\simhei.ttf",
             r"C:\Windows\Fonts\simsun.ttc",
+            "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+            "/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc",
+            "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
+            "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+            "/System/Library/Fonts/PingFang.ttc",
+            "/System/Library/Fonts/STHeiti Light.ttc",
         ]
 
     for font_path in candidates:
