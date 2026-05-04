@@ -4,8 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # GitHub cron uses UTC. These map to Beijing time 04:00, 06:00, and 08:00.
-    - cron: "0 22 * * *"
-    - cron: "0 0 * * *"
+    - cron: "0 21 * * *"
 
 permissions:
   contents: write
