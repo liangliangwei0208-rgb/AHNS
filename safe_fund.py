@@ -10,9 +10,9 @@ safe_fund.py
 输出：
 - output/safe_haiwai_fund.png
 
-表格只展示：序号、基金名称、模型估算观察。
+表格只展示：序号、基金名称、模型估算观察、模型观察限购信息。
 基金名称默认不隐藏；如需用星号隐藏后半段，修改 tools.safe_display.MASK_FUND_NAME_WITH_STAR。
-不展示基金代码，不展示限购金额。
+不展示基金代码。
 """
 
 from __future__ import annotations
@@ -32,14 +32,16 @@ from tools.safe_display import WATERMARK_ALPHA, add_risk_watermark, mask_fund_na
 Path("output").mkdir(parents=True, exist_ok=True)
 
 CACHE_FILE = Path("cache") / "fund_estimate_return_cache.json"
+PURCHASE_LIMIT_CACHE_FILE = Path("cache") / "fund_purchase_limit_cache.json"
 
 
 ESTIMATE_RETURN_COLUMN = "今日预估涨跌幅"
 DISPLAY_OBSERVATION_COLUMN = "模型估算观察"
-SAFE_COLUMNS = ["序号", "基金名称", DISPLAY_OBSERVATION_COLUMN]
+DISPLAY_PURCHASE_LIMIT_COLUMN = "模型观察限购信息"
+SAFE_COLUMNS = ["序号", "基金名称", DISPLAY_OBSERVATION_COLUMN, DISPLAY_PURCHASE_LIMIT_COLUMN]
 BRAND_WATERMARK_TEXT = "鱼师AHNS"
 # 是否用星号隐藏 safe_fund 图片里的基金名称后半段；默认不隐藏。
-MASK_FUND_NAMES_WITH_STAR = False
+MASK_FUND_NAMES_WITH_STAR = True
 
 
 def log(message: str) -> None:
@@ -93,6 +95,32 @@ def load_estimate_cache() -> dict[str, Any]:
         raise ValueError(f"基金预估缓存缺少 records: {CACHE_FILE}")
 
     return cache
+
+
+def load_purchase_limit_cache() -> dict[str, Any]:
+    if not PURCHASE_LIMIT_CACHE_FILE.exists():
+        log(f"[WARN] 未找到限购缓存文件: {PURCHASE_LIMIT_CACHE_FILE}")
+        return {}
+
+    try:
+        with PURCHASE_LIMIT_CACHE_FILE.open("r", encoding="utf-8") as f:
+            cache = json.load(f)
+    except Exception as exc:
+        log(f"[WARN] 限购缓存读取失败: {PURCHASE_LIMIT_CACHE_FILE}, 原因: {exc}")
+        return {}
+
+    return cache if isinstance(cache, dict) else {}
+
+
+def purchase_limit_text_for_record(record: dict[str, Any], purchase_limit_cache: dict[str, Any]) -> str:
+    fund_code = normalize_fund_code(record.get("fund_code", ""))
+    item = purchase_limit_cache.get(fund_code)
+    if isinstance(item, dict):
+        value = str(item.get("value", "")).strip()
+    else:
+        value = str(item or "").strip()
+
+    return value or "未知"
 
 
 def record_valuation_date(record: dict[str, Any]) -> str:
@@ -182,6 +210,7 @@ def latest_market_records(
 def build_safe_display_df(
     records: list[dict[str, Any]],
     *,
+    purchase_limit_cache: dict[str, Any] | None = None,
     mask_names: bool = MASK_FUND_NAMES_WITH_STAR,
 ) -> pd.DataFrame:
     """
@@ -190,6 +219,7 @@ def build_safe_display_df(
     数值仍来自 estimate_return_pct；图片展示列名弱化为“模型估算观察”。
     """
     rows = []
+    purchase_limit_cache = purchase_limit_cache or {}
     for index, record in enumerate(records, start=1):
         fund_name = str(record.get("fund_name", "")).strip() or "基金名称缺失"
         rows.append(
@@ -197,6 +227,7 @@ def build_safe_display_df(
                 "序号": index,
                 "基金名称": mask_fund_name(fund_name, enabled=mask_names),
                 DISPLAY_OBSERVATION_COLUMN: float(record["_estimate_return_pct_float"]),
+                DISPLAY_PURCHASE_LIMIT_COLUMN: purchase_limit_text_for_record(record, purchase_limit_cache),
             }
         )
 
@@ -264,10 +295,18 @@ def save_haiwai_safe_table(
     output_file = "output/safe_haiwai_fund.png"
     # 复用原绘图函数的内部收益列名，同时在图片表头中展示为更克制的合规文案。
     image_df = safe_df.rename(columns={DISPLAY_OBSERVATION_COLUMN: ESTIMATE_RETURN_COLUMN})
+    generated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    title = f"海外基金模型估算观察 估值日：{valuation_date} 生成：{generated_at}"
+    title_segments = [
+        {"text": "海外基金模型估算观察  ", "color": "black", "fontweight": "bold"},
+        {"text": f"估值日：{valuation_date}", "color": "red", "fontweight": "bold"},
+        {"text": f"  生成：{generated_at}", "color": "black", "fontweight": "bold"},
+    ]
     save_fund_estimate_table_image(
         result_df=image_df,
         output_file=output_file,
-        title="海外基金模型估算观察 " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        title=title,
+        title_segments=title_segments,
         display_column_names={ESTIMATE_RETURN_COLUMN: DISPLAY_OBSERVATION_COLUMN},
         benchmark_footer_items=benchmark_footer_items,
         benchmark_footer_fontsize=15,
@@ -294,7 +333,11 @@ def build_and_save_haiwai(cache: dict[str, Any]) -> bool:
         market_label="海外",
         fund_codes=HAIWAI_FUND_CODES,
     )
-    haiwai_df = build_safe_display_df(haiwai_records)
+    purchase_limit_cache = load_purchase_limit_cache()
+    haiwai_df = build_safe_display_df(
+        haiwai_records,
+        purchase_limit_cache=purchase_limit_cache,
+    )
     benchmark_footer_items = get_benchmark_footer_items(cache, haiwai_date)
 
     save_haiwai_safe_table(

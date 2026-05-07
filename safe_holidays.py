@@ -49,7 +49,7 @@ SAFE_COLUMNS = [
 ]
 BRAND_WATERMARK_TEXT = "鱼师AHNS"
 # 是否用星号隐藏 safe_holidays 图片里的基金名称后半段；默认不隐藏。
-MASK_FUND_NAMES_WITH_STAR = False
+MASK_FUND_NAMES_WITH_STAR = True
 
 
 Path("output").mkdir(parents=True, exist_ok=True)

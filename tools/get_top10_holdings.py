@@ -5159,6 +5159,7 @@ def save_fund_estimate_table_image(
     result_df,
     output_file="output/fund_estimate_table.png",
     title=None,
+    title_segments=None,
     dpi=180,
     watermark_text="鱼师AHNS",
     watermark_alpha=0.15,
@@ -5314,6 +5315,7 @@ def save_fund_estimate_table_image(
         "基金名称": 0.37,
         "今日预估涨跌幅": 0.15,
         "模型估算观察": 0.15,
+        "模型观察限购信息": 0.18,
         "限购金额": 0.15,
         "估算方式": 0.16,
     }
@@ -5372,7 +5374,49 @@ def save_fund_estimate_table_image(
     title_artist = None
     bottom_block_artist = None
 
-    if title:
+    if title_segments:
+        title_y = min(table_top + title_gap, 0.985)
+        title_children = []
+        for segment in title_segments:
+            if isinstance(segment, dict):
+                segment_text = str(segment.get("text", ""))
+                if not segment_text:
+                    continue
+                segment_color = segment.get("color", title_color)
+                segment_fontweight = segment.get("fontweight", title_fontweight)
+                segment_fontsize = segment.get("fontsize", title_fontsize)
+            else:
+                segment_text = str(segment)
+                if not segment_text:
+                    continue
+                segment_color = title_color
+                segment_fontweight = title_fontweight
+                segment_fontsize = title_fontsize
+
+            title_children.append(
+                TextArea(
+                    segment_text,
+                    textprops={
+                        "fontsize": segment_fontsize,
+                        "color": segment_color,
+                        "fontweight": segment_fontweight,
+                    },
+                )
+            )
+
+        if title_children:
+            title_pack = HPacker(children=title_children, align="center", pad=0, sep=2)
+            title_artist = AnchoredOffsetbox(
+                loc="lower center",
+                child=title_pack,
+                pad=0,
+                frameon=False,
+                bbox_to_anchor=(0.5, title_y),
+                bbox_transform=fig.transFigure,
+                borderpad=0,
+            )
+            fig.add_artist(title_artist)
+    elif title:
         title_y = min(table_top + title_gap, 0.985)
         title_artist = fig.text(
             0.5,
@@ -6311,6 +6355,7 @@ def estimate_funds_and_save_table(
     top_n=10,
     output_file="output/fund_estimate_table.png",
     title=None,
+    title_segments=None,
     manual_returns_pct=None,
     prefer_intraday=True,
     us_realtime=False,
@@ -6605,6 +6650,7 @@ def estimate_funds_and_save_table(
             result_df=result_df,
             output_file=output_file,
             title=title,
+            title_segments=title_segments,
             dpi=dpi,
             watermark_text=watermark_text,
             watermark_alpha=watermark_alpha,

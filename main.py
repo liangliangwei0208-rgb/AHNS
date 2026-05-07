@@ -1,10 +1,8 @@
 """
 AHNS 日常主入口。单独可运行，也可被 git_main.py 调用。
-
 生成市场 RSI/趋势图、海外与国内基金模型估算图，并把基金级估算结果写入缓存。
 邮件发送由 git_main.py 统一编排，本文件默认只负责生成正文、图片和缓存。
 """
-
 import json
 from datetime import datetime
 from pathlib import Path
@@ -332,12 +330,21 @@ def main() -> None:
     log(f"海外市场指数基准: {haiwai_benchmark_footer_items}")
     log(f"海外基金估值交易日: {haiwai_valuation_date}")
 
+    haiwai_generated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    haiwai_title = f"海外市场收益率预估 估值日：{haiwai_valuation_date} 生成：{haiwai_generated_at}"
+    haiwai_title_segments = [
+        {"text": "海外市场收益率预估  ", "color": "black", "fontweight": "bold"},
+        {"text": f"估值日：{haiwai_valuation_date}", "color": "red", "fontweight": "bold"},
+        {"text": f"  生成：{haiwai_generated_at}", "color": "black", "fontweight": "bold"},
+    ]
+
     log("开始生成海外基金持仓估算表格")
     estimate_funds_and_save_table(
         fund_codes=HAIWAI_FUND_CODES,
         top_n=10,
         output_file="output/haiwai_fund.png",
-        title="海外市场收益率预估 " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        title=haiwai_title,
+        title_segments=haiwai_title_segments,
 
         # proxy_map 命中的基金走代理资产，其余基金走前十大持仓估算。
         holding_mode="auto",
