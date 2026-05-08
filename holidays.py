@@ -4,9 +4,10 @@ from tools.fund_estimate_history_overseas import (
     build_cumulative_estimate_table,
     detect_overseas_holiday_estimate_window,
 )
+from tools.paths import HAIWAI_HOLIDAYS_IMAGE, relative_path_str
 
 
-OUTPUT_FILE = "output/haiwai_holidays.png"
+OUTPUT_FILE = relative_path_str(HAIWAI_HOLIDAYS_IMAGE)
 TITLE_SUFFIX = "海外基金累计预估收益率"
 
 

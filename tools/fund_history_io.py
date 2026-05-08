@@ -36,8 +36,9 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager
 from matplotlib.offsetbox import AnchoredOffsetbox, HPacker, TextArea, VPacker
 
+from tools.paths import CACHE_DIR
 
-CACHE_DIR = Path("cache")
+
 FUND_ESTIMATE_RETURN_CACHE_FILE = "fund_estimate_return_cache.json"
 DATE_FIELD_RUN_DATE_BJ = "run_date_bj"
 

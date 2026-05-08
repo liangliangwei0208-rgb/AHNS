@@ -13,6 +13,8 @@ from typing import Any
 
 from PIL import Image, ImageDraw, ImageFont
 
+from tools.paths import MARK_IMAGE
+
 
 RISK_WATERMARK_TEXT = "个人模型估算观察｜仅供个人学习\n不构成任何投资建议"
 WATERMARK_ALPHA = 0.15
@@ -143,7 +145,7 @@ def add_risk_watermark(
 def add_center_image_watermark(
     output_file: str | Path,
     *,
-    watermark_file: str | Path = Path("cache") / "mark.jpg",
+    watermark_file: str | Path = MARK_IMAGE,
     alpha: float = 0.12,
     width_ratio: float = 0.42,
     height_ratio: float = 0.42,
@@ -264,6 +266,18 @@ def add_brand_text_watermark(
     Image.alpha_composite(image, overlay).convert("RGB").save(path)
 
 
+def apply_safe_public_watermarks(output_file: str | Path) -> None:
+    """
+    Apply the standard public-safe watermark stack.
+
+    Order matters: the centered logo is placed first, then the light diagonal
+    brand text is layered over it.  Safe scripts should call this helper instead
+    of repeating the two watermark calls.
+    """
+    add_center_image_watermark(output_file)
+    add_brand_text_watermark(output_file)
+
+
 __all__ = [
     "RISK_WATERMARK_TEXT",
     "WATERMARK_ALPHA",
@@ -274,4 +288,5 @@ __all__ = [
     "add_risk_watermark",
     "add_center_image_watermark",
     "add_brand_text_watermark",
+    "apply_safe_public_watermarks",
 ]

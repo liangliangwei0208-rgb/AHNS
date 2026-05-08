@@ -18,10 +18,9 @@ safe_holidays.py
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pandas as pd
-from tools.safe_display import add_brand_text_watermark, add_center_image_watermark, mask_fund_name
+from tools.paths import SAFE_HOLIDAYS_IMAGE, ensure_runtime_dirs, relative_path_str
+from tools.safe_display import apply_safe_public_watermarks, mask_fund_name
 
 from tools.fund_estimate_history_overseas import (
     build_benchmark_cumulative_dataframe,
@@ -34,7 +33,7 @@ from tools.fund_estimate_history_overseas import (
 )
 
 
-OUTPUT_FILE = "output/safe_holidays.png"
+OUTPUT_FILE = relative_path_str(SAFE_HOLIDAYS_IMAGE)
 TITLE_SUFFIX = "海外基金模型估算观察"
 CUMULATIVE_INTERNAL_COLUMN = "区间累计预估收益率"
 CUMULATIVE_DISPLAY_COLUMN = "区间模型估算观察"
@@ -51,7 +50,7 @@ SAFE_COLUMNS = [
 MASK_FUND_NAMES_WITH_STAR = True
 
 
-Path("output").mkdir(parents=True, exist_ok=True)
+ensure_runtime_dirs()
 
 def build_safe_summary_df(
     summary_df: pd.DataFrame,
@@ -155,8 +154,7 @@ def main() -> None:
         down_color="green",
         row_height=0.55,
     )
-    add_center_image_watermark(output_file)
-    add_brand_text_watermark(output_file)
+    apply_safe_public_watermarks(output_file)
 
     print(f"\n安全版海外节假日累计预估收益表已生成: {output_file}")
 

@@ -89,10 +89,10 @@ from tools.configs.market_calendar_configs import (
     MARKET_CLOSE_BUFFER_HOURS,
 )
 from tools.configs.security_mappings import KR_TICKER_MAP, US_TICKER_MAP
+from tools.paths import CACHE_DIR
 
 # Runtime JSON cache utilities.
 
-CACHE_DIR = Path("cache")
 FUND_HOLDINGS_CACHE_FILE = "fund_holdings_cache.json"
 FUND_PURCHASE_LIMIT_CACHE_FILE = "fund_purchase_limit_cache.json"
 SECURITY_RETURN_CACHE_FILE = "security_return_cache.json"

@@ -16,6 +16,12 @@ from tools.get_top10_holdings import (
     determine_latest_valuation_anchor_date,
 )
 from tools.fund_universe import HAIWAI_FUND_CODES
+from tools.paths import (
+    FUND_HOLDINGS_CACHE,
+    HAIWAI_FUND_IMAGE,
+    ensure_runtime_dirs,
+    relative_path_str,
+)
 
 
 def log(msg: str):
@@ -274,8 +280,7 @@ def resolve_haiwai_valuation_date(benchmark_items):
 
 def main() -> None:
     """生成每日市场图、基金估算图和基金级估算缓存。"""
-    Path("output").mkdir(parents=True, exist_ok=True)
-    Path("cache").mkdir(parents=True, exist_ok=True)
+    ensure_runtime_dirs()
 
 
     log("程序开始运行")
@@ -342,7 +347,7 @@ def main() -> None:
     estimate_funds_and_save_table(
         fund_codes=HAIWAI_FUND_CODES,
         top_n=10,
-        output_file="output/haiwai_fund.png",
+        output_file=relative_path_str(HAIWAI_FUND_IMAGE),
         title=haiwai_title,
         title_segments=haiwai_title_segments,
 
@@ -394,7 +399,7 @@ def main() -> None:
     holding_status_text = build_fund_holding_cache_status_text(
         tracked_fund_codes=stock_holding_fund_codes,
         top_n=10,
-        cache_file="cache/fund_holdings_cache.json",
+        cache_file=relative_path_str(FUND_HOLDINGS_CACHE),
     )
     email_text = (
         quote_text

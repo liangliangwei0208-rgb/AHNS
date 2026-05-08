@@ -39,10 +39,11 @@ from tools.get_top10_holdings import (
     format_pct,
     save_fund_estimate_table_image,
 )
-from tools.safe_display import add_brand_text_watermark, add_center_image_watermark, mask_fund_name
+from tools.paths import SAFE_SUM_HOLIDAYS_IMAGE, ensure_runtime_dirs, relative_path_str
+from tools.safe_display import apply_safe_public_watermarks, mask_fund_name
 
 
-SAFE_OUTPUT_FILE = "output/safe_sum_holidays.png"
+SAFE_OUTPUT_FILE = relative_path_str(SAFE_SUM_HOLIDAYS_IMAGE)
 MAX_POST_HOLIDAY_TRADE_DAYS = 2
 MAX_HOLIDAY_LOOKBACK_TRADE_DAYS = 15
 
@@ -452,8 +453,7 @@ def _save_daily_images(
         down_color="green",
         row_height=0.55,
     )
-    add_center_image_watermark(SAFE_OUTPUT_FILE)
-    add_brand_text_watermark(SAFE_OUTPUT_FILE)
+    apply_safe_public_watermarks(SAFE_OUTPUT_FILE)
     print(f"安全版图片已生成: {SAFE_OUTPUT_FILE}")
 
 
@@ -483,13 +483,12 @@ def _save_safe_image(
         down_color="green",
         row_height=0.55,
     )
-    add_center_image_watermark(SAFE_OUTPUT_FILE)
-    add_brand_text_watermark(SAFE_OUTPUT_FILE)
+    apply_safe_public_watermarks(SAFE_OUTPUT_FILE)
     print(f"安全版图片已生成: {SAFE_OUTPUT_FILE}")
 
 
 def run(today=None, cache_file: str | Path | None = None) -> bool:
-    Path("output").mkdir(parents=True, exist_ok=True)
+    ensure_runtime_dirs()
 
     context = detect_post_holiday_context(today=today)
     print(context.reason)

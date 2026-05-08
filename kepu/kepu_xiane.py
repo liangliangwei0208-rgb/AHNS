@@ -31,13 +31,19 @@ for import_path in (PROJECT_ROOT, KEPU_DIR):
 
 import first_pic as art
 from tools.fund_universe import HAIWAI_FUND_CODES
+from tools.paths import (
+    FUND_ESTIMATE_CACHE,
+    FUND_PURCHASE_LIMIT_CACHE,
+    KEPU_XIANE_IMAGE,
+    XIANE_IMAGE,
+)
 from tools.safe_display import mask_fund_name
 
 
-OUTPUT_KEPU_FILE = PROJECT_ROOT / "output" / "kepu_xiane.png"
-OUTPUT_TABLE_FILE = PROJECT_ROOT / "output" / "xiane.png"
-PURCHASE_LIMIT_CACHE_FILE = PROJECT_ROOT / "cache" / "fund_purchase_limit_cache.json"
-FUND_ESTIMATE_CACHE_FILE = PROJECT_ROOT / "cache" / "fund_estimate_return_cache.json"
+OUTPUT_KEPU_FILE = KEPU_XIANE_IMAGE
+OUTPUT_TABLE_FILE = XIANE_IMAGE
+PURCHASE_LIMIT_CACHE_FILE = FUND_PURCHASE_LIMIT_CACHE
+FUND_ESTIMATE_CACHE_FILE = FUND_ESTIMATE_CACHE
 
 
 # ============================================================

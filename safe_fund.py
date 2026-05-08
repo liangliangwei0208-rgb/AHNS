@@ -19,20 +19,26 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 import pandas as pd
 from tools.fund_table_image import save_fund_estimate_table_image
 from tools.fund_universe import HAIWAI_FUND_CODES
-from tools.safe_display import add_brand_text_watermark, add_center_image_watermark, mask_fund_name
+from tools.paths import (
+    FUND_ESTIMATE_CACHE,
+    FUND_PURCHASE_LIMIT_CACHE,
+    SAFE_HAIWAI_FUND_IMAGE,
+    ensure_runtime_dirs,
+    relative_path_str,
+)
+from tools.safe_display import apply_safe_public_watermarks, mask_fund_name
 
 
 
-Path("output").mkdir(parents=True, exist_ok=True)
+ensure_runtime_dirs()
 
-CACHE_FILE = Path("cache") / "fund_estimate_return_cache.json"
-PURCHASE_LIMIT_CACHE_FILE = Path("cache") / "fund_purchase_limit_cache.json"
+CACHE_FILE = FUND_ESTIMATE_CACHE
+PURCHASE_LIMIT_CACHE_FILE = FUND_PURCHASE_LIMIT_CACHE
 
 
 ESTIMATE_RETURN_COLUMN = "今日预估涨跌幅"
@@ -291,7 +297,7 @@ def save_haiwai_safe_table(
     valuation_date: str,
     benchmark_footer_items: list[dict[str, Any]],
 ) -> None:
-    output_file = "output/safe_haiwai_fund.png"
+    output_file = relative_path_str(SAFE_HAIWAI_FUND_IMAGE)
     # 复用原绘图函数的内部收益列名，同时在图片表头中展示为更克制的合规文案。
     image_df = safe_df.rename(columns={DISPLAY_OBSERVATION_COLUMN: ESTIMATE_RETURN_COLUMN})
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -321,8 +327,7 @@ def save_haiwai_safe_table(
         pct_digits=2,
         row_height=0.55,
     )
-    add_center_image_watermark(output_file)
-    add_brand_text_watermark(output_file)
+    apply_safe_public_watermarks(output_file)
     log(f"海外基金安全版预估表生成完成: {output_file}，缓存日期: {valuation_date}")
 
 
