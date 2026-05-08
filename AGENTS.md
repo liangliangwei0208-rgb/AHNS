@@ -1,6 +1,6 @@
 # AHNS 项目接手说明
 
-更新时间：2026-05-07
+更新时间：2026-05-08
 
 本项目用于生成每日市场分析图、海外/全球基金模型估算表、安全版公开发布图、海外基金节假日累计观察图、节后补更新观察图，以及面向小白的科普说明图。国内基金收益预估业务线已停用，但 A 股/港股/韩国行情能力仍保留用于海外/全球基金持仓估算。默认运行环境为：
 
@@ -29,13 +29,21 @@
 & F:\anaconda\envs\py310\python.exe .\git_main.py
 ```
 
+运行前自检：
+
+```powershell
+& F:\anaconda\envs\py310\python.exe .\check_project.py
+```
+
 预演不发邮件：
 
 ```powershell
 & F:\anaconda\envs\py310\python.exe .\git_main.py --no-send
 ```
 
-`git_main.py` 当前运行顺序：
+`git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、失败后是否中断、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。
+
+当前默认运行顺序：
 
 1. `kepu/first_pic.py`
 2. `main.py`
@@ -48,9 +56,12 @@
 
 `git_main.py` 会扫描 `output/` 中本次新生成或更新的图片，并通过 `tools/email_send.py` 发送邮件。邮件发送保留“正文内嵌图片 + 附件图片”的方式；发送前会打印图片数量、单张大小和总大小。
 
+`check_project.py` 是只读体检工具：检查 Python 环境、关键目录、`cache/mark.jpg`、核心缓存、邮箱配置、依赖导入、Git 状态和总入口配置。它不联网、不拉行情、不出图、不写缓存、不发邮件、不删除文件、不提交 Git。
+
 ## 关键文件
 
 - `git_main.py`：项目总控入口，顺序运行全部脚本，收集本次图片并发送邮件；支持 `--no-send` 和 `--receiver`。
+- `check_project.py`：运行前自检入口，只检查不修改，用于确认环境、缓存、依赖、邮箱配置和流程配置是否基本正常。
 - `main.py`：主计算入口，生成市场 RSI 图、海外/全球基金详细估算图，并写入 `cache/fund_estimate_return_cache.json`。
 - `fund_estimate_breakdown.py`：只读缓存的估算拆解工具；运行后可手工输入基金代码和估值日期，打印完整持仓贡献表，也支持 `--latest` 和 `--save-txt`。
 - `safe_fund.py`：只读基金估算缓存，生成安全版海外/全球每日基金估算图。
@@ -59,12 +70,26 @@
 - `sum_holidays.py`：只读缓存，生成节后第 1 / 第 2 个 A 股交易日的海外基金补更新观察图。
 - `kepu/first_pic.py`：生成“基金预估图怎么看？”科普首图。
 - `kepu/kepu_sum_holidays.py`：生成节后海外基金补更新规则科普图，仅节后第 1 / 第 2 个 A 股交易日出图。
-- `kepu/kepu_xiane.py`：生成海外基金限额科普图和限额表，仅北京时间周六出图。
+- `kepu/kepu_xiane.py`：每天生成海外基金限额科普图；限额表格图仅北京时间周日生成。
 - `tools/email_send.py`：QQ 邮箱发送模块；环境变量优先，其次读取未跟踪的本地配置文件。
 - `tools/get_top10_holdings.py`：基金估算、持仓读取、锚点行情收益、缓存写入、基金表格绘图的核心实现。
-- `tools/fund_estimator.py`：历史兼容模块，部分工具包装仍可能引用；新增核心逻辑优先看 `tools/get_top10_holdings.py`。
+- `tools/fund_estimator.py`：历史兼容模块，动态转发到 `tools/get_top10_holdings.py`；新增核心逻辑优先看 `tools/get_top10_holdings.py`。
 - `tools/fund_history_io.py`：海外基金历史缓存读取、交易日识别、区间累计和累计表格绘图。
+- `tools/paths.py`：集中维护 `cache/`、`output/` 和常用缓存/输出图片路径。
+- `tools/safe_display.py`：safe 图脱敏、居中 logo 水印和“鱼师AHNS”品牌文字水印工具。
+- `tools/configs/`：集中维护常改配置，包括基金池、代理基金、证券映射、RSI 配置、交易日历参数和总入口运行流程。
 - `tools/rsi_data.py` / `stock_analysis.py`：市场指数、ETF 行情分析和 RSI 图表。
+
+## 配置维护入口
+
+- `tools/configs/fund_universe_configs.py`：海外/全球基金池和历史国内基金池。新增、删除基金代码优先改这里；基金代码请写 6 位字符串，避免前导 0 丢失。
+- `tools/configs/fund_proxy_configs.py`：代理型基金配置和海外有效披露持仓增强系数。
+- `tools/configs/security_mappings.py`：美股 / 韩国证券代码映射；韩国六位数字代码需要配合名称别名匹配，避免误判 A 股。
+- `tools/configs/rsi_configs.py`：市场 RSI 图标的配置。
+- `tools/configs/market_calendar_configs.py`：市场交易日历名称、收盘缓冲、韩国节假日置零策略。
+- `tools/configs/workflow_configs.py`：`git_main.py` 每日运行流程。新增脚本时复制一项并改 `name` / `script`；想让某一步只生成不发邮件，改 `collect_images=False`。
+
+旧入口会尽量保留兼容，例如 `tools/fund_universe.py` 仍可导入 `HAIWAI_FUND_CODES`，但真实配置已移动到 `tools/configs/fund_universe_configs.py`。
 
 ## 输出图片
 
@@ -77,14 +102,14 @@
   - `output/shangzheng_analysis.png`
   - `output/shangzheng.png`
 - 基金详细估算图：
-  - `output/haiwai_fund.png`
+  - `output/haiwai_fund.png`（详细版当前在主流程中暂不输出，旧文件可能仍在本地）
 - safe 每日图：
   - `output/safe_haiwai_fund.png`
 - 海外节假日累计图：
   - `output/haiwai_holidays.png`
   - `output/safe_holidays.png`
 - 节后补更新观察图：
-  - `output/sum_holidays.png`
+  - `output/sum_holidays.png`（详细版已停用，后续不再新生成/覆盖）
   - `output/safe_sum_holidays.png`
 - 科普图：
   - `output/kepu_sum_holidays.png`
@@ -111,16 +136,17 @@ Matplotlib 表格和 RSI 图默认使用 `180 DPI`，用于降低图片体积并
 - `safe_fund.py`：
   - 只读取 `cache/fund_estimate_return_cache.json`。
   - 只读取 `market_group == "overseas"` 的最新缓存。
-  - 不显示基金代码、不显示限购金额。
+  - 不显示基金代码；基金名称脱敏；保留模型观察限购信息列，便于公开图解释限购状态。
   - 基金名称使用 `tools.safe_display.mask_fund_name()` 脱敏。
   - 海外图保留 benchmark footer。
-  - 输出保持基金预估表格风格，并叠加品牌水印和风险提示水印。
+  - 输出保持基金预估表格风格，并叠加 `cache/mark.jpg` 居中淡 logo 和 85 号非加粗斜向“鱼师AHNS”文字水印。
 - `safe_holidays.py`：
   - 自动判断 A 股是否休市：优先 AkShare A 股交易日历，失败时用本地国内行情缓存兜底。
   - 只读取 `main.py` 已写入的海外基金和 benchmark 缓存。
   - 满足条件才出图；否则只打印原因，不生成新图。
 - `sum_holidays.py`：
   - 只读取缓存，不拉行情、不重新计算持仓、不写缓存。
+  - 只生成 `output/safe_sum_holidays.png`，不再生成或覆盖详细版 `output/sum_holidays.png`。
   - 普通周六周日不属于节假日累计收益场景。
   - 节后第 1 个 A 股交易日：读取节前最后一个 A 股交易日对应的海外基金估值日，生成单日观察图。
   - 节后第 2 个 A 股交易日：累计节前最后估值日之后到缓存中最新海外估值日的实际存在记录。
@@ -173,7 +199,13 @@ Matplotlib 表格和 RSI 图默认使用 `180 DPI`，用于降低图片体积并
 全项目编译：
 
 ```powershell
-$files = @('.\git_main.py','.\main.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
+$files = @('.\git_main.py','.\check_project.py','.\main.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
+```
+
+运行前自检：
+
+```powershell
+& F:\anaconda\envs\py310\python.exe .\check_project.py
 ```
 
 总入口预演：
@@ -204,7 +236,8 @@ $files = @('.\git_main.py','.\main.py','.\fund_estimate_breakdown.py','.\safe_fu
 
 ```powershell
 & F:\anaconda\envs\py310\python.exe .\kepu\kepu_sum_holidays.py --today 2026-05-06
-& F:\anaconda\envs\py310\python.exe .\kepu\kepu_xiane.py --today 2026-05-02
+& F:\anaconda\envs\py310\python.exe .\kepu\kepu_xiane.py --today 2026-05-08
+& F:\anaconda\envs\py310\python.exe .\kepu\kepu_xiane.py --today 2026-05-10
 ```
 
 ## 最近完成的改动
@@ -213,7 +246,7 @@ $files = @('.\git_main.py','.\main.py','.\fund_estimate_breakdown.py','.\safe_fu
 - `first_pic.py` 已迁移到 `kepu/first_pic.py`，输出 `output/first_pic.png`。
 - 新增 `sum_holidays.py`，用于节后第 1 / 第 2 个 A 股交易日的海外基金补更新观察图。
 - 新增 `kepu/kepu_sum_holidays.py`，用于解释节后海外基金预估收益率的更新节奏。
-- 新增 `kepu/kepu_xiane.py`，用于每周六生成海外基金限额科普图和限额表。
+- 新增 `kepu/kepu_xiane.py`，每天生成海外基金限额科普图，并在北京时间周日生成海外基金限额表。
 - `tools/get_top10_holdings.py` 已加入锚点行情缓存裁剪、基金估算缓存元数据字段写入和质量驱动覆盖逻辑。
 - 表格类图片和 RSI 图默认降为 `180 DPI`；科普图使用 PNG 无损压缩保存。
 - `tools/email_send.py` 支持环境变量和本地未跟踪配置文件，SMTP timeout 默认 `120s`。
@@ -222,3 +255,8 @@ $files = @('.\git_main.py','.\main.py','.\fund_estimate_breakdown.py','.\safe_fu
 - 新增 `pandas_market_calendars`，使用 US/CN/HK/KR 交易日历并对行情 `trade_date` 做二次校验。
 - A 股和港股日线优先级调整为新浪接口优先，东方财富接口仅作为兜底。
 - 新增 `fund_estimate_breakdown.py`，可交互输入基金代码和估值日期，打印完整持仓收益拆解，并可保存 txt。
+- 新增 `tools/configs/` 配置目录，已迁移 RSI 配置、证券映射、代理基金配置、交易日历参数、基金池和总入口运行流程。
+- 新增 `tools/paths.py` 集中维护常用路径；safe 系列水印流程统一封装到 `tools.safe_display.apply_safe_public_watermarks()`。
+- 新增 `check_project.py` 运行前自检工具，只检查不修改。
+- `sum_holidays.py` 后续只生成 `output/safe_sum_holidays.png`，不再生成详细版 `output/sum_holidays.png`。
+- `kepu/kepu_xiane.py` 每天生成科普图，只有北京时间周日生成限额表格图。

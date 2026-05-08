@@ -8,11 +8,12 @@ AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RS
 
 - 生成纳斯达克、红利低波、上证指数 ETF 等市场 RSI 分析图。
 - 基于公开披露持仓、指数/ETF 代理和行情数据，生成海外/全球基金模型估算观察表；国内基金估算业务线已停用。
-- 生成 safe 系列公开展示图，弱化基金代码和限额信息展示；当前只生成海外/全球基金 safe 图。
+- 生成 safe 系列公开展示图：不展示基金代码，基金名称脱敏，并保留模型观察限购信息。
+- 支持运行前自检，快速检查 Python 环境、关键缓存、水印图片、邮箱配置、依赖和总入口配置。
 - 支持按基金代码和估值日期打印完整估算拆解表，区分“股票自身涨跌幅”和“对基金贡献”。
 - 自动识别海外基金节假日期间的累计观察场景。
 - 在节后第 1 / 第 2 个 A 股交易日生成海外基金净值补更新观察图。
-- 每周六生成海外基金限额科普图和限额表。
+- 每天生成海外基金限额科普图；每周日额外生成海外基金限额表。
 - 支持 QQ 邮箱自动发送本次运行生成或更新的图片。
 - 支持 GitHub Actions 定时运行、手动触发、缓存自动回推和失败图片 artifact。
 
@@ -21,6 +22,7 @@ AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RS
 ```text
 .
 ├── git_main.py                  # 总控入口
+├── check_project.py             # 运行前自检，只检查不修改
 ├── main.py                      # 主计算入口
 ├── fund_estimate_breakdown.py    # 基金估算完整拆解查询工具
 ├── safe_fund.py                 # safe 每日基金图
@@ -30,6 +32,7 @@ AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RS
 ├── stock_analysis.py            # 市场 RSI 图入口
 ├── kepu/                        # 科普图片脚本
 ├── tools/                       # 基金估算、缓存、绘图、邮件等模块
+├── tools/configs/               # 常维护配置：基金池、代理、映射、RSI、流程等
 ├── cache/                       # 运行缓存，会被提交并由 Actions 自动更新
 └── output/                      # 运行输出图片，不提交
 ```
@@ -40,6 +43,12 @@ AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RS
 
 ```powershell
 & F:\anaconda\envs\py310\python.exe -m pip install -r requirements.txt
+```
+
+运行前自检，不联网、不出图、不发邮件：
+
+```powershell
+& F:\anaconda\envs\py310\python.exe .\check_project.py
 ```
 
 完整预演，不发邮件：
@@ -74,6 +83,17 @@ AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RS
 & F:\anaconda\envs\py310\python.exe .\fund_estimate_breakdown.py 022184 --latest
 & F:\anaconda\envs\py310\python.exe .\fund_estimate_breakdown.py 022184 2026-05-06 --save-txt
 ```
+
+## 常用维护入口
+
+- `tools/configs/workflow_configs.py`：维护 `git_main.py` 每天运行哪些脚本、运行顺序、失败后是否中断、图片是否进入邮件候选。
+- `tools/configs/fund_universe_configs.py`：维护海外/全球基金池；新增基金代码优先改这里，基金代码请写 6 位字符串。
+- `tools/configs/fund_proxy_configs.py`：维护代理型基金和海外有效披露持仓增强系数。
+- `tools/configs/security_mappings.py`：维护美股 / 韩国证券映射。
+- `tools/configs/rsi_configs.py`：维护 RSI 图标的列表。
+- `tools/paths.py`：集中维护常用缓存和输出图片路径。
+
+旧导入路径会尽量保留兼容，例如 `tools/fund_universe.py` 仍可导入基金池，但真实配置已移动到 `tools/configs/fund_universe_configs.py`。
 
 ## 邮件配置
 
@@ -143,15 +163,15 @@ Update runtime cache [skip ci]
 - `output/honglidibo.png`
 - `output/shangzheng_analysis.png`
 - `output/shangzheng.png`
-- `output/haiwai_fund.png`
+- `output/haiwai_fund.png`（详细版当前在主流程中暂不输出，旧文件可能仍存在）
 - `output/safe_haiwai_fund.png`
 - `output/safe_holidays.png`
 - `output/haiwai_holidays.png`
-- `output/sum_holidays.png`
+- `output/sum_holidays.png`（详细版已停用，后续不再新生成/覆盖）
 - `output/safe_sum_holidays.png`
 - `output/kepu_sum_holidays.png`
 - `output/kepu_xiane.png`
-- `output/xiane.png`
+- `output/xiane.png`（海外基金限额表，仅北京时间周日生成）
 
 Matplotlib 表格和 RSI 图默认使用 180 DPI，科普图使用 Pillow 固定像素并做 PNG 无损压缩。
 
@@ -169,6 +189,20 @@ Matplotlib 表格和 RSI 图默认使用 180 DPI，科普图使用 Pillow 固定
 - `fund_estimate_return_cache.json` 只写海外/全球基金记录，key 为 `overseas:{fund_code}:{valuation_anchor_date}`。
 - 指数行情和基金估算历史保留 300 天。
 - Actions 运行后会自动回推缓存变化。
+
+## 验证命令
+
+全项目编译：
+
+```powershell
+$files = @('.\git_main.py','.\check_project.py','.\main.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
+```
+
+总入口预演：
+
+```powershell
+& F:\anaconda\envs\py310\python.exe .\git_main.py --no-send
+```
 
 ## 免责声明
 

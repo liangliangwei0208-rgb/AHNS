@@ -24,10 +24,10 @@ from pathlib import Path
 from typing import Iterable
 
 from tools.email_send import send_email
+from tools.configs.workflow_configs import WORKFLOW_STEPS
+from tools.paths import OUTPUT_DIR, PROJECT_ROOT, relative_path_str
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent
-OUTPUT_DIR = PROJECT_ROOT / "output"
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 RISK_NOTE = (
     "个人公开数据建模复盘，不收费、不荐基、不带单、不拉群，不构成任何投资建议。\n"
@@ -42,11 +42,33 @@ class ImageState:
 
 
 @dataclass
+class WorkflowStep:
+    """总入口中的一个脚本步骤。
+
+    这里把配置文件里的普通字典转换成结构化对象，是为了让后面的代码更清楚：
+    `name` 用来给人看，`script_path` 用来真正运行，`required` 和
+    `collect_images` 分别控制失败处理和邮件收图。
+    """
+
+    name: str
+    script_path: Path
+    required: bool
+    collect_images: bool
+
+
+@dataclass
 class ScriptResult:
+    step_name: str
     script_name: str
+    script_path: Path
     return_code: int
     elapsed_seconds: float
     changed_images: list[Path]
+    collect_images: bool
+
+    @property
+    def success(self) -> bool:
+        return self.return_code == 0
 
 
 def log(message: str) -> None:
@@ -54,10 +76,7 @@ def log(message: str) -> None:
 
 
 def relative_text(path: Path) -> str:
-    try:
-        return str(path.resolve().relative_to(PROJECT_ROOT)).replace("\\", "/")
-    except ValueError:
-        return str(path.resolve())
+    return relative_path_str(path.resolve())
 
 
 def format_duration(seconds: float) -> str:
@@ -89,6 +108,12 @@ def total_file_size(paths: Iterable[Path]) -> int:
 
 
 def snapshot_images(output_dir: Path = OUTPUT_DIR) -> dict[Path, ImageState]:
+    """记录 output/ 目录中每张图片的修改时间和大小。
+
+    git_main.py 不提前规定“每个脚本一定会生成哪张图”，而是运行脚本前后各拍一次
+    快照，再比较哪些图片发生了变化。这样节假日图、限额图这类“有条件才出图”的
+    脚本也能自然处理：今天没出图就是没有变化，不代表报错。
+    """
     if not output_dir.exists():
         return {}
 
@@ -107,6 +132,7 @@ def changed_images(
     before: dict[Path, ImageState],
     after: dict[Path, ImageState],
 ) -> list[Path]:
+    """比较两次快照，找出本次新建或更新的图片。"""
     changed = [
         path
         for path, state in after.items()
@@ -115,26 +141,59 @@ def changed_images(
     return sorted(changed, key=lambda item: (after[item].mtime_ns, str(item).lower()))
 
 
-def resolve_scripts() -> list[Path]:
-    scripts = [
-        PROJECT_ROOT / "kepu" / "first_pic.py",
-        PROJECT_ROOT / "main.py",
-        PROJECT_ROOT / "safe_fund.py",
-        PROJECT_ROOT / "safe_holidays.py",
-        PROJECT_ROOT / "holidays.py",
-        PROJECT_ROOT / "sum_holidays.py",
-        PROJECT_ROOT / "kepu" / "kepu_sum_holidays.py",
-        PROJECT_ROOT / "kepu" / "kepu_xiane.py",
-    ]
+def resolve_workflow_steps() -> list[WorkflowStep]:
+    """把配置文件里的脚本清单转换成可运行步骤。
 
-    missing = [relative_text(path) for path in scripts if not path.exists()]
+    维护提示：
+    - 如果这里报“缺少必要脚本”，一般是 `workflow_configs.py` 里的 `script`
+      路径写错了。
+    - 这里会拒绝绝对路径，是为了保证本地和 GitHub Actions 都能用同一份配置。
+    """
+    steps: list[WorkflowStep] = []
+    missing: list[str] = []
+
+    for index, item in enumerate(WORKFLOW_STEPS, start=1):
+        name = str(item.get("name") or f"步骤 {index}")
+        script_text = str(item.get("script") or "").strip()
+        if not script_text:
+            raise ValueError(f"workflow_configs.py 第 {index} 项缺少 script")
+
+        script_path = Path(script_text)
+        if script_path.is_absolute():
+            raise ValueError(
+                f"workflow_configs.py 第 {index} 项 script 不要写绝对路径: {script_text}"
+            )
+
+        resolved_script = PROJECT_ROOT / script_path
+        required = bool(item.get("required", True))
+        collect_images = bool(item.get("collect_images", True))
+
+        if not resolved_script.exists():
+            missing.append(f"{name}({script_text})")
+            continue
+
+        steps.append(
+            WorkflowStep(
+                name=name,
+                script_path=resolved_script,
+                required=required,
+                collect_images=collect_images,
+            )
+        )
+
     if missing:
         raise FileNotFoundError("缺少必要脚本: " + "、".join(missing))
 
-    return scripts
+    return steps
 
 
 def stream_script_output(script_path: Path) -> int:
+    """运行单个脚本，并把子脚本输出实时打印出来。
+
+    这里继续使用当前 Python 解释器，也就是你运行 git_main.py 时用的那个环境。
+    因此本地建议仍然是：
+    `& F:\\anaconda\\envs\\py310\\python.exe .\\git_main.py --no-send`
+    """
     env = os.environ.copy()
     env["PYTHONIOENCODING"] = "utf-8"
     env["PYTHONUTF8"] = "1"
@@ -159,8 +218,15 @@ def stream_script_output(script_path: Path) -> int:
 
     return process.wait()
 
-def run_script(script_path: Path) -> ScriptResult:
-    log(f"开始运行 {script_path.name}")
+
+def run_script(step: WorkflowStep) -> ScriptResult:
+    """运行一个配置步骤，并记录它本次生成或更新的图片。
+
+    注意：有些脚本本来就不是每天都出图，例如 safe_holidays.py 和
+    sum_holidays.py。只要退出码是 0，即使没有检测到新图片，也表示这一步正常完成。
+    """
+    script_path = step.script_path
+    log(f"开始运行 {step.name}: {relative_text(script_path)}")
     before = snapshot_images()
     started = time.perf_counter()
     return_code = stream_script_output(script_path)
@@ -169,33 +235,46 @@ def run_script(script_path: Path) -> ScriptResult:
     images = changed_images(before, after)
 
     if return_code != 0:
-        raise RuntimeError(
-            f"{script_path.name} 运行失败，退出码 {return_code}，耗时 {format_duration(elapsed)}"
-        )
-
-    if images:
         log(
-            f"{script_path.name} 运行完成，耗时 {format_duration(elapsed)}，"
+            f"{step.name} 运行失败，退出码 {return_code}，耗时 {format_duration(elapsed)}"
+        )
+    elif images:
+        log(
+            f"{step.name} 运行完成，耗时 {format_duration(elapsed)}，"
             f"生成或更新图片 {len(images)} 张"
         )
         for image in images:
             log(f"  - {relative_text(image)}")
     else:
-        log(f"{script_path.name} 运行完成，耗时 {format_duration(elapsed)}，本次未检测到新图片")
+        log(f"{step.name} 运行完成，耗时 {format_duration(elapsed)}，本次未检测到新图片")
+
+    if images and not step.collect_images:
+        log(f"{step.name} 的 collect_images=False，本次图片只生成，不加入邮件候选")
 
     return ScriptResult(
+        step_name=step.name,
         script_name=script_path.name,
+        script_path=script_path,
         return_code=return_code,
         elapsed_seconds=elapsed,
         changed_images=images,
+        collect_images=step.collect_images,
     )
 
 
 def unique_images(results: Iterable[ScriptResult]) -> list[Path]:
+    """汇总本次要发送的图片，并去重。
+
+    只有 `collect_images=True` 且脚本成功的步骤才会进入邮件候选。这样你以后想让某个
+    脚本“正常生成但不发邮件”，只需要改 workflow_configs.py，不用动邮件逻辑。
+    """
     images: list[Path] = []
     seen: set[Path] = set()
 
     for result in results:
+        if not result.success or not result.collect_images:
+            continue
+
         for image in result.changed_images:
             resolved = image.resolve()
             if resolved in seen:
@@ -222,9 +301,12 @@ def build_email_text(
     ]
 
     for result in results:
+        status = "成功" if result.success else f"失败(退出码 {result.return_code})"
+        collect_note = "" if result.collect_images else "，不纳入邮件图片"
         lines.append(
-            f"- {result.script_name}: 成功，耗时 {format_duration(result.elapsed_seconds)}，"
-            f"生成或更新图片 {len(result.changed_images)} 张"
+            f"- {result.step_name}({result.script_name}): {status}，"
+            f"耗时 {format_duration(result.elapsed_seconds)}，"
+            f"生成或更新图片 {len(result.changed_images)} 张{collect_note}"
         )
 
     lines.extend(["", "【本次发送图片】"])
@@ -261,12 +343,22 @@ def main(argv: list[str] | None = None) -> int:
     if args.no_send:
         log("当前为预演模式：会运行全部脚本，但不会发送邮件")
 
-    scripts = resolve_scripts()
-    log("运行顺序: " + " -> ".join(path.name for path in scripts))
+    steps = resolve_workflow_steps()
+    log("运行顺序: " + " -> ".join(step.name for step in steps))
 
     results: list[ScriptResult] = []
-    for script in scripts:
-        results.append(run_script(script))
+    for step in steps:
+        result = run_script(step)
+        results.append(result)
+
+        if not result.success and step.required:
+            raise RuntimeError(
+                f"{step.name} 是 required=True 的必要步骤，已中断总流程。"
+                "如果你确认这一步可以失败后继续，请在 workflow_configs.py 里改 required=False。"
+            )
+
+        if not result.success:
+            log(f"[WARN] {step.name} 是非必要步骤，失败后继续运行后续步骤")
 
     images = unique_images(results)
     finished_at = datetime.now()
