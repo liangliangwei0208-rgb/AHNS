@@ -124,7 +124,7 @@ def resolve_scripts() -> list[Path]:
         PROJECT_ROOT / "holidays.py",
         PROJECT_ROOT / "sum_holidays.py",
         PROJECT_ROOT / "kepu" / "kepu_sum_holidays.py",
-        # PROJECT_ROOT / "kepu" / "kepu_xiane.py",
+        PROJECT_ROOT / "kepu" / "kepu_xiane.py",
     ]
 
     missing = [relative_text(path) for path in scripts if not path.exists()]

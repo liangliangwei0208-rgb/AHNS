@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 RISK_WATERMARK_TEXT = "个人模型估算观察｜仅供个人学习\n不构成任何投资建议"
 WATERMARK_ALPHA = 0.15
+BRAND_WATERMARK_TEXT = "鱼师AHNS"
 
 # Safe 系列图片是否用星号隐藏基金名称后半段。
 # 默认不隐藏；如需公开发布时脱敏，把这里改成 True。
@@ -139,11 +140,138 @@ def add_risk_watermark(
     Image.alpha_composite(image, overlay).convert("RGB").save(path)
 
 
+def add_center_image_watermark(
+    output_file: str | Path,
+    *,
+    watermark_file: str | Path = Path("cache") / "mark.jpg",
+    alpha: float = 0.12,
+    width_ratio: float = 0.42,
+    height_ratio: float = 0.42,
+) -> None:
+    """
+    在 safe 输出图中央叠加一张淡化品牌图片。
+
+    读取失败时只打印警告并跳过，避免因为本地未放置 `cache/mark.jpg`
+    影响主流程出图。
+    """
+    output_path = Path(output_file)
+    mark_path = Path(watermark_file)
+
+    if not output_path.exists():
+        return
+
+    if not mark_path.exists():
+        print(f"[WARN] 图片水印不存在，跳过: {mark_path}", flush=True)
+        return
+
+    try:
+        image = Image.open(output_path).convert("RGBA")
+        mark = Image.open(mark_path).convert("RGBA")
+    except Exception as exc:
+        print(f"[WARN] 图片水印读取失败，跳过: {mark_path}, 原因: {exc}", flush=True)
+        return
+
+    width, height = image.size
+    max_w = max(1, int(width * float(width_ratio)))
+    max_h = max(1, int(height * float(height_ratio)))
+    mark_w, mark_h = mark.size
+
+    if mark_w <= 0 or mark_h <= 0:
+        print(f"[WARN] 图片水印尺寸异常，跳过: {mark_path}", flush=True)
+        return
+
+    scale = min(max_w / mark_w, max_h / mark_h)
+    new_size = (max(1, int(mark_w * scale)), max(1, int(mark_h * scale)))
+    resample_filter = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
+    mark = mark.resize(new_size, resample_filter)
+
+    alpha_value = max(0, min(255, int(255 * float(alpha))))
+    alpha_layer = mark.getchannel("A").point(lambda value: int(value * alpha_value / 255))
+    mark.putalpha(alpha_layer)
+
+    overlay = Image.new("RGBA", image.size, (255, 255, 255, 0))
+    x = int((width - mark.width) / 2)
+    y = int((height - mark.height) / 2)
+    overlay.alpha_composite(mark, (x, y))
+    Image.alpha_composite(image, overlay).convert("RGB").save(output_path)
+
+
+def add_brand_text_watermark(
+    output_file: str | Path,
+    *,
+    text: str = BRAND_WATERMARK_TEXT,
+    alpha: float = 0.11,
+) -> None:
+    """
+    在 safe 输出图上叠加淡斜向品牌文字水印。
+
+    这层只承担品牌识别，不替代底部风险提示文字，也不恢复大段风险提示水印。
+    """
+    path = Path(output_file)
+    if not path.exists():
+        return
+
+    image = Image.open(path).convert("RGBA")
+    width, height = image.size
+    overlay = Image.new("RGBA", image.size, (255, 255, 255, 0))
+    font_size = 85
+    font = get_watermark_font(font_size)
+    text_alpha = max(0, min(255, int(255 * float(alpha))))
+
+    temp = Image.new("RGBA", (1, 1), (255, 255, 255, 0))
+    temp_draw = ImageDraw.Draw(temp)
+    bbox = temp_draw.textbbox((0, 0), text, font=font)
+    text_width = math.ceil(bbox[2] - bbox[0])
+    text_height = math.ceil(bbox[3] - bbox[1])
+    pad = max(22, font_size // 2)
+
+    text_patch = Image.new(
+        "RGBA",
+        (text_width + pad * 2, text_height + pad * 2),
+        (255, 255, 255, 0),
+    )
+    patch_draw = ImageDraw.Draw(text_patch)
+    patch_draw.text(
+        (pad - bbox[0], pad - bbox[1]),
+        text,
+        font=font,
+        fill=(0, 0, 0, text_alpha),
+    )
+
+    resample_filter = Image.Resampling.BICUBIC if hasattr(Image, "Resampling") else Image.BICUBIC
+    text_patch = text_patch.rotate(28, expand=True, resample=resample_filter)
+
+    centers = []
+    y_ratios = [0.24, 0.42, 0.60, 0.78]
+    for row, y_ratio in enumerate(y_ratios):
+        x_ratios = [0.18, 0.50, 0.82] if row % 2 == 0 else [0.34, 0.66]
+        for x_ratio in x_ratios:
+            centers.append((int(width * x_ratio), int(height * y_ratio)))
+
+    for cx, cy in centers:
+        x = int(cx - text_patch.width / 2)
+        y = int(cy - text_patch.height / 2)
+        src_left = max(0, -x)
+        src_top = max(0, -y)
+        src_right = min(text_patch.width, width - x)
+        src_bottom = min(text_patch.height, height - y)
+        if src_left >= src_right or src_top >= src_bottom:
+            continue
+
+        patch_crop = text_patch.crop((src_left, src_top, src_right, src_bottom))
+        overlay.alpha_composite(patch_crop, (max(0, x), max(0, y)))
+
+    Image.alpha_composite(image, overlay).convert("RGB").save(path)
+
+
 __all__ = [
     "RISK_WATERMARK_TEXT",
     "WATERMARK_ALPHA",
+    "BRAND_WATERMARK_TEXT",
     "MASK_FUND_NAME_WITH_STAR",
     "mask_fund_name",
     "get_watermark_font",
     "add_risk_watermark",
+    "add_center_image_watermark",
+    "add_brand_text_watermark",
 ]

@@ -25,7 +25,7 @@ from typing import Any
 import pandas as pd
 from tools.fund_table_image import save_fund_estimate_table_image
 from tools.fund_universe import HAIWAI_FUND_CODES
-from tools.safe_display import WATERMARK_ALPHA, add_risk_watermark, mask_fund_name
+from tools.safe_display import add_brand_text_watermark, add_center_image_watermark, mask_fund_name
 
 
 
@@ -37,9 +37,8 @@ PURCHASE_LIMIT_CACHE_FILE = Path("cache") / "fund_purchase_limit_cache.json"
 
 ESTIMATE_RETURN_COLUMN = "今日预估涨跌幅"
 DISPLAY_OBSERVATION_COLUMN = "模型估算观察"
-DISPLAY_PURCHASE_LIMIT_COLUMN = "模型观察限购信息"
+DISPLAY_PURCHASE_LIMIT_COLUMN = "模型观察基金信息"
 SAFE_COLUMNS = ["序号", "基金名称", DISPLAY_OBSERVATION_COLUMN, DISPLAY_PURCHASE_LIMIT_COLUMN]
-BRAND_WATERMARK_TEXT = "鱼师AHNS"
 # 是否用星号隐藏 safe_fund 图片里的基金名称后半段；默认不隐藏。
 MASK_FUND_NAMES_WITH_STAR = True
 
@@ -314,15 +313,16 @@ def save_haiwai_safe_table(
             "依据基金季度报告前十大持仓股及指数估算，仅供学习记录，"
             "不构成投资建议；最终以基金公司更新为准。"
         ),
-        watermark_text=BRAND_WATERMARK_TEXT,
-        watermark_alpha=WATERMARK_ALPHA,
+        watermark_text="",
+        watermark_alpha=0,
         watermark_fontsize=32,
         up_color="red",
         down_color="green",
         pct_digits=2,
         row_height=0.55,
     )
-    add_risk_watermark(output_file)
+    add_center_image_watermark(output_file)
+    add_brand_text_watermark(output_file)
     log(f"海外基金安全版预估表生成完成: {output_file}，缓存日期: {valuation_date}")
 
 

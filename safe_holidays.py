@@ -21,7 +21,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
-from tools.safe_display import WATERMARK_ALPHA, add_risk_watermark, mask_fund_name
+from tools.safe_display import add_brand_text_watermark, add_center_image_watermark, mask_fund_name
 
 from tools.fund_estimate_history_overseas import (
     build_benchmark_cumulative_dataframe,
@@ -47,7 +47,6 @@ SAFE_COLUMNS = [
     "起始估值日",
     "结束估值日",
 ]
-BRAND_WATERMARK_TEXT = "鱼师AHNS"
 # 是否用星号隐藏 safe_holidays 图片里的基金名称后半段；默认不隐藏。
 MASK_FUND_NAMES_WITH_STAR = True
 
@@ -149,14 +148,15 @@ def main() -> None:
             "依据基金季度报告前十大持仓股及指数估算，仅供学习记录，"
             "不构成投资建议；最终以基金公司更新为准。"
         ),
-        watermark_text=BRAND_WATERMARK_TEXT,
-        watermark_alpha=WATERMARK_ALPHA,
+        watermark_text="",
+        watermark_alpha=0,
         watermark_fontsize=32,
         up_color="red",
         down_color="green",
         row_height=0.55,
     )
-    add_risk_watermark(output_file)
+    add_center_image_watermark(output_file)
+    add_brand_text_watermark(output_file)
 
     print(f"\n安全版海外节假日累计预估收益表已生成: {output_file}")
 

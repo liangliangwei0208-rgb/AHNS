@@ -1057,18 +1057,17 @@ def build_table_image(today: date) -> Image.Image:
 def run(today=None) -> bool:
     today_date = _normalize_today(today)
 
-    if today_date.weekday() != 6:  # 6 表示周日，0 表示周一
-        print(f"{today_date.isoformat()} 不是北京时间周日，跳过海外基金限额科普图生成。")
-        return False
-
     OUTPUT_KEPU_FILE.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_TABLE_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     build_kepu_image(today_date).save(OUTPUT_KEPU_FILE, optimize=True, compress_level=9)
-    build_table_image(today_date)
-
     print(f"海外基金限额科普图已生成: {OUTPUT_KEPU_FILE.resolve()}")
-    print(f"海外基金限额表格图已生成: {OUTPUT_TABLE_FILE.resolve()}")
+
+    if today_date.weekday() == 6:  # 6 表示周日，0 表示周一
+        OUTPUT_TABLE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        build_table_image(today_date)
+        print(f"海外基金限额表格图已生成: {OUTPUT_TABLE_FILE.resolve()}")
+    else:
+        print(f"{today_date.isoformat()} 不是北京时间周日，跳过海外基金限额表格图生成。")
 
     return True
 

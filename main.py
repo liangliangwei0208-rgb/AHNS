@@ -377,7 +377,8 @@ def main() -> None:
         up_color="red",
         down_color="green",
         print_table=True,
-        save_table=True,
+        # 临时不输出详细版海外基金图；仍继续计算并写入缓存，供 safe_fund.py 出图。
+        save_table=False,
 
         # 缓存策略：
         # 基金持仓更新由 get_top10_holdings.py 内部按季度披露窗口管理；
@@ -388,9 +389,7 @@ def main() -> None:
         valuation_anchor_date=haiwai_valuation_date,
     )
 
-    log("海外基金持仓估算表格生成完成")
-    image_paths.append("output/haiwai_fund.png")
-    log("已将海外基金估算表加入邮件图片列表")
+    log("海外基金持仓估算完成；详细版图片 output/haiwai_fund.png 暂不输出")
 
     holding_status_text = build_fund_holding_cache_status_text(
         tracked_fund_codes=stock_holding_fund_codes,

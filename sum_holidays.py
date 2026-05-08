@@ -23,7 +23,6 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 
 from safe_holidays import (
-    BRAND_WATERMARK_TEXT,
     CUMULATIVE_DISPLAY_COLUMN,
     CUMULATIVE_INTERNAL_COLUMN,
     build_safe_summary_df,
@@ -33,7 +32,6 @@ from tools.fund_estimate_history_overseas import (
     build_cumulative_dataframe,
     get_benchmark_estimate_records,
     get_fund_estimate_records,
-    print_cumulative_estimate_table,
     save_cumulative_estimate_table_image,
 )
 from tools.fund_history_io import load_a_share_trade_dates
@@ -41,10 +39,9 @@ from tools.get_top10_holdings import (
     format_pct,
     save_fund_estimate_table_image,
 )
-from tools.safe_display import WATERMARK_ALPHA, add_risk_watermark, mask_fund_name
+from tools.safe_display import add_brand_text_watermark, add_center_image_watermark, mask_fund_name
 
 
-DETAILED_OUTPUT_FILE = "output/sum_holidays.png"
 SAFE_OUTPUT_FILE = "output/safe_sum_holidays.png"
 MAX_POST_HOLIDAY_TRADE_DAYS = 2
 MAX_HOLIDAY_LOOKBACK_TRADE_DAYS = 15
@@ -439,20 +436,6 @@ def _save_daily_images(
     benchmark_items = _daily_benchmark_footer_items(benchmark_daily_df)
     _print_daily_estimate_table(result_df, title, benchmark_items, pct_digits=2)
 
-    save_fund_estimate_table_image(
-        result_df=result_df,
-        output_file=DETAILED_OUTPUT_FILE,
-        title=title,
-        pct_digits=2,
-        display_column_names=DAILY_DISPLAY_COLUMN_NAMES,
-        benchmark_footer_items=benchmark_items,
-        footnote_text=FOOTNOTE_TEXT,
-        up_color="red",
-        down_color="green",
-        row_height=0.55,
-    )
-    print(f"详细版图片已生成: {DETAILED_OUTPUT_FILE}")
-
     safe_df = _safe_daily_result_dataframe(result_df)
     save_fund_estimate_table_image(
         result_df=safe_df,
@@ -462,41 +445,16 @@ def _save_daily_images(
         display_column_names=SAFE_DAILY_DISPLAY_COLUMN_NAMES,
         benchmark_footer_items=benchmark_items,
         footnote_text=FOOTNOTE_TEXT,
-        watermark_text=BRAND_WATERMARK_TEXT,
-        watermark_alpha=WATERMARK_ALPHA,
+        watermark_text="",
+        watermark_alpha=0,
         watermark_fontsize=32,
         up_color="red",
         down_color="green",
         row_height=0.55,
     )
-    add_risk_watermark(SAFE_OUTPUT_FILE)
+    add_center_image_watermark(SAFE_OUTPUT_FILE)
+    add_brand_text_watermark(SAFE_OUTPUT_FILE)
     print(f"安全版图片已生成: {SAFE_OUTPUT_FILE}")
-
-
-def _save_detailed_image(
-    summary_df: pd.DataFrame,
-    benchmark_summary_df: pd.DataFrame,
-    title: str,
-) -> None:
-    print_cumulative_estimate_table(
-        summary_df=summary_df,
-        title=title,
-        pct_digits=2,
-        benchmark_summary_df=benchmark_summary_df,
-    )
-    save_cumulative_estimate_table_image(
-        summary_df=summary_df,
-        output_file=DETAILED_OUTPUT_FILE,
-        title=title,
-        pct_digits=2,
-        benchmark_summary_df=benchmark_summary_df,
-        hide_status_column=True,
-        footnote_text=FOOTNOTE_TEXT,
-        up_color="red",
-        down_color="green",
-        row_height=0.55,
-    )
-    print(f"详细版图片已生成: {DETAILED_OUTPUT_FILE}")
 
 
 def _save_safe_image(
@@ -518,14 +476,15 @@ def _save_safe_image(
         benchmark_summary_df=benchmark_summary_df,
         hide_status_column=True,
         footnote_text=FOOTNOTE_TEXT,
-        watermark_text=BRAND_WATERMARK_TEXT,
-        watermark_alpha=WATERMARK_ALPHA,
+        watermark_text="",
+        watermark_alpha=0,
         watermark_fontsize=32,
         up_color="red",
         down_color="green",
         row_height=0.55,
     )
-    add_risk_watermark(SAFE_OUTPUT_FILE)
+    add_center_image_watermark(SAFE_OUTPUT_FILE)
+    add_brand_text_watermark(SAFE_OUTPUT_FILE)
     print(f"安全版图片已生成: {SAFE_OUTPUT_FILE}")
 
 
@@ -593,7 +552,6 @@ def run(today=None, cache_file: str | Path | None = None) -> bool:
         print("目标海外基金缓存为空，未生成图片。")
         return False
 
-    _save_detailed_image(summary_df, benchmark_summary_df, title)
     _save_safe_image(summary_df, benchmark_summary_df, title)
     return True
 
