@@ -8,9 +8,8 @@ fund_estimate_history_overseas.py
 支持能力
 ========
 1. 支持读取同一缓存文件中的 benchmark_records。
-2. 支持计算纳斯达克100、标普500在同一日期区间内的累计涨跌幅。
-3. 保存图片时，在表格下方、备注上方显示：
-   基准：纳斯达克100 区间累计 xxx%；标普500 区间累计 xxx%
+2. 支持计算配置中的海外基准在同一日期区间内的累计涨跌幅。
+3. 保存图片时，在主表下方单独显示基准表，再把合规提示和备注放到最底部。
 
 说明
 ====
@@ -36,6 +35,7 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager
 from matplotlib.offsetbox import AnchoredOffsetbox, HPacker, TextArea, VPacker
 
+from tools.configs.market_benchmark_configs import MARKET_BENCHMARK_ITEMS
 from tools.paths import CACHE_DIR
 
 
@@ -774,25 +774,63 @@ def build_cumulative_dataframe(daily_df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def _enabled_benchmark_config_rows() -> list[dict]:
+    rows = []
+    for order, item in enumerate(MARKET_BENCHMARK_ITEMS, start=1):
+        if not isinstance(item, dict) or not bool(item.get("enabled", True)):
+            continue
+        label = str(item.get("label", "")).strip()
+        ticker = str(item.get("ticker", "")).strip().upper()
+        if not label or not ticker:
+            continue
+        rows.append({"order": order, "label": label, "symbol": ticker})
+    return rows
+
+
+def _empty_benchmark_cumulative_dataframe() -> pd.DataFrame:
+    return pd.DataFrame(
+        columns=[
+            "指数名称",
+            "指数代码",
+            "区间累计涨跌幅",
+            "有效估值日数",
+            "起始估值日",
+            "结束估值日",
+            "记录状态",
+        ]
+    )
+
+
 def build_benchmark_cumulative_dataframe(benchmark_daily_df: pd.DataFrame) -> pd.DataFrame:
     """
     根据每日指数记录计算区间累计涨跌幅。
     """
+    config_rows = _enabled_benchmark_config_rows()
+    order_map = {row["symbol"]: row["order"] for row in config_rows}
+    label_map = {row["symbol"]: row["label"] for row in config_rows}
+    config_symbols = set(order_map)
+    config_labels = {row["label"] for row in config_rows}
+
     if benchmark_daily_df is None or benchmark_daily_df.empty:
-        return pd.DataFrame(
-            columns=[
-                "指数名称",
-                "指数代码",
-                "区间累计涨跌幅",
-                "有效估值日数",
-                "起始估值日",
-                "结束估值日",
-                "记录状态",
-            ]
-        )
+        out = _empty_benchmark_cumulative_dataframe()
+        if not config_rows:
+            return out
+        rows = []
+        for row in config_rows:
+            rows.append({
+                "指数名称": row["label"],
+                "指数代码": row["symbol"],
+                "区间累计涨跌幅": None,
+                "有效估值日数": 0,
+                "起始估值日": "",
+                "结束估值日": "",
+                "记录状态": "无有效数据",
+            })
+        return pd.DataFrame(rows, columns=out.columns)
 
     rows = []
     for symbol, g in benchmark_daily_df.groupby("symbol"):
+        symbol_norm = str(symbol).strip().upper()
         g = g.sort_values("valuation_date").copy()
         returns = pd.to_numeric(g["return_pct"], errors="coerce").dropna()
 
@@ -810,14 +848,16 @@ def build_benchmark_cumulative_dataframe(benchmark_daily_df: pd.DataFrame) -> pd
         else:
             status = "intraday"
 
-        label = str(symbol)
+        label = label_map.get(symbol_norm, str(symbol))
         if "label" in g.columns and g["label"].notna().any():
             label = str(g["label"].dropna().iloc[-1])
+        if symbol_norm not in config_symbols and label in config_labels:
+            continue
 
         rows.append(
             {
                 "指数名称": label,
-                "指数代码": str(symbol),
+                "指数代码": symbol_norm,
                 "区间累计涨跌幅": float(cumulative),
                 "有效估值日数": int(g["valuation_date"].nunique()),
                 "起始估值日": str(g["valuation_date"].min()),
@@ -830,7 +870,26 @@ def build_benchmark_cumulative_dataframe(benchmark_daily_df: pd.DataFrame) -> pd
     if out.empty:
         return build_benchmark_cumulative_dataframe(pd.DataFrame())
 
-    order_map = {".NDX": 0, "^NDX": 0, ".INX": 1, "^GSPC": 1, "SPX": 1}
+    existing_symbols = set(out["指数代码"].astype(str).str.upper())
+    missing_rows = []
+    for row in config_rows:
+        if row["symbol"] in existing_symbols:
+            continue
+        missing_rows.append({
+            "指数名称": row["label"],
+            "指数代码": row["symbol"],
+            "区间累计涨跌幅": None,
+            "有效估值日数": 0,
+            "起始估值日": "",
+            "结束估值日": "",
+            "记录状态": "无有效数据",
+        })
+    if missing_rows:
+        out = pd.DataFrame(
+            [*out.to_dict("records"), *missing_rows],
+            columns=out.columns,
+        )
+
     out["_order"] = out["指数代码"].astype(str).str.upper().map(lambda x: order_map.get(x, 99))
     out = out.sort_values(["_order", "指数名称"]).drop(columns=["_order"]).reset_index(drop=True)
     return out
@@ -883,6 +942,7 @@ def _iter_benchmark_footer_items(benchmark_summary_df: pd.DataFrame | None):
         label = str(row.get("指数名称", "基准")).strip() or "基准"
         symbol = str(row.get("指数代码", "")).strip()
         value = row.get("区间累计涨跌幅")
+        effective_days = row.get("有效估值日数", "")
         start = str(row.get("起始估值日", "")).strip()
         end = str(row.get("结束估值日", "")).strip()
         items.append(
@@ -890,11 +950,139 @@ def _iter_benchmark_footer_items(benchmark_summary_df: pd.DataFrame | None):
                 "label": label,
                 "symbol": symbol,
                 "return_pct": value,
+                "effective_days": effective_days,
                 "start": start,
                 "end": end,
             }
         )
     return items
+
+
+def _cumulative_benchmark_columns(include_symbol: bool = False) -> list[str]:
+    if include_symbol:
+        return ["序号", "指数代码", "指数名称", "区间模型观察", "有效估值日数", "起始估值日", "结束估值日"]
+    return ["序号", "指数名称", "区间模型观察", "有效估值日数", "起始估值日", "结束估值日"]
+
+
+def _build_cumulative_benchmark_table_rows(
+    benchmark_summary_df: pd.DataFrame | None,
+    pct_digits: int = 2,
+    include_symbol: bool = False,
+):
+    benchmark_items = _iter_benchmark_footer_items(benchmark_summary_df)
+    columns = _cumulative_benchmark_columns(include_symbol=include_symbol)
+    rows = []
+    raw_values = []
+    for index, item in enumerate(benchmark_items, start=1):
+        value = item.get("return_pct")
+        try:
+            value_float = float(value)
+        except Exception:
+            value_float = None
+        if value_float is not None and pd.isna(value_float):
+            value_float = None
+
+        raw_values.append(value_float)
+        effective_days = item.get("effective_days", "")
+        try:
+            effective_days = int(effective_days)
+        except Exception:
+            effective_days = 0 if value_float is None else ""
+        start = str(item.get("start", "")).strip()
+        end = str(item.get("end", "")).strip()
+
+        row = {
+            "序号": index,
+            "指数代码": str(item.get("symbol", "")).strip(),
+            "指数名称": str(item.get("label", "基准")).strip() or "基准",
+            "区间模型观察": format_pct(value_float, digits=pct_digits) if value_float is not None else "无有效数据",
+            "有效估值日数": effective_days,
+            "起始估值日": start or "--",
+            "结束估值日": end or "--",
+        }
+        rows.append({col: row.get(col, "") for col in columns})
+
+    if not rows:
+        return pd.DataFrame(columns=columns), []
+
+    return pd.DataFrame(rows, columns=columns), raw_values
+
+
+def _draw_benchmark_table(
+    ax,
+    benchmark_df: pd.DataFrame,
+    raw_values,
+    bbox,
+    *,
+    fontsize,
+    header_bg,
+    header_text_color,
+    grid_color,
+    up_color,
+    down_color,
+    neutral_color,
+    column_widths=None,
+):
+    table = ax.table(
+        cellText=benchmark_df.values,
+        colLabels=benchmark_df.columns,
+        cellLoc="center",
+        colLoc="center",
+        bbox=bbox,
+        zorder=2,
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(fontsize)
+    table.scale(1.0, 1.18)
+
+    value_col_idx = None
+    for candidate in ("模型观察", "区间模型观察"):
+        if candidate in benchmark_df.columns:
+            value_col_idx = list(benchmark_df.columns).index(candidate)
+            break
+    default_width_by_name = {
+        "序号": 0.08,
+        "指数名称": 0.34,
+        "模型观察": 0.20,
+        "基准日或区间": 0.38,
+        "指数代码": 0.10,
+        "区间模型观察": 0.18,
+        "有效估值日数": 0.12,
+        "起始估值日": 0.13,
+        "结束估值日": 0.13,
+    }
+    if column_widths is not None and len(column_widths) != len(benchmark_df.columns):
+        column_widths = None
+
+    for (row, col), cell in table.get_celld().items():
+        cell.set_edgecolor(grid_color)
+        cell.set_linewidth(0.8)
+        if row == 0:
+            cell.set_facecolor(header_bg)
+            cell.set_text_props(color=header_text_color, weight="bold")
+        else:
+            cell.set_facecolor("white")
+            if value_col_idx is not None and col == value_col_idx:
+                raw_val = raw_values[row - 1] if row - 1 < len(raw_values) else None
+                if raw_val is None or pd.isna(raw_val):
+                    cell.get_text().set_color(neutral_color)
+                elif float(raw_val) > 0:
+                    cell.get_text().set_color(up_color)
+                    cell.get_text().set_weight("bold")
+                elif float(raw_val) < 0:
+                    cell.get_text().set_color(down_color)
+                    cell.get_text().set_weight("bold")
+                else:
+                    cell.get_text().set_color(neutral_color)
+
+        if col < len(benchmark_df.columns):
+            name = benchmark_df.columns[col]
+            if column_widths is not None:
+                cell.set_width(column_widths[col])
+            elif name in default_width_by_name:
+                cell.set_width(default_width_by_name[name])
+
+    return table
 
 
 def save_cumulative_estimate_table_image(
@@ -913,7 +1101,7 @@ def save_cumulative_estimate_table_image(
     down_color: str = "green",
     neutral_color: str = "black",
     pct_digits: int = 2,
-    header_bg: str = "#2f3b52",
+    header_bg: str = "#3f4d66",
     header_text_color: str = "white",
     grid_color: str = "#d9d9d9",
     figure_width=None,
@@ -992,14 +1180,33 @@ def save_cumulative_estimate_table_image(
         )
     table_df = table_df.rename(columns=display_column_names)
 
-    benchmark_items = _iter_benchmark_footer_items(benchmark_summary_df) if show_benchmark_footer else []
-    has_benchmark_footer = bool(benchmark_items)
+    include_benchmark_symbol = "基金代码" in table_df.columns
+    benchmark_table_df, benchmark_raw_values = (
+        _build_cumulative_benchmark_table_rows(
+            benchmark_summary_df,
+            pct_digits=pct_digits,
+            include_symbol=include_benchmark_symbol,
+        )
+        if show_benchmark_footer
+        else (pd.DataFrame(columns=_cumulative_benchmark_columns(include_symbol=include_benchmark_symbol)), [])
+    )
+    has_benchmark_footer = not benchmark_table_df.empty
 
     nrows = len(table_df)
     ncols = len(table_df.columns)
     has_compliance_notice = bool(str(compliance_notice_text).strip()) if compliance_notice_text else False
 
-    fig_h = max(1.8, row_height * (nrows + 1) + (0.95 if has_compliance_notice else 0.75))
+    benchmark_height_units = row_height * (len(benchmark_table_df) + 1) if has_benchmark_footer else 0.0
+    footer_height_units = 0.85 if has_compliance_notice and footnote_text else (
+        0.55 if (has_compliance_notice or footnote_text) else 0.25
+    )
+    fig_h = max(
+        1.8,
+        row_height * (nrows + 1)
+        + benchmark_height_units
+        + footer_height_units
+        + (0.35 if has_benchmark_footer else 0.0),
+    )
     if figure_width is None:
         if hide_status_column:
             fig_w = 14.0 if ncols >= 7 else 13.0
@@ -1013,15 +1220,15 @@ def save_cumulative_estimate_table_image(
     fig.subplots_adjust(left=0.015, right=0.985, top=0.985, bottom=0.015)
 
     top_reserved = 0.08 if title else 0.03
-    notice_reserved = 0.055 if has_compliance_notice else 0.0
-    if footnote_text and has_benchmark_footer:
-        bottom_reserved = 0.13 + notice_reserved
-    elif footnote_text or has_benchmark_footer:
-        bottom_reserved = 0.09 + notice_reserved
-    else:
-        bottom_reserved = 0.03 + (0.045 if has_compliance_notice else 0.0)
+    footer_reserved = 0.070 if has_compliance_notice and footnote_text else (
+        0.050 if (has_compliance_notice or footnote_text) else 0.025
+    )
+    benchmark_reserved = min(max(benchmark_height_units / max(fig_h, 0.01), 0.16), 0.26) if has_benchmark_footer else 0.0
+    benchmark_gap = 0.010 if has_benchmark_footer else 0.0
+    bottom_reserved = footer_reserved + benchmark_reserved + benchmark_gap
 
     table_bbox = [0.02, bottom_reserved, 0.96, 1 - top_reserved - bottom_reserved]
+    benchmark_bbox = [0.08, footer_reserved, 0.84, benchmark_reserved] if has_benchmark_footer else None
 
     table = ax.table(
         cellText=table_df.values,
@@ -1091,6 +1298,49 @@ def save_cumulative_estimate_table_image(
             if name in col_width_by_name:
                 cell.set_width(col_width_by_name[name])
 
+    same_column_count_as_main = has_benchmark_footer and len(benchmark_table_df.columns) == len(table_df.columns)
+    benchmark_column_widths = None
+    if same_column_count_as_main:
+        # 如果累计图的基准表和主表列数一致，则基准表按位置复用主表列宽，
+        # 保持上下表格边界尽量一致。
+        benchmark_bbox = list(table_bbox)
+        benchmark_bbox[1] = footer_reserved
+        benchmark_bbox[3] = benchmark_reserved
+        benchmark_column_widths = [
+            table.get_celld()[(0, col)].get_width()
+            for col in range(len(table_df.columns))
+        ]
+
+    benchmark_table_artist = None
+    separator_artists = []
+    if has_benchmark_footer and benchmark_bbox is not None:
+        benchmark_table_artist = _draw_benchmark_table(
+            ax,
+            benchmark_table_df,
+            benchmark_raw_values,
+            benchmark_bbox,
+            fontsize=15,
+            header_bg=header_bg,
+            header_text_color=header_text_color,
+            grid_color=grid_color,
+            up_color=up_color,
+            down_color=down_color,
+            neutral_color=neutral_color,
+            column_widths=benchmark_column_widths,
+        )
+        separator_y = benchmark_bbox[1] + benchmark_bbox[3] + max(benchmark_gap * 0.5, 0.003)
+        separator_artists.extend(
+            ax.plot(
+                [table_bbox[0], table_bbox[0] + table_bbox[2]],
+                [separator_y, separator_y],
+                transform=ax.transAxes,
+                color=header_bg,
+                linewidth=1.2,
+                alpha=0.45,
+                zorder=4,
+            )
+        )
+
     # 水印
     for i in range(max(1, int(watermark_rows))):
         for j in range(max(1, int(watermark_cols))):
@@ -1115,6 +1365,11 @@ def save_cumulative_estimate_table_image(
     renderer = fig.canvas.get_renderer()
     table_bbox_window = table.get_window_extent(renderer=renderer)
     table_bbox_fig = table_bbox_window.transformed(fig.transFigure.inverted())
+    benchmark_bottom = table_bbox_fig.y0
+    if benchmark_table_artist is not None:
+        benchmark_bbox_window = benchmark_table_artist.get_window_extent(renderer=renderer)
+        benchmark_bbox_fig = benchmark_bbox_window.transformed(fig.transFigure.inverted())
+        benchmark_bottom = benchmark_bbox_fig.y0
 
     extra_artists = [table]
 
@@ -1146,51 +1401,6 @@ def save_cumulative_estimate_table_image(
             )
         )
 
-    if benchmark_items:
-        effective_benchmark_footer_fontsize = (
-            compliance_notice_fontsize if has_compliance_notice else benchmark_footer_fontsize
-        )
-        children = [
-            TextArea(
-                "基准：",
-                textprops={"fontsize": effective_benchmark_footer_fontsize, "color": footnote_color},
-            )
-        ]
-
-        for idx, item in enumerate(benchmark_items):
-            if idx > 0:
-                children.append(
-                    TextArea("；", textprops={"fontsize": effective_benchmark_footer_fontsize, "color": footnote_color})
-                )
-
-            label = str(item.get("label", "基准"))
-            value = item.get("return_pct")
-            try:
-                value_float = float(value)
-            except Exception:
-                value_float = None
-
-            if value_float is None or pd.isna(value_float):
-                seg_text = f"{label} 区间累计无有效数据"
-                seg_color = neutral_color
-            else:
-                seg_text = f"{label} 区间累计 {format_pct(value_float, digits=pct_digits)}"
-                seg_color = up_color if value_float > 0 else (down_color if value_float < 0 else neutral_color)
-
-            children.append(
-                TextArea(
-                    seg_text,
-                    textprops={
-                        "fontsize": effective_benchmark_footer_fontsize,
-                        "color": seg_color,
-                        "fontweight": "bold" if value_float not in (None, 0) else "normal",
-                    },
-                )
-            )
-
-        packed = HPacker(children=children, align="center", pad=0, sep=4)
-        bottom_children.append(packed)
-
     if footnote_text:
         footnote_display_text = str(footnote_text).strip()
         if footnote_display_text and not footnote_display_text.startswith("备注"):
@@ -1206,7 +1416,7 @@ def save_cumulative_estimate_table_image(
         bottom_pack = VPacker(children=bottom_children, align="center", pad=0, sep=4)
         table_height = max(table_bbox_fig.y1 - table_bbox_fig.y0, 0.01)
         bottom_block_y = max(
-            table_bbox_fig.y0 - max(min(table_height * 0.012, 0.010), 0.006),
+            benchmark_bottom - max(min(table_height * 0.012, 0.010), 0.006),
             0.030,
         )
         bottom_block_artist = AnchoredOffsetbox(
@@ -1220,6 +1430,7 @@ def save_cumulative_estimate_table_image(
         )
         fig.add_artist(bottom_block_artist)
         extra_artists.append(bottom_block_artist)
+    extra_artists.extend(separator_artists)
 
     fig.savefig(
         output_file,

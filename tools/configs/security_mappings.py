@@ -42,6 +42,8 @@ US_TICKER_MAP = {
     "Coterra Energy": "CTRA",
     "英美烟草": "BTI",
     "British American Tobacco": "BTI",
+    "再生元制药": "REGN",
+    "Regeneron": "REGN",
 }
 
 

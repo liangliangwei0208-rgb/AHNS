@@ -22,6 +22,7 @@ from datetime import datetime
 from typing import Any
 
 import pandas as pd
+from tools.configs.market_benchmark_configs import MARKET_BENCHMARK_ITEMS
 from tools.fund_table_image import save_fund_estimate_table_image
 from tools.fund_universe import HAIWAI_FUND_CODES
 from tools.paths import (
@@ -248,9 +249,24 @@ def get_benchmark_footer_items(
 
     只取与基金缓存同一 valuation_date 的记录，避免基金和基准日期错位。
     """
+    enabled_specs = []
+    for order, spec in enumerate(MARKET_BENCHMARK_ITEMS, start=1):
+        if not isinstance(spec, dict) or not bool(spec.get("enabled", True)):
+            continue
+        label = str(spec.get("label", "")).strip()
+        symbol = str(spec.get("ticker", "")).strip().upper()
+        if not label or not symbol:
+            continue
+        enabled_specs.append({
+            "order": order,
+            "label": label,
+            "symbol": symbol,
+            "kind": str(spec.get("kind", "")).strip(),
+        })
+
     records = cache.get("benchmark_records", {})
     if not isinstance(records, dict):
-        return []
+        records = {}
 
     selected_by_symbol: dict[str, dict[str, Any]] = {}
     for item in records.values():
@@ -266,7 +282,7 @@ def get_benchmark_footer_items(
 
         symbol = str(item.get("symbol", "")).strip().upper()
         return_pct = safe_float_or_none(item.get("return_pct"))
-        if not symbol or return_pct is None:
+        if not symbol:
             continue
 
         old = selected_by_symbol.get(symbol)
@@ -274,21 +290,53 @@ def get_benchmark_footer_items(
             selected_by_symbol[symbol] = dict(item)
 
     footer_items = []
-    for item in selected_by_symbol.values():
+    used_symbols = set()
+    used_labels = set()
+    for spec in enabled_specs:
+        symbol = spec["symbol"]
+        item = selected_by_symbol.get(symbol, {})
+        used_symbols.add(symbol)
+        label = str(item.get("label", "")).strip() or spec["label"]
+        used_labels.add(label)
         footer_items.append(
             {
-                "label": str(item.get("label", "")).strip() or str(item.get("symbol", "")).strip(),
-                "symbol": str(item.get("symbol", "")).strip(),
-                "return_pct": float(item.get("return_pct")),
+                "order": spec["order"],
+                "label": label,
+                "symbol": str(item.get("symbol", "")).strip() or symbol,
+                "kind": str(item.get("kind", "")).strip() or spec["kind"],
+                "return_pct": safe_float_or_none(item.get("return_pct")),
                 "trade_date": normalize_date_string(item.get("trade_date")) or valuation_date,
                 "source": str(item.get("source", "")).strip(),
+                "status": str(item.get("status", "missing")).strip() or "missing",
+                "error": str(item.get("error", "")).strip(),
+            }
+        )
+
+    # 兼容旧缓存：如果缓存中还有配置外的基准，也按原顺序追加展示。
+    for item in selected_by_symbol.values():
+        symbol = str(item.get("symbol", "")).strip().upper()
+        label = str(item.get("label", "")).strip() or symbol
+        if not symbol or symbol in used_symbols or label in used_labels:
+            continue
+        used_labels.add(label)
+        footer_items.append(
+            {
+                "order": item.get("order", 999),
+                "label": label,
+                "symbol": symbol,
+                "kind": str(item.get("kind", "")).strip(),
+                "return_pct": safe_float_or_none(item.get("return_pct")),
+                "trade_date": normalize_date_string(item.get("trade_date")) or valuation_date,
+                "source": str(item.get("source", "")).strip(),
+                "status": str(item.get("status", "")).strip(),
+                "error": str(item.get("error", "")).strip(),
             }
         )
 
     if not footer_items:
         log(f"[WARN] 未找到海外指数基准缓存 footer，valuation_date={valuation_date}")
 
-    return footer_items
+    return sorted(footer_items, key=lambda x: int(x.get("order", 999) or 999))
 
 
 def save_haiwai_safe_table(

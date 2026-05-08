@@ -88,6 +88,7 @@ from tools.configs.market_calendar_configs import (
     MARKET_CALENDAR_NAMES,
     MARKET_CLOSE_BUFFER_HOURS,
 )
+from tools.configs.market_benchmark_configs import MARKET_BENCHMARK_ITEMS
 from tools.configs.residual_benchmark_configs import (
     DEFAULT_RESIDUAL_BENCHMARK_KEY,
     FUND_RESIDUAL_BENCHMARK_MAP,
@@ -358,6 +359,13 @@ def _is_anchor_cache_entry_fresh(item: dict) -> bool:
         return True
 
     market = str(item.get("market", "")).strip().upper()
+    if market == "US" and status == "stale":
+        source_error_text = f"{item.get('source', '')} {item.get('error', '')}".lower()
+        # 旧版本美股只用新浪日线；如果新浪停在前一天，会缓存 stale。
+        # 现在新增了东方财富 / Yahoo 日线兜底，所以这类旧 stale 不应继续挡住重试。
+        if "ak_stock_us_daily_trade_date_older_than_anchor" in source_error_text:
+            return False
+
     if market in {"CN", "HK"} and status in {"missing", "stale"}:
         source_error_text = f"{item.get('source', '')} {item.get('error', '')}".lower()
         if "sina" not in source_error_text:
@@ -1506,6 +1514,18 @@ def detect_market_and_ticker(raw_code, stock_name):
     name = str(stock_name).strip()
     raw_upper = raw.upper()
 
+    # 优先用“持仓名称 -> 美股 ticker”的人工映射兜底。
+    # 维护原因：
+    # - 一些海外基金披露的代码不是美股 ADR 代码，例如英美烟草常见披露为
+    #   BATS（伦敦代码），但我们当前美股数据源可稳定读取的是 BTI；
+    # - 如果先按裸 ticker 识别，BATS 会被误当成美股代码，导致后续日线取到
+    #   错误或过旧数据；
+    # - 所以这里让你在 `tools/configs/security_mappings.py` 里维护的
+    #   `US_TICKER_MAP` 拥有更高优先级。
+    for key, ticker in US_TICKER_MAP.items():
+        if key in name:
+            return "US", ticker
+
     # 1. 显式韩国后缀或已知韩国数字代码。
     # 必须放在 A 股六位数字判断之前；但裸代码必须同时匹配名称别名，避免误伤 A 股。
     kr_hit = _detect_known_kr_numeric_ticker(raw_upper, name)
@@ -1536,12 +1556,7 @@ def detect_market_and_ticker(raw_code, stock_name):
     if re.match(r"^\d{1,5}$", raw):
         return "HK", normalize_hk_code(raw)
 
-    # 7. 名称映射兜底：美股
-    for key, ticker in US_TICKER_MAP.items():
-        if key in name:
-            return "US", ticker
-
-    # 8. 名称映射兜底：韩国股票。只有在名称强匹配时生效。
+    # 7. 名称映射兜底：韩国股票。只有在名称强匹配时生效。
     for code, item in KR_TICKER_MAP.items():
         if _match_alias_in_name(name, item.get("aliases", [])):
             return "KR", str(item.get("ticker", code)).zfill(6)
@@ -2356,6 +2371,222 @@ def fetch_us_return_pct_akshare_daily_with_date(ticker, end_date=None):
     return (last_close / prev_close - 1.0) * 100.0, trade_date, "ak_stock_us_daily"
 
 
+def fetch_us_stock_return_pct_eastmoney_daily_with_date(ticker, end_date=None, lookback_days=80):
+    """
+    使用东方财富美股历史日线作为第二顺位兜底，并返回实际交易日。
+
+    维护说明：
+    - 第一顺位仍是上面的新浪日线 `ak.stock_us_daily()`；
+    - 这个函数只在新浪日线缺失、过旧或报错时才会被调用；
+    - 只请求单只股票的 K 线，不拉全市场列表，尽量减少接口压力；
+    - 美股在东方财富里有不同市场前缀，常见为 105/106/107，所以逐个尝试。
+    """
+    symbol = str(ticker).strip().upper()
+    end_date_key = _normalize_trade_date_key(end_date)
+    end_api = (end_date_key or datetime.now().strftime("%Y-%m-%d")).replace("-", "")
+    url = "https://63.push2his.eastmoney.com/api/qt/stock/kline/get"
+    params_base = {
+        "fields1": "f1,f2,f3,f4,f5,f6",
+        "fields2": "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61",
+        "klt": "101",
+        "fqt": "0",
+        "end": end_api,
+        "lmt": str(int(lookback_days)),
+    }
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/128.0.0.0 Safari/537.36"
+        ),
+        "Referer": f"https://quote.eastmoney.com/us/{symbol}.html",
+    }
+
+    errors = []
+    for market_prefix in ("105", "106", "107"):
+        secid = f"{market_prefix}.{symbol}"
+        try:
+            params = dict(params_base)
+            params["secid"] = secid
+            resp = requests.get(url, params=params, headers=headers, timeout=5)
+            resp.raise_for_status()
+            data = resp.json()
+            klines = (data.get("data") or {}).get("klines") or []
+            if not klines:
+                errors.append(f"{secid}: empty klines")
+                continue
+
+            rows = []
+            for item in klines:
+                parts = str(item).split(",")
+                if len(parts) < 3:
+                    continue
+                rows.append({"date": parts[0], "close": parts[2]})
+
+            out = pd.DataFrame(rows)
+            if out.empty:
+                errors.append(f"{secid}: parsed empty")
+                continue
+            out["date"] = pd.to_datetime(out["date"], errors="coerce")
+            out["close"] = pd.to_numeric(out["close"], errors="coerce")
+            out = out.dropna(subset=["date", "close"]).sort_values("date")
+            out = _drop_rows_after_target_date(out, out["date"], end_date_key)
+
+            if len(out) < 2:
+                errors.append(f"{secid}: valid close count < 2")
+                continue
+
+            last_close = float(out.iloc[-1]["close"])
+            prev_close = float(out.iloc[-2]["close"])
+            if prev_close == 0:
+                errors.append(f"{secid}: prev_close is 0")
+                continue
+
+            trade_date = pd.Timestamp(out.iloc[-1]["date"]).strftime("%Y-%m-%d")
+            return (last_close / prev_close - 1.0) * 100.0, trade_date, f"eastmoney_us_hist_daily_{market_prefix}"
+        except Exception as exc:
+            errors.append(f"{secid}: {repr(exc)}")
+
+    raise RuntimeError(f"东方财富美股日线获取失败: {symbol}: {' | '.join(errors)}")
+
+
+def fetch_us_stock_return_pct_yahoo_daily_with_date(ticker, end_date=None, lookback_days=20, retry=2, sleep_seconds=0.8):
+    """
+    使用 Yahoo Finance Chart 作为美股个股完整日线兜底。
+
+    维护说明：
+    - 主数据源仍然是 `ak.stock_us_daily()`，因为它和项目原有逻辑最一致；
+    - 但 AKShare 单只美股日线偶尔会比目标估值日慢一天，例如目标是
+      2026-05-07，接口只返回到 2026-05-06；
+    - 这种情况下如果 Yahoo 已经有完整日线，就用 Yahoo 兜底，避免把
+      正常美股持仓误记为 stale；
+    - 这里仍然只取日线收盘价，不使用盘中行情，符合海外基金估值锚点口径。
+    """
+    symbol = str(ticker).strip().upper()
+    encoded_symbol = requests.utils.quote(symbol, safe="=")
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{encoded_symbol}"
+    params = {
+        "range": f"{int(lookback_days)}d",
+        "interval": "1d",
+        "includePrePost": "false",
+        "events": "history",
+    }
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/128.0.0.0 Safari/537.36"
+        ),
+        "Referer": "https://finance.yahoo.com/",
+    }
+
+    end_date_key = _normalize_trade_date_key(end_date)
+    last_error = None
+
+    for i in range(max(1, retry)):
+        try:
+            resp = requests.get(url, params=params, headers=headers, timeout=12)
+            resp.raise_for_status()
+            data = resp.json()
+            result = data.get("chart", {}).get("result", [None])[0]
+            if not result:
+                raise RuntimeError(f"Yahoo 返回结构异常: {symbol}, data={data}")
+
+            timestamps = result.get("timestamp") or []
+            quote = (result.get("indicators", {}).get("quote") or [{}])[0]
+            closes = quote.get("close") or []
+
+            rows = []
+            for ts, close in zip(timestamps, closes):
+                if close is None:
+                    continue
+                try:
+                    close_f = float(close)
+                except Exception:
+                    continue
+                if close_f <= 0:
+                    continue
+                rows.append({
+                    "date": datetime.utcfromtimestamp(int(ts)).strftime("%Y-%m-%d"),
+                    "close": close_f,
+                })
+
+            out = pd.DataFrame(rows).dropna(subset=["close"]).sort_values("date")
+            if end_date_key and not out.empty:
+                out = _drop_rows_after_target_date(out, out["date"], end_date_key)
+            if len(out) < 2:
+                raise RuntimeError(f"Yahoo 日线在目标日期 {end_date_key or 'latest'} 前有效数据不足: {symbol}")
+
+            last_close = float(out.iloc[-1]["close"])
+            prev_close = float(out.iloc[-2]["close"])
+            if prev_close == 0:
+                raise RuntimeError(f"Yahoo 前一交易日收盘价为 0: {symbol}")
+
+            trade_date = str(out.iloc[-1]["date"])
+            return (last_close / prev_close - 1.0) * 100.0, trade_date, "yahoo_chart_daily_us_fallback"
+
+        except Exception as exc:
+            last_error = exc
+            if i < max(1, retry) - 1:
+                time.sleep(sleep_seconds)
+
+    raise RuntimeError(f"Yahoo 美股日线获取失败: {symbol}: {last_error}")
+
+
+def fetch_us_return_pct_daily_with_date(ticker, end_date=None):
+    """
+    获取美股个股目标估值日完整日线涨跌幅。
+
+    主流程：
+    1. 先走 AKShare 的新浪美股日线封装 `stock_us_daily()`；
+    2. 如果新浪返回的实际交易日早于目标估值日，再尝试东方财富单只美股日线；
+    3. 最后尝试 Yahoo Chart 兜底；
+    4. 如果都没拿到目标日，但某个源返回了旧交易日，保留最接近目标日的结果，
+       交给上层标记为 stale，不中断整套程序。
+
+    注意：
+    - 这里不使用盘中行情，继续保持海外基金“完整日线锚点”口径。
+    - 雪球、腾讯等接口暂不硬接；如果后续确认稳定、免登录、字段明确，可以继续
+      加在东方财富和 Yahoo 之间。
+    """
+    end_date_key = _normalize_trade_date_key(end_date)
+    best_stale_result = None
+    errors = []
+
+    def _try_source(source_name, fetcher):
+        nonlocal best_stale_result
+        try:
+            result = fetcher()
+            _, trade_date, _ = result
+            trade_date_key = _normalize_trade_date_key(trade_date)
+            if not end_date_key or trade_date_key == end_date_key:
+                return result
+
+            errors.append(f"{source_name} trade_date={trade_date_key} != target={end_date_key}")
+            if trade_date_key and (
+                best_stale_result is None
+                or trade_date_key > _normalize_trade_date_key(best_stale_result[1])
+            ):
+                best_stale_result = result
+        except Exception as exc:
+            errors.append(f"{source_name}: {repr(exc)}")
+        return None
+
+    for source_name, fetcher in (
+        ("ak_stock_us_daily_sina", lambda: fetch_us_return_pct_akshare_daily_with_date(ticker, end_date=end_date_key)),
+        ("eastmoney_us_hist_daily", lambda: fetch_us_stock_return_pct_eastmoney_daily_with_date(ticker, end_date=end_date_key)),
+        ("yahoo_chart_daily_us_fallback", lambda: fetch_us_stock_return_pct_yahoo_daily_with_date(ticker, end_date=end_date_key)),
+    ):
+        result = _try_source(source_name, fetcher)
+        if result is not None:
+            return result
+
+    if best_stale_result is not None:
+        return best_stale_result
+
+    raise RuntimeError(f"美股 {ticker} 日线获取失败: {' | '.join(errors)}")
+
+
 def fetch_us_return_pct_akshare_daily(ticker):
     """
     使用 AKShare 美股历史日线获取最新交易日涨跌幅，返回百分数。
@@ -2417,6 +2648,11 @@ def fetch_us_return_pct_akshare_spot_sina(ticker):
 def fetch_us_return_pct_akshare_spot_em(ticker):
     """
     使用 AKShare 东方财富美股实时行情获取涨跌幅。
+
+    维护说明：
+    - 这是旧实时模式的备用函数，不参与海外基金“完整日线锚点”估算；
+    - 普通海外基金估算会走 `fetch_us_return_pct_daily_with_date()`，不会用这里的盘中数；
+    - 如果你只想控制完整日线兜底顺序，优先维护上面的日线函数。
     """
     global _US_SPOT_EM_CACHE
 
@@ -2503,12 +2739,16 @@ def fetch_us_return_pct(
         except Exception as e:
             errors.append(f"ak_daily: {repr(e)}")
 
-        # 默认快速模式下不主动调用 ak.stock_us_spot()，避免拉全市场；
-        # 这里只保留东方财富实时作为备用。
         try:
-            return fetch_us_return_pct_akshare_spot_em(ticker)
+            return fetch_us_stock_return_pct_eastmoney_daily_with_date(ticker)
         except Exception as e:
-            errors.append(f"ak_spot_em: {repr(e)}")
+            errors.append(f"eastmoney_daily: {repr(e)}")
+
+        try:
+            r_pct, _trade_date, source = fetch_us_stock_return_pct_yahoo_daily_with_date(ticker)
+            return r_pct, source
+        except Exception as e:
+            errors.append(f"yahoo_daily: {repr(e)}")
 
     raise RuntimeError(f"无法获取美股 {ticker} 涨跌幅: {' | '.join(errors)}")
 
@@ -2890,6 +3130,7 @@ def _fetch_us_index_return_pct_with_date(symbol, display_name=None, end_date=Non
             ".INX": "^GSPC",
             ".IXIC": "^IXIC",
             ".DJI": "^DJI",
+            ".SOX": "^SOX",
         }.get(str(symbol).strip().upper(), symbol)
         return fetch_us_index_return_pct_yahoo(
             symbol=yahoo_symbol,
@@ -2902,18 +3143,118 @@ def _fetch_us_index_return_pct_with_date(symbol, display_name=None, end_date=Non
     raise RuntimeError(f"指数 {display_name or symbol} 获取失败: {' | '.join(errors)}")
 
 
+def _canonical_us_index_symbol(symbol: str) -> tuple[str, str]:
+    symbol_norm = str(symbol or "").strip().upper()
+    mapping = {
+        ".NDX": (".NDX", "纳斯达克100"),
+        "^NDX": (".NDX", "纳斯达克100"),
+        "NDX": (".NDX", "纳斯达克100"),
+        ".INX": (".INX", "标普500"),
+        "^GSPC": (".INX", "标普500"),
+        "GSPC": (".INX", "标普500"),
+        "SPX": (".INX", "标普500"),
+        ".SOX": (".SOX", "费城半导体"),
+        "^SOX": (".SOX", "费城半导体"),
+        "SOX": (".SOX", "费城半导体"),
+        ".IXIC": (".IXIC", "纳斯达克综合"),
+        "^IXIC": (".IXIC", "纳斯达克综合"),
+        ".DJI": (".DJI", "道琼斯工业"),
+        "^DJI": (".DJI", "道琼斯工业"),
+    }
+    return mapping.get(symbol_norm, (symbol_norm, symbol_norm))
+
+
+def _return_pct_from_daily_price_df(
+    df: pd.DataFrame,
+    *,
+    symbol: str,
+    source: str,
+    end_date=None,
+) -> tuple[float, str, str]:
+    if df is None or df.empty:
+        raise RuntimeError(f"{source} 返回空数据: {symbol}")
+
+    out = df.copy()
+    date_col = _pick_column(out, ["date", "日期", "Date"])
+    close_col = _pick_column(out, ["close", "收盘", "最新价", "Close"])
+
+    if date_col is None or close_col is None:
+        raise RuntimeError(
+            f"{source} 缺少日期或收盘价列: {symbol}; 当前列={list(out.columns)}"
+        )
+
+    out[date_col] = pd.to_datetime(out[date_col], errors="coerce")
+    out[close_col] = pd.to_numeric(out[close_col], errors="coerce")
+    out = out.dropna(subset=[date_col, close_col]).sort_values(date_col)
+
+    end_date_key = _normalize_trade_date_key(end_date)
+    if end_date_key:
+        out = _drop_rows_after_target_date(out, out[date_col], end_date_key).sort_values(date_col)
+
+    if len(out) < 2:
+        raise RuntimeError(
+            f"{source} 在目标日期 {end_date_key or 'latest'} 前有效收盘点不足: {symbol}"
+        )
+
+    last_close = float(out.iloc[-1][close_col])
+    prev_close = float(out.iloc[-2][close_col])
+
+    if prev_close == 0:
+        raise RuntimeError(f"{source} 前一交易日收盘价为 0: {symbol}")
+
+    trade_date = pd.Timestamp(out.iloc[-1][date_col]).strftime("%Y-%m-%d")
+    return (last_close / prev_close - 1.0) * 100.0, trade_date, source
+
+
+def fetch_foreign_futures_return_pct_with_date(symbol, end_date=None, fallback_ticker=None):
+    """
+    获取外盘期货 / 贵金属完整日线涨跌幅。
+
+    主源使用新浪外盘期货历史行情，适合 XAU / GC；可选 fallback 使用
+    东方财富国际期货历史行情，例如 GC00Y。这里同样只使用完整日线，
+    并按 end_date 丢弃晚于估值锚点的行。
+    """
+    symbol_norm = str(symbol or "").strip().upper()
+    fallback_norm = str(fallback_ticker or "").strip().upper()
+    errors = []
+
+    if symbol_norm:
+        try:
+            df = ak.futures_foreign_hist(symbol=symbol_norm)
+            return _return_pct_from_daily_price_df(
+                df,
+                symbol=symbol_norm,
+                source="ak_futures_foreign_hist_sina",
+                end_date=end_date,
+            )
+        except Exception as exc:
+            errors.append(f"ak_futures_foreign_hist_sina({symbol_norm}): {repr(exc)}")
+
+    if fallback_norm:
+        try:
+            df = ak.futures_global_hist_em(symbol=fallback_norm)
+            return _return_pct_from_daily_price_df(
+                df,
+                symbol=fallback_norm,
+                source="ak_futures_global_hist_em_fallback",
+                end_date=end_date,
+            )
+        except Exception as exc:
+            errors.append(f"ak_futures_global_hist_em({fallback_norm}): {repr(exc)}")
+
+    raise RuntimeError(f"外盘期货 {symbol_norm or fallback_norm} 日线获取失败: {' | '.join(errors)}")
+
+
 def _fetch_daily_return_for_anchor(market: str, ticker: str, valuation_anchor_date: str):
     market = str(market or "").strip().upper()
     ticker_norm = _normalize_security_cache_ticker(market, ticker)
     anchor = _normalize_trade_date_key(valuation_anchor_date)
 
     if market == "US":
-        symbol = str(ticker_norm).strip().upper()
-        if symbol in {".NDX", "^NDX", "NDX"}:
-            return _fetch_us_index_return_pct_with_date(".NDX", "纳斯达克100", end_date=anchor)
-        if symbol in {".INX", "^GSPC", "GSPC", "SPX"}:
-            return _fetch_us_index_return_pct_with_date(".INX", "标普500", end_date=anchor)
-        return fetch_us_return_pct_akshare_daily_with_date(ticker_norm, end_date=anchor)
+        symbol, display_name = _canonical_us_index_symbol(ticker_norm)
+        if symbol.startswith("."):
+            return _fetch_us_index_return_pct_with_date(symbol, display_name, end_date=anchor)
+        return fetch_us_return_pct_daily_with_date(ticker_norm, end_date=anchor)
 
     if market == "CN":
         return fetch_cn_security_return_pct_daily_with_date(str(ticker_norm).zfill(6), end_date=anchor)
@@ -5073,60 +5414,315 @@ def get_us_index_return_pct_cached(symbol, display_name=None, cache_enabled=True
 
 
 
-def get_us_index_benchmark_items(cache_enabled=True, valuation_anchor_date=None):
+def _enabled_market_benchmark_specs():
     """
-    获取海外表底部基准信息。直接获取指数涨跌幅，不使用 QQQ/SPY 代理。
+    返回已启用的海外基金图基准配置。
 
-    数据源优先使用 tools/rsi_module.py：
-        .NDX -> 纳斯达克100
-        .INX -> 标普500
+    配置维护入口是 tools/configs/market_benchmark_configs.py。这里不写死纳指/
+    标普，方便后续继续加入 XOP、VIX、费城半导体、伦敦金等观察项。
     """
-    specs = [
-        {"label": "纳斯达克100", "symbol": ".NDX"},
-        {"label": "标普500", "symbol": ".INX"},
-    ]
+    specs = []
+    for order, item in enumerate(MARKET_BENCHMARK_ITEMS, start=1):
+        if not isinstance(item, dict):
+            continue
+        if not bool(item.get("enabled", True)):
+            continue
 
-    items = []
-    for spec in specs:
-        label = spec["label"]
-        symbol = spec["symbol"]
+        label = str(item.get("label", "")).strip()
+        ticker = str(item.get("ticker", "")).strip()
+        kind = str(item.get("kind", "")).strip().lower()
+        if not label or not ticker or not kind:
+            continue
 
-        try:
-            r_pct, trade_date, source = get_us_index_return_pct_cached(
+        specs.append({
+            "order": order,
+            "label": label,
+            "symbol": ticker.upper(),
+            "kind": kind,
+            "fallback_ticker": str(item.get("fallback_ticker", "")).strip().upper(),
+        })
+    return specs
+
+
+def _configured_benchmark_status_from_trade_date(trade_date, valuation_anchor_date) -> str:
+    anchor = _normalize_trade_date_key(valuation_anchor_date)
+    trade = _normalize_trade_date_key(trade_date)
+    if not anchor:
+        return "traded" if trade else "missing"
+    if trade == anchor:
+        return "traded"
+    if trade:
+        return "stale"
+    return "missing"
+
+
+def _get_yahoo_benchmark_return_by_anchor_date(symbol, valuation_anchor_date, cache_enabled=True) -> dict:
+    """
+    Yahoo 特殊基准的估值日缓存读取器。
+
+    用途：
+    - VIX 这类配置为 kind="yahoo" 的基准，直接走 Yahoo
+      完整日线，不再额外尝试新浪或东方财富；
+    - 同一 ticker + valuation_anchor_date 写入 security_return_cache.json，
+      避免 safe/节假日流程重复请求。
+    """
+    cache_key, ticker_norm, anchor = _anchor_security_cache_key("YAHOO", symbol, valuation_anchor_date)
+
+    if not anchor:
+        return _anchor_return_result(
+            market="YAHOO",
+            ticker=ticker_norm,
+            valuation_anchor_date=anchor,
+            status="missing",
+            source="anchor_missing",
+            error="valuation_anchor_date 为空",
+        )
+
+    if cache_enabled:
+        cached = _SECURITY_RETURN_RUNTIME_CACHE.get(cache_key)
+        if isinstance(cached, dict) and _is_anchor_cache_entry_fresh(cached):
+            return dict(cached)
+
+        cache = _load_json_cache(SECURITY_RETURN_CACHE_FILE, default={})
+        item = cache.get(cache_key) if isinstance(cache, dict) else None
+        if isinstance(item, dict) and _is_anchor_cache_entry_fresh(item):
+            _SECURITY_RETURN_RUNTIME_CACHE[cache_key] = dict(item)
+            return dict(item)
+
+    try:
+        return_pct, trade_date, source = fetch_us_stock_return_pct_yahoo_daily_with_date(
+            ticker_norm,
+            end_date=anchor,
+        )
+        status = _configured_benchmark_status_from_trade_date(trade_date, anchor)
+        entry = _anchor_return_result(
+            market="YAHOO",
+            ticker=ticker_norm,
+            valuation_anchor_date=anchor,
+            status=status,
+            return_pct=return_pct if status == "traded" else 0.0,
+            trade_date=trade_date,
+            source=source,
+            calendar_is_open=None,
+            error="" if status == "traded" else f"trade_date={trade_date} 与 valuation_anchor_date={anchor} 不一致",
+        )
+    except Exception as exc:
+        entry = _anchor_return_result(
+            market="YAHOO",
+            ticker=ticker_norm,
+            valuation_anchor_date=anchor,
+            status="missing",
+            return_pct=0.0,
+            trade_date="",
+            source="yahoo_chart_daily_failed",
+            calendar_is_open=None,
+            error=str(exc),
+        )
+
+    if cache_enabled:
+        _save_anchor_security_cache_entry(cache_key, entry)
+    return entry
+
+
+def _get_foreign_futures_benchmark_return_by_anchor_date(
+    symbol,
+    valuation_anchor_date,
+    *,
+    fallback_ticker=None,
+    cache_enabled=True,
+) -> dict:
+    """
+    外盘期货 / 贵金属基准的估值日缓存读取器。
+
+    当前用于伦敦金：优先新浪外盘期货 XAU，失败后回退东方财富国际期货
+    GC00Y。缓存 key 仍按配置主 ticker + valuation_anchor_date 保存，避免
+    safe/节假日流程重复请求。
+    """
+    cache_key, ticker_norm, anchor = _anchor_security_cache_key(
+        "FOREIGN_FUTURES",
+        symbol,
+        valuation_anchor_date,
+    )
+
+    if not anchor:
+        return _anchor_return_result(
+            market="FOREIGN_FUTURES",
+            ticker=ticker_norm,
+            valuation_anchor_date=anchor,
+            status="missing",
+            source="anchor_missing",
+            error="valuation_anchor_date 为空",
+        )
+
+    if cache_enabled:
+        cached = _SECURITY_RETURN_RUNTIME_CACHE.get(cache_key)
+        if isinstance(cached, dict) and _is_anchor_cache_entry_fresh(cached):
+            return dict(cached)
+
+        cache = _load_json_cache(SECURITY_RETURN_CACHE_FILE, default={})
+        item = cache.get(cache_key) if isinstance(cache, dict) else None
+        if isinstance(item, dict) and _is_anchor_cache_entry_fresh(item):
+            _SECURITY_RETURN_RUNTIME_CACHE[cache_key] = dict(item)
+            return dict(item)
+
+    try:
+        return_pct, trade_date, source = fetch_foreign_futures_return_pct_with_date(
+            ticker_norm,
+            end_date=anchor,
+            fallback_ticker=fallback_ticker,
+        )
+        status = _configured_benchmark_status_from_trade_date(trade_date, anchor)
+        entry = _anchor_return_result(
+            market="FOREIGN_FUTURES",
+            ticker=ticker_norm,
+            valuation_anchor_date=anchor,
+            status=status,
+            return_pct=return_pct if status == "traded" else 0.0,
+            trade_date=trade_date,
+            source=source,
+            calendar_is_open=None,
+            error="" if status == "traded" else f"trade_date={trade_date} 与 valuation_anchor_date={anchor} 不一致",
+        )
+    except Exception as exc:
+        entry = _anchor_return_result(
+            market="FOREIGN_FUTURES",
+            ticker=ticker_norm,
+            valuation_anchor_date=anchor,
+            status="missing",
+            return_pct=0.0,
+            trade_date="",
+            source="foreign_futures_daily_failed",
+            calendar_is_open=None,
+            error=str(exc),
+        )
+
+    if cache_enabled:
+        _save_anchor_security_cache_entry(cache_key, entry)
+    return entry
+
+
+def _fetch_configured_market_benchmark(spec: dict, cache_enabled=True, valuation_anchor_date=None) -> dict:
+    label = str(spec.get("label", "基准")).strip() or "基准"
+    symbol = str(spec.get("symbol", "")).strip().upper()
+    kind = str(spec.get("kind", "")).strip().lower()
+    fallback_ticker = str(spec.get("fallback_ticker", "")).strip().upper()
+    order = int(spec.get("order", 999) or 999)
+    anchor = _normalize_trade_date_key(valuation_anchor_date)
+
+    if not symbol:
+        raise RuntimeError(f"基准 {label} 缺少 ticker")
+
+    if kind == "us_index":
+        if anchor:
+            anchor_result = get_security_return_by_anchor_date(
+                market="US",
+                ticker=symbol,
+                valuation_anchor_date=anchor,
+                allow_intraday=False,
+                security_return_cache_enabled=cache_enabled,
+            )
+            return_pct, source, trade_date, status = _return_from_anchor_result(anchor_result)
+        else:
+            return_pct, trade_date, source = get_us_index_return_pct_cached(
                 symbol=symbol,
                 display_name=label,
                 cache_enabled=cache_enabled,
-                valuation_anchor_date=valuation_anchor_date,
             )
-            status = "traded"
-            anchor = _normalize_trade_date_key(valuation_anchor_date)
-            if anchor:
-                anchor_result = get_security_return_by_anchor_date(
-                    market="US",
-                    ticker=symbol,
+            status = _configured_benchmark_status_from_trade_date(trade_date, anchor)
+    elif kind == "us_security":
+        if anchor:
+            anchor_result = get_security_return_by_anchor_date(
+                market="US",
+                ticker=symbol,
+                valuation_anchor_date=anchor,
+                allow_intraday=False,
+                security_return_cache_enabled=cache_enabled,
+            )
+            return_pct, source, trade_date, status = _return_from_anchor_result(anchor_result)
+        else:
+            return_pct, trade_date, source = fetch_us_return_pct_daily_with_date(symbol)
+            status = _configured_benchmark_status_from_trade_date(trade_date, anchor)
+    elif kind == "yahoo":
+        # Yahoo 用于 VIX 等特殊海外资产；仍然只取日线收盘数据。
+        if anchor:
+            anchor_result = _get_yahoo_benchmark_return_by_anchor_date(
+                symbol,
+                valuation_anchor_date=anchor,
+                cache_enabled=cache_enabled,
+            )
+            return_pct, source, trade_date, status = _return_from_anchor_result(anchor_result)
+        else:
+            return_pct, trade_date, source = fetch_us_stock_return_pct_yahoo_daily_with_date(symbol)
+            status = _configured_benchmark_status_from_trade_date(trade_date, anchor)
+    elif kind == "foreign_futures":
+        # 用于伦敦金等海外贵金属，优先国内更友好的新浪/东方财富日线。
+        if anchor:
+            anchor_result = _get_foreign_futures_benchmark_return_by_anchor_date(
+                symbol,
+                valuation_anchor_date=anchor,
+                fallback_ticker=fallback_ticker,
+                cache_enabled=cache_enabled,
+            )
+            return_pct, source, trade_date, status = _return_from_anchor_result(anchor_result)
+        else:
+            return_pct, trade_date, source = fetch_foreign_futures_return_pct_with_date(
+                symbol,
+                fallback_ticker=fallback_ticker,
+            )
+            status = _configured_benchmark_status_from_trade_date(trade_date, anchor)
+    else:
+        raise RuntimeError(f"未知基准 kind={kind!r}，请检查 market_benchmark_configs.py")
+
+    display_return_pct = return_pct if str(status).strip().lower() in ANCHOR_COMPLETE_STATUSES else None
+    return {
+        "order": order,
+        "label": label,
+        "symbol": symbol,
+        "kind": kind,
+        "fallback_ticker": fallback_ticker,
+        "return_pct": display_return_pct,
+        "trade_date": trade_date,
+        "source": source,
+        "status": status,
+        "valuation_anchor_date": anchor,
+        "error": None,
+    }
+
+
+def get_us_index_benchmark_items(cache_enabled=True, valuation_anchor_date=None):
+    """
+    获取海外表底部基准信息。
+
+    基准清单来自 tools/configs/market_benchmark_configs.py，不再写死纳斯达克100
+    和标普500。单个基准失败只返回失败行，不影响基金估算或图片生成。
+    所有基准涨跌幅都取完整日线收盘数据，不使用盘中实时行情。
+    """
+    items = []
+    anchor = _normalize_trade_date_key(valuation_anchor_date)
+
+    for spec in _enabled_market_benchmark_specs():
+        label = str(spec.get("label", "基准"))
+        symbol = str(spec.get("symbol", "")).strip().upper()
+        try:
+            items.append(
+                _fetch_configured_market_benchmark(
+                    spec,
+                    cache_enabled=cache_enabled,
                     valuation_anchor_date=anchor,
-                    allow_intraday=False,
-                    security_return_cache_enabled=cache_enabled,
                 )
-                status = str(anchor_result.get("status", "traded"))
-            items.append({
-                "label": label,
-                "symbol": symbol,
-                "return_pct": r_pct,
-                "trade_date": trade_date,
-                "source": source,
-                "status": status,
-                "valuation_anchor_date": _normalize_trade_date_key(valuation_anchor_date),
-                "error": None,
-            })
+            )
         except Exception as e:
             print(f"[WARN] 指数基准 {label}({symbol}) 获取失败: {e}", flush=True)
             items.append({
+                "order": int(spec.get("order", 999) or 999),
                 "label": label,
                 "symbol": symbol,
+                "kind": str(spec.get("kind", "")).strip().lower(),
                 "return_pct": None,
                 "trade_date": "",
                 "source": "failed",
+                "status": "missing",
+                "valuation_anchor_date": anchor,
                 "error": str(e),
             })
 
@@ -5152,6 +5748,106 @@ def print_fund_estimate_table(result_df, title=None, pct_digits=4):
     print("=" * 100)
 
 
+def _build_daily_benchmark_table_rows(benchmark_footer_items, pct_digits=2):
+    rows = []
+    raw_values = []
+    for index, item in enumerate(list(benchmark_footer_items or []), start=1):
+        if not isinstance(item, dict):
+            continue
+
+        value = _safe_float_or_none(item.get("return_pct"))
+        raw_values.append(value)
+        trade_date = _normalize_date_string(item.get("trade_date")) or _normalize_date_string(
+            item.get("valuation_anchor_date")
+        )
+        rows.append(
+            {
+                "序号": index,
+                "指数名称": str(item.get("label", item.get("symbol", "基准"))).strip() or "基准",
+                "模型观察": format_pct(value, digits=pct_digits) if value is not None else "获取失败",
+                "基准日或区间": trade_date or "--",
+            }
+        )
+
+    if not rows:
+        return pd.DataFrame(columns=["序号", "指数名称", "模型观察", "基准日或区间"]), []
+
+    return pd.DataFrame(rows, columns=["序号", "指数名称", "模型观察", "基准日或区间"]), raw_values
+
+
+def _draw_benchmark_table(
+    ax,
+    benchmark_df,
+    raw_values,
+    bbox,
+    *,
+    fontsize,
+    header_bg,
+    header_text_color,
+    grid_color,
+    up_color,
+    down_color,
+    neutral_color,
+    column_widths=None,
+):
+    table = ax.table(
+        cellText=benchmark_df.values,
+        colLabels=benchmark_df.columns,
+        cellLoc="center",
+        colLoc="center",
+        bbox=bbox,
+        zorder=2,
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(fontsize)
+    table.scale(1.0, 1.18)
+
+    value_col_idx = None
+    for candidate in ("模型观察", "区间模型观察"):
+        if candidate in benchmark_df.columns:
+            value_col_idx = list(benchmark_df.columns).index(candidate)
+            break
+    default_width_by_name = {
+        "序号": 0.08,
+        "指数名称": 0.34,
+        "模型观察": 0.20,
+        "基准日或区间": 0.38,
+    }
+    if column_widths is not None and len(column_widths) != len(benchmark_df.columns):
+        column_widths = None
+
+    for (row, col), cell in table.get_celld().items():
+        cell.set_edgecolor(grid_color)
+        cell.set_linewidth(0.8)
+
+        if row == 0:
+            cell.set_facecolor(header_bg)
+            cell.set_text_props(color=header_text_color, weight="bold")
+        else:
+            cell.set_facecolor("white")
+            if value_col_idx is not None and col == value_col_idx:
+                raw_val = raw_values[row - 1] if row - 1 < len(raw_values) else None
+                if raw_val is None or pd.isna(raw_val):
+                    cell.get_text().set_color(neutral_color)
+                elif float(raw_val) > 0:
+                    cell.get_text().set_color(up_color)
+                    cell.get_text().set_weight("bold")
+                elif float(raw_val) < 0:
+                    cell.get_text().set_color(down_color)
+                    cell.get_text().set_weight("bold")
+                else:
+                    cell.get_text().set_color(neutral_color)
+
+        if col < len(benchmark_df.columns):
+            col_name = benchmark_df.columns[col]
+            if column_widths is not None:
+                cell.set_width(column_widths[col])
+            elif col_name in default_width_by_name:
+                cell.set_width(default_width_by_name[col_name])
+
+    return table
+
+
 def save_fund_estimate_table_image(
     result_df,
     output_file="output/fund_estimate_table.png",
@@ -5170,7 +5866,7 @@ def save_fund_estimate_table_image(
     down_color="green",
     neutral_color="black",
     pct_digits=4,
-    header_bg="#2f3b52",
+    header_bg="#3f4d66",
     header_text_color="white",
     grid_color="#d9d9d9",
     figure_width=None,
@@ -5231,12 +5927,28 @@ def save_fund_estimate_table_image(
     )
     table_df = table_df.rename(columns=display_column_names)
 
+    benchmark_table_df, benchmark_raw_values = _build_daily_benchmark_table_rows(
+        benchmark_footer_items,
+        pct_digits=2,
+    )
+    has_benchmark_footer = not benchmark_table_df.empty
+
     nrows = len(table_df)
     ncols = len(table_df.columns)
     has_compliance_notice = bool(str(compliance_notice_text).strip()) if compliance_notice_text else False
 
     # 画布高度随行数增长，避免标题/备注离表格过远。
-    fig_h = max(1.8, row_height * (nrows + 1) + (0.65 if has_compliance_notice else 0.45))
+    benchmark_height_units = row_height * (len(benchmark_table_df) + 1) if has_benchmark_footer else 0.0
+    footer_height_units = 0.85 if has_compliance_notice and footnote_text else (
+        0.55 if (has_compliance_notice or footnote_text) else 0.25
+    )
+    fig_h = max(
+        1.8,
+        row_height * (nrows + 1)
+        + benchmark_height_units
+        + footer_height_units
+        + (0.35 if has_benchmark_footer else 0.0),
+    )
 
     if figure_width is None:
         fig_w = 14.0 if ncols >= 5 else 12.5
@@ -5254,16 +5966,15 @@ def save_fund_estimate_table_image(
 
     # 为标题和备注预留很小的区域，主体交给表格
     top_reserved = 0.08 if title else 0.03
-    has_benchmark_footer = bool(benchmark_footer_items)
-    notice_reserved = 0.055 if has_compliance_notice else 0.0
-    if footnote_text and has_benchmark_footer:
-        bottom_reserved = 0.13 + notice_reserved
-    elif footnote_text or has_benchmark_footer:
-        bottom_reserved = 0.09 + notice_reserved
-    else:
-        bottom_reserved = 0.03 + (0.045 if has_compliance_notice else 0.0)
+    footer_reserved = 0.070 if has_compliance_notice and footnote_text else (
+        0.050 if (has_compliance_notice or footnote_text) else 0.025
+    )
+    benchmark_reserved = min(max(benchmark_height_units / max(fig_h, 0.01), 0.16), 0.26) if has_benchmark_footer else 0.0
+    benchmark_gap = 0.010 if has_benchmark_footer else 0.0
+    bottom_reserved = footer_reserved + benchmark_reserved + benchmark_gap
 
     table_bbox = [0.02, bottom_reserved, 0.96, 1 - top_reserved - bottom_reserved]
+    benchmark_bbox = [0.08, footer_reserved, 0.84, benchmark_reserved] if has_benchmark_footer else None
 
     table = ax.table(
         cellText=table_df.values,
@@ -5323,6 +6034,49 @@ def save_fund_estimate_table_image(
             if col_name in col_width_by_name:
                 cell.set_width(col_width_by_name[col_name])
 
+    same_column_count_as_main = has_benchmark_footer and len(benchmark_table_df.columns) == len(table_df.columns)
+    benchmark_column_widths = None
+    if same_column_count_as_main:
+        # 当基准表和主表都是 4 列时，按位置复用主表列宽。
+        # 这样 safe_fund / 节后单日图里上下两张表的列边界会尽量对齐。
+        benchmark_bbox = list(table_bbox)
+        benchmark_bbox[1] = footer_reserved
+        benchmark_bbox[3] = benchmark_reserved
+        benchmark_column_widths = [
+            table.get_celld()[(0, col)].get_width()
+            for col in range(len(table_df.columns))
+        ]
+
+    benchmark_table_artist = None
+    separator_artists = []
+    if has_benchmark_footer and benchmark_bbox is not None:
+        benchmark_table_artist = _draw_benchmark_table(
+            ax,
+            benchmark_table_df,
+            benchmark_raw_values,
+            benchmark_bbox,
+            fontsize=17,
+            header_bg=header_bg,
+            header_text_color=header_text_color,
+            grid_color=grid_color,
+            up_color=up_color,
+            down_color=down_color,
+            neutral_color=neutral_color,
+            column_widths=benchmark_column_widths,
+        )
+        separator_y = benchmark_bbox[1] + benchmark_bbox[3] + max(benchmark_gap * 0.5, 0.003)
+        separator_artists.extend(
+            ax.plot(
+                [table_bbox[0], table_bbox[0] + table_bbox[2]],
+                [separator_y, separator_y],
+                transform=ax.transAxes,
+                color=header_bg,
+                linewidth=1.2,
+                alpha=0.45,
+                zorder=4,
+            )
+        )
+
     # 水印画在表格区域内部，透明度较低但保证可见。
     if watermark_text and watermark_rows > 0 and watermark_cols > 0:
         table_left, table_bottom, table_width, table_height = table_bbox
@@ -5358,6 +6112,11 @@ def save_fund_estimate_table_image(
     table_top = bbox_fig.y1
     table_bottom = bbox_fig.y0
     table_height = max(table_top - table_bottom, 0.01)
+    benchmark_bottom = table_bottom
+    if benchmark_table_artist is not None:
+        benchmark_bbox_disp = benchmark_table_artist.get_window_extent(renderer=renderer)
+        benchmark_bbox_fig = benchmark_bbox_disp.transformed(fig.transFigure.inverted())
+        benchmark_bottom = benchmark_bbox_fig.y0
 
     title_gap = max(
         min(table_height * title_gap_ratio, title_gap_max),
@@ -5426,7 +6185,7 @@ def save_fund_estimate_table_image(
             fontweight=title_fontweight,
         )
 
-    # 底部三行作为一个整体排版，避免提示语、基准和备注的行距不一致。
+    # 底部免责声明和备注作为一个整体排版；基准已经单独绘制成表格。
     bottom_children = []
     if has_compliance_notice:
         bottom_children.append(
@@ -5439,50 +6198,6 @@ def save_fund_estimate_table_image(
                 },
             )
         )
-
-    footer_pack = None
-    if benchmark_footer_items:
-        effective_benchmark_footer_fontsize = (
-            compliance_notice_fontsize if has_compliance_notice else benchmark_footer_fontsize
-        )
-        children = [
-            TextArea(
-                "基准：",
-                textprops={"fontsize": effective_benchmark_footer_fontsize, "color": footnote_color},
-            )
-        ]
-
-        for idx, item in enumerate(benchmark_footer_items):
-            if idx > 0:
-                children.append(
-                    TextArea("；", textprops={"fontsize": effective_benchmark_footer_fontsize, "color": footnote_color})
-                )
-
-            label = str(item.get("label", "基准"))
-            trade_date = str(item.get("trade_date", "")).strip()
-            r_pct = item.get("return_pct")
-
-            if r_pct is None or pd.isna(r_pct):
-                seg_text = f"{label} 获取失败"
-                seg_color = neutral_color
-            else:
-                # 日期必须显式显示在每个指数后，避免两个指数交易日不一致时产生歧义。
-                seg_text = f"{label}（{trade_date or '日期未知'}）{format_pct(r_pct, digits=2)}"
-                seg_color = up_color if float(r_pct) > 0 else (down_color if float(r_pct) < 0 else neutral_color)
-
-            children.append(
-                TextArea(
-                    seg_text,
-                    textprops={
-                        "fontsize": effective_benchmark_footer_fontsize,
-                        "color": seg_color,
-                        "fontweight": "bold",
-                    },
-                )
-            )
-
-        footer_pack = HPacker(children=children, align="center", pad=0, sep=2)
-        bottom_children.append(footer_pack)
 
     if footnote_text:
         footnote_display_text = str(footnote_text).strip()
@@ -5498,7 +6213,7 @@ def save_fund_estimate_table_image(
     if bottom_children:
         bottom_pack = VPacker(children=bottom_children, align="center", pad=0, sep=4)
         bottom_block_y = max(
-            table_bottom - max(min(table_height * 0.012, 0.010), 0.006),
+            benchmark_bottom - max(min(table_height * 0.012, 0.010), 0.006),
             0.030,
         )
         bottom_block_artist = AnchoredOffsetbox(
@@ -5518,6 +6233,7 @@ def save_fund_estimate_table_image(
         extra_artists.append(title_artist)
     if bottom_block_artist is not None:
         extra_artists.append(bottom_block_artist)
+    extra_artists.extend(separator_artists)
     extra_artists.extend(watermark_artists)
 
     fig.savefig(
@@ -6301,30 +7017,41 @@ def _write_overseas_benchmark_history_cache(
         return_pct = _safe_float_or_none(item.get("return_pct"))
         trade_date = _normalize_date_string(item.get("trade_date")) or valuation_date
 
-        if not symbol or return_pct is None:
+        if not symbol:
             skipped_invalid += 1
             continue
 
         key = f"benchmark:{symbol}:{valuation_date}"
         status = str(item.get("status", "traded")).strip().lower()
-        is_final = status in ANCHOR_COMPLETE_STATUSES and trade_date == valuation_date
+        is_final = return_pct is not None and status in ANCHOR_COMPLETE_STATUSES and trade_date == valuation_date
+        if return_pct is None:
+            data_status = "failed"
+        elif status == "stale":
+            data_status = "stale"
+        elif is_final:
+            data_status = "complete"
+        else:
+            data_status = "partial"
 
         record = {
             "market_group": "overseas",
             "record_type": "benchmark",
             "label": label or symbol,
             "symbol": symbol,
+            "kind": str(item.get("kind", "")).strip(),
+            "order": item.get("order"),
             "valuation_date": valuation_date,
             "valuation_anchor_date": valuation_date,
             "trade_date": trade_date,
             "run_date_bj": now.strftime("%Y-%m-%d"),
             "run_time_bj": now.isoformat(timespec="seconds"),
             "stage": "final" if is_final else "partial",
-            "data_status": "complete" if is_final else ("stale" if status == "stale" else "partial"),
+            "data_status": data_status,
             "is_final": bool(is_final),
-            "return_pct": float(return_pct),
+            "return_pct": float(return_pct) if return_pct is not None else None,
             "status": status,
             "source": str(item.get("source", "")),
+            "error": str(item.get("error", "") or ""),
             "table_title": str(title or ""),
             "output_file": str(output_file or ""),
             "cache_key": key,
@@ -6386,7 +7113,7 @@ def estimate_funds_and_save_table(
     neutral_color="black",
     pct_digits=2,
     dpi=180,
-    header_bg="#2f3b52",
+    header_bg="#3f4d66",
     header_text_color="white",
     grid_color="#d9d9d9",
     figure_width=None,

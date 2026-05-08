@@ -27,6 +27,7 @@ from safe_holidays import (
     CUMULATIVE_INTERNAL_COLUMN,
     build_safe_summary_df,
 )
+from tools.configs.market_benchmark_configs import MARKET_BENCHMARK_ITEMS
 from tools.fund_estimate_history_overseas import (
     build_benchmark_cumulative_dataframe,
     build_cumulative_dataframe,
@@ -354,7 +355,16 @@ def _daily_benchmark_footer_items(benchmark_daily_df: pd.DataFrame) -> list[dict
         return []
 
     items = []
-    sort_order = {".NDX": 0, "^NDX": 0, "NDX": 0, ".INX": 1, "^GSPC": 1}
+    sort_order = {
+        str(item.get("ticker", "")).strip().upper(): order
+        for order, item in enumerate(MARKET_BENCHMARK_ITEMS, start=1)
+        if isinstance(item, dict) and bool(item.get("enabled", True))
+    }
+    config_labels = {
+        str(item.get("label", "")).strip()
+        for item in MARKET_BENCHMARK_ITEMS
+        if isinstance(item, dict) and bool(item.get("enabled", True))
+    }
     out = benchmark_daily_df.copy()
     out["_sort"] = out["symbol"].astype(str).str.upper().map(sort_order).fillna(99)
     out = out.sort_values(["_sort", "symbol", "valuation_date"])
@@ -363,10 +373,14 @@ def _daily_benchmark_footer_items(benchmark_daily_df: pd.DataFrame) -> list[dict
         value = pd.to_numeric(row.get("return_pct"), errors="coerce")
         if pd.isna(value):
             continue
+        label = str(row.get("label", row.get("symbol", "基准"))).strip() or "基准"
+        symbol = str(row.get("symbol", "")).strip()
+        if symbol.upper() not in sort_order and label in config_labels:
+            continue
         items.append(
             {
-                "label": str(row.get("label", row.get("symbol", "基准"))).strip() or "基准",
-                "symbol": str(row.get("symbol", "")).strip(),
+                "label": label,
+                "symbol": symbol,
                 "return_pct": float(value),
                 "trade_date": str(row.get("valuation_date", row.get("trade_date", ""))).strip(),
                 "source": str(row.get("source", "cache")).strip(),
