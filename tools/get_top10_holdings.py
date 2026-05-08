@@ -10,7 +10,7 @@ fund_estimator.py
 1. 普通股票型 / QDII 股票型基金
    - 从 ak.fund_portfolio_hold_em() 获取最近披露前 N 大股票持仓；
    - 默认将前 N 大持仓权重归一化到 100%；
-   - 海外表可启用“有效持仓增强 + 失败持仓/未披露仓位纳斯达克100补偿”口径；
+   - 海外表可启用“有效持仓增强 + 失败持仓/未披露仓位配置基准补偿”口径；
    - 按股票最新交易日涨跌幅估算；
    - 新增支持港股持仓，港股代码自动识别为 HK 市场。
 
@@ -87,6 +87,11 @@ from tools.configs.market_calendar_configs import (
     KR_MARKET_ZERO_HOLIDAY_MD,
     MARKET_CALENDAR_NAMES,
     MARKET_CLOSE_BUFFER_HOURS,
+)
+from tools.configs.residual_benchmark_configs import (
+    DEFAULT_RESIDUAL_BENCHMARK_KEY,
+    FUND_RESIDUAL_BENCHMARK_MAP,
+    RESIDUAL_BENCHMARK_SPECS,
 )
 from tools.configs.security_mappings import KR_TICKER_MAP, US_TICKER_MAP
 from tools.paths import CACHE_DIR
@@ -3078,6 +3083,140 @@ def _return_from_anchor_result(anchor_result: dict) -> tuple[float | None, str, 
     return 0.0, source, trade_date, status
 
 
+def _normalize_residual_benchmark_key(value) -> str:
+    return str(value or "").strip().lower()
+
+
+def _resolve_residual_benchmark_spec(benchmark) -> dict | None:
+    """
+    将配置 key / 别名 / ticker 转成补偿基准配置。
+
+    维护入口在 tools/configs/residual_benchmark_configs.py。这里尽量兼容旧写法：
+    例如 nasdaq100、ndx、.NDX 都会解析到纳斯达克100。
+    """
+    if isinstance(benchmark, dict):
+        market = str(benchmark.get("market") or "US").strip().upper()
+        ticker = str(benchmark.get("ticker") or benchmark.get("symbol") or "").strip().upper()
+        if not ticker:
+            return None
+        label = str(benchmark.get("label") or benchmark.get("name") or ticker).strip()
+        key = _normalize_residual_benchmark_key(benchmark.get("key") or ticker)
+        return {
+            "key": key,
+            "label": label,
+            "market": market,
+            "ticker": ticker,
+        }
+
+    key = _normalize_residual_benchmark_key(benchmark)
+    if not key:
+        return None
+
+    for spec_key, spec in RESIDUAL_BENCHMARK_SPECS.items():
+        aliases = {
+            _normalize_residual_benchmark_key(spec_key),
+            _normalize_residual_benchmark_key(spec.get("ticker")),
+        }
+        aliases.update(
+            _normalize_residual_benchmark_key(alias)
+            for alias in spec.get("aliases", set())
+        )
+        if key in aliases:
+            return {
+                "key": spec_key,
+                "label": str(spec.get("label") or spec.get("ticker") or spec_key).strip(),
+                "market": str(spec.get("market") or "US").strip().upper(),
+                "ticker": str(spec.get("ticker") or "").strip().upper(),
+            }
+
+    return None
+
+
+def _configured_residual_benchmark_for_fund(fund_code: str) -> str:
+    code = str(fund_code or "").strip().zfill(6)
+    return FUND_RESIDUAL_BENCHMARK_MAP.get(code, DEFAULT_RESIDUAL_BENCHMARK_KEY)
+
+
+def _fetch_residual_benchmark_for_fund(
+    fund_code: str,
+    *,
+    valuation_anchor_date: str,
+    explicit_benchmark=None,
+    explicit_return_pct=None,
+    explicit_label=None,
+    explicit_source=None,
+    explicit_status=None,
+    explicit_trade_date=None,
+    auto_enabled=False,
+    security_return_cache_enabled=True,
+) -> dict:
+    """
+    解析并获取某只基金的补偿仓位基准。
+
+    优先级：
+    1. 外部显式传入 return_pct：完全尊重旧调用方覆盖；
+    2. 外部显式传入 benchmark：该批基金统一使用这个基准；
+    3. auto_enabled=True 时，按 FUND_RESIDUAL_BENCHMARK_MAP 查单基金配置；
+    4. 没有单基金配置时，回落到默认纳斯达克100。
+    """
+    benchmark_key = explicit_benchmark
+    if benchmark_key is None and auto_enabled:
+        benchmark_key = _configured_residual_benchmark_for_fund(fund_code)
+
+    spec = _resolve_residual_benchmark_spec(benchmark_key) if benchmark_key is not None else None
+
+    if explicit_return_pct is not None:
+        label = explicit_label
+        if not label and spec:
+            label = f"{spec['label']}({_normalize_trade_date_key(valuation_anchor_date)})"
+        return {
+            "return_pct": explicit_return_pct,
+            "label": label or "剩余仓位基准",
+            "source": explicit_source or "residual_benchmark",
+            "status": explicit_status or "traded",
+            "trade_date": _normalize_trade_date_key(explicit_trade_date),
+            "market": spec.get("market", "US") if spec else "US",
+            "ticker": spec.get("ticker", "") if spec else "",
+            "key": spec.get("key", "") if spec else "",
+        }
+
+    if not spec:
+        if benchmark_key:
+            print(
+                f"[WARN] 未识别的补偿仓位基准 {benchmark_key!r}，基金 {fund_code} 将沿用原股票持仓估算口径。",
+                flush=True,
+            )
+        return {}
+
+    anchor = _normalize_trade_date_key(valuation_anchor_date)
+    try:
+        anchor_result = get_security_return_by_anchor_date(
+            market=spec["market"],
+            ticker=spec["ticker"],
+            valuation_anchor_date=anchor,
+            allow_intraday=False,
+            security_return_cache_enabled=security_return_cache_enabled,
+        )
+        r_pct, source, trade_date, bench_status = _return_from_anchor_result(anchor_result)
+        return {
+            "return_pct": r_pct,
+            "label": explicit_label or f"{spec['label']}({anchor})",
+            "source": explicit_source or source,
+            "status": explicit_status or bench_status,
+            "trade_date": trade_date,
+            "market": spec["market"],
+            "ticker": spec["ticker"],
+            "key": spec["key"],
+        }
+    except Exception as e:
+        print(
+            f"[WARN] 基金 {str(fund_code).zfill(6)} 补偿仓位基准 {spec['label']}({spec['ticker']}) "
+            f"获取失败，将沿用原股票持仓估算口径: {e}",
+            flush=True,
+        )
+        return {}
+
+
 
 def get_proxy_return_pct(
     component,
@@ -3525,6 +3664,9 @@ def estimate_stock_holdings_return(
     stock_residual_benchmark_source=None,
     stock_residual_benchmark_status=None,
     stock_residual_benchmark_trade_date=None,
+    stock_residual_benchmark_ticker=None,
+    stock_residual_benchmark_market="US",
+    stock_residual_benchmark_key=None,
     zero_stale_cn_hk_returns=False,
     stale_market_estimate_date=None,
     stale_market_zero_markets=("CN", "HK", "KR"),
@@ -3673,7 +3815,7 @@ def estimate_stock_holdings_return(
     df["收益贡献"] = pd.NA
 
     # 海外股票持仓型基金的增强补偿口径：
-    # 行情有效持仓按原始占净值比例放大；行情失败持仓与未披露仓位进入纳斯达克100补偿仓位。
+    # 行情有效持仓按原始占净值比例放大；行情失败持仓与未披露仓位进入配置基准补偿仓位。
     raw_weight_sum_pct = float(pd.to_numeric(df["占净值比例"], errors="coerce").fillna(0).sum())
     available_raw_weight_sum_pct = float(pd.to_numeric(df.loc[valid_mask, "占净值比例"], errors="coerce").fillna(0).sum())
     failed_raw_weight_sum_pct = float(pd.to_numeric(df.loc[~valid_mask, "占净值比例"], errors="coerce").fillna(0).sum())
@@ -3684,6 +3826,8 @@ def estimate_stock_holdings_return(
         residual_label = stock_residual_benchmark_label or "剩余仓位基准"
         residual_source = stock_residual_benchmark_source or "residual_benchmark"
         residual_return_pct = float(stock_residual_benchmark_return_pct)
+        residual_market = str(stock_residual_benchmark_market or "US").strip().upper()
+        residual_ticker = str(stock_residual_benchmark_ticker or "").strip().upper()
         residual_status = str(
             stock_residual_benchmark_status
             or ("traded" if stock_residual_benchmark_return_pct is not None else "missing")
@@ -3694,8 +3838,8 @@ def estimate_stock_holdings_return(
 
         # 海外股票持仓型基金专用口径：
         # 1. 行情有效的已披露持仓按人工放大系数计算；
-        # 2. 行情失败的已披露持仓划入纳斯达克100补偿仓位；
-        # 3. 未披露仓位也划入纳斯达克100补偿仓位；
+        # 2. 行情失败的已披露持仓划入配置基准补偿仓位；
+        # 3. 未披露仓位也划入配置基准补偿仓位；
         # 4. 为避免总权重超过 100%，补偿仓位 = 100% - 放大后的有效持仓权重。
         try:
             holding_boost = float(OVERSEAS_VALID_HOLDING_BOOST)
@@ -3752,8 +3896,8 @@ def estimate_stock_holdings_return(
                     "占净值比例": residual_weight_pct,
                     "季度": "失败持仓与未披露仓位基准补偿",
                     "_quarter_key": pd.NA,
-                    "市场": "US",
-                    "ticker": ".NDX",
+                    "市场": residual_market,
+                    "ticker": residual_ticker,
                     "归一化权重": pd.NA,
                     "当日涨跌幅": residual_return_pct,
                     "收益数据源": residual_source,
@@ -3895,6 +4039,9 @@ def estimate_stock_holdings_return(
         "failed_raw_weight_sum_pct": failed_raw_weight_sum_pct,
         "residual_benchmark_enabled": bool(use_residual_benchmark),
         "residual_benchmark_label": stock_residual_benchmark_label,
+        "residual_benchmark_key": stock_residual_benchmark_key or "",
+        "residual_benchmark_market": str(stock_residual_benchmark_market or "US").strip().upper() if use_residual_benchmark else "",
+        "residual_benchmark_ticker": str(stock_residual_benchmark_ticker or "").strip().upper() if use_residual_benchmark else "",
         "residual_benchmark_return_pct": None if stock_residual_benchmark_return_pct is None else float(stock_residual_benchmark_return_pct),
         "residual_benchmark_trade_date": _normalize_trade_date_key(stock_residual_benchmark_trade_date),
         "residual_benchmark_status": stock_residual_benchmark_status or ("traded" if stock_residual_benchmark_return_pct is not None else ""),
@@ -4220,6 +4367,9 @@ def estimate_one_fund(
     stock_residual_benchmark_source=None,
     stock_residual_benchmark_status=None,
     stock_residual_benchmark_trade_date=None,
+    stock_residual_benchmark_ticker=None,
+    stock_residual_benchmark_market="US",
+    stock_residual_benchmark_key=None,
     zero_stale_cn_hk_returns=False,
     stale_market_estimate_date=None,
     valuation_anchor_date=None,
@@ -4327,6 +4477,9 @@ def estimate_one_fund(
             stock_residual_benchmark_source=stock_residual_benchmark_source,
             stock_residual_benchmark_status=stock_residual_benchmark_status,
             stock_residual_benchmark_trade_date=stock_residual_benchmark_trade_date,
+            stock_residual_benchmark_ticker=stock_residual_benchmark_ticker,
+            stock_residual_benchmark_market=stock_residual_benchmark_market,
+            stock_residual_benchmark_key=stock_residual_benchmark_key,
             zero_stale_cn_hk_returns=zero_stale_cn_hk_returns,
             stale_market_estimate_date=stale_market_estimate_date,
             valuation_anchor_date=valuation_anchor_date,
@@ -4373,6 +4526,8 @@ def estimate_funds(
     proxy_normalize_weights=False,
     include_method_col=False,
     valuation_mode="intraday",
+    auto_residual_benchmark_enabled=False,
+    stock_residual_benchmark=None,
     stock_residual_benchmark_return_pct=None,
     stock_residual_benchmark_label=None,
     stock_residual_benchmark_source=None,
@@ -4421,6 +4576,41 @@ def estimate_funds(
         code = str(fund_code).zfill(6)
 
         try:
+            mode_norm = str(holding_mode).strip().lower()
+            will_use_stock_holdings = not (
+                mode_norm == "proxy"
+                or (mode_norm == "auto" and code in proxy_map)
+            )
+            residual_kwargs = {}
+            if will_use_stock_holdings and (
+                stock_residual_benchmark_return_pct is not None
+                or stock_residual_benchmark is not None
+                or auto_residual_benchmark_enabled
+            ):
+                residual_info = _fetch_residual_benchmark_for_fund(
+                    code,
+                    valuation_anchor_date=valuation_anchor_date,
+                    explicit_benchmark=stock_residual_benchmark,
+                    explicit_return_pct=stock_residual_benchmark_return_pct,
+                    explicit_label=stock_residual_benchmark_label,
+                    explicit_source=stock_residual_benchmark_source,
+                    explicit_status=stock_residual_benchmark_status,
+                    explicit_trade_date=stock_residual_benchmark_trade_date,
+                    auto_enabled=auto_residual_benchmark_enabled,
+                    security_return_cache_enabled=security_return_cache_enabled,
+                )
+                if residual_info:
+                    residual_kwargs = {
+                        "stock_residual_benchmark_return_pct": residual_info.get("return_pct"),
+                        "stock_residual_benchmark_label": residual_info.get("label"),
+                        "stock_residual_benchmark_source": residual_info.get("source"),
+                        "stock_residual_benchmark_status": residual_info.get("status"),
+                        "stock_residual_benchmark_trade_date": residual_info.get("trade_date"),
+                        "stock_residual_benchmark_ticker": residual_info.get("ticker"),
+                        "stock_residual_benchmark_market": residual_info.get("market", "US"),
+                        "stock_residual_benchmark_key": residual_info.get("key"),
+                    }
+
             result_row, detail_df, summary = estimate_one_fund(
                 fund_code=code,
                 top_n=top_n,
@@ -4440,11 +4630,14 @@ def estimate_funds(
                 proxy_map=proxy_map,
                 proxy_normalize_weights=proxy_normalize_weights,
                 valuation_mode=valuation_mode,
-                stock_residual_benchmark_return_pct=stock_residual_benchmark_return_pct,
-                stock_residual_benchmark_label=stock_residual_benchmark_label,
-                stock_residual_benchmark_source=stock_residual_benchmark_source,
-                stock_residual_benchmark_status=stock_residual_benchmark_status,
-                stock_residual_benchmark_trade_date=stock_residual_benchmark_trade_date,
+                stock_residual_benchmark_return_pct=residual_kwargs.get("stock_residual_benchmark_return_pct"),
+                stock_residual_benchmark_label=residual_kwargs.get("stock_residual_benchmark_label"),
+                stock_residual_benchmark_source=residual_kwargs.get("stock_residual_benchmark_source"),
+                stock_residual_benchmark_status=residual_kwargs.get("stock_residual_benchmark_status"),
+                stock_residual_benchmark_trade_date=residual_kwargs.get("stock_residual_benchmark_trade_date"),
+                stock_residual_benchmark_ticker=residual_kwargs.get("stock_residual_benchmark_ticker"),
+                stock_residual_benchmark_market=residual_kwargs.get("stock_residual_benchmark_market", "US"),
+                stock_residual_benchmark_key=residual_kwargs.get("stock_residual_benchmark_key"),
                 zero_stale_cn_hk_returns=zero_stale_cn_hk_returns,
                 stale_market_estimate_date=stale_market_estimate_date,
                 valuation_anchor_date=valuation_anchor_date,
@@ -5441,7 +5634,7 @@ def _is_overseas_fund_table_context(title=None, output_file=None) -> bool:
     """
     判断当前表格是否为“海外市场基金收益表”。
 
-    只用于自动启用海外股票持仓型基金的剩余仓位纳斯达克100补偿口径。
+    只用于自动启用海外股票持仓型基金的剩余仓位配置基准补偿口径。
     不改变国内基金表，不改变 DEFAULT_FUND_PROXY_MAP 中 ETF/FOF/指数代理基金的计算逻辑。
     """
     texts = []
@@ -5788,6 +5981,9 @@ def _write_overseas_fund_estimate_history_cache(
             "failed_raw_weight_sum_pct": _safe_float_or_none(summary.get("failed_raw_weight_sum_pct")),
             "estimated_weight_sum_pct": _safe_float_or_none(summary.get("estimated_weight_sum_pct")),
             "residual_benchmark_label": summary.get("residual_benchmark_label", ""),
+            "residual_benchmark_key": summary.get("residual_benchmark_key", ""),
+            "residual_benchmark_market": summary.get("residual_benchmark_market", ""),
+            "residual_benchmark_ticker": summary.get("residual_benchmark_ticker", ""),
             "residual_benchmark_return_pct": _safe_float_or_none(summary.get("residual_benchmark_return_pct")),
             "residual_benchmark_trade_date": summary.get("residual_benchmark_trade_date", ""),
             "residual_benchmark_status": summary.get("residual_benchmark_status", ""),
@@ -5963,6 +6159,9 @@ def _write_domestic_fund_estimate_history_cache(
             "failed_raw_weight_sum_pct": _safe_float_or_none(summary.get("failed_raw_weight_sum_pct")),
             "estimated_weight_sum_pct": _safe_float_or_none(summary.get("estimated_weight_sum_pct")),
             "residual_benchmark_label": summary.get("residual_benchmark_label", ""),
+            "residual_benchmark_key": summary.get("residual_benchmark_key", ""),
+            "residual_benchmark_market": summary.get("residual_benchmark_market", ""),
+            "residual_benchmark_ticker": summary.get("residual_benchmark_ticker", ""),
             "residual_benchmark_return_pct": _safe_float_or_none(summary.get("residual_benchmark_return_pct")),
             "residual_weight_pct": _safe_float_or_none(
                 summary.get("residual_benchmark_weight_pct", summary.get("residual_weight_pct"))
@@ -6217,6 +6416,8 @@ def estimate_funds_and_save_table(
     stock_residual_benchmark_return_pct=None,
     stock_residual_benchmark_label=None,
     stock_residual_benchmark_source=None,
+    stock_residual_benchmark_status=None,
+    stock_residual_benchmark_trade_date=None,
     benchmark_components=None,
     benchmark_position="top",
     zero_stale_cn_hk_returns=None,
@@ -6304,8 +6505,6 @@ def estimate_funds_and_save_table(
     anchor_date = _normalize_trade_date_key(valuation_anchor_date)
     if auto_overseas_residual_enabled and not anchor_date:
         anchor_date = determine_latest_valuation_anchor_date()
-    stock_residual_benchmark_status = None
-    stock_residual_benchmark_trade_date = None
 
     # 海外基金表默认获取纳斯达克100和标普500：
     # 1. 当前收益表底部显示最新交易日基准；
@@ -6333,37 +6532,10 @@ def estimate_funds_and_save_table(
         # 则 A股/港股/韩国市场只有在没有 4月1日行情时才置零；不能因为运行日是 4月2日而误置零。
         stale_market_estimate_date = overseas_valuation_date or datetime.now().strftime("%Y-%m-%d")
 
-    # 股票持仓型基金的“剩余仓位基准补偿”。
-    # 自动规则：仅当当前表格被识别为“海外市场基金收益表”时启用纳斯达克100补偿；
-    # 国内表不启用；DEFAULT_FUND_PROXY_MAP 中 ETF/FOF/指数代理基金仍保持原计算逻辑。
-    if (
-        stock_residual_benchmark is None
-        and stock_residual_benchmark_return_pct is None
-        and auto_overseas_residual_enabled
-    ):
-        stock_residual_benchmark = "nasdaq100"
-
-    if stock_residual_benchmark and stock_residual_benchmark_return_pct is None:
-        bench_key = str(stock_residual_benchmark).strip().lower()
-        if bench_key in {"nasdaq100", "nasdaq_100", "ndx", ".ndx"}:
-            try:
-                anchor_result = get_security_return_by_anchor_date(
-                    market="US",
-                    ticker=".NDX",
-                    valuation_anchor_date=overseas_valuation_date,
-                    allow_intraday=False,
-                    security_return_cache_enabled=security_return_cache_enabled,
-                )
-                r_pct, source, trade_date, bench_status = _return_from_anchor_result(anchor_result)
-                stock_residual_benchmark_return_pct = r_pct
-                stock_residual_benchmark_label = stock_residual_benchmark_label or f"纳斯达克100({overseas_valuation_date})"
-                stock_residual_benchmark_source = stock_residual_benchmark_source or source
-                stock_residual_benchmark_status = bench_status
-                stock_residual_benchmark_trade_date = trade_date
-            except Exception as e:
-                print(f"[WARN] 剩余仓位基准 {stock_residual_benchmark} 获取失败，将沿用原股票持仓估算口径: {e}", flush=True)
-        else:
-            print(f"[WARN] 未识别的 stock_residual_benchmark={stock_residual_benchmark!r}，将沿用原股票持仓估算口径。", flush=True)
+    # 股票持仓型基金的“剩余仓位基准补偿”会在 estimate_funds() 的单基金循环中解析。
+    # 这样 007844 可以使用 XOP，其他基金仍自动回落到默认纳斯达克100。
+    # 如果外部显式传入 stock_residual_benchmark 或 stock_residual_benchmark_return_pct，
+    # 仍按旧逻辑作为整批基金的覆盖参数。
 
     result_df, detail_map = estimate_funds(
         fund_codes=fund_codes,
@@ -6386,6 +6558,8 @@ def estimate_funds_and_save_table(
         proxy_normalize_weights=proxy_normalize_weights,
         include_method_col=include_method_col,
         valuation_mode=valuation_mode,
+        auto_residual_benchmark_enabled=auto_overseas_residual_enabled,
+        stock_residual_benchmark=stock_residual_benchmark,
         stock_residual_benchmark_return_pct=stock_residual_benchmark_return_pct,
         stock_residual_benchmark_label=stock_residual_benchmark_label,
         stock_residual_benchmark_source=stock_residual_benchmark_source,

@@ -84,6 +84,7 @@
 
 - `tools/configs/fund_universe_configs.py`：海外/全球基金池和历史国内基金池。新增、删除基金代码优先改这里；基金代码请写 6 位字符串，避免前导 0 丢失。
 - `tools/configs/fund_proxy_configs.py`：代理型基金配置和海外有效披露持仓增强系数。
+- `tools/configs/residual_benchmark_configs.py`：海外股票持仓型基金的补偿仓位基准配置。默认使用纳斯达克100；可按基金代码指定其他基准，例如 `007844` 使用 `XOP` 作为美国油气开采方向代理。
 - `tools/configs/security_mappings.py`：美股 / 韩国证券代码映射；韩国六位数字代码需要配合名称别名匹配，避免误判 A 股。
 - `tools/configs/rsi_configs.py`：市场 RSI 图标的配置。
 - `tools/configs/market_calendar_configs.py`：市场交易日历名称、收盘缓冲、韩国节假日置零策略。
@@ -161,11 +162,12 @@ Matplotlib 表格和 RSI 图默认使用 `180 DPI`，用于降低图片体积并
 - 所有海外/全球基金估算只使用完整日线，不使用 A 股、港股或韩国盘中实时行情。
 - 如果某市场在锚点日休市，该市场持仓贡献为 0；如果应开盘但行情缺失或 stale，也贡献 0，并将基金记录标记为 partial/stale，后续可被更完整数据覆盖。
 - A 股、港股日线优先使用新浪接口：A 股优先 `ak.stock_zh_a_daily` / `ak.fund_etf_hist_sina`，港股优先 `ak.stock_hk_daily`；东方财富接口只作为兜底。
-- 普通海外股票持仓型基金保留“有效持仓增强 + 纳斯达克100补偿仓位 + 100% 权重封顶”口径；补偿仓位只使用锚点日纳斯达克100完整日线。
+- 普通海外股票持仓型基金保留“有效持仓增强 + 配置基准补偿仓位 + 100% 权重封顶”口径；默认补偿基准为纳斯达克100，单基金可在 `tools/configs/residual_benchmark_configs.py` 指定其他基准。
+- `007844` 当前使用 `XOP` 作为美国油气开采方向补偿仓位代理。`XOP` 是跟踪美国油气勘探与生产方向指数的 ETF，不是指数本身；仍按统一估值锚点读取完整日线。
 - 区间累计收益使用复利：
   `累计 = (prod(1 + 每日估算收益率 / 100) - 1) * 100`
 - 同一基金、同一 `valuation_anchor_date` 只计入一次；优先数据质量更高、`complete` 和更高 `completeness_score` 的记录。
-- 海外六位数股票代码可能会被识别为 A 股；当前按用户选择不修复，允许失败后走纳斯达克100补偿口径。
+- 海外六位数股票代码可能会被识别为 A 股；当前按用户选择不修复，允许失败后走配置基准补偿口径。
 
 ## 缓存策略
 
@@ -256,6 +258,7 @@ $files = @('.\git_main.py','.\check_project.py','.\main.py','.\fund_estimate_bre
 - A 股和港股日线优先级调整为新浪接口优先，东方财富接口仅作为兜底。
 - 新增 `fund_estimate_breakdown.py`，可交互输入基金代码和估值日期，打印完整持仓收益拆解，并可保存 txt。
 - 新增 `tools/configs/` 配置目录，已迁移 RSI 配置、证券映射、代理基金配置、交易日历参数、基金池和总入口运行流程。
+- 新增 `tools/configs/residual_benchmark_configs.py`，支持按基金代码指定海外股票持仓型基金补偿仓位基准；`007844` 使用 `XOP`。
 - 新增 `tools/paths.py` 集中维护常用路径；safe 系列水印流程统一封装到 `tools.safe_display.apply_safe_public_watermarks()`。
 - 新增 `check_project.py` 运行前自检工具，只检查不修改。
 - `sum_holidays.py` 后续只生成 `output/safe_sum_holidays.png`，不再生成详细版 `output/sum_holidays.png`。

@@ -89,6 +89,7 @@ AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RS
 - `tools/configs/workflow_configs.py`：维护 `git_main.py` 每天运行哪些脚本、运行顺序、失败后是否中断、图片是否进入邮件候选。
 - `tools/configs/fund_universe_configs.py`：维护海外/全球基金池；新增基金代码优先改这里，基金代码请写 6 位字符串。
 - `tools/configs/fund_proxy_configs.py`：维护代理型基金和海外有效披露持仓增强系数。
+- `tools/configs/residual_benchmark_configs.py`：维护海外股票持仓型基金的补偿仓位基准；默认纳斯达克100，`007844` 当前使用 `XOP`。
 - `tools/configs/security_mappings.py`：维护美股 / 韩国证券映射。
 - `tools/configs/rsi_configs.py`：维护 RSI 图标的列表。
 - `tools/paths.py`：集中维护常用缓存和输出图片路径。
@@ -184,7 +185,8 @@ Matplotlib 表格和 RSI 图默认使用 180 DPI，科普图使用 Pillow 固定
 - 海外/全球基金使用统一 `valuation_anchor_date` 估值锚点；US/CN/HK/KR 都只能使用该锚点对应的完整日线。
 - 每个市场先用交易日历判断开闭市，再校验行情接口返回的 `trade_date == valuation_anchor_date`。
 - CN/HK 日线优先使用新浪接口：A 股优先 `stock_zh_a_daily` / `fund_etf_hist_sina`，港股优先 `stock_hk_daily`；东方财富接口只作为兜底。
-- 普通持仓型海外基金使用“有效持仓增强 + 纳斯达克100补偿仓位”口径，`fund_estimate_breakdown.py` 可打印逐项明细。
+- 普通持仓型海外基金使用“有效持仓增强 + 配置基准补偿仓位”口径，`fund_estimate_breakdown.py` 可打印逐项明细。
+- 默认补偿基准为纳斯达克100；单基金可在 `tools/configs/residual_benchmark_configs.py` 指定其他基准。`007844` 当前使用 `XOP` 作为美国油气开采方向代理，`XOP` 是 ETF 不是指数本身。
 - `security_return_cache.json` 对锚点行情使用 `SECURITY:{market}:{ticker}:{valuation_anchor_date}` key，缓存 `traded/closed/pending/missing/stale` 状态。
 - `fund_estimate_return_cache.json` 只写海外/全球基金记录，key 为 `overseas:{fund_code}:{valuation_anchor_date}`。
 - 指数行情和基金估算历史保留 300 天。

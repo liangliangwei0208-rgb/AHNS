@@ -24146,5 +24146,101 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-05-08T09:11:08"
+  },
+  "SECURITY:US:VG:2026-05-07": {
+    "market": "US",
+    "ticker": "VG",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -2.5833333333333375,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T11:30:32"
+  },
+  "SECURITY:US:SM:2026-05-07": {
+    "market": "US",
+    "ticker": "SM",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": 1.9264448336252293,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T11:30:34"
+  },
+  "SECURITY:US:MUR:2026-05-07": {
+    "market": "US",
+    "ticker": "MUR",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -1.695350629334691,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T11:30:36"
+  },
+  "SECURITY:US:CHRD:2026-05-07": {
+    "market": "US",
+    "ticker": "CHRD",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -2.1939789832433942,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T11:30:38"
+  },
+  "SECURITY:US:PBF:2026-05-07": {
+    "market": "US",
+    "ticker": "PBF",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -2.404424140418371,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T11:30:40"
+  },
+  "SECURITY:US:MTDR:2026-05-07": {
+    "market": "US",
+    "ticker": "MTDR",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -3.7915512465373946,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T11:30:42"
+  },
+  "SECURITY:US:CTRA:2026-05-07": {
+    "market": "US",
+    "ticker": "CTRA",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-06",
+    "return_pct": 0.0,
+    "status": "stale",
+    "source": "ak_stock_us_daily_trade_date_older_than_anchor",
+    "calendar_is_open": true,
+    "error": "trade_date=2026-05-06 与 valuation_anchor_date=2026-05-07 不一致",
+    "fetched_at": "2026-05-08T11:30:45"
+  },
+  "SECURITY:US:XOP:2026-05-07": {
+    "market": "US",
+    "ticker": "XOP",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -1.9311403767790725,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T11:51:13"
   }
 }

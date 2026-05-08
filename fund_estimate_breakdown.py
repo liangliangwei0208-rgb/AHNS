@@ -241,6 +241,11 @@ def print_breakdown(fund_code: str, anchor_date: str) -> None:
     residual_status = str(record.get("residual_benchmark_status") or "").strip().lower() or "missing"
     residual_trade_date = normalize_date(record.get("residual_benchmark_trade_date"))
     residual_label = str(record.get("residual_benchmark_label") or "补偿基准").strip()
+    residual_market = str(record.get("residual_benchmark_market") or "US").strip().upper()
+    residual_ticker = normalize_ticker(
+        residual_market,
+        record.get("residual_benchmark_ticker") or ".NDX",
+    )
 
     rows, raw_sum_calc, valid_sum_calc, holding_contribution_sum = build_rows(
         holdings=holdings,
@@ -293,8 +298,8 @@ def print_breakdown(fund_code: str, anchor_date: str) -> None:
 
     print(
         f"{residual_label}补偿仓位\t"
-        f"US\t"
-        f".NDX\t"
+        f"{residual_market}\t"
+        f"{residual_ticker}\t"
         f"{fmt_pct(residual_weight)}\t"
         f"{residual_status}\t"
         f"{residual_trade_date or '-'}\t"
