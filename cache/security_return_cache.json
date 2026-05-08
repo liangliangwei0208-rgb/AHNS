@@ -23581,7 +23581,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-05-08T11:18:06"
+    "fetched_at": "2026-05-08T13:29:01"
   },
   "SECURITY:US:WDC:2026-05-07": {
     "market": "US",
@@ -23653,7 +23653,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-05-08T11:18:07"
+    "fetched_at": "2026-05-08T13:29:01"
   },
   "SECURITY:US:ONTO:2026-05-07": {
     "market": "US",
@@ -23689,7 +23689,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-05-08T11:18:07"
+    "fetched_at": "2026-05-08T13:29:01"
   },
   "SECURITY:HK:00981:2026-05-07": {
     "market": "HK",
@@ -24025,7 +24025,7 @@
     "source": "ak_stock_us_daily_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2017-03-03 与 valuation_anchor_date=2026-05-07 不一致",
-    "fetched_at": "2026-05-08T11:18:09"
+    "fetched_at": "2026-05-08T13:29:02"
   },
   "SECURITY:UNKNOWN:FR0000073272:2026-05-07": {
     "market": "UNKNOWN",
@@ -24037,7 +24037,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-05-08T11:18:09"
+    "fetched_at": "2026-05-08T13:29:02"
   },
   "SECURITY:US:JBL:2026-05-07": {
     "market": "US",
@@ -24242,5 +24242,77 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-05-08T11:51:13"
+  },
+  "SECURITY:US:PSX:2026-05-07": {
+    "market": "US",
+    "ticker": "PSX",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -1.985790822268807,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T13:29:04"
+  },
+  "SECURITY:US:MPC:2026-05-07": {
+    "market": "US",
+    "ticker": "MPC",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -1.4321751159573681,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T13:29:04"
+  },
+  "SECURITY:US:VLO:2026-05-07": {
+    "market": "US",
+    "ticker": "VLO",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -0.14364780937090593,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T13:29:06"
+  },
+  "SECURITY:US:DVN:2026-05-07": {
+    "market": "US",
+    "ticker": "DVN",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -2.768240343347639,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T13:29:07"
+  },
+  "SECURITY:US:TPL:2026-05-07": {
+    "market": "US",
+    "ticker": "TPL",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -4.9243597379392545,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T13:29:08"
+  },
+  "SECURITY:US:EQT:2026-05-07": {
+    "market": "US",
+    "ticker": "EQT",
+    "valuation_anchor_date": "2026-05-07",
+    "trade_date": "2026-05-07",
+    "return_pct": -1.987447698744771,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-05-08T13:29:09"
   }
 }

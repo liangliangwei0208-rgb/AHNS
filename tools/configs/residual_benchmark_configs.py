@@ -37,6 +37,7 @@ RESIDUAL_BENCHMARK_SPECS = {
 
 FUND_RESIDUAL_BENCHMARK_MAP = {
     "007844": "us_oil_gas_ep_xop",
+    "006679": "us_oil_gas_ep_xop",  # 006679 油气勘探与生产主题基金
 }
 
 
