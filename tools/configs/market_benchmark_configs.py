@@ -31,10 +31,10 @@
 MARKET_BENCHMARK_ITEMS = [
     {"enabled": True, "label": "纳斯达克100", "kind": "us_index", "ticker": ".NDX"},
     {"enabled": True, "label": "标普500", "kind": "us_index", "ticker": ".INX"},
-    {"enabled": True, "label": "美国油气开采", "kind": "us_security", "ticker": "XOP"},
+    {"enabled": True, "label": "油气开采指数", "kind": "us_security", "ticker": "XOP"},
     {"enabled": True, "label": "VIX恐慌指数", "kind": "yahoo", "ticker": "^VIX"},
     {"enabled": True, "label": "费城半导体", "kind": "us_index", "ticker": ".SOX"},
-    {"enabled": True, "label": "伦敦金", "kind": "foreign_futures", "ticker": "XAU", "fallback_ticker": "GC00Y"},
+    {"enabled": True, "label": "现货黄金", "kind": "foreign_futures", "ticker": "XAU", "fallback_ticker": "GC00Y"},
 ]
 
 
