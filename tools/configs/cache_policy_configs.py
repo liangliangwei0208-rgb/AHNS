@@ -17,6 +17,8 @@ FUND_ESTIMATE_HISTORY_RETENTION_DAYS = 300
 ANCHOR_CACHE_STABLE_RETENTION_DAYS = 300
 
 # 锚点行情的短期重试窗口。pending 更快重试，missing/stale 稍慢重试。
+# 如果某个证券的锚点行情缓存是 pending，脚本在 1 小时内会先复用这个结果，避免反复请求接口；超过 1 小时后，下次运行就会重新拉取。
+# 如果状态是 missing 或 stale，脚本会等 2 小时后再重试。因为这类情况更像接口失败、源站延迟或当天数据没同步，太频繁重试意义不大。
 ANCHOR_PENDING_CACHE_HOURS = 1
 ANCHOR_TRANSIENT_CACHE_HOURS = 2
 
