@@ -22,10 +22,17 @@
     - "yahoo"：Yahoo Chart 代码，适合 VIX 等特殊海外资产。
 - ticker：实际请求行情用的代码。
 - fallback_ticker：可选。主 ticker 失败时使用的备用代码。
+- final_confirm_hour_bj / final_confirm_minute_bj：可选。只建议给 "foreign_futures"
+  这类接近 24 小时交易的海外期货/贵金属使用。
+  例如估值日是 2026-05-08，配置 5:30 表示北京时间 2026-05-09 05:30
+  之后才把这条 2026-05-08 日线视为“最终完整日线”。在此之前，即使接口已经
+  返回 2026-05-08 这一行，也只当作未确认数据，不展示临时涨跌幅。
 
 注意：
 - 伦敦金默认优先使用新浪外盘期货 XAU；如果失败，再用东方财富国际期货 GC00Y
   作为 COMEX 黄金代理，避免国内运行强依赖 Yahoo。
+- 伦敦金/现货黄金的日线确认时间默认设为估值日次日北京时间 05:30。原因是
+  黄金接近全天交易，晚上 23 点左右接口可能已经返回当天日期，但 close 仍会继续变化。
 - VIX 仍保留 Yahoo Chart，因为当前本地新浪 / 东方财富路径没有稳定的 VIX 完整日线。
 - 基准表里的涨跌幅全部按“完整日线收盘价”计算，不使用盘中实时行情。
 """
@@ -35,7 +42,15 @@ MARKET_BENCHMARK_ITEMS = [
     {"enabled": True, "label": "标普500", "kind": "us_index", "ticker": ".INX"},
     {"enabled": True, "label": "油气开采指数", "kind": "us_security", "ticker": "XOP"},
     {"enabled": True, "label": "费城半导体", "kind": "us_index", "ticker": ".SOX"},
-    {"enabled": True, "label": "现货黄金", "kind": "foreign_futures", "ticker": "XAU", "fallback_ticker": "GC00Y"},
+    {
+        "enabled": True,
+        "label": "现货黄金",
+        "kind": "foreign_futures",
+        "ticker": "XAU",
+        "fallback_ticker": "GC00Y",
+        "final_confirm_hour_bj": 5,
+        "final_confirm_minute_bj": 30,
+    },
     {"enabled": False, "label": "VIX恐慌指数", "kind": "yahoo", "ticker": "^VIX"},
 ]
 

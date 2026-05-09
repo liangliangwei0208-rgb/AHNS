@@ -117,6 +117,8 @@ ANCHOR_PENDING_CACHE_HOURS = 1
 ANCHOR_MARKET_STATUSES = {"traded", "closed", "pending", "missing", "stale"}
 ANCHOR_COMPLETE_STATUSES = {"traded", "closed"}
 ANCHOR_BAD_STATUSES = {"pending", "missing", "stale"}
+FOREIGN_FUTURES_FINAL_CONFIRM_HOUR_BJ = 5
+FOREIGN_FUTURES_FINAL_CONFIRM_MINUTE_BJ = 30
 
 
 def _cache_log(message: str) -> None:
@@ -190,13 +192,12 @@ def _is_cache_fresh(fetched_at, max_age_days=None, max_age_hours=None) -> bool:
     if pd.isna(t):
         return False
 
-    now = pd.Timestamp.now()
-
-    # 如果缓存时间带 timezone，而 now 不带 timezone，做一次兼容
-    try:
+    if getattr(t, "tzinfo", None) is not None:
+        now = pd.Timestamp.now(tz=t.tzinfo)
         age_seconds = (now - t).total_seconds()
-    except TypeError:
-        age_seconds = (now.tz_localize(None) - t.tz_localize(None)).total_seconds()
+    else:
+        now = pd.Timestamp.now()
+        age_seconds = (now - t).total_seconds()
 
     if max_age_hours is not None:
         return age_seconds <= float(max_age_hours) * 3600
@@ -245,7 +246,7 @@ def _parse_cache_fetched_at(value) -> datetime | None:
         if pd.isna(dt):
             return None
         if getattr(dt, "tzinfo", None) is not None:
-            dt = dt.tz_localize(None)
+            dt = dt.tz_convert("Asia/Shanghai").tz_localize(None)
         return dt.to_pydatetime()
     except Exception:
         return None
@@ -356,6 +357,85 @@ def _anchor_status_rank(status) -> int:
 SUSPICIOUS_UNADJUSTED_RETURN_ABS_PCT = 35.0
 
 
+def _coerce_hour_minute(value, default: int) -> int:
+    try:
+        return int(value)
+    except Exception:
+        return int(default)
+
+
+def _foreign_futures_confirm_deadline_bj(
+    valuation_anchor_date,
+    *,
+    hour_bj=None,
+    minute_bj=None,
+) -> datetime | None:
+    """
+    外盘期货/贵金属的最终日线确认时间。
+
+    XAU 这类接近 24 小时交易的品种，晚间接口可能已经返回估值日日期，
+    但收盘价还会继续变化。因此按“估值日次日北京时间 HH:MM”确认。
+    """
+    anchor = _normalize_trade_date_key(valuation_anchor_date)
+    if not anchor:
+        return None
+
+    hour = max(0, min(23, _coerce_hour_minute(hour_bj, FOREIGN_FUTURES_FINAL_CONFIRM_HOUR_BJ)))
+    minute = max(0, min(59, _coerce_hour_minute(minute_bj, FOREIGN_FUTURES_FINAL_CONFIRM_MINUTE_BJ)))
+
+    try:
+        anchor_dt = datetime.strptime(anchor, "%Y-%m-%d")
+    except Exception:
+        return None
+
+    return (anchor_dt + timedelta(days=1)).replace(
+        hour=hour,
+        minute=minute,
+        second=0,
+        microsecond=0,
+        tzinfo=ZoneInfo("Asia/Shanghai"),
+    )
+
+
+def _foreign_futures_is_final_confirmed(
+    valuation_anchor_date,
+    *,
+    now=None,
+    hour_bj=None,
+    minute_bj=None,
+) -> bool:
+    deadline = _foreign_futures_confirm_deadline_bj(
+        valuation_anchor_date,
+        hour_bj=hour_bj,
+        minute_bj=minute_bj,
+    )
+    if deadline is None:
+        return False
+    return _beijing_now(now) >= deadline
+
+
+def _foreign_futures_cached_before_final_confirm(item: dict) -> bool:
+    """
+    识别旧版本在最终确认时间前写入的外盘期货 final 缓存。
+
+    这类缓存虽然 status=traded，但 close 可能只是临时日线值，需要自动失效。
+    """
+    if not isinstance(item, dict):
+        return False
+    if str(item.get("market", "")).strip().upper() != "FOREIGN_FUTURES":
+        return False
+    if str(item.get("status", "")).strip().lower() not in ANCHOR_COMPLETE_STATUSES:
+        return False
+
+    deadline = _foreign_futures_confirm_deadline_bj(item.get("valuation_anchor_date"))
+    fetched_dt = _parse_cache_fetched_at(item.get("fetched_at"))
+    if deadline is None or fetched_dt is None:
+        return False
+
+    fetched_bj = fetched_dt.replace(tzinfo=ZoneInfo("Asia/Shanghai"))
+    return fetched_bj < deadline
+
+
 def _is_unadjusted_close_calc_source(source: str) -> bool:
     source_text = str(source or "").strip().lower()
     if not source_text:
@@ -406,6 +486,15 @@ def _is_anchor_cache_entry_fresh(item: dict) -> bool:
     status = str(item.get("status", "")).strip().lower()
     market = str(item.get("market", "")).strip().upper()
     source_text = str(item.get("source", "")).strip().lower()
+    if market == "FOREIGN_FUTURES":
+        if status in ANCHOR_COMPLETE_STATUSES:
+            if _foreign_futures_cached_before_final_confirm(item):
+                return False
+            if not _foreign_futures_is_final_confirmed(item.get("valuation_anchor_date")):
+                return False
+        if status == "pending" and _foreign_futures_is_final_confirmed(item.get("valuation_anchor_date")):
+            return False
+
     if (
         market == "CN"
         and status == "traded"
@@ -460,11 +549,13 @@ def _save_anchor_security_cache_entry(cache_key: str, entry: dict) -> None:
     if isinstance(old, dict):
         old_status = str(old.get("status", "")).strip().lower()
         new_status = str(entry.get("status", "")).strip().lower()
-        if old_status == "traded" and new_status != "traded":
+        old_foreign_futures_preconfirm = _foreign_futures_cached_before_final_confirm(old)
+        if old_status == "traded" and new_status != "traded" and not old_foreign_futures_preconfirm:
             return
         if (
             old_status == "traded"
             and new_status == "traded"
+            and not old_foreign_futures_preconfirm
             and _normalize_trade_date_key(old.get("trade_date")) == _normalize_trade_date_key(old.get("valuation_anchor_date"))
             and _normalize_trade_date_key(entry.get("trade_date")) != _normalize_trade_date_key(entry.get("valuation_anchor_date"))
         ):
@@ -501,7 +592,7 @@ def _anchor_return_result(
         "source": str(source or ""),
         "calendar_is_open": calendar_is_open,
         "error": str(error or ""),
-        "fetched_at": datetime.now().isoformat(timespec="seconds"),
+        "fetched_at": _beijing_now().isoformat(timespec="seconds"),
     }
 
 
@@ -5619,6 +5710,8 @@ def _enabled_market_benchmark_specs():
             "symbol": ticker.upper(),
             "kind": kind,
             "fallback_ticker": str(item.get("fallback_ticker", "")).strip().upper(),
+            "final_confirm_hour_bj": item.get("final_confirm_hour_bj"),
+            "final_confirm_minute_bj": item.get("final_confirm_minute_bj"),
         })
     return specs
 
@@ -5709,6 +5802,9 @@ def _get_foreign_futures_benchmark_return_by_anchor_date(
     *,
     fallback_ticker=None,
     cache_enabled=True,
+    final_confirm_hour_bj=None,
+    final_confirm_minute_bj=None,
+    now=None,
 ) -> dict:
     """
     外盘期货 / 贵金属基准的估值日缓存读取器。
@@ -5751,16 +5847,34 @@ def _get_foreign_futures_benchmark_return_by_anchor_date(
             fallback_ticker=fallback_ticker,
         )
         status = _configured_benchmark_status_from_trade_date(trade_date, anchor)
+        error = "" if status == "traded" else f"trade_date={trade_date} 与 valuation_anchor_date={anchor} 不一致"
+        if status == "traded" and not _foreign_futures_is_final_confirmed(
+            anchor,
+            now=now,
+            hour_bj=final_confirm_hour_bj,
+            minute_bj=final_confirm_minute_bj,
+        ):
+            deadline = _foreign_futures_confirm_deadline_bj(
+                anchor,
+                hour_bj=final_confirm_hour_bj,
+                minute_bj=final_confirm_minute_bj,
+            )
+            status = "pending"
+            deadline_text = deadline.strftime("%Y-%m-%d %H:%M") if deadline is not None else "未知"
+            error = (
+                f"外盘期货最终日线未确认：valuation_anchor_date={anchor}，"
+                f"北京时间 {deadline_text} 后才视为 final"
+            )
         entry = _anchor_return_result(
             market="FOREIGN_FUTURES",
             ticker=ticker_norm,
             valuation_anchor_date=anchor,
             status=status,
-            return_pct=return_pct if status == "traded" else 0.0,
+            return_pct=return_pct if status == "traded" else None,
             trade_date=trade_date,
             source=source,
             calendar_is_open=None,
-            error="" if status == "traded" else f"trade_date={trade_date} 与 valuation_anchor_date={anchor} 不一致",
+            error=error,
         )
     except Exception as exc:
         entry = _anchor_return_result(
@@ -5785,6 +5899,8 @@ def _fetch_configured_market_benchmark(spec: dict, cache_enabled=True, valuation
     symbol = str(spec.get("symbol", "")).strip().upper()
     kind = str(spec.get("kind", "")).strip().lower()
     fallback_ticker = str(spec.get("fallback_ticker", "")).strip().upper()
+    final_confirm_hour_bj = spec.get("final_confirm_hour_bj")
+    final_confirm_minute_bj = spec.get("final_confirm_minute_bj")
     order = int(spec.get("order", 999) or 999)
     anchor = _normalize_trade_date_key(valuation_anchor_date)
 
@@ -5841,6 +5957,8 @@ def _fetch_configured_market_benchmark(spec: dict, cache_enabled=True, valuation
                 valuation_anchor_date=anchor,
                 fallback_ticker=fallback_ticker,
                 cache_enabled=cache_enabled,
+                final_confirm_hour_bj=final_confirm_hour_bj,
+                final_confirm_minute_bj=final_confirm_minute_bj,
             )
             return_pct, source, trade_date, status = _return_from_anchor_result(anchor_result)
         else:
@@ -5936,14 +6054,23 @@ def _build_daily_benchmark_table_rows(benchmark_footer_items, pct_digits=2):
 
         value = _safe_float_or_none(item.get("return_pct"))
         raw_values.append(value)
+        status = str(item.get("status", "")).strip().lower()
         trade_date = _normalize_date_string(item.get("trade_date")) or _normalize_date_string(
             item.get("valuation_anchor_date")
         )
+        if value is not None:
+            display_value = format_pct(value, digits=pct_digits)
+        elif status == "pending":
+            display_value = "未确认"
+        elif status == "stale":
+            display_value = "数据滞后"
+        else:
+            display_value = "获取失败"
         rows.append(
             {
                 "序号": index,
                 "指数名称": str(item.get("label", item.get("symbol", "基准"))).strip() or "基准",
-                "模型观察": format_pct(value, digits=pct_digits) if value is not None else "获取失败",
+                "模型观察": display_value,
                 "基准日或区间": trade_date or "--",
             }
         )
@@ -6760,13 +6887,22 @@ def _should_replace_estimate_record(old_record, new_record: dict) -> bool:
 
     old_status_rank = _estimate_data_status_rank(old_record.get("data_status"))
     new_status_rank = _estimate_data_status_rank(new_record.get("data_status"))
-    if new_status_rank != old_status_rank:
-        return new_status_rank > old_status_rank
-
     old_score = _safe_float_or_none(old_record.get("completeness_score"))
     new_score = _safe_float_or_none(new_record.get("completeness_score"))
     old_score = -1.0 if old_score is None else float(old_score)
     new_score = -1.0 if new_score is None else float(new_score)
+
+    if new_status_rank != old_status_rank:
+        # complete 仍然优先；但旧 partial 可能只是收盘未确认时写入的 0 分记录，
+        # 新 stale 如果已有大部分持仓和补偿基准，反而更接近真实估算。
+        if new_status_rank == _estimate_data_status_rank("complete"):
+            return True
+        if old_status_rank == _estimate_data_status_rank("complete"):
+            return False
+        if old_has_return and new_has_return and abs(new_score - old_score) > 1e-9:
+            return new_score > old_score
+        return new_status_rank > old_status_rank
+
     if abs(new_score - old_score) > 1e-9:
         return new_score > old_score
 
@@ -7226,7 +7362,9 @@ def _write_overseas_benchmark_history_cache(
         key = f"benchmark:{symbol}:{valuation_date}"
         status = str(item.get("status", "traded")).strip().lower()
         is_final = return_pct is not None and status in ANCHOR_COMPLETE_STATUSES and trade_date == valuation_date
-        if return_pct is None:
+        if status == "pending":
+            data_status = "pending"
+        elif return_pct is None:
             data_status = "failed"
         elif status == "stale":
             data_status = "stale"
