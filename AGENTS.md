@@ -74,7 +74,7 @@
 - `tools/email_send.py`：QQ 邮箱发送模块；环境变量优先，其次读取未跟踪的本地配置文件。
 - `tools/get_top10_holdings.py`：基金估算、持仓读取、锚点行情收益、缓存写入、基金表格绘图的核心实现。
 - `tools/fund_estimator.py`：历史兼容模块，动态转发到 `tools/get_top10_holdings.py`；新增核心逻辑优先看 `tools/get_top10_holdings.py`。
-- `tools/fund_history_io.py`：海外基金历史缓存读取、交易日识别、区间累计和累计表格绘图。
+- `tools/fund_history_io.py`：海外基金历史缓存读取、A 股交易日历文件缓存、交易日识别、区间累计和累计表格绘图。
 - `tools/paths.py`：集中维护 `cache/`、`output/` 和常用缓存/输出图片路径。
 - `tools/safe_display.py`：safe 图脱敏、居中 logo 水印和“鱼师AHNS”品牌文字水印工具。
 - `tools/configs/`：集中维护常改配置，包括基金池、代理基金、证券映射、RSI 配置、交易日历参数和总入口运行流程。
@@ -180,7 +180,7 @@ safe 公开图的视觉样式已集中到 `tools/configs/safe_image_style_config
   - 海外图保留 benchmark footer。
   - 输出保持基金预估表格风格，并叠加 `cache/mark.jpg` 居中淡 logo 和斜向“鱼师AHNS”文字水印；水印大小、透明度和角度从 `SAFE_WATERMARK_STYLE` 读取。
 - `safe_holidays.py`：
-  - 自动判断 A 股是否休市：优先 AkShare A 股交易日历，失败时用本地国内行情缓存兜底。
+  - 自动判断 A 股是否休市：优先读取 7 天有效的 `cache/a_share_trade_calendar_cache.json`，过期才请求 AkShare；AkShare 失败时先用旧文件缓存，再用本地国内行情 CSV 兜底。
   - 只读取 `main.py` 已写入的海外基金和 benchmark 缓存。
   - 只展示 `market_benchmark_configs.py` 中 `enabled=True` 且 `include_in_cumulative=True` 的收益率基准，旧缓存里的禁用基准和 VIX 点位不会出现在累计表格里。
   - 满足条件才出图；否则只打印原因，不生成新图。
@@ -201,13 +201,16 @@ safe 公开图的视觉样式已集中到 `tools/configs/safe_image_style_config
 - 估值锚点由 US/CN/HK/KR 中最近一个已确认完整交易日决定；各市场再分别判断该锚点是 `traded/closed/pending/missing/stale`。
 - 所有海外/全球基金估算只使用完整日线，不使用 A 股、港股或韩国盘中实时行情。
 - 如果某市场在锚点日休市，该市场持仓贡献为 0；如果应开盘但行情缺失或 stale，也贡献 0，并将基金记录标记为 partial/stale，后续可被更完整数据覆盖。
-- A 股、港股日线优先使用新浪接口：A 股优先 `ak.stock_zh_a_daily` / `ak.fund_etf_hist_sina`，港股优先 `ak.stock_hk_daily`；东方财富接口只作为兜底。
+- 市场交易日历在单次运行中会按 `(market, start_date, end_date)` 做内存缓存；同一估值日、同一市场不重复计算开闭市和收盘完成状态。
+- A 股节假日判断优先读取 `cache/a_share_trade_calendar_cache.json`，默认 7 天有效；过期才主动联网刷新，AkShare 失败时优先使用旧文件缓存，旧文件也不可用时再用本地行情 CSV 兜底。
+- A 股、港股日线改为“涨跌幅源优先早停、复权价其次、裸 close 最后兜底”：可信涨跌幅源命中目标估值日后立即返回，不再无条件请求全部源。
 - 跨市场个股日收益优先级统一为“官方涨跌幅列优先、复权/调整后收盘价其次、裸收盘价最后兜底”：
   - A 股：优先官方涨跌幅列；无涨跌幅列时优先新浪 `qfq/hfq` 复权价；最后才用 raw close。旧 `ak_stock_zh_a_daily_sina_close_calc` 缓存不再视为新鲜，会自动刷新，避免除权日误算。
   - 港股：同时尝试新浪 raw/qfq/hfq 和东方财富港股日线；优先任意数据源的涨跌幅列，其次 `qfq/hfq`，最后 raw close。旧 `ak_stock_hk_daily_sina_close_calc` 缓存会自动刷新。
-  - 美股：东方财富美股 kline 优先解析日涨跌幅字段；Yahoo fallback 优先使用 `adjclose`；裸 close 只作为兜底。若裸 close 计算出的单日绝对涨跌超过当前阈值 `35%` 且没有复权/调整后口径确认，会继续尝试其他源，仍无法确认时标为 missing/stale，避免拆股日误写入暴涨暴跌。
+  - 美股：保留新浪日线、东方财富、Yahoo 的兜底顺序；东方财富美股 kline 优先解析日涨跌幅字段，Yahoo fallback 优先使用 `adjclose`，裸 close 只作为兜底。若 Yahoo 也失败，只打印完整错误链并把该证券标为 missing/stale，不中断后续基金。若裸 close 计算出的单日绝对涨跌超过当前阈值 `35%` 且没有复权/调整后口径确认，会继续尝试其他源，仍无法确认时标为 missing/stale，避免拆股日误写入暴涨暴跌。
   - 韩国：当前 pykrx 已优先读取“涨跌率”列，暂不改主逻辑。
   - 指数、期货、黄金：没有股票除权/拆股语义，仍按完整日线 close-to-close 计算。
+- RSI 行情优先使用本地 `cache/*_index_daily.csv`：缓存当天已经检查过或已经包含今日记录时直接复用；国内 ETF 在历史缓存足够新且 `include_realtime=True` 时只补实时点，不重拉整段历史。
 - 普通海外股票持仓型基金保留“有效持仓增强 + 配置基准补偿仓位 + 100% 权重封顶”口径；默认补偿基准为纳斯达克100，单基金可在 `tools/configs/residual_benchmark_configs.py` 指定其他基准。
 - `007844` 当前使用 `XOP` 作为美国油气开采方向补偿仓位代理。`XOP` 是跟踪美国油气勘探与生产方向指数的 ETF，不是指数本身；仍按统一估值锚点读取完整日线。
 - 区间累计收益使用复利：
@@ -234,7 +237,24 @@ safe 公开图的视觉样式已集中到 `tools/configs/safe_image_style_config
   - 覆盖规则由数据质量驱动，不再使用 15:30 冻结逻辑。
   - `records` 和 `benchmark_records` 保留最近 300 天。
   - 按 `valuation_anchor_date` / 兼容字段 `valuation_date` 裁剪；缺失时回退 `run_date_bj`。
+- `a_share_trade_calendar_cache.json`：
+  - 用于 A 股交易日历降频，默认 7 天有效。
+  - 字段包含 `fetched_at`、`source`、`trade_dates`。
+  - AkShare 刷新失败时优先用过期旧缓存；旧缓存也没有时才回退本地行情 CSV。
+- `*_index_daily.csv`：
+  - RSI / 指数行情 CSV 缓存。
+  - 缓存已在当天检查过，或最新日期满足当前运行需求时，优先直接使用。
+  - 国内 ETF 且 `include_realtime=True` 时只补实时点，不重拉整段历史。
 - `fund_holdings_cache.json` 和 `fund_purchase_limit_cache.json` 按基金代码覆盖或按既有策略更新，不做批量删除。
+
+## 后续可优化方向
+
+- 增加行情请求统计日志：记录每个数据源的请求次数、缓存命中次数、失败原因和耗时，方便判断接口压力和不稳定源。
+- 增加只读数据源健康检查脚本：集中探测新浪、东方财富、AkShare、CBOE/FRED、Yahoo fallback 是否可用，不写基金缓存。
+- 把缓存有效期集中配置化：证券日缓存、指数缓存、A 股交易日历缓存、限购缓存等可以集中维护；限购缓存仍需严格保持 7 天有效期。
+- 增加本轮唯一证券汇总报告：运行前或运行后打印唯一 ticker、已命中锚点缓存、实际联网、missing/stale 列表，便于定位异常基金。
+- 补强美股特殊代码和持仓映射：石油、能源、ADR、改名或退市证券更容易出现行情源滞后，可逐步沉淀到映射或代理配置。
+- 给 safe 图增加自动视觉回归检查：检查图片尺寸、非空、水印、表格行数、VIX 是否只在每日图出现，减少样式配置改动后的人工检查成本。
 
 ## 抖音发布注意
 
@@ -291,6 +311,23 @@ $files = @('.\git_main.py','.\check_project.py','.\main.py','.\fund_estimate_bre
 & F:\anaconda\envs\py310\python.exe .\kepu\kepu_xiane.py --today 2026-05-10
 ```
 
+行情口径和降频缓存抽样：
+
+```powershell
+@'
+from tools.fund_history_io import load_a_share_trade_dates
+from tools.get_top10_holdings import fetch_cn_security_return_pct_daily_with_date, fetch_hk_return_pct_akshare_daily_with_date
+from tools.rsi_data import get_index_akshare
+
+trade_dates, source = load_a_share_trade_dates(use_akshare=True)
+print("A股交易日历", len(trade_dates), source, "2026-05-08" in trade_dates)
+print("寒武纪 688256", fetch_cn_security_return_pct_daily_with_date("688256", end_date="2026-05-08"))
+print("腾讯控股 00700", fetch_hk_return_pct_akshare_daily_with_date("00700", end_date="2026-05-08"))
+df = get_index_akshare(symbol="512890", days=30, cache_dir="cache", use_cache=True, include_realtime=True)
+print("RSI缓存样本", df.tail(1).to_string(index=False))
+'@ | & F:\anaconda\envs\py310\python.exe -
+```
+
 ## 常见排障
 
 - VIX 每日图显示的是恐慌指数点位，不是涨跌幅；正常情况下 `safe_holidays.py`、`sum_holidays.py` 不展示 VIX。如果累计图里出现 VIX，先确认配置中 `display_in_holidays=False`、`include_in_cumulative=False`，再重新运行对应出图脚本。
@@ -299,6 +336,8 @@ $files = @('.\git_main.py','.\check_project.py','.\main.py','.\fund_estimate_bre
 - A 股或港股单日涨跌异常大：优先怀疑除权、拆股、送转、复权口径或旧缓存。先运行 `fund_estimate_breakdown.py` 查看该持仓的数据源字段；正常情况下应优先看到 `pct`、`qfq`、`hfq`、`adjclose` 等来源，而不是旧裸 close 计算来源。
 - `fund_estimate_breakdown.py` 只读缓存：如果刚修复了个股口径但基金合计仍是旧数，需要先运行 `main.py` 或 `git_main.py --no-send` 重算基金缓存，再用拆解工具查看。
 - safe 图文字大小、颜色、表头色、底色、水印不满意：优先改 `tools/configs/safe_image_style_configs.py`，再单独运行 `safe_fund.py`、`safe_holidays.py` 或 `sum_holidays.py --today <日期>` 预览。
+- A 股节假日判断频繁联网：检查 `cache/a_share_trade_calendar_cache.json` 是否存在、`fetched_at` 是否在 7 天内；缓存新鲜时脚本日志应显示 `fresh`。
+- RSI 图仍频繁重拉历史：检查对应 `cache/*_index_daily.csv` 是否存在、最新日期是否足够新，以及文件是否已在当天检查过。
 
 ## 最近完成的改动
 
@@ -324,3 +363,4 @@ $files = @('.\git_main.py','.\check_project.py','.\main.py','.\fund_estimate_bre
 - 新增 `tools/configs/market_benchmark_configs.py`，海外基金基准表改为配置化并偏国内友好：纳斯达克100/标普500/费城半导体走新浪美股指数，XOP 走美股 ETF 日线，黄金走新浪外盘期货并用东方财富国际期货兜底，VIX 走 CBOE/FRED 点位口径且只展示在每日图。
 - 新增 `tools/configs/safe_image_style_configs.py`，safe 公开图的标题、表格、颜色、列宽、备注和水印统一配置化；标题和表格间距已收紧，表头底色调为较浅的 `#3f4d66`。
 - A 股、港股、美股日收益口径已加固为涨跌幅列/复权价/调整后收盘价优先，裸收盘价最后兜底；旧 A 股和港股裸 close 缓存会自动刷新，美股异常大裸 close 涨跌会触发重试。
+- 新增 A 股交易日历文件缓存、市场日历运行期缓存和 RSI 缓存优先逻辑，降低重复行情请求；美股 Yahoo 兜底失败时只记录错误并标记 missing/stale，不中断主流程。

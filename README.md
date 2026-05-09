@@ -16,6 +16,7 @@ AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RS
 - 海外基准表支持配置化数据源，默认尽量使用国内更友好的新浪、东方财富和 AKShare 路径，减少对 Yahoo 的依赖。
 - safe 系列公开图支持集中配置标题、字号、颜色、表头底色、表格行列间距、底部说明和水印样式。
 - A 股、港股、美股持仓日收益按“涨跌幅列优先、复权/调整后价格其次、裸收盘价最后兜底”计算，降低除权、拆股日误算风险。
+- A 股交易日历、市场日历和 RSI 行情均带缓存优先策略，尽量减少重复请求；限购缓存仍保持 7 天有效期。
 - 每天生成海外基金限额科普图；每周日额外生成海外基金限额表。
 - 支持 QQ 邮箱自动发送本次运行生成或更新的图片。
 - 支持 GitHub Actions 定时运行、手动触发、缓存自动回推和失败图片 artifact。
@@ -247,19 +248,25 @@ Matplotlib 表格和 RSI 图默认使用 180 DPI，科普图使用 Pillow 固定
 
 - 海外/全球基金使用统一 `valuation_anchor_date` 估值锚点；US/CN/HK/KR 都只能使用该锚点对应的完整日线。
 - 每个市场先用交易日历判断开闭市，再校验行情接口返回的 `trade_date == valuation_anchor_date`。
-- CN/HK 日线优先使用新浪接口：A 股优先 `stock_zh_a_daily` / `fund_etf_hist_sina`，港股优先 `stock_hk_daily`；东方财富接口只作为兜底。
+- 市场交易日历在单次运行中会按 `(market, start_date, end_date)` 做内存缓存；同一估值日、同一市场不重复计算开闭市和收盘完成状态。
+- A 股节假日判断优先读取 `cache/a_share_trade_calendar_cache.json`，缓存 7 天有效；过期才主动请求 AkShare，AkShare 失败时优先使用旧文件缓存，再退到本地行情 CSV 兜底。
+- CN/HK 日线按“可信涨跌幅源优先早停、复权价其次、裸 close 最后兜底”执行，命中目标估值日后立即返回，不再无条件请求全部源。
 - 个股收益已统一做除权/拆股防错：
   - A 股优先使用官方涨跌幅列；没有涨跌幅列时优先使用新浪 `qfq/hfq` 复权价；最后才用未复权 raw close。
   - 港股会同时尝试新浪 raw/qfq/hfq 和东方财富港股日线；优先涨跌幅列，其次 qfq/hfq，最后 raw close。
-  - 美股东方财富路径优先解析 kline 里的日涨跌幅字段；Yahoo fallback 优先用 `adjclose`；raw close 仅作兜底。
+  - 美股保留新浪日线、东方财富和 Yahoo fallback 顺序；东方财富路径优先解析 kline 里的日涨跌幅字段，Yahoo fallback 优先用 `adjclose`，raw close 仅作兜底。
+  - 如果 Yahoo fallback 也失败，只打印完整错误链，并把对应证券标记为 missing/stale；不会中断后续基金或整套流程。
   - 如果只剩 raw close 且单日绝对涨跌异常大，代码会继续尝试其他源；仍无法确认时宁愿标记为 missing/stale，也不写入明显可疑的大涨大跌。
   - 韩国当前 pykrx 已优先读取“涨跌率”列；指数、期货和黄金没有股票除权/拆股语义，仍用完整日线 close-to-close。
+- RSI 行情优先使用本地 `cache/*_index_daily.csv`。如果缓存已经在当天检查过，或已经包含今日记录，会直接复用；国内 ETF 在历史缓存足够新时只补实时点，不重拉整段历史。
 - 普通持仓型海外基金使用“有效持仓增强 + 配置基准补偿仓位”口径，`fund_estimate_breakdown.py` 可打印逐项明细。
 - 默认补偿基准为纳斯达克100；单基金可在 `tools/configs/residual_benchmark_configs.py` 指定其他基准。`007844` 当前使用 `XOP` 作为美国油气开采方向代理，`XOP` 是 ETF 不是指数本身。
 - `security_return_cache.json` 对锚点行情使用 `SECURITY:{market}:{ticker}:{valuation_anchor_date}` key，缓存 `traded/closed/pending/missing/stale` 状态。
 - 旧 A 股裸收盘价来源 `ak_stock_zh_a_daily_sina_close_calc`、旧港股裸收盘价来源 `ak_stock_hk_daily_sina_close_calc` 不再视为新鲜缓存，命中后会自动刷新到更可靠口径。旧缓存文件不会被删除。
 - `fund_estimate_return_cache.json` 只写海外/全球基金记录，key 为 `overseas:{fund_code}:{valuation_anchor_date}`。
 - 基准表记录写在 `fund_estimate_return_cache.json` 的 `benchmark_records`；显示端会按 `market_benchmark_configs.py` 的 `enabled=True`、`display_in_holidays`、`include_in_cumulative` 过滤。VIX 只在每日海外基金图展示点位，不进入节假日累计图和区间复利。
+- `a_share_trade_calendar_cache.json` 保存 A 股交易日历，字段包含 `fetched_at`、`source`、`trade_dates`。默认 7 天有效；这是节假日判断和节后补更新判断的重要降频缓存。
+- `*_index_daily.csv` 是 RSI/指数行情 CSV 缓存。主流程会优先读缓存，只有缓存不满足当前运行需求时才联网刷新。
 - 指数行情和基金估算历史保留 300 天。
 - Actions 运行后会自动回推缓存变化。
 
@@ -285,6 +292,17 @@ Matplotlib 表格和 RSI 图默认使用 180 DPI，科普图使用 Pillow 固定
 - 刚收盘或海外市场尚未完整收盘时，美股可能是 `pending`，贡献暂时为 0，后续重新运行会刷新。
 - 如果 `fund_estimate_breakdown.py` 已显示某个持仓修复为正确涨跌幅，但基金合计仍是旧值，需要先运行 `main.py` 或 `git_main.py --no-send` 重新写入基金缓存。
 - VIX 在每日图中显示的是点位，不是涨跌幅；如果节假日累计图里出现 VIX，先确认 `include_in_cumulative=False`、`display_in_holidays=False`，并重新运行对应出图脚本。
+
+## 后续优化方向
+
+当前比较值得继续优化的地方：
+
+- 增加行情请求统计日志：记录每次运行各数据源的请求次数、缓存命中次数、失败原因和耗时，方便判断哪些接口最慢、最不稳定。
+- 增加一个只读数据源健康检查脚本：集中探测新浪、东方财富、AkShare、CBOE/FRED、Yahoo fallback 是否可用，不写基金缓存，便于 Actions 或本地运行前快速判断网络状态。
+- 把缓存有效期集中配置化：例如证券日缓存、指数缓存、A 股交易日历缓存、限购缓存等都放到一个配置入口；限购缓存仍应保持严格 7 天有效期。
+- 对同一轮基金估算中的证券做批量汇总报告：虽然锚点缓存和运行期缓存已经减少重复请求，但仍可在日志里先列出本轮唯一证券、命中缓存数量、实际联网数量和失败证券，排查会更直观。
+- 补强美股特殊代码和基金持仓映射：石油、能源、ADR、改名或退市证券更容易出现行情源滞后，后续可把常见问题 ticker 写入映射或替代代理配置。
+- 给 safe 图增加自动视觉回归检查：对输出图片做基础尺寸、非空、水印存在、表格行数和 VIX/累计过滤检查，避免样式配置改动后才在发布时发现异常。
 
 ## 验证命令
 
@@ -312,6 +330,23 @@ $files = @('.\git_main.py','.\check_project.py','.\main.py','.\fund_estimate_bre
 
 ```powershell
 & F:\anaconda\envs\py310\python.exe .\fund_estimate_breakdown.py 017731 --latest
+```
+
+抽样检查行情口径和缓存降频：
+
+```powershell
+@'
+from tools.fund_history_io import load_a_share_trade_dates
+from tools.get_top10_holdings import fetch_cn_security_return_pct_daily_with_date, fetch_hk_return_pct_akshare_daily_with_date
+from tools.rsi_data import get_index_akshare
+
+trade_dates, source = load_a_share_trade_dates(use_akshare=True)
+print("A股交易日历", len(trade_dates), source, "2026-05-08" in trade_dates)
+print("寒武纪 688256", fetch_cn_security_return_pct_daily_with_date("688256", end_date="2026-05-08"))
+print("腾讯控股 00700", fetch_hk_return_pct_akshare_daily_with_date("00700", end_date="2026-05-08"))
+df = get_index_akshare(symbol="512890", days=30, cache_dir="cache", use_cache=True, include_realtime=True)
+print("RSI缓存样本", df.tail(1).to_string(index=False))
+'@ | & F:\anaconda\envs\py310\python.exe -
 ```
 
 ## 免责声明
