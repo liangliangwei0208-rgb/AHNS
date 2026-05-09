@@ -12,7 +12,7 @@ safe_holidays.py
 - 结束估值日
 
 不展示基金代码。
-基金名称默认不隐藏；如需用星号隐藏后半段，修改 tools.safe_display.MASK_FUND_NAME_WITH_STAR。
+基金名称默认用星号隐藏后半段；如需调整，修改本文件的 MASK_FUND_NAMES_WITH_STAR。
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ SAFE_COLUMNS = [
     "起始估值日",
     "结束估值日",
 ]
-# 是否用星号隐藏 safe_holidays 图片里的基金名称后半段；默认不隐藏。
+# 是否用星号隐藏 safe_holidays 图片里的基金名称后半段；公开图默认隐藏。
 MASK_FUND_NAMES_WITH_STAR = True
 SAFE_FUND_NAME_MAX_CHARS = 20
 

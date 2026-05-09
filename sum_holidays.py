@@ -350,7 +350,7 @@ def _safe_daily_result_dataframe(result_df: pd.DataFrame) -> pd.DataFrame:
             safe_df[col] = None
     safe_df = safe_df[keep_columns].copy()
     safe_df["序号"] = range(1, len(safe_df) + 1)
-    safe_df["基金名称"] = safe_df["基金名称"].map(mask_fund_name)
+    safe_df["基金名称"] = safe_df["基金名称"].map(lambda name: mask_fund_name(name, enabled=True))
     return safe_df
 
 

@@ -7695,6 +7695,63 @@ def _should_replace_estimate_record(old_record, new_record: dict) -> bool:
     return True
 
 
+def _benchmark_data_status_rank(record: dict) -> int:
+    status = str(record.get("data_status") or record.get("status") or "").strip().lower()
+    return {
+        "failed": 0,
+        "missing": 0,
+        "pending": 0,
+        "stale": 1,
+        "partial": 2,
+        "intraday": 2,
+        "complete": 3,
+        "traded": 3,
+        "closed": 3,
+    }.get(status, 0)
+
+
+def _benchmark_has_display_value(record: dict) -> bool:
+    value_type = str(record.get("value_type", "return_pct") or "return_pct").strip().lower()
+    if value_type == "level":
+        return _safe_float_or_none(record.get("value")) is not None
+    return _safe_float_or_none(record.get("return_pct")) is not None
+
+
+def _record_run_time(record: dict):
+    try:
+        run_time = pd.to_datetime(record.get("run_time_bj"), errors="coerce")
+        if pd.isna(run_time):
+            return pd.Timestamp.min
+        if getattr(run_time, "tzinfo", None) is not None:
+            run_time = run_time.tz_convert("Asia/Shanghai").tz_localize(None)
+        return run_time
+    except Exception:
+        return pd.Timestamp.min
+
+
+def _should_replace_benchmark_record(old_record, new_record: dict) -> bool:
+    if not isinstance(old_record, dict):
+        return True
+
+    old_rank = _benchmark_data_status_rank(old_record)
+    new_rank = _benchmark_data_status_rank(new_record)
+    old_has_value = _benchmark_has_display_value(old_record)
+    new_has_value = _benchmark_has_display_value(new_record)
+
+    if old_rank >= _benchmark_data_status_rank({"data_status": "complete"}) and new_rank < old_rank:
+        return False
+
+    if new_has_value and not old_has_value:
+        return True
+    if old_has_value and not new_has_value:
+        return False
+
+    if new_rank != old_rank:
+        return new_rank > old_rank
+
+    return _record_run_time(new_record) >= _record_run_time(old_record)
+
+
 def _write_overseas_fund_estimate_history_cache(
     result_df,
     detail_map,
@@ -8194,8 +8251,12 @@ def _write_overseas_benchmark_history_cache(
             "cache_key": key,
         }
 
-        records[key] = record
-        written += 1
+        old_record = records.get(key)
+        if _should_replace_benchmark_record(old_record, record):
+            records[key] = record
+            written += 1
+        else:
+            skipped_final += 1
 
     cache["version"] = max(int(cache.get("version", 1) or 1), 2)
     cache["updated_at"] = now.isoformat(timespec="seconds")

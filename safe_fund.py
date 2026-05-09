@@ -11,7 +11,7 @@ safe_fund.py
 - output/safe_haiwai_fund.png
 
 表格只展示：序号、基金名称、模型估算观察、模型观察限购信息。
-基金名称默认不隐藏；如需用星号隐藏后半段，修改 tools.safe_display.MASK_FUND_NAME_WITH_STAR。
+基金名称默认用星号隐藏后半段；如需调整，修改本文件的 MASK_FUND_NAMES_WITH_STAR。
 不展示基金代码。
 """
 
@@ -47,7 +47,7 @@ ESTIMATE_RETURN_COLUMN = "今日预估涨跌幅"
 DISPLAY_OBSERVATION_COLUMN = "模型估算观察"
 DISPLAY_PURCHASE_LIMIT_COLUMN = "模型观察基金信息"
 SAFE_COLUMNS = ["序号", "基金名称", DISPLAY_OBSERVATION_COLUMN, DISPLAY_PURCHASE_LIMIT_COLUMN]
-# 是否用星号隐藏 safe_fund 图片里的基金名称后半段；默认不隐藏。
+# 是否用星号隐藏 safe_fund 图片里的基金名称后半段；公开图默认隐藏。
 MASK_FUND_NAMES_WITH_STAR = True
 
 

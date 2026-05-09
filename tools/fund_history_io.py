@@ -548,6 +548,21 @@ def _find_a_share_closed_window_start(
     return start.isoformat()
 
 
+def _weekday_closed_dates(start_date: str, end_date: str) -> tuple[str, ...]:
+    start = _parse_normalized_date(start_date)
+    end = _parse_normalized_date(end_date)
+    if start is None or end is None or start > end:
+        return tuple()
+
+    dates = []
+    current = start
+    while current <= end:
+        if current.weekday() < 5:
+            dates.append(current.isoformat())
+        current += timedelta(days=1)
+    return tuple(dates)
+
+
 def _filter_overseas_records_by_run_date(
     df: pd.DataFrame,
     start_date: str,
@@ -612,6 +627,13 @@ def detect_overseas_holiday_estimate_window(
         max_lookback_days=max_a_share_lookback_days,
     )
     end_date = today_str
+
+    weekday_closed_dates = _weekday_closed_dates(start_date, end_date)
+    if not weekday_closed_dates:
+        return _no_holiday_window(
+            f"{today_str} 是普通周末，不属于节假日累计收益场景，未生成图片。",
+            calendar_source=calendar_source,
+        )
 
     fund_df = load_fund_estimate_history(cache_file=cache_file)
     benchmark_df = load_benchmark_estimate_history(cache_file=cache_file)
