@@ -138,10 +138,36 @@ def record_valuation_date(record: dict[str, Any]) -> str:
     )
 
 
-def record_rank(record: dict[str, Any]) -> tuple[int, str]:
+def _record_data_status_rank(record: dict[str, Any]) -> int:
+    status = str(record.get("data_status") or record.get("status") or "").strip().lower()
+    return {
+        "failed": 0,
+        "missing": 0,
+        "pending": 0,
+        "stale": 1,
+        "partial": 2,
+        "intraday": 2,
+        "complete": 3,
+        "traded": 3,
+        "closed": 3,
+    }.get(status, 0)
+
+
+def _record_has_display_value(record: dict[str, Any]) -> int:
+    value_type = str(record.get("value_type", "return_pct") or "return_pct").strip().lower()
+    if value_type == "level":
+        return 1 if safe_float_or_none(record.get("value")) is not None else 0
+    if safe_float_or_none(record.get("estimate_return_pct")) is not None:
+        return 1
+    return 1 if safe_float_or_none(record.get("return_pct")) is not None else 0
+
+
+def record_rank(record: dict[str, Any]) -> tuple[int, int, int, str]:
+    status_rank = _record_data_status_rank(record)
+    has_value = _record_has_display_value(record)
     is_final = 1 if bool(record.get("is_final", False)) else 0
     run_time = str(record.get("run_time_bj", ""))
-    return is_final, run_time
+    return status_rank, has_value, is_final, run_time
 
 
 def latest_market_records(

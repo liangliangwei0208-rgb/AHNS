@@ -1227,9 +1227,6 @@ def _security_return_cache_bucket(market, cn_hk_hourly_cache=True) -> tuple[str,
     """
     market = str(market).strip().upper()
     now = datetime.now()
-    stage = "quality_driven"
-    stage = "quality_driven"
-    stage = "quality_driven"
 
     if cn_hk_hourly_cache and market in {"CN", "HK"}:
         return now.strftime("%Y-%m-%d-%H"), 2.0
@@ -7491,10 +7488,7 @@ def _is_domestic_fund_table_context(title=None, output_file=None) -> bool:
 
 
 
-# 海外/国内基金每日估算缓存。
-
-OVERSEAS_ESTIMATE_FINAL_HOUR_BJ = 15
-OVERSEAS_ESTIMATE_FINAL_MINUTE_BJ = 30
+# 基金每日估算缓存。海外记录按质量驱动覆盖，国内历史写入仍保留 15:30 冻结。
 DOMESTIC_ESTIMATE_FINAL_HOUR_BJ = 15
 DOMESTIC_ESTIMATE_FINAL_MINUTE_BJ = 30
 
@@ -7517,24 +7511,6 @@ def _normalize_date_string(value) -> str:
         return pd.Timestamp(dt).strftime("%Y-%m-%d")
     except Exception:
         return ""
-
-
-def _is_after_overseas_estimate_freeze_time(now=None) -> bool:
-    """
-    判断是否已经达到海外基金预估收益缓存的冻结时间。
-
-    规则：
-        - 北京时间 15:30 前：同一基金、同一 valuation_date 可反复覆盖；
-        - 北京时间 15:30 后：第一次写入或从 intraday 升级为 final；
-        - 已有 final 后保持原记录。
-    """
-    if now is None:
-        now = datetime.now()
-
-    return (int(now.hour), int(now.minute)) >= (
-        int(OVERSEAS_ESTIMATE_FINAL_HOUR_BJ),
-        int(OVERSEAS_ESTIMATE_FINAL_MINUTE_BJ),
-    )
 
 
 def _is_after_domestic_estimate_freeze_time(now=None) -> bool:
@@ -7767,9 +7743,9 @@ def _write_overseas_fund_estimate_history_cache(
         - 只由海外市场收益表调用；
         - 国内基金表不写入此缓存；
         - key = overseas:fund_code:valuation_date；
-        - 15:30 前允许同一 key 反复覆盖；
-        - 15:30 后可将 intraday 升级为 final；
-        - 已有 final 后保持原记录。
+        - 同一 key 按数据质量覆盖；
+        - complete 优先保留；
+        - failed / pending / stale 不覆盖已有更高质量记录。
     """
     if not cache_enabled:
         return {
@@ -8119,9 +8095,9 @@ def _write_overseas_benchmark_history_cache(
         - 与海外基金每日预估收益写入同一个 JSON 文件；
         - 基金记录放在 records；指数记录放在 benchmark_records；
         - key = benchmark:指数代码:valuation_date；
-        - 15:30 前允许同一 key 反复覆盖；
-        - 15:30 后可将 intraday 升级为 final；
-        - 已有 final 后保持原记录。
+        - 同一 key 按数据质量覆盖；
+        - complete 或有效点位 / 收益优先保留；
+        - failed / pending / stale 不覆盖已有更高质量记录。
 
     benchmark_footer_items 预期来自 get_us_index_benchmark_items()，结构类似：
         {
@@ -8163,8 +8139,6 @@ def _write_overseas_benchmark_history_cache(
         }
 
     now = datetime.now()
-    is_final = _is_after_overseas_estimate_freeze_time(now)
-    stage = "final" if is_final else "intraday"
 
     cache = _load_json_cache(
         FUND_ESTIMATE_RETURN_CACHE_FILE,

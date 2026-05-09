@@ -21,8 +21,8 @@ WATERMARK_ALPHA = 0.15
 BRAND_WATERMARK_TEXT = "鱼师AHNS"
 
 # Safe 系列图片是否用星号隐藏基金名称后半段。
-# 默认不隐藏；如需公开发布时脱敏，把这里改成 True。
-MASK_FUND_NAME_WITH_STAR = False
+# 默认脱敏；个别本地调试场景可在调用处显式传 enabled=False。
+MASK_FUND_NAME_WITH_STAR = True
 
 
 def mask_fund_name(name: Any, *, enabled: bool | None = None) -> str:

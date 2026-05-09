@@ -158,7 +158,7 @@ def _load_limit_rows() -> list[dict[str, Any]]:
         rows.append(
             {
                 "序号": "",
-                "基金名称": mask_fund_name(fund_name),
+                "基金名称": mask_fund_name(fund_name, enabled=True),
                 "限额信息": limit_text,
                 "_code": code,
                 "_amount_yuan": amount_yuan,
