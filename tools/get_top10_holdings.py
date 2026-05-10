@@ -107,6 +107,7 @@ from tools.configs.residual_benchmark_configs import (
     RESIDUAL_BENCHMARK_SPECS,
 )
 from tools.configs.security_mappings import KR_TICKER_MAP, US_TICKER_MAP
+from tools.cache_metadata import attach_cache_info
 from tools.paths import CACHE_DIR
 from tools.runtime_stats import (
     format_market_stats_lines,
@@ -176,6 +177,7 @@ def _save_json_cache(filename: str, data) -> None:
     path = CACHE_DIR / filename
 
     tmp_path = path.with_suffix(path.suffix + ".tmp")
+    data = attach_cache_info(filename, data)
 
     with tmp_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)

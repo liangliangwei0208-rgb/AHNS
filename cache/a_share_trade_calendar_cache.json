@@ -1,4 +1,23 @@
 {
+  "_cache_info": {
+    "schema_version": 1,
+    "cache_file": "a_share_trade_calendar_cache.json",
+    "purpose": "A 股交易日历文件缓存，用于判断普通交易日、周末和节假日累计窗口。",
+    "producer": "tools/fund_history_io.py 从 AkShare 交易日历刷新后写入。",
+    "consumers": [
+      "safe_holidays.py",
+      "holidays.py",
+      "sum_holidays.py",
+      "kepu/kepu_sum_holidays.py"
+    ],
+    "refresh_policy": "缓存新鲜期默认 7 天；过期后才尝试联网刷新，失败时允许用旧缓存兜底。",
+    "retention_policy": "整份交易日历覆盖写入，不按每日追加。",
+    "data_shape": "顶层包含 fetched_at、source、trade_dates；trade_dates 是 YYYY-MM-DD 字符串列表。",
+    "notes": [
+      "本文件适合内嵌 _cache_info，因为读取方只读取固定字段。",
+      "trade_dates 通常覆盖多年历史和当年未来已公布交易日。"
+    ]
+  },
   "fetched_at": "2026-05-09T15:14:37+08:00",
   "source": "AkShare A股交易日历",
   "trade_dates": [

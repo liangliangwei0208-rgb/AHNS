@@ -35,6 +35,7 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager
 from matplotlib.offsetbox import AnchoredOffsetbox, HPacker, TextArea, VPacker
 
+from tools.cache_metadata import attach_cache_info
 from tools.configs.cache_policy_configs import A_SHARE_TRADE_CALENDAR_CACHE_DAYS
 from tools.configs.market_benchmark_configs import MARKET_BENCHMARK_ITEMS
 from tools.paths import CACHE_DIR
@@ -353,6 +354,7 @@ def _save_a_share_trade_dates_to_file_cache(
             "source": source,
             "trade_dates": sorted(trade_dates),
         }
+        data = attach_cache_info(A_SHARE_TRADE_CALENDAR_CACHE_FILE, data)
         tmp_path = path.with_suffix(path.suffix + ".tmp")
         with tmp_path.open("w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
