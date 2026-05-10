@@ -797,31 +797,6 @@ def build_kepu_image(today: date) -> Image.Image:
     return image.convert("RGB")
 
 
-# ============================================================
-# xiane.png 表格图绘制：保持原逻辑，不做本次视觉优化
-# ============================================================
-
-def _draw_table_watermarks(image: Image.Image, table_box: tuple[int, int, int, int]) -> None:
-    left, top, right, bottom = table_box
-    overlay = Image.new("RGBA", image.size, (255, 255, 255, 0))
-    font = art.load_font(52, bold=True)
-    text = "鱼师AHNS"
-
-    patch = Image.new("RGBA", (420, 120), (255, 255, 255, 0))
-    patch_draw = ImageDraw.Draw(patch)
-    bbox = patch_draw.textbbox((0, 0), text, font=font)
-    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-
-    patch_draw.text(((420 - tw) / 2, (120 - th) / 2), text, font=font, fill=(5, 5, 5, 24))
-    rotated = patch.rotate(28, expand=True, resample=Image.Resampling.BICUBIC)
-
-    for y in range(top + 130, bottom - 80, 330):
-        for x in range(left + 180, right - 120, 540):
-            overlay.alpha_composite(rotated, (int(x - rotated.width / 2), int(y - rotated.height / 2)))
-
-    image.alpha_composite(overlay)
-
-
 def build_table_image(today: date) -> Image.Image:
     """使用 matplotlib 绘制限额表格，保持与 safe 系列一致的风格。"""
     import matplotlib.pyplot as plt
