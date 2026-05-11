@@ -111,7 +111,7 @@ RSI_ANALYSIS_CONFIGS = [
             "daily_rsi_high": 75,
             "daily_rsi_low": 30,
             "weekly_rsi_window": 9,
-            "weekly_rsi_high": 80,
+            "weekly_rsi_high": 77,
             "weekly_rsi_low": 35,
             "monthly_rsi_window": 9,
             "monthly_rsi_high": 75,
