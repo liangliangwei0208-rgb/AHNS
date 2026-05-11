@@ -69,6 +69,7 @@ import re
 import json
 import time
 import warnings
+import contextlib
 import requests
 import akshare as ak
 import pandas as pd
@@ -3298,7 +3299,8 @@ def fetch_kr_return_pct_pykrx_daily_with_date(code, lookback_days=30, end_date=N
     kr_code = normalize_kr_code(code)
 
     try:
-        from pykrx import stock as krx_stock
+        with contextlib.redirect_stdout(StringIO()), contextlib.redirect_stderr(StringIO()):
+            from pykrx import stock as krx_stock
     except Exception as e:
         raise RuntimeError(f"pykrx 未安装或导入失败，请先 pip install pykrx: {e}")
 
@@ -3307,9 +3309,21 @@ def fetch_kr_return_pct_pykrx_daily_with_date(code, lookback_days=30, end_date=N
         end_date=end_date,
     )
 
-    df = krx_stock.get_market_ohlcv_by_date(start_date, end_date_api, kr_code)
+    df = None
+    last_error = None
+    for attempt in range(2):
+        try:
+            with contextlib.redirect_stdout(StringIO()), contextlib.redirect_stderr(StringIO()):
+                df = krx_stock.get_market_ohlcv_by_date(start_date, end_date_api, kr_code)
+            if df is not None and not df.empty:
+                break
+            last_error = f"pykrx 返回空数据: {kr_code}"
+        except Exception as e:
+            last_error = repr(e)
+        if attempt == 0:
+            time.sleep(0.8)
     if df is None or df.empty:
-        raise RuntimeError(f"pykrx 返回空数据: {kr_code}")
+        raise RuntimeError(last_error or f"pykrx 返回空数据: {kr_code}")
 
     out = df.copy().sort_index()
     out = _drop_rows_after_target_date(out, out.index, end_date_key)

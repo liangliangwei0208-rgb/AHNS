@@ -26,6 +26,8 @@ FIRST_PIC_IMAGE = OUTPUT_DIR / "first_pic.png"
 HAIWAI_FUND_IMAGE = OUTPUT_DIR / "haiwai_fund.png"
 HAIWAI_HOLIDAYS_IMAGE = OUTPUT_DIR / "haiwai_holidays.png"
 SAFE_HAIWAI_FUND_IMAGE = OUTPUT_DIR / "safe_haiwai_fund.png"
+SAFE_HAIWAI_PREMARKET_IMAGE = OUTPUT_DIR / "safe_haiwai_premarket.png"
+PREMARKET_FAILED_HOLDINGS_REPORT = OUTPUT_DIR / "premarket_failed_holdings_latest.txt"
 SAFE_HOLIDAYS_IMAGE = OUTPUT_DIR / "safe_holidays.png"
 SAFE_SUM_HOLIDAYS_IMAGE = OUTPUT_DIR / "safe_sum_holidays.png"
 KEPU_SUM_HOLIDAYS_IMAGE = OUTPUT_DIR / "kepu_sum_holidays.png"
@@ -70,6 +72,8 @@ __all__ = [
     "HAIWAI_FUND_IMAGE",
     "HAIWAI_HOLIDAYS_IMAGE",
     "SAFE_HAIWAI_FUND_IMAGE",
+    "SAFE_HAIWAI_PREMARKET_IMAGE",
+    "PREMARKET_FAILED_HOLDINGS_REPORT",
     "SAFE_HOLIDAYS_IMAGE",
     "SAFE_SUM_HOLIDAYS_IMAGE",
     "KEPU_SUM_HOLIDAYS_IMAGE",
