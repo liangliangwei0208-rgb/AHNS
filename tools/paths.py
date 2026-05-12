@@ -20,6 +20,7 @@ FUND_ESTIMATE_CACHE = CACHE_DIR / "fund_estimate_return_cache.json"
 FUND_HOLDINGS_CACHE = CACHE_DIR / "fund_holdings_cache.json"
 FUND_PURCHASE_LIMIT_CACHE = CACHE_DIR / "fund_purchase_limit_cache.json"
 SECURITY_RETURN_CACHE = CACHE_DIR / "security_return_cache.json"
+PREMARKET_QUOTE_CACHE = CACHE_DIR / "premarket_quote_cache.json"
 MARK_IMAGE = CACHE_DIR / "mark.jpg"
 
 FIRST_PIC_IMAGE = OUTPUT_DIR / "first_pic.png"
@@ -67,6 +68,7 @@ __all__ = [
     "FUND_HOLDINGS_CACHE",
     "FUND_PURCHASE_LIMIT_CACHE",
     "SECURITY_RETURN_CACHE",
+    "PREMARKET_QUOTE_CACHE",
     "MARK_IMAGE",
     "FIRST_PIC_IMAGE",
     "HAIWAI_FUND_IMAGE",
