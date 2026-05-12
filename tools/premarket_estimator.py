@@ -559,6 +559,81 @@ def _yahoo_realtime_return_pct(symbol: str, *, timeout: int = 5) -> dict[str, An
     }
 
 
+def _fetch_realtime_vix_level(today: str, *, timeout: int = 8) -> dict[str, Any]:
+    """
+    Fetch the latest available VIX level from Yahoo's intraday chart endpoint.
+    """
+    urls = [
+        "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX",
+        "https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX",
+    ]
+    errors = []
+    for url in urls:
+        try:
+            resp = requests.get(
+                url,
+                params={"range": "1d", "interval": "1m", "includePrePost": "true"},
+                headers={"User-Agent": "Mozilla/5.0"},
+                timeout=timeout,
+            )
+            resp.raise_for_status()
+            payload = resp.json()
+            result = (payload.get("chart") or {}).get("result") or []
+            if not result:
+                raise RuntimeError("Yahoo VIX chart 返回空数据")
+            item = result[0]
+            meta = item.get("meta") or {}
+            timestamps = item.get("timestamp") or []
+            quotes = (item.get("indicators") or {}).get("quote") or []
+            closes = quotes[0].get("close") if quotes else []
+
+            value = None
+            quote_ts = None
+            if timestamps and closes:
+                for ts_value, close_value in reversed(list(zip(timestamps, closes))):
+                    close_f = _safe_float(close_value)
+                    if close_f is not None:
+                        value = close_f
+                        quote_ts = int(ts_value)
+                        break
+            if value is None:
+                value = _safe_float(meta.get("regularMarketPrice"))
+                quote_ts = int(meta.get("regularMarketTime") or 0) or None
+            if value is None:
+                raise RuntimeError("Yahoo VIX chart 缺少有效点位")
+
+            quote_dt_bj = None
+            trade_date = today
+            if quote_ts:
+                quote_dt_utc = datetime.fromtimestamp(int(quote_ts), tz=ZoneInfo("UTC"))
+                quote_dt_bj = quote_dt_utc.astimezone(BJ_TZ)
+                exchange_tz_name = str(meta.get("exchangeTimezoneName") or "America/Chicago")
+                try:
+                    trade_date = quote_dt_utc.astimezone(ZoneInfo(exchange_tz_name)).date().isoformat()
+                except Exception:
+                    trade_date = quote_dt_bj.date().isoformat()
+
+            return {
+                "benchmark_key": "vix",
+                "label": "VIX恐慌指数",
+                "ticker": "VIX",
+                "market": "VIX_LEVEL",
+                "kind": "vix_level",
+                "return_pct": None,
+                "value": float(value),
+                "display_value": f"{float(value):.2f}",
+                "trade_date": trade_date,
+                "source": "yahoo_chart_realtime_vix",
+                "status": "traded",
+                "value_type": "level",
+                "quote_time_bj": "" if quote_dt_bj is None else quote_dt_bj.isoformat(timespec="seconds"),
+            }
+        except Exception as exc:
+            errors.append(f"{url}: {repr(exc)}")
+
+    raise RuntimeError("VIX 实时点位获取失败: " + " | ".join(errors))
+
+
 def _sina_us_premarket_return_pct(symbol: str, *, timeout: int = 6) -> dict[str, Any]:
     """
     Read Sina's US quote line directly.
@@ -740,35 +815,46 @@ def fetch_premarket_benchmark_quote(
         cache_now=cache_now,
     )
     if isinstance(cached, dict) and (_quote_item_has_value(cached) or cached.get("status") == "missing"):
-        out = dict(cached)
-        out.update(
-            {
-                "benchmark_key": spec["key"],
-                "label": spec["label"],
-                "ticker": spec["ticker"],
-                "market": spec["market"],
-                "kind": spec["kind"],
-            }
+        source_lower = str(cached.get("source", "") or "").lower()
+        is_old_vix_close_cache = (
+            spec["kind"] == "vix_level"
+            and str(cached.get("cache_hit", "")).lower() == "file"
+            and "realtime" not in source_lower
         )
-        return out
+        if not is_old_vix_close_cache:
+            out = dict(cached)
+            out.update(
+                {
+                    "benchmark_key": spec["key"],
+                    "label": spec["label"],
+                    "ticker": spec["ticker"],
+                    "market": spec["market"],
+                    "kind": spec["kind"],
+                }
+            )
+            return out
 
     try:
         if spec["kind"] == "vix_level":
-            vix = fetch_latest_complete_vix_close()
-            item = {
-                "benchmark_key": spec["key"],
-                "label": spec["label"],
-                "ticker": spec["ticker"],
-                "market": spec["market"],
-                "kind": spec["kind"],
-                "return_pct": None,
-                "value": _safe_float(vix.get("close")),
-                "display_value": f"{float(vix['close']):.2f}",
-                "trade_date": str(vix.get("date") or today),
-                "source": str(vix.get("source", "")),
-                "status": "traded",
-                "value_type": "level",
-            }
+            try:
+                item = _fetch_realtime_vix_level(today)
+            except Exception as realtime_exc:
+                vix = fetch_latest_complete_vix_close()
+                item = {
+                    "benchmark_key": spec["key"],
+                    "label": spec["label"],
+                    "ticker": spec["ticker"],
+                    "market": spec["market"],
+                    "kind": spec["kind"],
+                    "return_pct": None,
+                    "value": _safe_float(vix.get("close")),
+                    "display_value": f"{float(vix['close']):.2f}",
+                    "trade_date": str(vix.get("date") or today),
+                    "source": f"vix_latest_close_fallback:{vix.get('source', '')}",
+                    "status": "traded",
+                    "value_type": "level",
+                    "error": str(realtime_exc),
+                }
         elif spec["market"] == "US":
             quote = fetch_us_premarket_return_pct(spec["ticker"], disabled_sources=disabled_sources)
             item = {
@@ -836,6 +922,9 @@ def build_premarket_benchmark_footer_items(
         out["order"] = order
         out["label"] = PREMARKET_FOOTER_LABELS.get(benchmark_key, str(out.get("label", "") or benchmark_key))
         if benchmark_key == "vix":
+            source_lower = str(out.get("source", "") or "").lower()
+            if "realtime" not in source_lower:
+                out["label"] = "VIX恐慌指数（最新收盘兜底）"
             out["value_type"] = "level"
             out["return_pct"] = None
         else:
