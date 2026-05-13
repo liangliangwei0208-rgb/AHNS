@@ -80,6 +80,7 @@ from tools.safe_display import apply_safe_public_watermarks, mask_fund_name
 
 
 BJ_TZ = ZoneInfo("Asia/Shanghai")
+US_EASTERN_TZ = ZoneInfo("America/New_York")
 PREMARKET_START_BJ = time(PREMARKET_START_HOUR_BJ, PREMARKET_START_MINUTE_BJ)
 PREMARKET_END_BJ = time(PREMARKET_END_HOUR_BJ, PREMARKET_END_MINUTE_BJ)
 AFTERHOURS_START_BJ = time(AFTERHOURS_START_HOUR_BJ, AFTERHOURS_START_MINUTE_BJ)
@@ -87,6 +88,7 @@ AFTERHOURS_END_BJ = time(AFTERHOURS_END_HOUR_BJ, AFTERHOURS_END_MINUTE_BJ)
 DISPLAY_RETURN_COLUMN = "盘前模型观察"
 PURCHASE_LIMIT_COLUMN = "模型观察基金信息"
 PREMARKET_FOOTER_BENCHMARK_KEYS = ("nasdaq100", "sp500", "oil_gas_ep", "gold", "vix")
+AFTERHOURS_FOOTER_BENCHMARK_KEYS = ("nasdaq100", "sp500", "oil_gas_ep", "gold", "vix")
 PREMARKET_FOOTER_LABELS = {
     "nasdaq100": "纳指100（盘前数据）",
     "sp500": "标普500（盘前数据）",
@@ -185,7 +187,7 @@ AFTERHOURS_SESSION = ObservationSessionConfig(
     benchmark_specs=AFTERHOURS_BENCHMARK_SPECS,
     default_residual_benchmark_key=AFTERHOURS_DEFAULT_RESIDUAL_BENCHMARK_KEY,
     fund_residual_benchmark_map=AFTERHOURS_FUND_RESIDUAL_BENCHMARK_MAP,
-    footer_benchmark_keys=PREMARKET_FOOTER_BENCHMARK_KEYS,
+    footer_benchmark_keys=AFTERHOURS_FOOTER_BENCHMARK_KEYS,
     footer_labels=AFTERHOURS_FOOTER_LABELS,
     display_return_column="盘后模型观察",
     us_quote_mode="afterhours",
@@ -227,6 +229,17 @@ def in_observation_window(
     dt = coerce_bj_datetime(check_time)
     current = dt.time().replace(microsecond=0)
     return session.start_time_bj <= current <= session.end_time_bj
+
+
+def _target_afterhours_us_date(as_of_bj: datetime | str | None = None) -> str:
+    dt_us = coerce_bj_datetime(as_of_bj).astimezone(US_EASTERN_TZ)
+    local_time = dt_us.time().replace(second=0, microsecond=0)
+    target_date = dt_us.date()
+    if local_time < time(16, 0):
+        target_date -= timedelta(days=1)
+    while target_date.weekday() >= 5:
+        target_date -= timedelta(days=1)
+    return target_date.isoformat()
 
 
 def _safe_float(value: Any) -> float | None:
@@ -353,6 +366,9 @@ def _prune_premarket_quote_cache(
     pruned: dict[str, dict[str, Any]] = {}
     for key, item in cache.items():
         if not isinstance(key, str) or not isinstance(item, dict) or not _quote_item_has_value(item):
+            continue
+        source_lower = str(item.get("source") or "").strip().lower()
+        if key.upper().startswith("US:") and "afterhours" in source_lower and "post" not in source_lower:
             continue
         fetched_at = _parse_premarket_cache_time(item.get("fetched_at_bj"))
         if fetched_at is None or fetched_at < cutoff:
@@ -709,7 +725,12 @@ def _yahoo_realtime_return_pct(symbol: str, *, timeout: int = 5) -> dict[str, An
     }
 
 
-def _yahoo_afterhours_return_pct(symbol: str, *, timeout: int = 8) -> dict[str, Any]:
+def _yahoo_afterhours_return_pct(
+    symbol: str,
+    *,
+    target_us_date: str | None = None,
+    timeout: int = 8,
+) -> dict[str, Any]:
     """
     Fetch the latest regular/post-market price and compare it with the previous
     regular close of that same US trading session.
@@ -721,6 +742,7 @@ def _yahoo_afterhours_return_pct(symbol: str, *, timeout: int = 8) -> dict[str, 
     symbol_norm = str(symbol or "").strip().upper()
     if not symbol_norm:
         raise RuntimeError("Yahoo afterhours symbol 为空")
+    target_us_date = str(target_us_date or _target_afterhours_us_date()).strip()
 
     headers = {
         "User-Agent": (
@@ -780,17 +802,20 @@ def _yahoo_afterhours_return_pct(symbol: str, *, timeout: int = 8) -> dict[str, 
                 local_time = dt_local.time().replace(second=0, microsecond=0)
                 if regular_start <= local_time <= regular_end:
                     regular_points.append((ts_int, price_f, dt_local))
-                    accepted_points.append((ts_int, price_f, dt_local, "regular"))
                 elif regular_end < local_time <= post_end:
                     accepted_points.append((ts_int, price_f, dt_local, "post"))
 
             if not accepted_points:
                 market_state = str(meta.get("marketState") or "").upper()
                 raise RuntimeError(
-                    f"Yahoo 没有可用 regular/post 价格点: {symbol_norm}, marketState={market_state or '空'}"
+                    f"Yahoo 没有可用 post 价格点: {symbol_norm}, marketState={market_state or '空'}"
                 )
 
             latest_ts, latest_price, latest_dt_local, phase = accepted_points[-1]
+            if latest_dt_local.date().isoformat() != target_us_date:
+                raise RuntimeError(
+                    f"Yahoo afterhours 数据不是目标美股日期: {symbol_norm}, trade_date={latest_dt_local.date().isoformat()}, target={target_us_date}"
+                )
             previous_close = None
             for _, price_f, dt_local in reversed(regular_points):
                 if dt_local.date() < latest_dt_local.date():
@@ -807,13 +832,13 @@ def _yahoo_afterhours_return_pct(symbol: str, *, timeout: int = 8) -> dict[str, 
 
             return_pct = (float(latest_price) / float(previous_close) - 1.0) * 100.0
             quote_time_bj = datetime.fromtimestamp(latest_ts, tz=BJ_TZ).strftime("%Y-%m-%d %H:%M")
-            return {
+            return _require_afterhours_target_trade_date({
                 "return_pct": float(return_pct),
                 "source": f"yahoo_chart_afterhours_{phase}",
                 "quote_time_bj": quote_time_bj,
                 "trade_date": latest_dt_local.date().isoformat(),
                 "status": "traded",
-            }
+            }, target_us_date=target_us_date, symbol=symbol_norm, source="yahoo_afterhours")
         except Exception as exc:
             errors.append(f"{url}: {repr(exc)}")
 
@@ -893,6 +918,255 @@ def _fetch_realtime_vix_level(today: str, *, timeout: int = 8) -> dict[str, Any]
             errors.append(f"{url}: {repr(exc)}")
 
     raise RuntimeError("VIX 实时点位获取失败: " + " | ".join(errors))
+
+
+def _parse_us_eastern_quote_time(value: Any, *, default_year: int | None = None) -> datetime | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    text = re.sub(r"^Closed at\s+", "", text, flags=re.IGNORECASE).strip()
+    text = re.sub(r"\b(?:ET|EDT|EST)\b\.?$", "", text).strip()
+    text = re.sub(r"\s+", " ", text)
+    if not text:
+        return None
+
+    default_year = int(default_year or now_bj().astimezone(US_EASTERN_TZ).year)
+    patterns = (
+        "%b %d, %Y %I:%M %p",
+        "%B %d, %Y %I:%M %p",
+        "%b %d %I:%M%p",
+        "%B %d %I:%M%p",
+        "%b %d %I:%M %p",
+        "%B %d %I:%M %p",
+    )
+    for pattern in patterns:
+        try:
+            parsed = datetime.strptime(text, pattern)
+            if "%Y" not in pattern:
+                parsed = parsed.replace(year=default_year)
+            return parsed.replace(tzinfo=US_EASTERN_TZ)
+        except ValueError:
+            continue
+    return None
+
+
+def _classify_us_eastern_quote_session(dt_local: datetime) -> str:
+    local_time = dt_local.astimezone(US_EASTERN_TZ).time().replace(second=0, microsecond=0)
+    if time(4, 0) <= local_time < time(9, 30):
+        return "pre"
+    if time(9, 30) <= local_time <= time(16, 0):
+        return "regular"
+    if time(16, 0) < local_time <= time(20, 0):
+        return "post"
+    return "off"
+
+
+def _us_quote_time_bj_text(dt_local: datetime | None) -> str:
+    if dt_local is None:
+        return ""
+    return dt_local.astimezone(BJ_TZ).strftime("%Y-%m-%d %H:%M")
+
+
+def _require_afterhours_target_trade_date(
+    item: dict[str, Any],
+    *,
+    target_us_date: str,
+    symbol: str,
+    source: str,
+) -> dict[str, Any]:
+    trade_date = str(item.get("trade_date") or "").strip()
+    if not trade_date:
+        raise RuntimeError(f"{source} 缺少美股目标交易日: {symbol}, target={target_us_date}")
+    if trade_date != target_us_date:
+        if trade_date > target_us_date:
+            raise RuntimeError(
+                f"afterhours rejected premarket quote: {source} {symbol} trade_date={trade_date}, target={target_us_date}"
+            )
+        raise RuntimeError(
+            f"{source} 盘后数据不是目标美股日期: {symbol}, trade_date={trade_date}, target={target_us_date}"
+        )
+    return item
+
+
+def _require_afterhours_live_or_post_source(item: dict[str, Any], *, symbol: str, source: str) -> dict[str, Any]:
+    quote_source = str(item.get("source") or "").strip().lower()
+    if "post" not in quote_source:
+        raise RuntimeError(f"{source} 拒绝使用非 post 行情作为盘后数据: {symbol}, source={quote_source}")
+    if "afterhours_closed_daily" in quote_source:
+        raise RuntimeError(f"{source} 拒绝使用日线收盘兜底作为盘后数据: {symbol}, source={quote_source}")
+    if "closed_daily" in quote_source:
+        raise RuntimeError(f"{source} 拒绝使用日线收盘兜底作为盘后数据: {symbol}, source={quote_source}")
+    return item
+
+
+def _validate_afterhours_us_quote_item(
+    item: dict[str, Any],
+    *,
+    target_us_date: str,
+    symbol: str,
+    source: str,
+) -> dict[str, Any]:
+    item = _require_afterhours_live_or_post_source(dict(item), symbol=symbol, source=source)
+    return _require_afterhours_target_trade_date(
+        item,
+        target_us_date=target_us_date,
+        symbol=symbol,
+        source=source,
+    )
+
+
+def _sina_us_afterhours_return_pct(
+    symbol: str,
+    *,
+    target_us_date: str | None = None,
+    timeout: int = 6,
+) -> dict[str, Any]:
+    """
+    Read Sina's extended US quote for post-market only.
+
+    Sina also serves the next US pre-market around Beijing late afternoon. That
+    data is useful for the pre-market entry but must be rejected here.
+    """
+    symbol_norm = str(symbol or "").strip().upper()
+    if not symbol_norm:
+        raise RuntimeError("新浪美股盘后 symbol 为空")
+    target_us_date = str(target_us_date or _target_afterhours_us_date()).strip()
+
+    url = f"http://hq.sinajs.cn/list=gb_{symbol_norm.lower()}"
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/128.0.0.0 Safari/537.36"
+        ),
+        "Referer": "https://finance.sina.com.cn/",
+    }
+    resp = _get_first_success([url], headers=headers, timeout=timeout, encoding="gbk")
+    text = resp.text.strip()
+    match = re.search(r'="(.*)"', text)
+    if not match:
+        raise RuntimeError(f"新浪美股盘后返回格式异常: {symbol_norm}, {text[:120]}")
+    values = match.group(1).split(",")
+    if len(values) < 25:
+        raise RuntimeError(f"新浪美股盘后字段数量不足: {symbol_norm}, len={len(values)}")
+
+    quote_dt_local = _parse_us_eastern_quote_time(values[24])
+    if quote_dt_local is None:
+        raise RuntimeError(f"新浪美股盘后无法解析扩展交易时间: {symbol_norm}, {values[24] if len(values) > 24 else ''}")
+    phase = _classify_us_eastern_quote_session(quote_dt_local)
+    if phase == "pre":
+        raise RuntimeError(f"afterhours rejected premarket quote: sina {symbol_norm} {values[24]}")
+    if phase != "post":
+        raise RuntimeError(f"新浪美股盘后不是 post 时段: {symbol_norm}, phase={phase}, time={values[24]}")
+    if quote_dt_local.date().isoformat() != target_us_date:
+        raise RuntimeError(
+            f"新浪美股盘后数据不是目标美股日期: {symbol_norm}, trade_date={quote_dt_local.date().isoformat()}, target={target_us_date}"
+        )
+
+    extended_price = _safe_float(values[21] if len(values) > 21 else None)
+    regular_close = _safe_float(values[1] if len(values) > 1 else None)
+    regular_pct = _safe_float(values[2] if len(values) > 2 else None)
+    previous_close = _safe_float(values[26] if len(values) > 26 else None)
+    if previous_close is None and regular_close is not None and regular_pct is not None:
+        denominator = 1.0 + regular_pct / 100.0
+        if denominator:
+            previous_close = regular_close / denominator
+    if extended_price is None or previous_close in (None, 0):
+        raise RuntimeError(f"新浪美股盘后无法解析含盘后整日涨跌幅: {symbol_norm}")
+    pct = (extended_price / float(previous_close) - 1.0) * 100.0
+
+    return _require_afterhours_target_trade_date({
+        "return_pct": float(pct),
+        "source": "sina_us_afterhours_post_http",
+        "status": "traded",
+        "trade_date": quote_dt_local.date().isoformat(),
+        "quote_time_bj": _us_quote_time_bj_text(quote_dt_local),
+    }, target_us_date=target_us_date, symbol=symbol_norm, source="sina_us_afterhours")
+
+
+def _nasdaq_afterhours_return_pct(
+    symbol: str,
+    *,
+    target_us_date: str | None = None,
+    timeout: int = 6,
+) -> dict[str, Any]:
+    """
+    Use Nasdaq's quote info API for regular/post or latest closed regular data.
+    """
+    symbol_norm = str(symbol or "").strip().upper()
+    if not symbol_norm:
+        raise RuntimeError("Nasdaq 盘后 symbol 为空")
+    target_us_date = str(target_us_date or _target_afterhours_us_date()).strip()
+
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/128.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/json,text/plain,*/*",
+        "Referer": f"https://www.nasdaq.com/market-activity/stocks/{symbol_norm.lower()}",
+    }
+    errors = []
+    default_year = now_bj().astimezone(US_EASTERN_TZ).year
+    for assetclass in ("stocks", "etf"):
+        url = f"https://api.nasdaq.com/api/quote/{symbol_norm}/info"
+        try:
+            resp = requests.get(
+                url,
+                params={"assetclass": assetclass},
+                headers=headers,
+                timeout=timeout,
+            )
+            resp.raise_for_status()
+            payload = resp.json()
+            data = payload.get("data") or {}
+            if not isinstance(data, dict) or not data:
+                errors.append(f"{assetclass}: Nasdaq 盘后无数据")
+                continue
+
+            primary = data.get("primaryData") or {}
+            secondary = data.get("secondaryData") or {}
+            timestamp = str(primary.get("lastTradeTimestamp") or "")
+            is_closed_regular = bool(re.search(r"\bClosed at\b", timestamp, flags=re.IGNORECASE))
+            quote_dt_local = _parse_us_eastern_quote_time(timestamp, default_year=default_year)
+            phase = _classify_us_eastern_quote_session(quote_dt_local) if quote_dt_local is not None else ""
+            if phase == "pre":
+                errors.append(f"{assetclass}: afterhours rejected premarket quote: nasdaq {symbol_norm} {timestamp}")
+                continue
+            if is_closed_regular or phase != "post":
+                errors.append(f"{assetclass}: Nasdaq 盘后不是 post 状态: phase={phase or 'unknown'}, time={timestamp}")
+                continue
+            if quote_dt_local is not None and quote_dt_local.date().isoformat() != target_us_date:
+                errors.append(
+                    f"{assetclass}: Nasdaq 盘后数据不是目标美股日期: trade_date={quote_dt_local.date().isoformat()}, target={target_us_date}, time={timestamp}"
+                )
+                continue
+
+            latest = _safe_float(primary.get("lastSalePrice"))
+            regular_close = _safe_float(secondary.get("lastSalePrice"))
+            regular_pct = _safe_float(secondary.get("percentageChange"))
+            previous_close = None
+            if regular_close is not None and regular_pct is not None:
+                denominator = 1.0 + regular_pct / 100.0
+                if denominator:
+                    previous_close = regular_close / denominator
+            if latest is None or previous_close in (None, 0):
+                errors.append(f"{assetclass}: Nasdaq 盘后缺少可计算含盘后整日涨跌幅的数据")
+                continue
+            pct = (latest / float(previous_close) - 1.0) * 100.0
+
+            return _require_afterhours_target_trade_date({
+                "return_pct": float(pct),
+                "source": f"nasdaq_api_afterhours_{assetclass}_post",
+                "status": "traded",
+                "trade_date": quote_dt_local.date().isoformat() if quote_dt_local is not None else now_bj().date().isoformat(),
+                "quote_time_bj": _us_quote_time_bj_text(quote_dt_local) or timestamp,
+            }, target_us_date=target_us_date, symbol=symbol_norm, source="nasdaq_afterhours")
+        except Exception as exc:
+            errors.append(f"{assetclass}: {repr(exc)}")
+
+    raise RuntimeError(" | ".join(errors))
 
 
 def _sina_us_premarket_return_pct(symbol: str, *, timeout: int = 6) -> dict[str, Any]:
@@ -1042,22 +1316,33 @@ def fetch_us_premarket_return_pct(symbol: str, *, disabled_sources: set[str] | N
     raise RuntimeError(" | ".join(errors))
 
 
-def fetch_us_afterhours_return_pct(symbol: str, *, disabled_sources: set[str] | None = None) -> dict[str, Any]:
+def fetch_us_afterhours_return_pct(
+    symbol: str,
+    *,
+    disabled_sources: set[str] | None = None,
+    as_of_bj: datetime | str | None = None,
+) -> dict[str, Any]:
     disabled_sources = disabled_sources if disabled_sources is not None else set()
     symbol_norm = str(symbol or "").strip().upper()
+    target_us_date = _target_afterhours_us_date(as_of_bj)
     errors = []
 
-    if "yahoo_afterhours" in disabled_sources:
-        raise RuntimeError("yahoo_afterhours 已因本轮网络错误临时禁用")
+    for source_key, fetcher in (
+        ("sina_us_afterhours", lambda: _sina_us_afterhours_return_pct(symbol_norm, target_us_date=target_us_date)),
+        ("nasdaq_afterhours", lambda: _nasdaq_afterhours_return_pct(symbol_norm, target_us_date=target_us_date)),
+        ("yahoo_afterhours", lambda: _yahoo_afterhours_return_pct(symbol_norm, target_us_date=target_us_date)),
+    ):
+        if source_key in disabled_sources:
+            errors.append(f"{source_key}: 已因本轮网络错误临时禁用")
+            continue
 
-    if "yahoo_afterhours" not in disabled_sources:
         try:
-            return _yahoo_afterhours_return_pct(symbol_norm)
+            return fetcher()
         except Exception as exc:
             message = repr(exc)
-            errors.append(f"yahoo_afterhours: {message}")
-            if _network_error_message(message):
-                disabled_sources.add("yahoo_afterhours")
+            errors.append(f"{source_key}: {message}")
+            if source_key == "yahoo_afterhours" and _network_error_message(message):
+                disabled_sources.add(source_key)
 
     raise RuntimeError(" | ".join(errors))
 
@@ -1106,16 +1391,32 @@ def fetch_premarket_benchmark_quote(
         )
         if not is_old_vix_close_cache:
             out = dict(cached)
-            out.update(
-                {
-                    "benchmark_key": spec["key"],
-                    "label": spec["label"],
-                    "ticker": spec["ticker"],
-                    "market": spec["market"],
-                    "kind": spec["kind"],
-                }
-            )
-            return out
+            if session.us_quote_mode == "afterhours" and spec["market"] == "US" and _quote_item_has_value(out):
+                target_us_date = _target_afterhours_us_date(cache_now)
+                try:
+                    out = _validate_afterhours_us_quote_item(
+                        out,
+                        target_us_date=target_us_date,
+                        symbol=spec["ticker"],
+                        source="afterhours_cache",
+                    )
+                except Exception:
+                    cache_key = _premarket_quote_tuple_key(spec["market"], spec["ticker"])
+                    quote_cache.pop(cache_key, None)
+                    if persistent_quote_cache is not None:
+                        persistent_quote_cache.pop(_premarket_quote_cache_key(spec["market"], spec["ticker"]), None)
+                    out = None
+            if out is not None:
+                out.update(
+                    {
+                        "benchmark_key": spec["key"],
+                        "label": spec["label"],
+                        "ticker": spec["ticker"],
+                        "market": spec["market"],
+                        "kind": spec["kind"],
+                    }
+                )
+                return out
 
     try:
         if spec["kind"] == "vix_level":
@@ -1140,7 +1441,11 @@ def fetch_premarket_benchmark_quote(
                 }
         elif spec["market"] == "US":
             if session.us_quote_mode == "afterhours":
-                quote = fetch_us_afterhours_return_pct(spec["ticker"], disabled_sources=disabled_sources)
+                quote = fetch_us_afterhours_return_pct(
+                    spec["ticker"],
+                    disabled_sources=disabled_sources,
+                    as_of_bj=cache_now,
+                )
             else:
                 quote = fetch_us_premarket_return_pct(spec["ticker"], disabled_sources=disabled_sources)
             item = {
@@ -1158,6 +1463,9 @@ def fetch_premarket_benchmark_quote(
         else:
             raise RuntimeError(f"{session.window_word}基准暂不支持 market={spec['market']}")
     except Exception as exc:
+        failed_trade_date = today
+        if session.us_quote_mode == "afterhours" and spec["market"] == "US":
+            failed_trade_date = _target_afterhours_us_date(cache_now)
         item = {
             "benchmark_key": spec["key"],
             "label": spec["label"],
@@ -1167,7 +1475,7 @@ def fetch_premarket_benchmark_quote(
             "return_pct": None,
             "value": None,
             "display_value": "",
-            "trade_date": today,
+            "trade_date": failed_trade_date,
             "source": "failed",
             "status": "missing",
             "error": str(exc),
@@ -1209,10 +1517,10 @@ def build_premarket_benchmark_footer_items(
         out = dict(item)
         out["order"] = order
         out["label"] = session.footer_labels.get(benchmark_key, str(out.get("label", "") or benchmark_key))
+        if benchmark_key in {"gold", "vix"}:
+            quote_time = _parse_premarket_cache_time(out.get("quote_time_bj"))
+            out["trade_date"] = (quote_time or cache_now).astimezone(BJ_TZ).date().isoformat()
         if benchmark_key == "vix":
-            source_lower = str(out.get("source", "") or "").lower()
-            if "realtime" not in source_lower:
-                out["label"] = "VIX恐慌指数（最新收盘兜底）"
             out["value_type"] = "level"
             out["return_pct"] = None
         else:
@@ -1498,12 +1806,17 @@ def fetch_holding_current_return(
     today: str,
     disabled_sources: set[str],
     us_quote_mode: str = "premarket",
+    as_of_bj: datetime | str | None = None,
 ) -> dict[str, Any]:
     market_norm = str(market or "").strip().upper()
     ticker_norm = str(ticker or "").strip().upper()
     if market_norm == "US":
         if str(us_quote_mode).lower() == "afterhours":
-            return fetch_us_afterhours_return_pct(ticker_norm, disabled_sources=disabled_sources)
+            return fetch_us_afterhours_return_pct(
+                ticker_norm,
+                disabled_sources=disabled_sources,
+                as_of_bj=as_of_bj,
+            )
         return fetch_us_premarket_return_pct(ticker_norm, disabled_sources=disabled_sources)
     if market_norm == "CN":
         return _fetch_cn_current_return(ticker_norm, today=today)
@@ -1526,6 +1839,9 @@ def estimate_premarket_holdings(
     session: ObservationSessionConfig = PREMARKET_SESSION,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     cache_now = coerce_bj_datetime(cache_now)
+    afterhours_target_us_date = (
+        _target_afterhours_us_date(cache_now) if str(session.us_quote_mode).lower() == "afterhours" else ""
+    )
     df = holdings_df.copy()
     metric_prefix = session.title_word
     return_col = f"{metric_prefix}涨跌幅"
@@ -1554,6 +1870,19 @@ def estimate_premarket_holdings(
                 cache_now=cache_now,
                 ttl_minutes=session.quote_cache_ttl_minutes,
             )
+            if item is not None and afterhours_target_us_date and market == "US":
+                try:
+                    item = _validate_afterhours_us_quote_item(
+                        item,
+                        target_us_date=afterhours_target_us_date,
+                        symbol=ticker,
+                        source="afterhours_cache",
+                    )
+                except Exception:
+                    quote_cache.pop(key, None)
+                    if persistent_quote_cache is not None:
+                        persistent_quote_cache.pop(_premarket_quote_cache_key(market, ticker), None)
+                    item = None
             if item is None:
                 item = fetch_holding_current_return(
                     market,
@@ -1561,6 +1890,7 @@ def estimate_premarket_holdings(
                     today=today,
                     disabled_sources=disabled_sources,
                     us_quote_mode=session.us_quote_mode,
+                    as_of_bj=cache_now,
                 )
                 _remember_premarket_quote(
                     quote_cache,
@@ -1922,7 +2252,10 @@ def save_premarket_image(
     session: ObservationSessionConfig = PREMARKET_SESSION,
 ) -> None:
     output_path = Path(output_file)
-    title_date = generated_at.date().isoformat()
+    if str(session.us_quote_mode).lower() == "afterhours":
+        title_date = _target_afterhours_us_date(generated_at)
+    else:
+        title_date = generated_at.date().isoformat()
     generated_text = generated_at.strftime("%Y-%m-%d %H:%M:%S")
     title = f"海外基金{session.title_word}模型观察 观察日：{title_date} 生成：{generated_text}"
     title_segments = [
