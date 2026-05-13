@@ -1,244 +1,13 @@
 {
-  "HK:02513": {
-    "return_pct": 36.9,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 16:08:21",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
-  "KR:000660": {
-    "return_pct": 7.68,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "naver_kr_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
-  "HK:00981": {
-    "return_pct": -3.2,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 16:08:21",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
-  "HK:01347": {
-    "return_pct": 0.23,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 16:08:21",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
-  "HK:01179": {
-    "return_pct": 1.24,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 16:08:16",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
-  "HK:00883": {
-    "return_pct": -1.11,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 16:08:15",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
-  "KR:005930": {
-    "return_pct": 1.79,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "naver_kr_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
-  "HK:00100": {
-    "return_pct": 18.46,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 16:08:21",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
-  "HK:06869": {
-    "return_pct": -2.65,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 16:08:21",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
   "VIX_LEVEL:VIX": {
     "return_pct": null,
-    "value": 17.93000030517578,
+    "value": 18.049999237060547,
     "value_type": "level",
     "status": "traded",
     "source": "yahoo_chart_realtime_vix",
     "trade_date": "2026-05-13",
-    "quote_time_bj": "2026-05-13T17:34:16+08:00",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
-  "CN:300502": {
-    "return_pct": 6.155066495645722,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
-  "CN:688519": {
-    "return_pct": 1.896333754740831,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
-    "error": ""
-  },
-  "CN:300308": {
-    "return_pct": 3.0658454405249502,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "",
-    "fetched_at_bj": "2026-05-13T16:05:13+08:00",
-    "error": ""
-  },
-  "CN:688498": {
-    "return_pct": -1.3287117273252491,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "",
-    "fetched_at_bj": "2026-05-13T16:05:13+08:00",
-    "error": ""
-  },
-  "CN:002384": {
-    "return_pct": 0.5878064339742917,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "",
-    "fetched_at_bj": "2026-05-13T16:05:13+08:00",
-    "error": ""
-  },
-  "HK:09899": {
-    "return_pct": -2.36,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 15:50:47",
-    "fetched_at_bj": "2026-05-13T16:05:13+08:00",
-    "error": ""
-  },
-  "HK:00522": {
-    "return_pct": 3.41,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 15:50:48",
-    "fetched_at_bj": "2026-05-13T16:05:13+08:00",
-    "error": ""
-  },
-  "CN:300476": {
-    "return_pct": 3.1883440321764267,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "",
-    "fetched_at_bj": "2026-05-13T16:05:13+08:00",
-    "error": ""
-  },
-  "HK:09988": {
-    "return_pct": -0.83,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 15:51:04",
-    "fetched_at_bj": "2026-05-13T16:05:13+08:00",
-    "error": ""
-  },
-  "CN:688256": {
-    "return_pct": 3.0527361938225583,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "",
-    "fetched_at_bj": "2026-05-13T16:05:13+08:00",
-    "error": ""
-  },
-  "HK:01088": {
-    "return_pct": -1.65,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 15:51:15",
-    "fetched_at_bj": "2026-05-13T16:05:13+08:00",
-    "error": ""
-  },
-  "HK:00700": {
-    "return_pct": 1.18,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "tencent_hk_realtime",
-    "trade_date": "2026-05-13",
-    "quote_time_bj": "2026/05/13 15:51:51",
-    "fetched_at_bj": "2026-05-13T16:05:13+08:00",
+    "quote_time_bj": "2026-05-13T23:43:01+08:00",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
     "error": ""
   },
   "US:QQQ": {
@@ -248,8 +17,8 @@
     "status": "traded",
     "source": "yahoo_chart_afterhours_post",
     "trade_date": "2026-05-12",
-    "quote_time_bj": "",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
     "error": ""
   },
   "US:NFLX": {
@@ -260,7 +29,7 @@
     "source": "yahoo_chart_afterhours_post",
     "trade_date": "2026-05-12",
     "quote_time_bj": "2026-05-13 07:59",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
     "error": ""
   },
   "US:NVDA": {
@@ -271,7 +40,7 @@
     "source": "yahoo_chart_afterhours_post",
     "trade_date": "2026-05-12",
     "quote_time_bj": "2026-05-13 07:59",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
     "error": ""
   },
   "US:AAPL": {
@@ -282,7 +51,7 @@
     "source": "yahoo_chart_afterhours_post",
     "trade_date": "2026-05-12",
     "quote_time_bj": "2026-05-13 07:59",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
     "error": ""
   },
   "US:TSM": {
@@ -293,7 +62,271 @@
     "source": "yahoo_chart_afterhours_post",
     "trade_date": "2026-05-12",
     "quote_time_bj": "2026-05-13 07:59",
-    "fetched_at_bj": "2026-05-13T17:45:36+08:00",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:LITE": {
+    "return_pct": -6.975429928741084,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:GOOGL": {
+    "return_pct": 0.17995321216484061,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:CIEN": {
+    "return_pct": -1.1126971296885557,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:MU": {
+    "return_pct": -6.272337168596853,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:LRCX": {
+    "return_pct": -3.0906941395034693,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:ASML": {
+    "return_pct": -3.4520136325731143,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:GOOG": {
+    "return_pct": -0.2369407325079509,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:AVGO": {
+    "return_pct": -2.65373224821025,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:COHR": {
+    "return_pct": -2.8947112880819192,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:SNDK": {
+    "return_pct": -8.544857244478932,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:MSFT": {
+    "return_pct": -1.1628569578763792,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:MRVL": {
+    "return_pct": -4.414778382809292,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:GILD": {
+    "return_pct": 1.3106650689035382,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:58",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:VRTX": {
+    "return_pct": 3.405772456741052,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:44",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:AMGN": {
+    "return_pct": 2.1299189902606486,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:COP": {
+    "return_pct": 1.6789268714842098,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:58",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:XOM": {
+    "return_pct": 0.5611972207375748,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:APA": {
+    "return_pct": 1.1989100817438647,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:04",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:DOW": {
+    "return_pct": 1.9354838709677358,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:LYB": {
+    "return_pct": 1.8631850945192596,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:58",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:XOP": {
+    "return_pct": 0.49619775356557483,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:51",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:VG": {
+    "return_pct": 15.490533562822728,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:59",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:SM": {
+    "return_pct": 2.3475709162047664,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:41",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
+    "error": ""
+  },
+  "US:EOG": {
+    "return_pct": 0.1575275673242782,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_post",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13 07:51",
+    "fetched_at_bj": "2026-05-13T06:00:00+08:00",
     "error": ""
   }
 }

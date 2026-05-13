@@ -74,6 +74,7 @@ from tools.get_top10_holdings import (
     fetch_kr_return_pct_daily_with_date,
     fetch_latest_complete_vix_close,
     get_security_return_by_anchor_date,
+    _market_schedule,
     get_fund_name,
     get_latest_stock_holdings_df,
 )
@@ -297,6 +298,27 @@ def _target_afterhours_us_date(as_of_bj: datetime | str | None = None) -> str:
     return target_date.isoformat()
 
 
+def _next_us_trading_date_after(day: str) -> str:
+    base = datetime.strptime(str(day), "%Y-%m-%d").date()
+    start = base + timedelta(days=1)
+    end = base + timedelta(days=20)
+    try:
+        schedule = _market_schedule("US", start, end)
+        if schedule is not None and not schedule.empty:
+            return pd.Timestamp(schedule.index[0]).strftime("%Y-%m-%d")
+    except Exception:
+        pass
+
+    candidate = start
+    while candidate.weekday() >= 5:
+        candidate += timedelta(days=1)
+    return candidate.isoformat()
+
+
+def _afterhours_valuation_date(as_of_bj: datetime | str | None = None) -> str:
+    return _next_us_trading_date_after(_target_afterhours_us_date(as_of_bj))
+
+
 def _target_intraday_us_date(as_of_bj: datetime | str | None = None) -> str:
     target_date = coerce_bj_datetime(as_of_bj).astimezone(US_EASTERN_TZ).date()
     while target_date.weekday() >= 5:
@@ -310,8 +332,8 @@ def _observation_valuation_date(
 ) -> str:
     mode = str(session.us_quote_mode).lower()
     if mode == "afterhours":
-        return _target_afterhours_us_date(as_of_bj)
-    if mode == "intraday":
+        return _afterhours_valuation_date(as_of_bj)
+    if mode in {"premarket", "intraday"}:
         return _target_intraday_us_date(as_of_bj)
     return coerce_bj_datetime(as_of_bj).date().isoformat()
 
@@ -2232,6 +2254,17 @@ def _fetch_anchor_daily_return(
     }
 
 
+def _afterhours_non_us_zero_return(market: str, ticker: str, *, valuation_date: str) -> dict[str, Any]:
+    return {
+        "return_pct": 0.0,
+        "source": "afterhours_non_us_zero",
+        "status": "zeroed",
+        "trade_date": str(valuation_date or ""),
+        "quote_time_bj": "",
+        "error": "盘后非美持仓置零",
+    }
+
+
 def fetch_holding_current_return(
     market: str,
     ticker: str,
@@ -2244,6 +2277,8 @@ def fetch_holding_current_return(
     market_norm = str(market or "").strip().upper()
     ticker_norm = str(ticker or "").strip().upper()
     quote_mode = str(us_quote_mode).lower()
+    if quote_mode == "afterhours" and market_norm in {"CN", "HK", "KR"}:
+        return _afterhours_non_us_zero_return(market_norm, ticker_norm, valuation_date=today)
     if market_norm == "US":
         if quote_mode == "afterhours":
             return fetch_us_afterhours_return_pct(
@@ -2258,7 +2293,7 @@ def fetch_holding_current_return(
                 as_of_bj=as_of_bj,
             )
         return fetch_us_premarket_return_pct(ticker_norm, disabled_sources=disabled_sources)
-    if quote_mode == "intraday" and market_norm in {"CN", "HK", "KR"}:
+    if quote_mode in {"premarket", "intraday"} and market_norm in {"CN", "HK", "KR"}:
         return _fetch_anchor_daily_return(
             market_norm,
             ticker_norm,
@@ -2312,6 +2347,16 @@ def estimate_premarket_holdings(
         ticker = str(row.get("ticker", "")).strip().upper()
         key = _premarket_quote_tuple_key(market, ticker)
         try:
+            if us_quote_mode == "afterhours" and market in {"CN", "HK", "KR"}:
+                item = _afterhours_non_us_zero_return(market, ticker, valuation_date=today)
+                quote_cache[key] = dict(item)
+                returns.append(0.0)
+                sources.append(str(item.get("source", "")))
+                statuses.append(str(item.get("status", "")))
+                trade_dates.append(str(item.get("trade_date", "")))
+                errors.append(str(item.get("error", "")))
+                continue
+
             item = _get_cached_premarket_quote(
                 quote_cache,
                 persistent_quote_cache,
@@ -2341,7 +2386,7 @@ def estimate_premarket_holdings(
                     if persistent_quote_cache is not None:
                         persistent_quote_cache.pop(_premarket_quote_cache_key(market, ticker), None)
                     item = None
-            if item is not None and us_quote_mode == "intraday" and market in {"CN", "HK", "KR"}:
+            if item is not None and us_quote_mode in {"premarket", "intraday"} and market in {"CN", "HK", "KR"}:
                 cached_trade_date = str(item.get("trade_date") or "").strip()
                 if cached_trade_date != today:
                     quote_cache.pop(key, None)
@@ -2399,7 +2444,9 @@ def estimate_premarket_holdings(
     df["占净值比例"] = pd.to_numeric(df["占净值比例"], errors="coerce")
 
     complete_statuses = {"traded", "closed"}
+    zeroed_statuses = {"zeroed"}
     valid_mask = df[status_col].isin(complete_statuses) & df[return_col].notna() & df["占净值比例"].gt(0)
+    zeroed_mask = df[status_col].isin(zeroed_statuses)
     residual_benchmark = residual_benchmark or {}
     calc = estimate_boosted_valid_holding_with_residual(
         zip(df.loc[valid_mask, "占净值比例"], df.loc[valid_mask, return_col]),
@@ -2411,6 +2458,9 @@ def estimate_premarket_holdings(
     actual_boost = float(calc["actual_boost"] or 0.0)
     df[effective_weight_col] = pd.NA
     df[contribution_col] = pd.NA
+    if zeroed_mask.any():
+        df.loc[zeroed_mask, effective_weight_col] = 0.0
+        df.loc[zeroed_mask, contribution_col] = 0.0
     if raw_valid_weight > 0:
         df.loc[valid_mask, effective_weight_col] = df.loc[valid_mask, "占净值比例"] * actual_boost
         df.loc[valid_mask, contribution_col] = (
@@ -2419,7 +2469,7 @@ def estimate_premarket_holdings(
 
     raw_weight_sum = float(pd.to_numeric(df["占净值比例"], errors="coerce").fillna(0).sum())
     valid_count = int(valid_mask.sum())
-    missing_count = int((~valid_mask).sum())
+    missing_count = int((~valid_mask & ~zeroed_mask).sum())
     residual_weight_pct = float(calc["residual_weight_pct"] or 0.0)
     residual_return_pct = calc["residual_return_pct"]
     residual_failed = bool(residual_weight_pct > 0 and residual_return_pct is None)
@@ -2499,19 +2549,36 @@ def _write_report(
     rows: list[dict[str, Any]],
     quote_cache: dict[tuple[str, str], dict[str, Any]],
     affected_funds: dict[tuple[str, str], list[str]],
+    session: ObservationSessionConfig = PREMARKET_SESSION,
 ) -> None:
     path = Path(report_file)
     path.parent.mkdir(parents=True, exist_ok=True)
-    valid_items = [item for item in quote_cache.values() if _quote_item_has_value(item)]
-    missing_items = [item for item in quote_cache.values() if not _quote_item_has_value(item)]
+    zeroed_items = [
+        item for item in quote_cache.values()
+        if str(item.get("status", "")).strip().lower() == "zeroed"
+    ]
+    valid_items = [
+        item for item in quote_cache.values()
+        if _quote_item_has_value(item) and str(item.get("status", "")).strip().lower() != "zeroed"
+    ]
+    missing_items = [
+        item for item in quote_cache.values()
+        if not _quote_item_has_value(item) and str(item.get("status", "")).strip().lower() != "zeroed"
+    ]
     file_cache_hits = [item for item in quote_cache.values() if str(item.get("cache_hit", "")).lower() == "file"]
     lines = [
         f"generated_at_bj: {generated_at.isoformat(timespec='seconds')}",
+        f"valuation_date: {_observation_valuation_date(session, generated_at)}",
         f"fund_count: {len(rows)}",
         f"unique_security_count: {len(quote_cache)}",
         f"valid_unique_security_count: {len(valid_items)}",
         f"missing_unique_security_count: {len(missing_items)}",
+        f"zeroed_unique_security_count: {len(zeroed_items)}",
         f"file_cache_hit_unique_count: {len(file_cache_hits)}",
+    ]
+    if str(session.us_quote_mode).lower() == "afterhours":
+        lines.append(f"afterhours_quote_date: {_target_afterhours_us_date(generated_at)}")
+    lines.extend([
         "",
         "基金汇总",
         (
@@ -2521,7 +2588,7 @@ def _write_report(
             "residual_return_pct\tresidual_contribution_pct\tvalid_holding_count\t"
             "missing_holding_count\tdata_status\terror"
         ),
-    ]
+    ])
     for row in rows:
         lines.append(
             "\t".join(
@@ -2546,9 +2613,28 @@ def _write_report(
             )
         )
 
+    lines.extend(["", "盘后非美持仓置零", "market\tticker\taffected_funds\tnote"])
+    for key, item in sorted(quote_cache.items()):
+        if str(item.get("status", "")).strip().lower() != "zeroed":
+            continue
+        market, ticker = key
+        funds = ",".join(sorted(set(affected_funds.get(key, []))))
+        lines.append(
+            "\t".join(
+                [
+                    market,
+                    ticker,
+                    funds,
+                    str(item.get("error", "")),
+                ]
+            )
+        )
+
     lines.extend(["", "失败/未取到证券", "market\tticker\taffected_funds\terror"])
     for key, item in sorted(quote_cache.items()):
         if _quote_item_has_value(item):
+            continue
+        if str(item.get("status", "")).strip().lower() == "zeroed":
             continue
         market, ticker = key
         funds = ",".join(sorted(set(affected_funds.get(key, []))))
@@ -2589,6 +2675,12 @@ def build_premarket_table(
         retention_days=session.quote_cache_retention_days,
         max_items=session.quote_cache_max_items,
     )
+    if str(session.us_quote_mode).lower() == "afterhours":
+        persistent_quote_cache = {
+            key: item
+            for key, item in persistent_quote_cache.items()
+            if str(key).upper().startswith("US:") or str(key).upper().startswith("VIX_LEVEL:")
+        }
     disabled_sources: set[str] = set()
     purchase_limit_cache = _load_purchase_limit_cache()
     cached_fund_names = _load_cached_fund_names()
@@ -2829,6 +2921,7 @@ def run_observation_session(
         rows=rows,
         quote_cache=quote_cache,
         affected_funds=affected_funds,
+        session=session,
     )
 
     valid_count = len([item for item in quote_cache.values() if _quote_item_has_value(item)])
