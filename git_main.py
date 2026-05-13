@@ -6,8 +6,9 @@ AHNS 项目总控入口：
 2. 运行 main.py 生成市场和基金估算图；
 3. 运行 safe_fund.py、safe_holidays.py、holidays.py、sum_holidays.py 生成公开展示图；
 4. 运行 kepu 科普脚本，按日期条件生成节后说明图和每周限额图；
-5. 北京时间 17:30 后切换为只运行 premarket_fund.py 盘前观察；
-6. 收集本次新建或更新的图片并发送邮件。
+5. 北京时间 17:30-21:00 只运行 premarket_fund.py 盘前观察；
+6. 北京时间 22:40-次日 02:00 只运行 intraday_fund.py 盘中观察；
+7. 收集本次新建或更新的图片并发送邮件。
 
 本地默认使用 tools.email_send.py 中的邮箱配置；GitHub Actions 可通过
 QQ_EMAIL_ACCOUNT、QQ_EMAIL_AUTH_CODE、QQ_EMAIL_RECEIVER 环境变量覆盖。
@@ -33,7 +34,11 @@ from tools.paths import OUTPUT_DIR, PROJECT_ROOT, relative_path_str
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 BJ_TZ = ZoneInfo("Asia/Shanghai")
 PREMARKET_SCRIPT_NAME = "premarket_fund.py"
-PREMARKET_ONLY_SWITCH_TIME_BJ = datetime_time(17, 30)
+INTRADAY_SCRIPT_NAME = "intraday_fund.py"
+PREMARKET_START_TIME_BJ = datetime_time(17, 30)
+PREMARKET_END_TIME_BJ = datetime_time(21, 0)
+INTRADAY_START_TIME_BJ = datetime_time(22, 40)
+INTRADAY_END_TIME_BJ = datetime_time(2, 0)
 RISK_NOTE = (
     "个人公开数据建模复盘，不收费、不荐基、不带单、不拉群，不构成任何投资建议。\n"
     "非实时净值，最终以基金公司公告为准。"
@@ -198,28 +203,42 @@ def coerce_beijing_datetime(value: datetime) -> datetime:
     return value.astimezone(BJ_TZ)
 
 
+def time_in_closed_window(current: datetime_time, start: datetime_time, end: datetime_time) -> bool:
+    if start <= end:
+        return start <= current <= end
+    return current >= start or current <= end
+
+
+def _single_step_index(steps: list[WorkflowStep], script_name: str) -> int:
+    indexes = [
+        index
+        for index, step in enumerate(steps)
+        if step.script_path.name.lower() == script_name.lower()
+    ]
+    if not indexes:
+        raise ValueError(f"workflow_configs.py 缺少 {script_name} 步骤")
+    if len(indexes) > 1:
+        raise ValueError(f"workflow_configs.py 里存在多个 {script_name} 步骤")
+    return indexes[0]
+
+
 def select_workflow_steps_for_time(
     steps: list[WorkflowStep],
     current_time: datetime | None = None,
 ) -> list[WorkflowStep]:
-    """按北京时间 17:30 切换每日流程和盘前观察流程。"""
+    """按北京时间窗口切换每日、盘前、盘中流程。"""
     now_bj = coerce_beijing_datetime(current_time or datetime.now(BJ_TZ))
-    premarket_indexes = [
-        index
-        for index, step in enumerate(steps)
-        if step.script_path.name.lower() == PREMARKET_SCRIPT_NAME
-    ]
+    current = now_bj.time().replace(microsecond=0)
+    premarket_index = _single_step_index(steps, PREMARKET_SCRIPT_NAME)
+    intraday_index = _single_step_index(steps, INTRADAY_SCRIPT_NAME)
 
-    if not premarket_indexes:
-        raise ValueError(f"workflow_configs.py 缺少 {PREMARKET_SCRIPT_NAME} 步骤")
-    if len(premarket_indexes) > 1:
-        raise ValueError(f"workflow_configs.py 里存在多个 {PREMARKET_SCRIPT_NAME} 步骤")
+    if time_in_closed_window(current, INTRADAY_START_TIME_BJ, INTRADAY_END_TIME_BJ):
+        return [steps[intraday_index]]
 
-    premarket_index = premarket_indexes[0]
-    if now_bj.time() < PREMARKET_ONLY_SWITCH_TIME_BJ:
-        return steps[:premarket_index]
+    if time_in_closed_window(current, PREMARKET_START_TIME_BJ, PREMARKET_END_TIME_BJ):
+        return [steps[premarket_index]]
 
-    return [steps[premarket_index]]
+    return steps[: min(premarket_index, intraday_index)]
 
 
 def stream_script_output(script_path: Path) -> int:
@@ -381,12 +400,21 @@ def main(argv: list[str] | None = None) -> int:
     steps = resolve_workflow_steps()
     now_bj = datetime.now(BJ_TZ)
     steps = select_workflow_steps_for_time(steps, current_time=now_bj)
-    switch_text = PREMARKET_ONLY_SWITCH_TIME_BJ.strftime("%H:%M")
     log(f"当前北京时间: {now_bj.strftime('%Y-%m-%d %H:%M:%S')}")
-    if now_bj.time() < PREMARKET_ONLY_SWITCH_TIME_BJ:
-        log(f"流程切换规则: {switch_text} 前运行盘前观察之前的每日流程")
+    current_time_bj = now_bj.time().replace(microsecond=0)
+    premarket_window = f"{PREMARKET_START_TIME_BJ.strftime('%H:%M')}-{PREMARKET_END_TIME_BJ.strftime('%H:%M')}"
+    intraday_window = f"{INTRADAY_START_TIME_BJ.strftime('%H:%M')}-{INTRADAY_END_TIME_BJ.strftime('%H:%M')}"
+    log(
+        "流程切换规则: "
+        f"{premarket_window} 只运行盘前观察；"
+        f"{intraday_window} 只运行盘中观察；其他时间运行每日流程"
+    )
+    if time_in_closed_window(current_time_bj, INTRADAY_START_TIME_BJ, INTRADAY_END_TIME_BJ):
+        log("当前命中盘中观察窗口")
+    elif time_in_closed_window(current_time_bj, PREMARKET_START_TIME_BJ, PREMARKET_END_TIME_BJ):
+        log("当前命中盘前观察窗口")
     else:
-        log(f"流程切换规则: {switch_text} 后只运行盘前海外基金观察图")
+        log("当前命中每日流程窗口")
     log("实际运行顺序: " + " -> ".join(step.name for step in steps))
 
     results: list[ScriptResult] = []

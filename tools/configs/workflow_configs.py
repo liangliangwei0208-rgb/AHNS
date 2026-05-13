@@ -82,6 +82,12 @@ WORKFLOW_STEPS = [
         "required": True,
         "collect_images": True,
     },
+    {
+        "name": "盘中海外基金观察图",
+        "script": "intraday_fund.py",
+        "required": True,
+        "collect_images": True,
+    },
 ]
 
 
