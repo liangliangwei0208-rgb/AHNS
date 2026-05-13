@@ -1,9 +1,9 @@
 """
-Lightweight pre-market overseas fund observation.
+Lightweight pre/after-hours overseas fund observation.
 
 This module deliberately stays outside the official overseas estimate cache.
-It is intended for manual Beijing-time 17:00-20:30 runs, when US pre-market
-quotes may be available but the final US daily bars are not confirmed yet.
+It is intended for manual Beijing-time observation runs when intraday or
+extended-hours quotes are useful but should not pollute final daily estimates.
 """
 
 from __future__ import annotations
@@ -24,9 +24,21 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 
 from tools.configs.cache_policy_configs import (
+    AFTERHOURS_QUOTE_CACHE_MAX_ITEMS,
+    AFTERHOURS_QUOTE_CACHE_RETENTION_DAYS,
+    AFTERHOURS_QUOTE_CACHE_TTL_MINUTES,
     PREMARKET_QUOTE_CACHE_MAX_ITEMS,
     PREMARKET_QUOTE_CACHE_RETENTION_DAYS,
     PREMARKET_QUOTE_CACHE_TTL_MINUTES,
+)
+from tools.configs.afterhours_configs import (
+    AFTERHOURS_BENCHMARK_SPECS,
+    AFTERHOURS_DEFAULT_RESIDUAL_BENCHMARK_KEY,
+    AFTERHOURS_END_HOUR_BJ,
+    AFTERHOURS_END_MINUTE_BJ,
+    AFTERHOURS_FUND_RESIDUAL_BENCHMARK_MAP,
+    AFTERHOURS_START_HOUR_BJ,
+    AFTERHOURS_START_MINUTE_BJ,
 )
 from tools.configs.fund_proxy_configs import OVERSEAS_VALID_HOLDING_BOOST
 from tools.configs.premarket_configs import (
@@ -53,10 +65,13 @@ from tools.get_top10_holdings import (
     get_latest_stock_holdings_df,
 )
 from tools.paths import (
+    AFTERHOURS_FAILED_HOLDINGS_REPORT,
+    AFTERHOURS_QUOTE_CACHE,
     FUND_ESTIMATE_CACHE,
     FUND_PURCHASE_LIMIT_CACHE,
     PREMARKET_QUOTE_CACHE,
     PREMARKET_FAILED_HOLDINGS_REPORT,
+    SAFE_HAIWAI_AFTERHOURS_IMAGE,
     SAFE_HAIWAI_PREMARKET_IMAGE,
     ensure_runtime_dirs,
     relative_path_str,
@@ -67,6 +82,8 @@ from tools.safe_display import apply_safe_public_watermarks, mask_fund_name
 BJ_TZ = ZoneInfo("Asia/Shanghai")
 PREMARKET_START_BJ = time(PREMARKET_START_HOUR_BJ, PREMARKET_START_MINUTE_BJ)
 PREMARKET_END_BJ = time(PREMARKET_END_HOUR_BJ, PREMARKET_END_MINUTE_BJ)
+AFTERHOURS_START_BJ = time(AFTERHOURS_START_HOUR_BJ, AFTERHOURS_START_MINUTE_BJ)
+AFTERHOURS_END_BJ = time(AFTERHOURS_END_HOUR_BJ, AFTERHOURS_END_MINUTE_BJ)
 DISPLAY_RETURN_COLUMN = "盘前模型观察"
 PURCHASE_LIMIT_COLUMN = "模型观察基金信息"
 PREMARKET_FOOTER_BENCHMARK_KEYS = ("nasdaq100", "sp500", "oil_gas_ep", "gold", "vix")
@@ -74,7 +91,14 @@ PREMARKET_FOOTER_LABELS = {
     "nasdaq100": "纳指100（盘前数据）",
     "sp500": "标普500（盘前数据）",
     "oil_gas_ep": "油气开采（盘前数据）",
-    "gold": "现货黄金（盘前数据）",
+    "gold": "现货黄金（实时值）",
+    "vix": "VIX恐慌指数（实时值）",
+}
+AFTERHOURS_FOOTER_LABELS = {
+    "nasdaq100": "纳指100（盘后数据）",
+    "sp500": "标普500（盘后数据）",
+    "oil_gas_ep": "油气开采（盘后数据）",
+    "gold": "现货黄金（实时值）",
     "vix": "VIX恐慌指数（实时值）",
 }
 PREMARKET_QUOTE_CACHE_FIELDS = (
@@ -90,6 +114,29 @@ PREMARKET_QUOTE_CACHE_FIELDS = (
 )
 
 
+@dataclass(frozen=True)
+class ObservationSessionConfig:
+    mode: str
+    title_word: str
+    window_word: str
+    start_time_bj: time
+    end_time_bj: time
+    output_file: Path
+    report_file: Path
+    quote_cache_file: Path
+    quote_cache_ttl_minutes: int
+    quote_cache_retention_days: int
+    quote_cache_max_items: int
+    benchmark_specs: dict[str, dict[str, Any]]
+    default_residual_benchmark_key: str
+    fund_residual_benchmark_map: dict[str, str]
+    footer_benchmark_keys: tuple[str, ...]
+    footer_labels: dict[str, str]
+    display_return_column: str
+    us_quote_mode: str
+    complete_data_status: str = "intraday"
+
+
 @dataclass
 class PremarketRunResult:
     generated: bool
@@ -99,6 +146,51 @@ class PremarketRunResult:
     fund_count: int = 0
     valid_security_count: int = 0
     missing_security_count: int = 0
+
+
+PREMARKET_SESSION = ObservationSessionConfig(
+    mode="premarket",
+    title_word="盘前",
+    window_word="盘前",
+    start_time_bj=PREMARKET_START_BJ,
+    end_time_bj=PREMARKET_END_BJ,
+    output_file=SAFE_HAIWAI_PREMARKET_IMAGE,
+    report_file=PREMARKET_FAILED_HOLDINGS_REPORT,
+    quote_cache_file=PREMARKET_QUOTE_CACHE,
+    quote_cache_ttl_minutes=PREMARKET_QUOTE_CACHE_TTL_MINUTES,
+    quote_cache_retention_days=PREMARKET_QUOTE_CACHE_RETENTION_DAYS,
+    quote_cache_max_items=PREMARKET_QUOTE_CACHE_MAX_ITEMS,
+    benchmark_specs=PREMARKET_BENCHMARK_SPECS,
+    default_residual_benchmark_key=PREMARKET_DEFAULT_RESIDUAL_BENCHMARK_KEY,
+    fund_residual_benchmark_map=PREMARKET_FUND_RESIDUAL_BENCHMARK_MAP,
+    footer_benchmark_keys=PREMARKET_FOOTER_BENCHMARK_KEYS,
+    footer_labels=PREMARKET_FOOTER_LABELS,
+    display_return_column=DISPLAY_RETURN_COLUMN,
+    us_quote_mode="premarket",
+    complete_data_status="intraday",
+)
+
+AFTERHOURS_SESSION = ObservationSessionConfig(
+    mode="afterhours",
+    title_word="盘后",
+    window_word="盘后",
+    start_time_bj=AFTERHOURS_START_BJ,
+    end_time_bj=AFTERHOURS_END_BJ,
+    output_file=SAFE_HAIWAI_AFTERHOURS_IMAGE,
+    report_file=AFTERHOURS_FAILED_HOLDINGS_REPORT,
+    quote_cache_file=AFTERHOURS_QUOTE_CACHE,
+    quote_cache_ttl_minutes=AFTERHOURS_QUOTE_CACHE_TTL_MINUTES,
+    quote_cache_retention_days=AFTERHOURS_QUOTE_CACHE_RETENTION_DAYS,
+    quote_cache_max_items=AFTERHOURS_QUOTE_CACHE_MAX_ITEMS,
+    benchmark_specs=AFTERHOURS_BENCHMARK_SPECS,
+    default_residual_benchmark_key=AFTERHOURS_DEFAULT_RESIDUAL_BENCHMARK_KEY,
+    fund_residual_benchmark_map=AFTERHOURS_FUND_RESIDUAL_BENCHMARK_MAP,
+    footer_benchmark_keys=PREMARKET_FOOTER_BENCHMARK_KEYS,
+    footer_labels=AFTERHOURS_FOOTER_LABELS,
+    display_return_column="盘后模型观察",
+    us_quote_mode="afterhours",
+    complete_data_status="afterhours",
+)
 
 
 def now_bj() -> datetime:
@@ -121,9 +213,20 @@ def coerce_bj_datetime(value: Any | None = None) -> datetime:
 
 
 def in_premarket_window(check_time: datetime | None = None) -> bool:
+    return in_observation_window(PREMARKET_SESSION, check_time)
+
+
+def in_afterhours_window(check_time: datetime | None = None) -> bool:
+    return in_observation_window(AFTERHOURS_SESSION, check_time)
+
+
+def in_observation_window(
+    session: ObservationSessionConfig,
+    check_time: datetime | None = None,
+) -> bool:
     dt = coerce_bj_datetime(check_time)
-    current = dt.time().replace(second=0, microsecond=0)
-    return PREMARKET_START_BJ <= current <= PREMARKET_END_BJ
+    current = dt.time().replace(microsecond=0)
+    return session.start_time_bj <= current <= session.end_time_bj
 
 
 def _safe_float(value: Any) -> float | None:
@@ -240,11 +343,13 @@ def _prune_premarket_quote_cache(
     cache: dict[str, Any],
     *,
     cache_now: datetime,
+    retention_days: int = PREMARKET_QUOTE_CACHE_RETENTION_DAYS,
+    max_items: int = PREMARKET_QUOTE_CACHE_MAX_ITEMS,
 ) -> dict[str, dict[str, Any]]:
     if not isinstance(cache, dict):
         return {}
 
-    cutoff = cache_now - timedelta(days=max(1, int(PREMARKET_QUOTE_CACHE_RETENTION_DAYS)))
+    cutoff = cache_now - timedelta(days=max(1, int(retention_days)))
     pruned: dict[str, dict[str, Any]] = {}
     for key, item in cache.items():
         if not isinstance(key, str) or not isinstance(item, dict) or not _quote_item_has_value(item):
@@ -254,49 +359,77 @@ def _prune_premarket_quote_cache(
             continue
         pruned[key] = {field: item.get(field) for field in PREMARKET_QUOTE_CACHE_FIELDS}
 
-    max_items = max(1, int(PREMARKET_QUOTE_CACHE_MAX_ITEMS))
-    if len(pruned) <= max_items:
+    max_items_int = max(1, int(max_items))
+    if len(pruned) <= max_items_int:
         return pruned
 
     def sort_key(pair: tuple[str, dict[str, Any]]) -> datetime:
         parsed = _parse_premarket_cache_time(pair[1].get("fetched_at_bj"))
         return parsed or datetime.min.replace(tzinfo=BJ_TZ)
 
-    newest = sorted(pruned.items(), key=sort_key, reverse=True)[:max_items]
+    newest = sorted(pruned.items(), key=sort_key, reverse=True)[:max_items_int]
     return dict(newest)
 
 
-def _load_premarket_quote_cache(*, cache_now: datetime) -> dict[str, dict[str, Any]]:
+def _load_premarket_quote_cache(
+    *,
+    cache_now: datetime,
+    cache_file: str | Path = PREMARKET_QUOTE_CACHE,
+    cache_label: str = "盘前",
+    retention_days: int = PREMARKET_QUOTE_CACHE_RETENTION_DAYS,
+    max_items: int = PREMARKET_QUOTE_CACHE_MAX_ITEMS,
+) -> dict[str, dict[str, Any]]:
+    path = Path(cache_file)
     try:
-        with PREMARKET_QUOTE_CACHE.open("r", encoding="utf-8") as f:
+        with path.open("r", encoding="utf-8") as f:
             data = json.load(f)
     except FileNotFoundError:
         return {}
     except Exception as exc:
-        print(f"[WARN] 盘前行情缓存读取失败，将忽略旧缓存: {exc}", flush=True)
+        print(f"[WARN] {cache_label}行情缓存读取失败，将忽略旧缓存: {exc}", flush=True)
         return {}
-    return _prune_premarket_quote_cache(data, cache_now=cache_now)
+    return _prune_premarket_quote_cache(
+        data,
+        cache_now=cache_now,
+        retention_days=retention_days,
+        max_items=max_items,
+    )
 
 
 def _save_premarket_quote_cache(
     cache: dict[str, dict[str, Any]],
     *,
     cache_now: datetime,
+    cache_file: str | Path = PREMARKET_QUOTE_CACHE,
+    cache_label: str = "盘前",
+    retention_days: int = PREMARKET_QUOTE_CACHE_RETENTION_DAYS,
+    max_items: int = PREMARKET_QUOTE_CACHE_MAX_ITEMS,
 ) -> None:
-    pruned = _prune_premarket_quote_cache(cache, cache_now=cache_now)
+    pruned = _prune_premarket_quote_cache(
+        cache,
+        cache_now=cache_now,
+        retention_days=retention_days,
+        max_items=max_items,
+    )
+    path = Path(cache_file)
     try:
         ensure_runtime_dirs()
-        PREMARKET_QUOTE_CACHE.write_text(
+        path.write_text(
             json.dumps(pruned, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
         cache.clear()
         cache.update(pruned)
     except Exception as exc:
-        print(f"[WARN] 盘前行情缓存写入失败: {exc}", flush=True)
+        print(f"[WARN] {cache_label}行情缓存写入失败: {exc}", flush=True)
 
 
-def _is_premarket_quote_cache_fresh(item: dict[str, Any], *, cache_now: datetime) -> bool:
+def _is_premarket_quote_cache_fresh(
+    item: dict[str, Any],
+    *,
+    cache_now: datetime,
+    ttl_minutes: int = PREMARKET_QUOTE_CACHE_TTL_MINUTES,
+) -> bool:
     if not _quote_item_has_value(item):
         return False
     fetched_at = _parse_premarket_cache_time(item.get("fetched_at_bj"))
@@ -305,7 +438,7 @@ def _is_premarket_quote_cache_fresh(item: dict[str, Any], *, cache_now: datetime
     age = cache_now - fetched_at
     if age < timedelta(seconds=-60):
         return False
-    return age <= timedelta(minutes=max(1, int(PREMARKET_QUOTE_CACHE_TTL_MINUTES)))
+    return age <= timedelta(minutes=max(1, int(ttl_minutes)))
 
 
 def _get_cached_premarket_quote(
@@ -315,6 +448,7 @@ def _get_cached_premarket_quote(
     market: Any,
     ticker: Any,
     cache_now: datetime,
+    ttl_minutes: int = PREMARKET_QUOTE_CACHE_TTL_MINUTES,
 ) -> dict[str, Any] | None:
     tuple_key = _premarket_quote_tuple_key(market, ticker)
     runtime_item = quote_cache.get(tuple_key)
@@ -326,7 +460,11 @@ def _get_cached_premarket_quote(
 
     cache_key = _premarket_quote_cache_key(market, ticker)
     file_item = persistent_quote_cache.get(cache_key)
-    if not isinstance(file_item, dict) or not _is_premarket_quote_cache_fresh(file_item, cache_now=cache_now):
+    if not isinstance(file_item, dict) or not _is_premarket_quote_cache_fresh(
+        file_item,
+        cache_now=cache_now,
+        ttl_minutes=ttl_minutes,
+    ):
         return None
 
     item = dict(file_item)
@@ -442,20 +580,32 @@ def normalize_premarket_benchmark_key(value: Any) -> str:
 
 
 def get_premarket_residual_benchmark_key(fund_code: Any) -> str:
+    return get_observation_residual_benchmark_key(fund_code, session=PREMARKET_SESSION)
+
+
+def get_observation_residual_benchmark_key(
+    fund_code: Any,
+    *,
+    session: ObservationSessionConfig = PREMARKET_SESSION,
+) -> str:
     code = str(fund_code or "").strip().zfill(6)
-    key = PREMARKET_FUND_RESIDUAL_BENCHMARK_MAP.get(
+    key = session.fund_residual_benchmark_map.get(
         code,
-        PREMARKET_DEFAULT_RESIDUAL_BENCHMARK_KEY,
+        session.default_residual_benchmark_key,
     )
     key = normalize_premarket_benchmark_key(key)
-    if key not in PREMARKET_BENCHMARK_SPECS:
-        return normalize_premarket_benchmark_key(PREMARKET_DEFAULT_RESIDUAL_BENCHMARK_KEY)
+    if key not in session.benchmark_specs:
+        return normalize_premarket_benchmark_key(session.default_residual_benchmark_key)
     return key
 
 
-def _premarket_benchmark_spec(key: Any) -> dict[str, Any] | None:
+def _premarket_benchmark_spec(
+    key: Any,
+    *,
+    session: ObservationSessionConfig = PREMARKET_SESSION,
+) -> dict[str, Any] | None:
     key_norm = normalize_premarket_benchmark_key(key)
-    spec = PREMARKET_BENCHMARK_SPECS.get(key_norm)
+    spec = session.benchmark_specs.get(key_norm)
     if not isinstance(spec, dict):
         return None
     out = dict(spec)
@@ -557,6 +707,117 @@ def _yahoo_realtime_return_pct(symbol: str, *, timeout: int = 5) -> dict[str, An
         "trade_date": quote_time_bj[:10],
         "status": "traded",
     }
+
+
+def _yahoo_afterhours_return_pct(symbol: str, *, timeout: int = 8) -> dict[str, Any]:
+    """
+    Fetch the latest regular/post-market price and compare it with the previous
+    regular close of that same US trading session.
+
+    During Beijing late afternoon, Yahoo may already expose the next US
+    pre-market. This function deliberately skips pre-market timestamps so the
+    after-hours observation cannot drift into the next trading day.
+    """
+    symbol_norm = str(symbol or "").strip().upper()
+    if not symbol_norm:
+        raise RuntimeError("Yahoo afterhours symbol 为空")
+
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/128.0.0.0 Safari/537.36"
+        ),
+        "Referer": f"https://finance.yahoo.com/quote/{symbol_norm}",
+    }
+    urls = [
+        f"https://query1.finance.yahoo.com/v8/finance/chart/{requests.utils.quote(symbol_norm, safe='=')}",
+        f"https://query2.finance.yahoo.com/v8/finance/chart/{requests.utils.quote(symbol_norm, safe='=')}",
+    ]
+    errors = []
+    for url in urls:
+        try:
+            resp = requests.get(
+                url,
+                params={
+                    "range": "5d",
+                    "interval": "1m",
+                    "includePrePost": "true",
+                    "events": "history",
+                },
+                headers=headers,
+                timeout=timeout,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            result = data.get("chart", {}).get("result", [None])[0]
+            if not result:
+                raise RuntimeError(f"Yahoo 返回结构异常: {symbol_norm}")
+
+            meta = result.get("meta") or {}
+            exchange_tz_name = str(meta.get("exchangeTimezoneName") or "America/New_York")
+            try:
+                exchange_tz = ZoneInfo(exchange_tz_name)
+            except Exception:
+                exchange_tz = ZoneInfo("America/New_York")
+
+            timestamps = result.get("timestamp") or []
+            quote = (result.get("indicators", {}).get("quote") or [{}])[0]
+            closes = quote.get("close") or []
+            regular_points: list[tuple[int, float, datetime]] = []
+            accepted_points: list[tuple[int, float, datetime, str]] = []
+            regular_start = time(9, 30)
+            regular_end = time(16, 0)
+            post_end = time(20, 0)
+
+            for ts, price in zip(timestamps, closes):
+                price_f = _safe_float(price)
+                if price_f is None or price_f <= 0:
+                    continue
+                ts_int = int(ts)
+                dt_utc = datetime.fromtimestamp(ts_int, tz=ZoneInfo("UTC"))
+                dt_local = dt_utc.astimezone(exchange_tz)
+                local_time = dt_local.time().replace(second=0, microsecond=0)
+                if regular_start <= local_time <= regular_end:
+                    regular_points.append((ts_int, price_f, dt_local))
+                    accepted_points.append((ts_int, price_f, dt_local, "regular"))
+                elif regular_end < local_time <= post_end:
+                    accepted_points.append((ts_int, price_f, dt_local, "post"))
+
+            if not accepted_points:
+                market_state = str(meta.get("marketState") or "").upper()
+                raise RuntimeError(
+                    f"Yahoo 没有可用 regular/post 价格点: {symbol_norm}, marketState={market_state or '空'}"
+                )
+
+            latest_ts, latest_price, latest_dt_local, phase = accepted_points[-1]
+            previous_close = None
+            for _, price_f, dt_local in reversed(regular_points):
+                if dt_local.date() < latest_dt_local.date():
+                    previous_close = price_f
+                    break
+            if previous_close is None:
+                previous_close = _safe_float(
+                    meta.get("regularMarketPreviousClose")
+                    or meta.get("chartPreviousClose")
+                    or meta.get("previousClose")
+                )
+            if previous_close is None or previous_close <= 0:
+                raise RuntimeError(f"Yahoo afterhours 缺少有效昨收价: {symbol_norm}")
+
+            return_pct = (float(latest_price) / float(previous_close) - 1.0) * 100.0
+            quote_time_bj = datetime.fromtimestamp(latest_ts, tz=BJ_TZ).strftime("%Y-%m-%d %H:%M")
+            return {
+                "return_pct": float(return_pct),
+                "source": f"yahoo_chart_afterhours_{phase}",
+                "quote_time_bj": quote_time_bj,
+                "trade_date": latest_dt_local.date().isoformat(),
+                "status": "traded",
+            }
+        except Exception as exc:
+            errors.append(f"{url}: {repr(exc)}")
+
+    raise RuntimeError(" | ".join(errors))
 
 
 def _fetch_realtime_vix_level(today: str, *, timeout: int = 8) -> dict[str, Any]:
@@ -781,6 +1042,26 @@ def fetch_us_premarket_return_pct(symbol: str, *, disabled_sources: set[str] | N
     raise RuntimeError(" | ".join(errors))
 
 
+def fetch_us_afterhours_return_pct(symbol: str, *, disabled_sources: set[str] | None = None) -> dict[str, Any]:
+    disabled_sources = disabled_sources if disabled_sources is not None else set()
+    symbol_norm = str(symbol or "").strip().upper()
+    errors = []
+
+    if "yahoo_afterhours" in disabled_sources:
+        raise RuntimeError("yahoo_afterhours 已因本轮网络错误临时禁用")
+
+    if "yahoo_afterhours" not in disabled_sources:
+        try:
+            return _yahoo_afterhours_return_pct(symbol_norm)
+        except Exception as exc:
+            message = repr(exc)
+            errors.append(f"yahoo_afterhours: {message}")
+            if _network_error_message(message):
+                disabled_sources.add("yahoo_afterhours")
+
+    raise RuntimeError(" | ".join(errors))
+
+
 def fetch_premarket_benchmark_quote(
     benchmark_key: Any,
     *,
@@ -789,9 +1070,10 @@ def fetch_premarket_benchmark_quote(
     disabled_sources: set[str],
     persistent_quote_cache: dict[str, dict[str, Any]] | None = None,
     cache_now: datetime | None = None,
+    session: ObservationSessionConfig = PREMARKET_SESSION,
 ) -> dict[str, Any]:
     cache_now = coerce_bj_datetime(cache_now)
-    spec = _premarket_benchmark_spec(benchmark_key)
+    spec = _premarket_benchmark_spec(benchmark_key, session=session)
     if spec is None:
         key_norm = normalize_premarket_benchmark_key(benchmark_key)
         return {
@@ -804,7 +1086,7 @@ def fetch_premarket_benchmark_quote(
             "source": "config_missing",
             "status": "missing",
             "trade_date": today,
-            "error": f"盘前基准配置不存在: {benchmark_key}",
+            "error": f"{session.window_word}基准配置不存在: {benchmark_key}",
         }
 
     cached = _get_cached_premarket_quote(
@@ -813,6 +1095,7 @@ def fetch_premarket_benchmark_quote(
         market=spec["market"],
         ticker=spec["ticker"],
         cache_now=cache_now,
+        ttl_minutes=session.quote_cache_ttl_minutes,
     )
     if isinstance(cached, dict) and (_quote_item_has_value(cached) or cached.get("status") == "missing"):
         source_lower = str(cached.get("source", "") or "").lower()
@@ -856,7 +1139,10 @@ def fetch_premarket_benchmark_quote(
                     "error": str(realtime_exc),
                 }
         elif spec["market"] == "US":
-            quote = fetch_us_premarket_return_pct(spec["ticker"], disabled_sources=disabled_sources)
+            if session.us_quote_mode == "afterhours":
+                quote = fetch_us_afterhours_return_pct(spec["ticker"], disabled_sources=disabled_sources)
+            else:
+                quote = fetch_us_premarket_return_pct(spec["ticker"], disabled_sources=disabled_sources)
             item = {
                 "benchmark_key": spec["key"],
                 "label": spec["label"],
@@ -870,7 +1156,7 @@ def fetch_premarket_benchmark_quote(
                 "value_type": "return_pct",
             }
         else:
-            raise RuntimeError(f"盘前基准暂不支持 market={spec['market']}")
+            raise RuntimeError(f"{session.window_word}基准暂不支持 market={spec['market']}")
     except Exception as exc:
         item = {
             "benchmark_key": spec["key"],
@@ -906,10 +1192,11 @@ def build_premarket_benchmark_footer_items(
     disabled_sources: set[str],
     persistent_quote_cache: dict[str, dict[str, Any]] | None = None,
     cache_now: datetime | None = None,
+    session: ObservationSessionConfig = PREMARKET_SESSION,
 ) -> list[dict[str, Any]]:
     cache_now = coerce_bj_datetime(cache_now)
     footer_items = []
-    for order, benchmark_key in enumerate(PREMARKET_FOOTER_BENCHMARK_KEYS, start=1):
+    for order, benchmark_key in enumerate(session.footer_benchmark_keys, start=1):
         item = fetch_premarket_benchmark_quote(
             benchmark_key,
             today=today,
@@ -917,10 +1204,11 @@ def build_premarket_benchmark_footer_items(
             disabled_sources=disabled_sources,
             persistent_quote_cache=persistent_quote_cache,
             cache_now=cache_now,
+            session=session,
         )
         out = dict(item)
         out["order"] = order
-        out["label"] = PREMARKET_FOOTER_LABELS.get(benchmark_key, str(out.get("label", "") or benchmark_key))
+        out["label"] = session.footer_labels.get(benchmark_key, str(out.get("label", "") or benchmark_key))
         if benchmark_key == "vix":
             source_lower = str(out.get("source", "") or "").lower()
             if "realtime" not in source_lower:
@@ -1209,10 +1497,13 @@ def fetch_holding_current_return(
     *,
     today: str,
     disabled_sources: set[str],
+    us_quote_mode: str = "premarket",
 ) -> dict[str, Any]:
     market_norm = str(market or "").strip().upper()
     ticker_norm = str(ticker or "").strip().upper()
     if market_norm == "US":
+        if str(us_quote_mode).lower() == "afterhours":
+            return fetch_us_afterhours_return_pct(ticker_norm, disabled_sources=disabled_sources)
         return fetch_us_premarket_return_pct(ticker_norm, disabled_sources=disabled_sources)
     if market_norm == "CN":
         return _fetch_cn_current_return(ticker_norm, today=today)
@@ -1232,9 +1523,18 @@ def estimate_premarket_holdings(
     persistent_quote_cache: dict[str, dict[str, Any]] | None = None,
     cache_now: datetime | None = None,
     residual_benchmark: dict[str, Any] | None = None,
+    session: ObservationSessionConfig = PREMARKET_SESSION,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     cache_now = coerce_bj_datetime(cache_now)
     df = holdings_df.copy()
+    metric_prefix = session.title_word
+    return_col = f"{metric_prefix}涨跌幅"
+    source_col = f"{metric_prefix}数据源"
+    status_col = f"{metric_prefix}状态"
+    trade_date_col = f"{metric_prefix}交易日"
+    error_col = f"{metric_prefix}错误"
+    effective_weight_col = f"{metric_prefix}有效估算权重"
+    contribution_col = f"{metric_prefix}收益贡献"
     returns = []
     sources = []
     statuses = []
@@ -1252,6 +1552,7 @@ def estimate_premarket_holdings(
                 market=market,
                 ticker=ticker,
                 cache_now=cache_now,
+                ttl_minutes=session.quote_cache_ttl_minutes,
             )
             if item is None:
                 item = fetch_holding_current_return(
@@ -1259,6 +1560,7 @@ def estimate_premarket_holdings(
                     ticker,
                     today=today,
                     disabled_sources=disabled_sources,
+                    us_quote_mode=session.us_quote_mode,
                 )
                 _remember_premarket_quote(
                     quote_cache,
@@ -1293,29 +1595,29 @@ def estimate_premarket_holdings(
                     "error": error_text,
                 }
 
-    df["盘前涨跌幅"] = returns
-    df["盘前数据源"] = sources
-    df["盘前状态"] = statuses
-    df["盘前交易日"] = trade_dates
-    df["盘前错误"] = errors
+    df[return_col] = returns
+    df[source_col] = sources
+    df[status_col] = statuses
+    df[trade_date_col] = trade_dates
+    df[error_col] = errors
     df["占净值比例"] = pd.to_numeric(df["占净值比例"], errors="coerce")
 
-    valid_mask = df["盘前状态"].eq("traded") & df["盘前涨跌幅"].notna() & df["占净值比例"].gt(0)
+    valid_mask = df[status_col].eq("traded") & df[return_col].notna() & df["占净值比例"].gt(0)
     residual_benchmark = residual_benchmark or {}
     calc = estimate_boosted_valid_holding_with_residual(
-        zip(df.loc[valid_mask, "占净值比例"], df.loc[valid_mask, "盘前涨跌幅"]),
+        zip(df.loc[valid_mask, "占净值比例"], df.loc[valid_mask, return_col]),
         residual_return_pct=residual_benchmark.get("return_pct"),
     )
     estimate = calc["estimated_return_pct"]
     raw_valid_weight = float(calc["raw_valid_weight_pct"] or 0.0)
     boosted_weight = float(calc["boosted_weight_pct"] or 0.0)
     actual_boost = float(calc["actual_boost"] or 0.0)
-    df["盘前有效估算权重"] = pd.NA
-    df["盘前收益贡献"] = pd.NA
+    df[effective_weight_col] = pd.NA
+    df[contribution_col] = pd.NA
     if raw_valid_weight > 0:
-        df.loc[valid_mask, "盘前有效估算权重"] = df.loc[valid_mask, "占净值比例"] * actual_boost
-        df.loc[valid_mask, "盘前收益贡献"] = (
-            df.loc[valid_mask, "盘前有效估算权重"] * df.loc[valid_mask, "盘前涨跌幅"] / 100.0
+        df.loc[valid_mask, effective_weight_col] = df.loc[valid_mask, "占净值比例"] * actual_boost
+        df.loc[valid_mask, contribution_col] = (
+            df.loc[valid_mask, effective_weight_col] * df.loc[valid_mask, return_col] / 100.0
         )
 
     raw_weight_sum = float(pd.to_numeric(df["占净值比例"], errors="coerce").fillna(0).sum())
@@ -1342,7 +1644,7 @@ def estimate_premarket_holdings(
         "residual_contribution_pct": calc["residual_contribution_pct"],
         "valid_holding_count": valid_count,
         "missing_holding_count": missing_count,
-        "data_status": "failed" if estimate is None else ("partial" if missing_count or residual_failed else "intraday"),
+        "data_status": "failed" if estimate is None else ("partial" if missing_count or residual_failed else session.complete_data_status),
     }
     return df, summary
 
@@ -1472,6 +1774,7 @@ def build_premarket_table(
     fund_codes: Iterable[str] = HAIWAI_FUND_CODES,
     top_n: int = 10,
     current_time: datetime | None = None,
+    session: ObservationSessionConfig = PREMARKET_SESSION,
 ) -> tuple[
     pd.DataFrame,
     list[dict[str, Any]],
@@ -1482,7 +1785,13 @@ def build_premarket_table(
     generated_at = coerce_bj_datetime(current_time)
     today = generated_at.date().isoformat()
     quote_cache: dict[tuple[str, str], dict[str, Any]] = {}
-    persistent_quote_cache = _load_premarket_quote_cache(cache_now=generated_at)
+    persistent_quote_cache = _load_premarket_quote_cache(
+        cache_now=generated_at,
+        cache_file=session.quote_cache_file,
+        cache_label=session.title_word,
+        retention_days=session.quote_cache_retention_days,
+        max_items=session.quote_cache_max_items,
+    )
     disabled_sources: set[str] = set()
     purchase_limit_cache = _load_purchase_limit_cache()
     cached_fund_names = _load_cached_fund_names()
@@ -1501,7 +1810,7 @@ def build_premarket_table(
             )
             if int(top_n or 0) > 0 and len(holdings_df) > int(top_n):
                 holdings_df = holdings_df.head(int(top_n)).copy()
-            residual_key = get_premarket_residual_benchmark_key(fund_code)
+            residual_key = get_observation_residual_benchmark_key(fund_code, session=session)
             residual_benchmark = fetch_premarket_benchmark_quote(
                 residual_key,
                 today=today,
@@ -1509,6 +1818,7 @@ def build_premarket_table(
                 disabled_sources=disabled_sources,
                 persistent_quote_cache=persistent_quote_cache,
                 cache_now=generated_at,
+                session=session,
             )
             residual_market = str(residual_benchmark.get("market", "")).strip().upper()
             residual_ticker = str(residual_benchmark.get("ticker", "")).strip().upper()
@@ -1522,6 +1832,7 @@ def build_premarket_table(
                 persistent_quote_cache=persistent_quote_cache,
                 cache_now=generated_at,
                 residual_benchmark=residual_benchmark,
+                session=session,
             )
             for _, item in detail_df.iterrows():
                 market = str(item.get("市场", "")).strip().upper()
@@ -1589,8 +1900,16 @@ def build_premarket_table(
         disabled_sources=disabled_sources,
         persistent_quote_cache=persistent_quote_cache,
         cache_now=generated_at,
+        session=session,
     )
-    _save_premarket_quote_cache(persistent_quote_cache, cache_now=generated_at)
+    _save_premarket_quote_cache(
+        persistent_quote_cache,
+        cache_now=generated_at,
+        cache_file=session.quote_cache_file,
+        cache_label=session.title_word,
+        retention_days=session.quote_cache_retention_days,
+        max_items=session.quote_cache_max_items,
+    )
     return display_df, rows, benchmark_footer_items, quote_cache, affected_funds
 
 
@@ -1600,11 +1919,12 @@ def save_premarket_image(
     generated_at: datetime,
     output_file: str | Path = SAFE_HAIWAI_PREMARKET_IMAGE,
     benchmark_footer_items: list[dict[str, Any]] | None = None,
+    session: ObservationSessionConfig = PREMARKET_SESSION,
 ) -> None:
     output_path = Path(output_file)
     title_date = generated_at.date().isoformat()
     generated_text = generated_at.strftime("%Y-%m-%d %H:%M:%S")
-    title = f"海外基金盘前模型观察 观察日：{title_date} 生成：{generated_text}"
+    title = f"海外基金{session.title_word}模型观察 观察日：{title_date} 生成：{generated_text}"
     title_segments = [
         {
             "text": "海外基金",
@@ -1613,7 +1933,7 @@ def save_premarket_image(
             "fontsize": SAFE_TITLE_STYLE["fontsize"],
         },
         {
-            "text": "盘前",
+            "text": session.title_word,
             "color": SAFE_TITLE_STYLE["highlight_color"],
             "fontweight": SAFE_TITLE_STYLE["fontweight"],
             "fontsize": SAFE_TITLE_STYLE["fontsize"],
@@ -1639,7 +1959,7 @@ def save_premarket_image(
     ]
     image_kwargs = safe_daily_table_kwargs()
     column_widths = dict(image_kwargs.get("column_width_by_name") or {})
-    column_widths[DISPLAY_RETURN_COLUMN] = column_widths.get("模型估算观察", 0.15)
+    column_widths[session.display_return_column] = column_widths.get("模型估算观察", 0.15)
     image_kwargs["column_width_by_name"] = column_widths
     image_kwargs.update(
         {
@@ -1656,12 +1976,76 @@ def save_premarket_image(
         output_file=relative_path_str(output_path),
         title=title,
         title_segments=title_segments,
-        display_column_names={"今日预估涨跌幅": DISPLAY_RETURN_COLUMN},
+        display_column_names={"今日预估涨跌幅": session.display_return_column},
         benchmark_footer_items=benchmark_footer_items,
         pct_digits=2,
         **image_kwargs,
     )
     apply_safe_public_watermarks(output_path)
+
+
+def run_observation_session(
+    *,
+    session: ObservationSessionConfig,
+    force: bool = False,
+    current_time: datetime | str | None = None,
+    fund_codes: Iterable[str] = HAIWAI_FUND_CODES,
+    output_file: str | Path | None = None,
+    report_file: str | Path | None = None,
+    top_n: int = 10,
+) -> PremarketRunResult:
+    ensure_runtime_dirs()
+    generated_at = coerce_bj_datetime(current_time)
+    output_path = Path(output_file or session.output_file)
+    report_path = Path(report_file or session.report_file)
+    if not force and not in_observation_window(session, generated_at):
+        window_text = f"{session.start_time_bj.strftime('%H:%M')}-{session.end_time_bj.strftime('%H:%M')}"
+        reason = (
+            f"当前北京时间不在 {window_text} {session.window_word}观察窗口，未生成{session.window_word}图；"
+            "如需测试请使用 --force。"
+        )
+        print(reason, flush=True)
+        return PremarketRunResult(
+            generated=False,
+            reason=reason,
+            output_file=output_path,
+            report_file=report_path,
+        )
+
+    display_df, rows, benchmark_footer_items, quote_cache, affected_funds = build_premarket_table(
+        fund_codes=fund_codes,
+        top_n=top_n,
+        current_time=generated_at,
+        session=session,
+    )
+    save_premarket_image(
+        display_df,
+        generated_at=generated_at,
+        output_file=output_path,
+        benchmark_footer_items=benchmark_footer_items,
+        session=session,
+    )
+    _write_report(
+        report_path,
+        generated_at=generated_at,
+        rows=rows,
+        quote_cache=quote_cache,
+        affected_funds=affected_funds,
+    )
+
+    valid_count = len([item for item in quote_cache.values() if _quote_item_has_value(item)])
+    missing_count = len(quote_cache) - valid_count
+    reason = f"{session.window_word}观察图生成完成: {relative_path_str(output_path)}"
+    print(reason, flush=True)
+    return PremarketRunResult(
+        generated=True,
+        reason=reason,
+        output_file=output_path,
+        report_file=report_path,
+        fund_count=len(rows),
+        valid_security_count=valid_count,
+        missing_security_count=missing_count,
+    )
 
 
 def run_premarket_observation(
@@ -1673,59 +2057,45 @@ def run_premarket_observation(
     report_file: str | Path = PREMARKET_FAILED_HOLDINGS_REPORT,
     top_n: int = 10,
 ) -> PremarketRunResult:
-    ensure_runtime_dirs()
-    generated_at = coerce_bj_datetime(current_time)
-    if not force and not in_premarket_window(generated_at):
-        window_text = f"{PREMARKET_START_BJ.strftime('%H:%M')}-{PREMARKET_END_BJ.strftime('%H:%M')}"
-        reason = (
-            f"当前北京时间不在 {window_text} 盘前观察窗口，未生成盘前图；"
-            "如需测试请使用 --force。"
-        )
-        print(reason, flush=True)
-        return PremarketRunResult(
-            generated=False,
-            reason=reason,
-            output_file=Path(output_file),
-            report_file=Path(report_file),
-        )
-
-    display_df, rows, benchmark_footer_items, quote_cache, affected_funds = build_premarket_table(
+    return run_observation_session(
+        session=PREMARKET_SESSION,
+        force=force,
+        current_time=current_time,
         fund_codes=fund_codes,
-        top_n=top_n,
-        current_time=generated_at,
-    )
-    save_premarket_image(
-        display_df,
-        generated_at=generated_at,
         output_file=output_file,
-        benchmark_footer_items=benchmark_footer_items,
-    )
-    _write_report(
-        report_file,
-        generated_at=generated_at,
-        rows=rows,
-        quote_cache=quote_cache,
-        affected_funds=affected_funds,
+        report_file=report_file,
+        top_n=top_n,
     )
 
-    valid_count = len([item for item in quote_cache.values() if _quote_item_has_value(item)])
-    missing_count = len(quote_cache) - valid_count
-    reason = f"盘前观察图生成完成: {relative_path_str(output_file)}"
-    print(reason, flush=True)
-    return PremarketRunResult(
-        generated=True,
-        reason=reason,
-        output_file=Path(output_file),
-        report_file=Path(report_file),
-        fund_count=len(rows),
-        valid_security_count=valid_count,
-        missing_security_count=missing_count,
+
+def run_afterhours_observation(
+    *,
+    force: bool = False,
+    current_time: datetime | str | None = None,
+    fund_codes: Iterable[str] = HAIWAI_FUND_CODES,
+    output_file: str | Path = SAFE_HAIWAI_AFTERHOURS_IMAGE,
+    report_file: str | Path = AFTERHOURS_FAILED_HOLDINGS_REPORT,
+    top_n: int = 10,
+) -> PremarketRunResult:
+    return run_observation_session(
+        session=AFTERHOURS_SESSION,
+        force=force,
+        current_time=current_time,
+        fund_codes=fund_codes,
+        output_file=output_file,
+        report_file=report_file,
+        top_n=top_n,
     )
 
 
 __all__ = [
+    "AFTERHOURS_END_BJ",
+    "AFTERHOURS_SESSION",
+    "AFTERHOURS_START_BJ",
     "DISPLAY_RETURN_COLUMN",
+    "ObservationSessionConfig",
     "PREMARKET_END_BJ",
+    "PREMARKET_SESSION",
     "PREMARKET_START_BJ",
     "PremarketRunResult",
     "build_premarket_benchmark_footer_items",
@@ -1735,10 +2105,14 @@ __all__ = [
     "estimate_boosted_valid_holding_with_residual",
     "estimate_premarket_holdings",
     "fetch_premarket_benchmark_quote",
+    "fetch_us_afterhours_return_pct",
     "fetch_us_premarket_return_pct",
     "get_premarket_residual_benchmark_key",
+    "in_afterhours_window",
     "in_premarket_window",
     "normalize_premarket_benchmark_key",
+    "run_afterhours_observation",
+    "run_observation_session",
     "run_premarket_observation",
     "save_premarket_image",
 ]

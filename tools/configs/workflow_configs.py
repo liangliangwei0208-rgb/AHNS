@@ -76,6 +76,12 @@ WORKFLOW_STEPS = [
         "required": True,
         "collect_images": True,
     },
+    {
+        "name": "盘前海外基金观察图",
+        "script": "premarket_fund.py",
+        "required": True,
+        "collect_images": True,
+    },
 ]
 
 

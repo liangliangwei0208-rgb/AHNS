@@ -1,0 +1,134 @@
+{
+  "HK:02513": {
+    "return_pct": 22.14,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "2026/05/13 14:44:42",
+    "fetched_at_bj": "2026-05-13T14:59:36+08:00",
+    "error": ""
+  },
+  "KR:000660": {
+    "return_pct": 7.68,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "naver_kr_realtime",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "",
+    "fetched_at_bj": "2026-05-13T14:59:36+08:00",
+    "error": ""
+  },
+  "HK:00981": {
+    "return_pct": -2.55,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "2026/05/13 14:44:42",
+    "fetched_at_bj": "2026-05-13T14:59:36+08:00",
+    "error": ""
+  },
+  "HK:01347": {
+    "return_pct": -0.08,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "2026/05/13 14:44:44",
+    "fetched_at_bj": "2026-05-13T14:59:36+08:00",
+    "error": ""
+  },
+  "HK:01179": {
+    "return_pct": 0.49,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "2026/05/13 14:44:44",
+    "fetched_at_bj": "2026-05-13T14:59:36+08:00",
+    "error": ""
+  },
+  "HK:00883": {
+    "return_pct": -2.01,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "2026/05/13 14:44:49",
+    "fetched_at_bj": "2026-05-13T14:59:36+08:00",
+    "error": ""
+  },
+  "KR:005930": {
+    "return_pct": 1.79,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "naver_kr_realtime",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "",
+    "fetched_at_bj": "2026-05-13T14:59:36+08:00",
+    "error": ""
+  },
+  "HK:00100": {
+    "return_pct": 12.17,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "2026/05/13 14:44:53",
+    "fetched_at_bj": "2026-05-13T14:59:36+08:00",
+    "error": ""
+  },
+  "HK:06869": {
+    "return_pct": -4.87,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "2026/05/13 14:44:50",
+    "fetched_at_bj": "2026-05-13T14:59:36+08:00",
+    "error": ""
+  },
+  "VIX_LEVEL:VIX": {
+    "return_pct": null,
+    "value": 17.99,
+    "value_type": "level",
+    "status": "traded",
+    "source": "yahoo_chart_realtime_vix",
+    "trade_date": "2026-05-12",
+    "quote_time_bj": "2026-05-13T04:15:01+08:00",
+    "fetched_at_bj": "2026-05-13T14:59:36+08:00",
+    "error": ""
+  },
+  "CN:300502": {
+    "return_pct": 6.155066495645722,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_realtime",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "",
+    "fetched_at_bj": "2026-05-13T15:01:36+08:00",
+    "error": ""
+  },
+  "CN:688519": {
+    "return_pct": 1.896333754740831,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_realtime",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "",
+    "fetched_at_bj": "2026-05-13T15:01:36+08:00",
+    "error": ""
+  }
+}

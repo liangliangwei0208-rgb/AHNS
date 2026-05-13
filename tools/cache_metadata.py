@@ -115,6 +115,21 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为行情记录。",
         ],
     },
+    "afterhours_quote_cache.json": {
+        "purpose": "盘后观察用的实时行情短缓存，避免同一早反复运行时反复请求重复持仓股和盘后基准。",
+        "producer": "tools/premarket_estimator.py 在生成盘后观察图时写入可展示的实时涨跌幅或点位。",
+        "consumers": [
+            "afterhours_fund.py",
+            "tools/premarket_estimator.py",
+        ],
+        "refresh_policy": "15 分钟内复用；过期后重新请求接口。失败结果不跨运行缓存。",
+        "retention_policy": "写入时删除超过 1 天的记录，并按 fetched_at_bj 只保留最新 500 条。",
+        "data_shape": "顶层是 market:ticker -> 行情记录的映射，例如 US:NVDA、HK:00700、VIX_LEVEL:VIX。",
+        "notes": [
+            "只服务盘后观察，不写入也不替代正式基金估算缓存。",
+            "不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为行情记录。",
+        ],
+    },
     "mark.jpg": {
         "purpose": "safe 公开图使用的居中 logo 水印素材。",
         "producer": "人工维护。",

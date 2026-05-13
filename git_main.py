@@ -6,7 +6,8 @@ AHNS 项目总控入口：
 2. 运行 main.py 生成市场和基金估算图；
 3. 运行 safe_fund.py、safe_holidays.py、holidays.py、sum_holidays.py 生成公开展示图；
 4. 运行 kepu 科普脚本，按日期条件生成节后说明图和每周限额图；
-5. 收集本次新建或更新的图片并发送邮件。
+5. 北京时间 17:30 后切换为只运行 premarket_fund.py 盘前观察；
+6. 收集本次新建或更新的图片并发送邮件。
 
 本地默认使用 tools.email_send.py 中的邮箱配置；GitHub Actions 可通过
 QQ_EMAIL_ACCOUNT、QQ_EMAIL_AUTH_CODE、QQ_EMAIL_RECEIVER 环境变量覆盖。
@@ -19,9 +20,10 @@ import subprocess
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, time as datetime_time
 from pathlib import Path
 from typing import Iterable
+from zoneinfo import ZoneInfo
 
 from tools.email_send import send_email
 from tools.configs.workflow_configs import WORKFLOW_STEPS
@@ -29,6 +31,9 @@ from tools.paths import OUTPUT_DIR, PROJECT_ROOT, relative_path_str
 
 
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
+BJ_TZ = ZoneInfo("Asia/Shanghai")
+PREMARKET_SCRIPT_NAME = "premarket_fund.py"
+PREMARKET_ONLY_SWITCH_TIME_BJ = datetime_time(17, 30)
 RISK_NOTE = (
     "个人公开数据建模复盘，不收费、不荐基、不带单、不拉群，不构成任何投资建议。\n"
     "非实时净值，最终以基金公司公告为准。"
@@ -187,6 +192,36 @@ def resolve_workflow_steps() -> list[WorkflowStep]:
     return steps
 
 
+def coerce_beijing_datetime(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=BJ_TZ)
+    return value.astimezone(BJ_TZ)
+
+
+def select_workflow_steps_for_time(
+    steps: list[WorkflowStep],
+    current_time: datetime | None = None,
+) -> list[WorkflowStep]:
+    """按北京时间 17:30 切换每日流程和盘前观察流程。"""
+    now_bj = coerce_beijing_datetime(current_time or datetime.now(BJ_TZ))
+    premarket_indexes = [
+        index
+        for index, step in enumerate(steps)
+        if step.script_path.name.lower() == PREMARKET_SCRIPT_NAME
+    ]
+
+    if not premarket_indexes:
+        raise ValueError(f"workflow_configs.py 缺少 {PREMARKET_SCRIPT_NAME} 步骤")
+    if len(premarket_indexes) > 1:
+        raise ValueError(f"workflow_configs.py 里存在多个 {PREMARKET_SCRIPT_NAME} 步骤")
+
+    premarket_index = premarket_indexes[0]
+    if now_bj.time() < PREMARKET_ONLY_SWITCH_TIME_BJ:
+        return steps[:premarket_index]
+
+    return [steps[premarket_index]]
+
+
 def stream_script_output(script_path: Path) -> int:
     """运行单个脚本，并把子脚本输出实时打印出来。
 
@@ -337,14 +372,22 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    started_at = datetime.now()
+    started_at = datetime.now(BJ_TZ)
 
     log("git_main.py 开始运行")
     if args.no_send:
         log("当前为预演模式：会运行全部脚本，但不会发送邮件")
 
     steps = resolve_workflow_steps()
-    log("运行顺序: " + " -> ".join(step.name for step in steps))
+    now_bj = datetime.now(BJ_TZ)
+    steps = select_workflow_steps_for_time(steps, current_time=now_bj)
+    switch_text = PREMARKET_ONLY_SWITCH_TIME_BJ.strftime("%H:%M")
+    log(f"当前北京时间: {now_bj.strftime('%Y-%m-%d %H:%M:%S')}")
+    if now_bj.time() < PREMARKET_ONLY_SWITCH_TIME_BJ:
+        log(f"流程切换规则: {switch_text} 前运行盘前观察之前的每日流程")
+    else:
+        log(f"流程切换规则: {switch_text} 后只运行盘前海外基金观察图")
+    log("实际运行顺序: " + " -> ".join(step.name for step in steps))
 
     results: list[ScriptResult] = []
     for step in steps:
@@ -361,7 +404,7 @@ def main(argv: list[str] | None = None) -> int:
             log(f"[WARN] {step.name} 是非必要步骤，失败后继续运行后续步骤")
 
     images = unique_images(results)
-    finished_at = datetime.now()
+    finished_at = datetime.now(BJ_TZ)
     email_text = build_email_text(
         started_at=started_at,
         finished_at=finished_at,
