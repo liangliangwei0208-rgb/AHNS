@@ -250,6 +250,133 @@ SAFE_WATERMARK_STYLE = {
 }
 
 
+# safe 图中间“场景大字”样式。
+# 影响范围：
+# - safe_haiwai_afterhours.png：盘后观察图
+# - safe_haiwai_fund.png：收盘观察图
+# - safe_haiwai_premarket.png：盘前观察图
+# - safe_haiwai_intraday.png：盘中观察图
+# - safe_holidays.png：节假日观察图
+# - safe_sum_holidays.png：节后补更新观察图
+#
+# 调参说明：
+# - enabled：是否显示这层大字。False 表示这张图不叠加场景字。
+# - text：中间展示的文字，可以改成任意中文或空字符串。
+# - layout：文字排列方式。
+#   "vertical" 表示竖排，例如“收盘观察”会显示为“收/盘/观/察”一列；
+#   "horizontal" 表示横排，配合 rotation 可以做斜向大字。
+# - font_size：字号，单位是像素。常用 90-160；图越高可以适当越大。
+# - fill_color：文字填充颜色，支持英文色名或十六进制，如 "orange"、"#ff7a00"。
+# - stroke_color：文字描边颜色。想要纯色字，可以设成和 fill_color 一样，或把 stroke_width 设为 0。
+# - stroke_width：描边粗细，单位是像素。常用 0-8；数字越大边越粗。
+# - alpha：整层透明度，0 完全不可见，1 完全不透明。常用 0.55-0.85。
+# - rotation：旋转角度，单位是度。竖排通常写 0；正数为逆时针，负数为顺时针。
+# - char_spacing_px：竖排时每个字之间的额外间距，单位是像素。常用 0-12。
+# - x_ratio / y_ratio：按整张图片宽高比例定位“大字中心点”。
+#   0.5 表示正中；x_ratio 变大向右，变小向左；y_ratio 变大向下，变小向上。
+# - x_offset_px / y_offset_px：在比例定位基础上的像素微调。
+#   x_offset_px 正数向右、负数向左；y_offset_px 正数向下、负数向上。
+# - 如果不同图高度差异较大，优先用 x_ratio/y_ratio 做大方向定位，再用 offset 微调。
+SAFE_SCENE_TEXT_STYLE = {
+    "safe_haiwai_afterhours.png": {
+        "enabled": True,
+        "text": "盘后观察",
+        "layout": "vertical",
+        "font_size": 200,
+        "fill_color": "#111111",
+        "stroke_color": "#d71920",
+        "stroke_width": 7,
+        "alpha": 1,
+        "rotation": 0,
+        "char_spacing_px": 2,
+        "x_ratio": 0.55,
+        "y_ratio": 0.40,
+        "x_offset_px": 0,
+        "y_offset_px": 0,
+    },
+    "safe_haiwai_fund.png": {
+        "enabled": True,
+        "text": "收盘观察",
+        "layout": "vertical",
+        "font_size": 200,
+        "fill_color": "#ff8c00",
+        "stroke_color": "#7a3b00",
+        "stroke_width": 7,
+        "alpha": 1,
+        "rotation": 0,
+        "char_spacing_px": 2,
+        "x_ratio": 0.55,
+        "y_ratio": 0.40,
+        "x_offset_px": 0,
+        "y_offset_px": 0,
+    },
+    "safe_haiwai_premarket.png": {
+        "enabled": True,
+        "text": "盘前观察",
+        "layout": "vertical",
+        "font_size": 200,
+        "fill_color": "#7b2cbf",
+        "stroke_color": "#2ead4b",
+        "stroke_width": 7,
+        "alpha": 1,
+        "rotation": 0,
+        "char_spacing_px": 2,
+        "x_ratio": 0.55,
+        "y_ratio": 0.40,
+        "x_offset_px": 0,
+        "y_offset_px": 0,
+    },
+    "safe_haiwai_intraday.png": {
+        "enabled": True,
+        "text": "盘中观察",
+        "layout": "vertical",
+        "font_size": 200,
+        "fill_color": "#0f4c81",
+        "stroke_color": "#f6c343",
+        "stroke_width": 7,
+        "alpha": 1,
+        "rotation": 0,
+        "char_spacing_px": 2,
+        "x_ratio": 0.55,
+        "y_ratio": 0.40,
+        "x_offset_px": 0,
+        "y_offset_px": 0,
+    },
+    "safe_holidays.png": {
+        "enabled": True,
+        "text": "假期观察",
+        "layout": "vertical",
+        "font_size": 200,
+        "fill_color": "#111111",
+        "stroke_color": "#ffffff",
+        "stroke_width": 7,
+        "alpha": 1,
+        "rotation": 0,
+        "char_spacing_px": 2,
+        "x_ratio": 0.55,
+        "y_ratio": 0.40,
+        "x_offset_px": 0,
+        "y_offset_px": 0,
+    },
+    "safe_sum_holidays.png": {
+        "enabled": True,
+        "text": "节后更新",
+        "layout": "vertical",
+        "font_size": 200,
+        "fill_color": "#b32222",
+        "stroke_color": "#fff2c7",
+        "stroke_width": 7,
+        "alpha": 1,
+        "rotation": 0,
+        "char_spacing_px": 2,
+        "x_ratio": 0.55,
+        "y_ratio": 0.40,
+        "x_offset_px": 0,
+        "y_offset_px": 0,
+    },
+}
+
+
 def safe_daily_table_kwargs() -> dict:
     """返回 safe 每日/单日表格绘图参数；调用方可以继续单独覆盖个别参数。"""
     style = SAFE_DAILY_TABLE_STYLE
@@ -328,6 +455,11 @@ def safe_watermark_style() -> dict:
     return deepcopy(SAFE_WATERMARK_STYLE)
 
 
+def safe_scene_text_style() -> dict:
+    """返回 safe 场景大字参数。返回副本，避免调用方误改全局配置。"""
+    return deepcopy(SAFE_SCENE_TEXT_STYLE)
+
+
 __all__ = [
     "SAFE_TITLE_STYLE",
     "SAFE_DAILY_TABLE_STYLE",
@@ -338,7 +470,9 @@ __all__ = [
     "SAFE_CUMULATIVE_COLUMN_WIDTHS",
     "SAFE_BENCHMARK_COLUMN_WIDTHS",
     "SAFE_WATERMARK_STYLE",
+    "SAFE_SCENE_TEXT_STYLE",
     "safe_daily_table_kwargs",
     "safe_cumulative_table_kwargs",
     "safe_watermark_style",
+    "safe_scene_text_style",
 ]
