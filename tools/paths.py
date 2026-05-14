@@ -23,6 +23,7 @@ SECURITY_RETURN_CACHE = CACHE_DIR / "security_return_cache.json"
 PREMARKET_QUOTE_CACHE = CACHE_DIR / "premarket_quote_cache.json"
 AFTERHOURS_QUOTE_CACHE = CACHE_DIR / "afterhours_quote_cache.json"
 INTRADAY_QUOTE_CACHE = CACHE_DIR / "intraday_quote_cache.json"
+NIGHT_QUOTE_CACHE = CACHE_DIR / "night_quote_cache.json"
 MARK_IMAGE = CACHE_DIR / "mark.jpg"
 
 FIRST_PIC_IMAGE = OUTPUT_DIR / "first_pic.png"
@@ -35,6 +36,8 @@ SAFE_HAIWAI_AFTERHOURS_IMAGE = OUTPUT_DIR / "safe_haiwai_afterhours.png"
 AFTERHOURS_FAILED_HOLDINGS_REPORT = OUTPUT_DIR / "afterhours_failed_holdings_latest.txt"
 SAFE_HAIWAI_INTRADAY_IMAGE = OUTPUT_DIR / "safe_haiwai_intraday.png"
 INTRADAY_FAILED_HOLDINGS_REPORT = OUTPUT_DIR / "intraday_failed_holdings_latest.txt"
+SAFE_HAIWAI_NIGHT_IMAGE = OUTPUT_DIR / "safe_haiwai_night.png"
+NIGHT_FAILED_HOLDINGS_REPORT = OUTPUT_DIR / "night_failed_holdings_latest.txt"
 SAFE_HOLIDAYS_IMAGE = OUTPUT_DIR / "safe_holidays.png"
 SAFE_SUM_HOLIDAYS_IMAGE = OUTPUT_DIR / "safe_sum_holidays.png"
 KEPU_SUM_HOLIDAYS_IMAGE = OUTPUT_DIR / "kepu_sum_holidays.png"
@@ -77,6 +80,7 @@ __all__ = [
     "PREMARKET_QUOTE_CACHE",
     "AFTERHOURS_QUOTE_CACHE",
     "INTRADAY_QUOTE_CACHE",
+    "NIGHT_QUOTE_CACHE",
     "MARK_IMAGE",
     "FIRST_PIC_IMAGE",
     "HAIWAI_FUND_IMAGE",
@@ -88,6 +92,8 @@ __all__ = [
     "AFTERHOURS_FAILED_HOLDINGS_REPORT",
     "SAFE_HAIWAI_INTRADAY_IMAGE",
     "INTRADAY_FAILED_HOLDINGS_REPORT",
+    "SAFE_HAIWAI_NIGHT_IMAGE",
+    "NIGHT_FAILED_HOLDINGS_REPORT",
     "SAFE_HOLIDAYS_IMAGE",
     "SAFE_SUM_HOLIDAYS_IMAGE",
     "KEPU_SUM_HOLIDAYS_IMAGE",

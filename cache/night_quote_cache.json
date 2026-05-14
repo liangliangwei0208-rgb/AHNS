@@ -1,0 +1,233 @@
+{
+  "CN:300502": {
+    "return_pct": -0.3147903782254158,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_cn_realtime_with_date",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026-05-14 14:11:30",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "CN:300308": {
+    "return_pct": 1.7603888677087287,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_cn_realtime_with_date",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026-05-14 14:11:45",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "CN:688498": {
+    "return_pct": -1.346018735362997,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_cn_realtime_with_date",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026-05-14 14:11:44",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "CN:002384": {
+    "return_pct": -1.336353340883345,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_cn_realtime_with_date",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026-05-14 14:11:54",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:02513": {
+    "return_pct": -4.0,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 13:57:57",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:09899": {
+    "return_pct": 4.72,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 13:58:22",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:00522": {
+    "return_pct": -4.44,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 13:58:20",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "KR:005930": {
+    "return_pct": 4.05,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "naver_kr_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026-05-14 14:13",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "CN:300476": {
+    "return_pct": -6.406814661848214,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_cn_realtime_with_date",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026-05-14 14:13:24",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:00981": {
+    "return_pct": -2.43,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 13:59:05",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:01347": {
+    "return_pct": -2.23,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 13:59:10",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:09988": {
+    "return_pct": 4.59,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 13:59:24",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "CN:688256": {
+    "return_pct": -2.4056861673045438,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_cn_realtime_with_date",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026-05-14 14:14:25",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:01088": {
+    "return_pct": 0.05,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 14:00:24",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:00883": {
+    "return_pct": -0.9,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 14:00:24",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:01179": {
+    "return_pct": -3.25,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 14:03:24",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:00700": {
+    "return_pct": 0.09,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 14:03:46",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:00100": {
+    "return_pct": 4.83,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 14:03:50",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "HK:06869": {
+    "return_pct": -2.88,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "tencent_hk_realtime",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026/05/14 14:03:51",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "CN:688519": {
+    "return_pct": -5.1066997518610435,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_cn_realtime_with_date",
+    "trade_date": "2026-05-14",
+    "quote_time_bj": "2026-05-14 14:18:56",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": ""
+  },
+  "VIX_LEVEL:VIX": {
+    "return_pct": null,
+    "value": 17.87,
+    "value_type": "level",
+    "status": "traded",
+    "source": "vix_latest_close_fallback:CBOE",
+    "trade_date": "2026-05-13",
+    "quote_time_bj": "",
+    "fetched_at_bj": "2026-05-14T14:10:11+08:00",
+    "error": "VIX 实时点位获取失败: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true') | https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true')"
+  }
+}

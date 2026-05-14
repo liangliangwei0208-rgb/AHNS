@@ -52,7 +52,7 @@ jobs:
       - name: Compile source files
         run: |
           python -m py_compile \
-            git_main.py main.py premarket_fund.py intraday_fund.py afterhours_fund.py safe_fund.py safe_holidays.py holidays.py sum_holidays.py stock_analysis.py \
+            git_main.py main.py premarket_fund.py intraday_fund.py afterhours_fund.py night_fund.py safe_fund.py safe_holidays.py holidays.py sum_holidays.py stock_analysis.py \
             kepu/first_pic.py kepu/kepu_sum_holidays.py kepu/kepu_xiane.py \
             tools/*.py tools/configs/*.py
 

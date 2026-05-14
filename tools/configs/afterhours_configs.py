@@ -2,7 +2,7 @@
 盘后海外基金观察配置。
 
 盘后观察复用盘前观察的基准、补偿仓位映射和展示项，只改变运行窗口、
-缓存与输出产物。美股行情口径由执行层使用“最新价含盘后”处理。
+缓存与输出产物。美股行情口径由执行层使用纯盘后 post 数据处理。
 """
 
 from __future__ import annotations
@@ -14,10 +14,10 @@ from tools.configs.premarket_configs import (
 )
 
 
-AFTERHOURS_START_HOUR_BJ = 5
+AFTERHOURS_START_HOUR_BJ = 8
 AFTERHOURS_START_MINUTE_BJ = 0
-AFTERHOURS_END_HOUR_BJ = 16
-AFTERHOURS_END_MINUTE_BJ = 30
+AFTERHOURS_END_HOUR_BJ = 12
+AFTERHOURS_END_MINUTE_BJ = 0
 
 
 AFTERHOURS_BENCHMARK_SPECS = PREMARKET_BENCHMARK_SPECS

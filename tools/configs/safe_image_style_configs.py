@@ -256,6 +256,7 @@ SAFE_WATERMARK_STYLE = {
 # - safe_haiwai_fund.png：收盘观察图
 # - safe_haiwai_premarket.png：盘前观察图
 # - safe_haiwai_intraday.png：盘中观察图
+# - safe_haiwai_night.png：夜盘观察图
 # - safe_holidays.png：节假日观察图
 # - safe_sum_holidays.png：节后补更新观察图
 #
@@ -333,6 +334,22 @@ SAFE_SCENE_TEXT_STYLE = {
         "font_size": 200,
         "fill_color": "#1d4ed8",
         "stroke_color": "#fbbf24",
+        "stroke_width": 7,
+        "alpha": 0.90,
+        "rotation": 0,
+        "char_spacing_px": 2,
+        "x_ratio": 0.55,
+        "y_ratio": 0.40,
+        "x_offset_px": 0,
+        "y_offset_px": 0,
+    },
+    "safe_haiwai_night.png": {
+        "enabled": True,
+        "text": "夜盘观察",
+        "layout": "vertical",
+        "font_size": 200,
+        "fill_color": "#4c1d95",
+        "stroke_color": "#a7f3d0",
         "stroke_width": 7,
         "alpha": 0.90,
         "rotation": 0,
