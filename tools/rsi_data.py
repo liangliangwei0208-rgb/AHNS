@@ -349,7 +349,28 @@ def _read_usable_index_cache(
     latest_complete_date = _latest_complete_rsi_trade_date(symbol)
 
     if include_realtime and _is_cn_etf_symbol(symbol):
-        if pd.notna(latest_date) and latest_date.normalize() >= today - pd.Timedelta(days=RSI_CN_ETF_REALTIME_CACHE_MAX_AGE_DAYS):
+        if latest_complete_date and pd.notna(latest_date):
+            latest_complete_ts = pd.Timestamp(latest_complete_date).normalize()
+            if latest_date.normalize() < latest_complete_ts:
+                print(
+                    f"[CACHE] RSI 国内ETF历史缓存落后，改为刷新历史日线: "
+                    f"{symbol} latest={latest_date.strftime('%Y-%m-%d')} "
+                    f"expected={latest_complete_date} -> {cache_file}"
+                )
+                return None
+
+        cache_recent_enough = (
+            pd.notna(latest_date)
+            and latest_date.normalize() >= today - pd.Timedelta(days=RSI_CN_ETF_REALTIME_CACHE_MAX_AGE_DAYS)
+        )
+        cache_covers_latest_complete = (
+            not latest_complete_date
+            or (
+                pd.notna(latest_date)
+                and latest_date.normalize() >= pd.Timestamp(latest_complete_date).normalize()
+            )
+        )
+        if cache_recent_enough and cache_covers_latest_complete:
             cached = _merge_cn_etf_realtime_today(cached, symbol=symbol)
             record_market_event(
                 action="rsi_cache",
@@ -885,8 +906,10 @@ def _merge_cn_etf_realtime_today(df: pd.DataFrame, symbol: str) -> pd.DataFrame:
 
     out = df.copy()
     out["date"] = pd.to_datetime(out["date"], errors="coerce")
+    if "prev_close" not in out.columns and "prevclose" in out.columns:
+        out["prev_close"] = out["prevclose"]
 
-    for col in ["open", "high", "low", "close", "volume", "amount"]:
+    for col in ["open", "high", "low", "close", "volume", "amount", "prev_close", "prevclose"]:
         if col in out.columns:
             out[col] = pd.to_numeric(
                 out[col].astype(str).str.replace(",", "", regex=False),
@@ -904,6 +927,11 @@ def _merge_cn_etf_realtime_today(df: pd.DataFrame, symbol: str) -> pd.DataFrame:
         "close": float(realtime_row["close"]),
         "volume": np.nan if pd.isna(realtime_row.get("volume")) else float(realtime_row.get("volume")),
         "amount": np.nan if pd.isna(realtime_row.get("amount")) else float(realtime_row.get("amount")),
+        "prev_close": (
+            np.nan
+            if pd.isna(realtime_row.get("prev_close"))
+            else float(realtime_row.get("prev_close"))
+        ),
         "is_realtime": True,
     }
 
@@ -1188,7 +1216,13 @@ def get_index_akshare(
             )
 
             if use_cache:
-                df.to_csv(cache_file, index=False, encoding="utf-8-sig")
+                cache_df = df
+                if include_realtime and _is_cn_etf_symbol(symbol) and "is_realtime" in cache_df.columns:
+                    realtime_mask = cache_df["is_realtime"].astype(str).str.lower().isin({"true", "1"})
+                    cache_df = cache_df.loc[~realtime_mask].copy()
+                    if "prev_close" in cache_df.columns:
+                        cache_df = cache_df.drop(columns=["prev_close"])
+                cache_df.to_csv(cache_file, index=False, encoding="utf-8-sig")
 
             return df
 

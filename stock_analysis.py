@@ -47,7 +47,10 @@ def _prepare_price_df(hist: pd.DataFrame) -> pd.DataFrame:
     if "date" in df.columns:
         df["date"] = pd.to_datetime(df["date"], errors="coerce")
 
-    for col in ["open", "high", "low", "close", "volume", "amount"]:
+    if "prev_close" not in df.columns and "prevclose" in df.columns:
+        df["prev_close"] = df["prevclose"]
+
+    for col in ["open", "high", "low", "close", "volume", "amount", "prev_close", "prevclose"]:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
@@ -64,21 +67,33 @@ def latest_price_change(hist: pd.DataFrame):
     tmp = _prepare_price_df(hist)
 
     if len(tmp) < 2:
-        return None, None, None, None
+        return None, None, None, None, ""
 
     latest = tmp.iloc[-1]
     previous = tmp.iloc[-2]
 
     latest_close = float(latest["close"])
     previous_close = float(previous["close"])
+    compare_label = ""
+
+    is_realtime = str(latest.get("is_realtime", "")).strip().lower() in {"true", "1", "yes"}
+    realtime_prev_close = latest.get("prev_close", np.nan)
+    if is_realtime and pd.notna(realtime_prev_close) and float(realtime_prev_close) > 0:
+        previous_close = float(realtime_prev_close)
+        previous_date = pd.to_datetime(previous["date"]).date()
+        historical_previous_close = float(previous["close"])
+        if abs(historical_previous_close - previous_close) <= max(abs(previous_close) * 1e-6, 1e-6):
+            compare_label = f"{previous_date} 收盘（实时昨收）"
+        else:
+            compare_label = "实时昨收"
 
     if previous_close == 0:
-        return latest, previous, None, None
+        return latest, previous, None, None, compare_label
 
     change = latest_close - previous_close
     pct = change / previous_close * 100
 
-    return latest, previous, change, pct
+    return latest, previous, change, pct, compare_label
 
 
 def add_quant_factors(hist: pd.DataFrame) -> pd.DataFrame:
@@ -205,7 +220,7 @@ def format_stock_factor_text(
     include_factors=True:
         趋势、动量、波动率、成交量比、回撤、ATR
     """
-    latest, previous, change, pct = latest_price_change(result.hist)
+    latest, previous, change, pct, compare_label = latest_price_change(result.hist)
 
     if latest is None:
         return f"【{result.name}】\n无有效行情数据"
@@ -227,10 +242,11 @@ def format_stock_factor_text(
 
         if previous is not None:
             previous_date = pd.to_datetime(previous["date"]).date()
+            compare_label = compare_label or f"{previous_date} 收盘"
             lines.append(
                 "最新涨跌："
                 f"{_format_signed_number(change)} "
-                f"（{_format_signed_pct(pct)}，对比 {previous_date} 收盘）"
+                f"（{_format_signed_pct(pct)}，对比 {compare_label}）"
             )
 
         if "volume" in result.hist.columns and pd.notna(latest.get("volume", None)):
