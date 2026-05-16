@@ -571,6 +571,9 @@ def _is_premarket_quote_cache_fresh(
     *,
     cache_now: datetime,
     ttl_minutes: int = PREMARKET_QUOTE_CACHE_TTL_MINUTES,
+    allow_same_afterhours_target_success: bool = False,
+    market: Any = "",
+    ticker: Any = "",
 ) -> bool:
     if not _quote_item_has_value(item):
         return False
@@ -580,7 +583,28 @@ def _is_premarket_quote_cache_fresh(
     age = cache_now - fetched_at
     if age < timedelta(seconds=-60):
         return False
-    return age <= timedelta(minutes=max(1, int(ttl_minutes)))
+    if age <= timedelta(minutes=max(1, int(ttl_minutes))):
+        return True
+
+    if not allow_same_afterhours_target_success:
+        return False
+
+    market_norm = str(market or "").strip().upper()
+    if market_norm != "US":
+        return False
+
+    ticker_norm = str(ticker or "").strip().upper()
+    target_us_date = _target_afterhours_us_date(cache_now)
+    try:
+        _validate_afterhours_us_quote_item(
+            dict(item),
+            target_us_date=target_us_date,
+            symbol=ticker_norm,
+            source="afterhours_cache",
+        )
+        return True
+    except Exception:
+        return False
 
 
 def _get_cached_premarket_quote(
@@ -591,6 +615,7 @@ def _get_cached_premarket_quote(
     ticker: Any,
     cache_now: datetime,
     ttl_minutes: int = PREMARKET_QUOTE_CACHE_TTL_MINUTES,
+    allow_same_afterhours_target_success: bool = False,
 ) -> dict[str, Any] | None:
     tuple_key = _premarket_quote_tuple_key(market, ticker)
     runtime_item = quote_cache.get(tuple_key)
@@ -606,6 +631,9 @@ def _get_cached_premarket_quote(
         file_item,
         cache_now=cache_now,
         ttl_minutes=ttl_minutes,
+        allow_same_afterhours_target_success=allow_same_afterhours_target_success,
+        market=market,
+        ticker=ticker,
     ):
         return None
 
@@ -1292,6 +1320,7 @@ def _get_valid_cached_observation_quote(
     """
     market_norm = str(market or "").strip().upper()
     ticker_norm = str(ticker or "").strip().upper()
+    mode = str(session.us_quote_mode).lower()
     item = _get_cached_premarket_quote(
         quote_cache,
         persistent_quote_cache,
@@ -1299,6 +1328,7 @@ def _get_valid_cached_observation_quote(
         ticker=ticker_norm,
         cache_now=cache_now,
         ttl_minutes=session.quote_cache_ttl_minutes,
+        allow_same_afterhours_target_success=(mode == "afterhours"),
     )
     if not isinstance(item, dict) or not (_quote_item_has_value(item) or item.get("status") == "missing"):
         return None
@@ -1311,7 +1341,6 @@ def _get_valid_cached_observation_quote(
     ):
         return None
 
-    mode = str(session.us_quote_mode).lower()
     if market_norm == "US" and _quote_item_has_value(item):
         try:
             if mode == "afterhours":

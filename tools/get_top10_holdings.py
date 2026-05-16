@@ -4867,11 +4867,46 @@ def _holding_df_quarter_meta(df):
     return qkey, qlabel
 
 
+def _write_fund_holdings_cache_item(
+    cache: dict,
+    cache_key: str,
+    *,
+    fund_code: str,
+    top_n: int,
+    df: pd.DataFrame,
+    now: datetime,
+    target_key,
+    target_confirmed: bool,
+    next_check_after: datetime,
+    context: str,
+):
+    latest_key, latest_label = _holding_df_quarter_meta(df)
+    cache[cache_key] = {
+        "fetched_at": now.isoformat(timespec="seconds"),
+        "last_checked_at": now.isoformat(timespec="seconds"),
+        "next_check_after": next_check_after.isoformat(timespec="seconds"),
+        "fund_code": fund_code,
+        "top_n": top_n,
+        "latest_quarter_label": latest_label,
+        "latest_quarter_key": latest_key,
+        "target_quarter_key": int(target_key) if target_key is not None else None,
+        "target_quarter_confirmed": bool(target_confirmed),
+        "data_json": _df_to_cache_json(df),
+    }
+    _save_json_cache_best_effort(
+        FUND_HOLDINGS_CACHE_FILE,
+        cache,
+        context=context,
+    )
+    return latest_key, latest_label
+
+
 def get_latest_stock_holdings_df(
     fund_code="017437",
     top_n=10,
     holding_cache_days=None,
     cache_enabled=True,
+    force_refresh=False,
 ):
     """
     获取基金最新披露季度前 N 大股票持仓，带文件缓存。
@@ -4884,6 +4919,8 @@ def get_latest_stock_holdings_df(
         - 请求失败或返回旧季度时保留旧缓存，不污染数据。
 
     holding_cache_days 仅保留用于兼容旧调用；新策略不依赖固定 75 天周期。
+    force_refresh 仅供手动刷新脚本使用，会跳过披露窗口和 next_check_after 判断，
+    立即请求一次远端持仓并写回缓存。
     """
     fund_code = str(fund_code).zfill(6)
     top_n = int(top_n)
@@ -4902,6 +4939,44 @@ def get_latest_stock_holdings_df(
     cache = _load_json_cache(FUND_HOLDINGS_CACHE_FILE, default={})
     item = cache.get(cache_key)
     cached_df = _holding_cache_item_to_df(item)
+
+    if force_refresh:
+        _cache_log(f"手动强制刷新基金持仓缓存: {cache_key}")
+        df = get_latest_stock_holdings_df_uncached(fund_code=fund_code, top_n=top_n)
+        latest_key, latest_label = _holding_df_quarter_meta(df)
+        cached_key, _cached_label = _holding_df_quarter_meta(cached_df)
+
+        if (
+            cached_df is not None
+            and latest_key is not None
+            and cached_key is not None
+            and int(latest_key) < int(cached_key)
+        ):
+            print(
+                f"[WARN] 远程持仓季度旧于缓存，拒绝覆盖: {cache_key}, remote={latest_key}, cache={cached_key}",
+                flush=True,
+            )
+            return cached_df
+
+        confirmed = bool(target_key is not None and latest_key is not None and int(latest_key) >= int(target_key))
+        next_check = _next_holding_disclosure_window_start(window_end or now) if confirmed else now + timedelta(days=3)
+        if not in_window:
+            next_check = _next_holding_disclosure_window_start(now)
+
+        _write_fund_holdings_cache_item(
+            cache,
+            cache_key,
+            fund_code=fund_code,
+            top_n=top_n,
+            df=df,
+            now=now,
+            target_key=target_key,
+            target_confirmed=confirmed,
+            next_check_after=next_check,
+            context=f"手动强制刷新基金持仓 {cache_key}",
+        )
+        _cache_log(f"基金持仓缓存已手动刷新: {cache_key} -> {latest_label}")
+        return df
 
     # 无缓存：必须抓一次，否则无法估算。
     if cached_df is None:
