@@ -9,3 +9,4 @@ pillow
 pykrx
 pandas_market_calendars
 rich
+futu-api
