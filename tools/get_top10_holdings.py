@@ -127,6 +127,7 @@ FUND_ESTIMATE_RETURN_CACHE_FILE = "fund_estimate_return_cache.json"
 
 _SECURITY_RETURN_RUNTIME_CACHE = {}
 _MARKET_SCHEDULE_RUNTIME_CACHE = {}
+_CORRUPT_JSON_CACHE_FILES = set()
 ANCHOR_MARKET_STATUSES = {"traded", "closed", "pending", "missing", "stale"}
 ANCHOR_COMPLETE_STATUSES = {"traded", "closed"}
 ANCHOR_BAD_STATUSES = {"pending", "missing", "stale"}
@@ -172,6 +173,7 @@ def _load_json_cache(filename: str, default=None):
     path = CACHE_DIR / filename
 
     if not path.exists():
+        _CORRUPT_JSON_CACHE_FILES.discard(str(filename))
         return default
 
     try:
@@ -181,9 +183,11 @@ def _load_json_cache(filename: str, default=None):
         if isinstance(default, dict) and not isinstance(data, dict):
             return default
 
+        _CORRUPT_JSON_CACHE_FILES.discard(str(filename))
         return data
 
     except Exception as e:
+        _CORRUPT_JSON_CACHE_FILES.add(str(filename))
         print(f"[WARN] 缓存读取失败: {path}, 原因: {e}", flush=True)
         return default
 
@@ -194,6 +198,8 @@ def _save_json_cache(filename: str, data) -> None:
     """
     _ensure_cache_dir()
     path = CACHE_DIR / filename
+    if path.exists() and str(filename) in _CORRUPT_JSON_CACHE_FILES:
+        raise ValueError(f"Refuse to overwrite unreadable cache; fix JSON first: {path}")
 
     tmp_path = path.with_name(f"{path.name}.{os.getpid()}.{int(time.time() * 1000)}.tmp")
     data = attach_cache_info(filename, data)
