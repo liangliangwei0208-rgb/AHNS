@@ -14,7 +14,20 @@
     "value_type": "level",
     "error": "VIX 实时点位获取失败: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true') | https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true')",
     "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-05-18T13:40:23+08:00"
+    "fetched_at_bj": "2026-05-18T13:44:10+08:00"
+  },
+  "US:IBB:2026-05-18": {
+    "return_pct": 0.221,
+    "source": "futu_night_snapshot",
+    "status": "traded",
+    "trade_date": "2026-05-18",
+    "quote_time_bj": "2026-05-18T13:44:05+08:00",
+    "market": "US",
+    "ticker": "IBB",
+    "futu_code": "US.IBB",
+    "latest_price": 167.2,
+    "cache_scope": "futu_night",
+    "fetched_at_bj": "2026-05-18T13:44:10+08:00"
   },
   "US:INSM:2026-05-18": {
     "return_pct": 1.273,
@@ -1360,19 +1373,6 @@
     "ticker": "GILD",
     "futu_code": "US.GILD",
     "latest_price": 129.52,
-    "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-05-18T11:54:04+08:00"
-  },
-  "US:IBB:2026-05-18": {
-    "return_pct": 0.101,
-    "source": "futu_night_snapshot",
-    "status": "traded",
-    "trade_date": "2026-05-18",
-    "quote_time_bj": "2026-05-18T11:33:57+08:00",
-    "market": "US",
-    "ticker": "IBB",
-    "futu_code": "US.IBB",
-    "latest_price": 167.0,
     "cache_scope": "futu_night",
     "fetched_at_bj": "2026-05-18T11:54:04+08:00"
   },

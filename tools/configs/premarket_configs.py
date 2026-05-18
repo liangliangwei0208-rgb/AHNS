@@ -128,7 +128,7 @@ PREMARKET_BENCHMARK_SPECS = {
             "premarket": "现货黄金（实时）",
             "afterhours": "现货黄金（实时）",
             "intraday": "现货黄金（实时）",
-            "futu_night": "黄金ETF（实时）",
+            "futu_night": "现货黄金（实时）",
         },
         "description": "用 GLD 作为黄金方向盘前实时观察项。",
     },
