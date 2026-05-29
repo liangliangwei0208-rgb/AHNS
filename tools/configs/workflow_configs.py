@@ -1,8 +1,8 @@
 """
-git_main.py 的运行流程配置。
+总入口运行流程配置。
 
 这个文件只维护“总入口每天按什么顺序运行哪些脚本”。以后你想调整每日流程时，
-优先改这里，不要先去改 `git_main.py` 的主逻辑。
+优先改这里，不要先去改 `git_main.py` / `service_main.py` 的主逻辑。
 
 常见维护方式：
 - 想调整运行顺序：移动下面列表里的整段字典。
@@ -22,7 +22,7 @@ git_main.py 的运行流程配置。
 from __future__ import annotations
 
 
-# 每一项就是 git_main.py 的一个运行步骤。
+# 每一项就是总入口的一个运行步骤。
 # 字段解释：
 # - name: 日志里给人看的名称。这里可以写中文，方便定位是哪一步。
 # - script: 脚本路径。必须是相对项目根目录的路径，不要写绝对路径。
@@ -30,14 +30,8 @@ from __future__ import annotations
 # - collect_images: True 表示收集这一步本次新生成/更新的图片用于邮件发送。
 # - run_window_bj: 可选，北京时间闭区间；支持跨午夜窗口，例如 ("22:40", "02:00")。
 #   命中窗口时，该步骤会追加到日常完整流程之后运行；不会替代日常流程。
-# - args: 可选，运行脚本时追加的参数；实时观察由 git_main 控制窗口，因此这里传 --force。
-WORKFLOW_STEPS = [
-    {
-        "name": "科普首图",
-        "script": "kepu/first_pic.py",
-        "required": True,
-        "collect_images": True,
-    },
+# - args: 可选，运行脚本时追加的参数；实时观察由总入口控制窗口，因此这里传 --force。
+COMMON_WORKFLOW_STEPS = [
     {
         "name": "主行情与基金估算",
         "script": "main.py",
@@ -98,6 +92,9 @@ WORKFLOW_STEPS = [
         "run_window_bj": ("08:00", "11:29"),
         "args": ["--force"],
     },
+]
+
+FUTU_NIGHT_WORKFLOW_STEPS = [
     {
         "name": "富途夜盘海外基金观察图",
         "script": "futu_night_fund.py",
@@ -108,5 +105,16 @@ WORKFLOW_STEPS = [
     },
 ]
 
+GITHUB_WORKFLOW_STEPS = [*COMMON_WORKFLOW_STEPS]
+SERVICE_WORKFLOW_STEPS = [*COMMON_WORKFLOW_STEPS, *FUTU_NIGHT_WORKFLOW_STEPS]
 
-__all__ = ["WORKFLOW_STEPS"]
+# 兼容旧导入路径；git_main.py 默认使用 GitHub Actions 流程。
+WORKFLOW_STEPS = GITHUB_WORKFLOW_STEPS
+
+__all__ = [
+    "COMMON_WORKFLOW_STEPS",
+    "FUTU_NIGHT_WORKFLOW_STEPS",
+    "GITHUB_WORKFLOW_STEPS",
+    "SERVICE_WORKFLOW_STEPS",
+    "WORKFLOW_STEPS",
+]

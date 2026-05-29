@@ -21,7 +21,7 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from tools.configs.workflow_configs import WORKFLOW_STEPS
+from tools.configs.workflow_configs import GITHUB_WORKFLOW_STEPS, SERVICE_WORKFLOW_STEPS
 from tools.paths import (
     CACHE_DIR,
     FUND_ESTIMATE_CACHE,
@@ -218,26 +218,26 @@ def check_dependencies() -> list[CheckItem]:
     return items
 
 
-def check_workflow_config() -> list[CheckItem]:
+def _check_one_workflow_config(label: str, workflow_steps: list[dict]) -> list[CheckItem]:
     """检查 git_main.py 的配置化脚本清单。
 
     如果你以后新增脚本，最常见的问题是 `script` 路径写错。这里提前帮你检查，
     避免正式运行到一半才发现。
     """
     items: list[CheckItem] = []
-    if not WORKFLOW_STEPS:
-        return [make_item("ERROR", "总入口脚本清单", "WORKFLOW_STEPS 为空")]
+    if not workflow_steps:
+        return [make_item("ERROR", f"{label} 总入口脚本清单", "流程配置为空")]
 
-    for index, step in enumerate(WORKFLOW_STEPS, start=1):
+    for index, step in enumerate(workflow_steps, start=1):
         name = str(step.get("name") or f"步骤 {index}")
         script_text = str(step.get("script") or "").strip()
         if not script_text:
-            items.append(make_item("ERROR", name, "缺少 script 字段"))
+            items.append(make_item("ERROR", f"{label} {name}", "缺少 script 字段"))
             continue
 
         script_path = Path(script_text)
         if script_path.is_absolute():
-            items.append(make_item("ERROR", name, f"script 不要写绝对路径: {script_text}"))
+            items.append(make_item("ERROR", f"{label} {name}", f"script 不要写绝对路径: {script_text}"))
             continue
 
         full_path = PROJECT_ROOT / script_path
@@ -247,14 +247,22 @@ def check_workflow_config() -> list[CheckItem]:
             items.append(
                 make_item(
                     "OK",
-                    f"{index}. {name}",
+                    f"{label} {index}. {name}",
                     f"{script_text}，required={required}，collect_images={collect_images}",
                 )
             )
         else:
-            items.append(make_item("ERROR", f"{index}. {name}", f"未找到 {script_text}"))
+            items.append(make_item("ERROR", f"{label} {index}. {name}", f"未找到 {script_text}"))
 
     return items
+
+
+def check_workflow_config() -> list[CheckItem]:
+    """检查 GitHub 和小电脑 Service 两套总入口脚本清单。"""
+    return (
+        _check_one_workflow_config("GitHub", GITHUB_WORKFLOW_STEPS)
+        + _check_one_workflow_config("Service", SERVICE_WORKFLOW_STEPS)
+    )
 
 
 def check_realtime_observation_anchors() -> list[CheckItem]:
@@ -278,38 +286,60 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
     bj_tz = ZoneInfo("Asia/Shanghai")
     items: list[CheckItem] = []
     try:
-        steps = resolve_workflow_steps()
+        github_steps = resolve_workflow_steps(GITHUB_WORKFLOW_STEPS)
+        service_steps = resolve_workflow_steps(SERVICE_WORKFLOW_STEPS)
     except Exception as exc:
         return [make_item("ERROR", "实时观察 workflow", f"解析失败: {exc}")]
 
-    daily_scripts = tuple(step.script_path.name for step in steps if not step.has_run_window)
-    workflow_cases = [
-        ("2026-05-14T09:00:00+08:00", daily_scripts + ("afterhours_fund.py",), "09:00 盘后"),
-        ("2026-05-14T11:45:00+08:00", daily_scripts + ("futu_night_fund.py",), "11:45 富途夜盘"),
-        ("2026-05-14T18:00:00+08:00", daily_scripts + ("premarket_fund.py",), "18:00 盘前"),
-        ("2026-05-14T23:30:00+08:00", daily_scripts + ("intraday_fund.py",), "23:30 盘中"),
-        ("2026-05-15T01:00:00+08:00", daily_scripts + ("intraday_fund.py",), "次日 01:00 盘中"),
-    ]
-    for text, expected_scripts, title in workflow_cases:
-        dt = datetime.fromisoformat(text).astimezone(bj_tz)
-        selected = tuple(step.script_path.name for step in select_workflow_steps_for_time(steps, dt))
-        if selected == expected_scripts:
-            items.append(make_item("OK", f"workflow {title}", " -> ".join(selected)))
+    def check_workflow_cases(label: str, steps, include_futu_night: bool) -> None:
+        all_scripts = tuple(step.script_path.name for step in steps)
+        daily_scripts = tuple(step.script_path.name for step in steps if not step.has_run_window)
+        if "first_pic.py" not in all_scripts:
+            items.append(make_item("OK", f"{label} workflow 科普首图", "未纳入总入口自动运行"))
         else:
-            items.append(
-                make_item(
-                    "ERROR",
-                    f"workflow {title}",
-                    f"期望 {expected_scripts}，实际 {selected}",
-                )
-            )
+            items.append(make_item("ERROR", f"{label} workflow 科普首图", f"不应包含 first_pic.py，实际 {all_scripts}"))
 
-    daily_dt = datetime.fromisoformat("2026-05-15T02:01:00+08:00").astimezone(bj_tz)
-    daily_selected = tuple(step.script_path.name for step in select_workflow_steps_for_time(steps, daily_dt))
-    if daily_selected and daily_selected == daily_scripts:
-        items.append(make_item("OK", "workflow 02:01 每日流程", "未命中实时观察入口"))
-    else:
-        items.append(make_item("ERROR", "workflow 02:01 每日流程", f"期望 {daily_scripts}，实际 {daily_selected}"))
+        if include_futu_night:
+            if "futu_night_fund.py" in all_scripts:
+                items.append(make_item("OK", f"{label} workflow 富途夜盘", "已纳入 Service 流程"))
+            else:
+                items.append(make_item("ERROR", f"{label} workflow 富途夜盘", f"期望包含 futu_night_fund.py，实际 {all_scripts}"))
+        elif "futu_night_fund.py" not in all_scripts:
+            items.append(make_item("OK", f"{label} workflow 富途夜盘", "GitHub 流程未纳入富途夜盘"))
+        else:
+            items.append(make_item("ERROR", f"{label} workflow 富途夜盘", f"GitHub 流程不应包含 futu_night_fund.py，实际 {all_scripts}"))
+
+        night_expected = daily_scripts + (("futu_night_fund.py",) if include_futu_night else ())
+        workflow_cases = [
+            ("2026-05-14T09:00:00+08:00", daily_scripts + ("afterhours_fund.py",), "09:00 盘后"),
+            ("2026-05-14T11:45:00+08:00", night_expected, "11:45 富途夜盘"),
+            ("2026-05-14T18:00:00+08:00", daily_scripts + ("premarket_fund.py",), "18:00 盘前"),
+            ("2026-05-14T23:30:00+08:00", daily_scripts + ("intraday_fund.py",), "23:30 盘中"),
+            ("2026-05-15T01:00:00+08:00", daily_scripts + ("intraday_fund.py",), "次日 01:00 盘中"),
+        ]
+        for text, expected_scripts, title in workflow_cases:
+            dt = datetime.fromisoformat(text).astimezone(bj_tz)
+            selected = tuple(step.script_path.name for step in select_workflow_steps_for_time(steps, dt))
+            if selected == expected_scripts:
+                items.append(make_item("OK", f"{label} workflow {title}", " -> ".join(selected)))
+            else:
+                items.append(
+                    make_item(
+                        "ERROR",
+                        f"{label} workflow {title}",
+                        f"期望 {expected_scripts}，实际 {selected}",
+                    )
+                )
+
+        daily_dt = datetime.fromisoformat("2026-05-15T02:01:00+08:00").astimezone(bj_tz)
+        daily_selected = tuple(step.script_path.name for step in select_workflow_steps_for_time(steps, daily_dt))
+        if daily_selected and daily_selected == daily_scripts:
+            items.append(make_item("OK", f"{label} workflow 02:01 每日流程", "未命中实时观察入口"))
+        else:
+            items.append(make_item("ERROR", f"{label} workflow 02:01 每日流程", f"期望 {daily_scripts}，实际 {daily_selected}"))
+
+    check_workflow_cases("GitHub", github_steps, include_futu_night=False)
+    check_workflow_cases("Service", service_steps, include_futu_night=True)
 
     date_cases = [
         (

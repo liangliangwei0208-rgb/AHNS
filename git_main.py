@@ -2,12 +2,11 @@
 git_main.py
 
 AHNS 项目总控入口：
-1. 运行 kepu/first_pic.py 生成第一张说明图；
-2. 运行 main.py 生成市场和基金估算图；
-3. 运行 safe_fund.py、safe_holidays.py、holidays.py、sum_holidays.py 生成公开展示图；
-4. 运行 kepu 科普脚本，按日期条件生成节后说明图和每周限额图；
-5. 按 workflow_configs.py 中的 run_window_bj 切换实时观察流程；
-6. 收集本次新建或更新的图片并发送邮件。
+1. 运行 main.py 生成市场和基金估算图；
+2. 运行 safe_fund.py、safe_holidays.py、sum_holidays.py 生成公开展示图；
+3. 运行 kepu 科普脚本，按日期条件生成节后说明图和每周限额图；
+4. 按 workflow_configs.py 中的 run_window_bj 追加实时观察流程；
+5. 收集本次新建或更新的图片并发送邮件。
 
 本地默认使用 tools.email_send.py 中的邮箱配置；GitHub Actions 可通过
 QQ_EMAIL_ACCOUNT、QQ_EMAIL_AUTH_CODE、QQ_EMAIL_RECEIVER 环境变量覆盖。
@@ -183,7 +182,9 @@ def parse_run_window_bj(value: object) -> tuple[datetime_time | None, datetime_t
     return parse_hhmm_time(value[0]), parse_hhmm_time(value[1])
 
 
-def resolve_workflow_steps() -> list[WorkflowStep]:
+def resolve_workflow_steps(
+    workflow_steps: Iterable[dict[str, object]] | None = None,
+) -> list[WorkflowStep]:
     """把配置文件里的脚本清单转换成可运行步骤。
 
     维护提示：
@@ -193,8 +194,9 @@ def resolve_workflow_steps() -> list[WorkflowStep]:
     """
     steps: list[WorkflowStep] = []
     missing: list[str] = []
+    raw_steps = WORKFLOW_STEPS if workflow_steps is None else workflow_steps
 
-    for index, item in enumerate(WORKFLOW_STEPS, start=1):
+    for index, item in enumerate(raw_steps, start=1):
         name = str(item.get("name") or f"步骤 {index}")
         script_text = str(item.get("script") or "").strip()
         if not script_text:
@@ -493,15 +495,21 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(
+    argv: list[str] | None = None,
+    *,
+    entry_name: str = "git_main.py",
+    workflow_label: str = "GitHub Actions",
+    workflow_steps: Iterable[dict[str, object]] | None = None,
+) -> int:
     args = parse_args(argv)
     started_at = datetime.now(BJ_TZ)
 
-    log("git_main.py 开始运行")
+    log(f"{entry_name} 开始运行，当前流程: {workflow_label}")
     if args.no_send:
         log("当前为预演模式：会运行全部脚本，但不会发送邮件")
 
-    steps = resolve_workflow_steps()
+    steps = resolve_workflow_steps(workflow_steps)
     now_bj = datetime.now(BJ_TZ)
     all_steps = steps
     steps = select_workflow_steps_for_time(steps, current_time=now_bj)
