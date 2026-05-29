@@ -10,6 +10,7 @@ import argparse
 import json
 import sys
 import time
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -20,12 +21,19 @@ import service_runner
 PROJECT_ROOT = service_runner.PROJECT_ROOT
 DEFAULT_COMMAND_FILE = PROJECT_ROOT / "service_command.json"
 DEFAULT_INTERVAL_SECONDS = 60
+MAX_BACKOFF_SECONDS = 300
 COMMAND_STATUS_COMMIT_MESSAGE = "Update service command status [skip ci]"
 BJ_TZ = timezone(timedelta(hours=8))
 
 
 class CommandWatcherError(RuntimeError):
     """Command watcher readable error."""
+
+
+@dataclass
+class WatchState:
+    consecutive_failures: int = 0
+    current_sleep_seconds: int = DEFAULT_INTERVAL_SECONDS
 
 
 def log(message: str) -> None:
@@ -222,6 +230,65 @@ def check_once(
     )
 
 
+def is_likely_network_or_git_sync_error(exc: Exception) -> bool:
+    text = str(exc).lower()
+    markers = [
+        "git pull",
+        "git push",
+        "unable to access",
+        "failed to connect",
+        "could not connect",
+        "connection timed out",
+        "timed out",
+        "could not resolve host",
+        "recv failure",
+        "schannel",
+        "gnutls",
+        "tls",
+        "ssl",
+        "http",
+        "https",
+        "port 443",
+    ]
+    return any(marker in text for marker in markers)
+
+
+def next_backoff_seconds(base_interval_seconds: int, consecutive_failures: int) -> int:
+    base = max(5, int(base_interval_seconds or DEFAULT_INTERVAL_SECONDS))
+    if consecutive_failures <= 0:
+        return base
+    return min(MAX_BACKOFF_SECONDS, base * (2 ** min(consecutive_failures - 1, 4)))
+
+
+def record_success(state: WatchState, *, base_interval_seconds: int) -> None:
+    if state.consecutive_failures:
+        log("GitHub sync recovered; polling interval reset.")
+    state.consecutive_failures = 0
+    state.current_sleep_seconds = max(5, int(base_interval_seconds or DEFAULT_INTERVAL_SECONDS))
+
+
+def record_failure(
+    state: WatchState,
+    exc: Exception,
+    *,
+    base_interval_seconds: int,
+) -> None:
+    state.consecutive_failures += 1
+    state.current_sleep_seconds = next_backoff_seconds(base_interval_seconds, state.consecutive_failures)
+    if is_likely_network_or_git_sync_error(exc):
+        log(
+            "[WARN] GitHub sync failed; will retry after "
+            f"{state.current_sleep_seconds}s "
+            f"(consecutive failures: {state.consecutive_failures}). Reason: {exc}"
+        )
+    else:
+        log(
+            "[ERROR] Watch iteration failed; will retry after "
+            f"{state.current_sleep_seconds}s "
+            f"(consecutive failures: {state.consecutive_failures}). Reason: {exc}"
+        )
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="监听 GitHub command 文件并触发 AHNS 小电脑服务流程")
     parser.add_argument(
@@ -260,6 +327,7 @@ def main(argv: list[str] | None = None) -> int:
 
     log(f"Command file: {command_file}")
     log(f"Poll interval: {interval_seconds}s")
+    state = WatchState(current_sleep_seconds=interval_seconds)
 
     while True:
         try:
@@ -268,14 +336,15 @@ def main(argv: list[str] | None = None) -> int:
                 branch=branch,
                 python_exe=str(args.python_exe),
             )
+            record_success(state, base_interval_seconds=interval_seconds)
         except Exception as exc:
-            log(f"[ERROR] Watch iteration failed: {exc}")
+            record_failure(state, exc, base_interval_seconds=interval_seconds)
             exit_code = 1
 
         if args.once:
             return int(exit_code)
 
-        time.sleep(interval_seconds)
+        time.sleep(state.current_sleep_seconds)
 
 
 if __name__ == "__main__":
