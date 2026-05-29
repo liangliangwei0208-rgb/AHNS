@@ -1,0 +1,11 @@
+{
+  "run_flag": 0,
+  "no_send": false,
+  "receiver": "",
+  "status": "idle",
+  "requested_at_bj": "",
+  "last_started_at_bj": "",
+  "last_finished_at_bj": "",
+  "last_exit_code": null,
+  "last_message": ""
+}
