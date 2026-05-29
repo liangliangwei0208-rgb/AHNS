@@ -1,8 +1,8 @@
 """
 生成海外基金限额科普图和缓存限额表。
 
-脚本会被 git_main.py 每天调用，但只有北京时间周日实际生成图片；其他日期
-只打印跳过原因并正常退出。
+总入口只使用 --table-only，每天检查一次，但只有北京时间周日生成
+output/xiane.png 限购表格；不会生成 output/kepu_xiane.png 科普图。
 
 本版只优化 output/kepu_xiane.png 科普图：
 1. 水印只保留“鱼师AHNS”，并增强可见度；
@@ -1035,37 +1035,50 @@ def build_table_image(today: date) -> Image.Image:
 # 运行入口
 # ============================================================
 
-def run(today=None) -> bool:
+def run(today=None, *, table_only: bool = False, kepu_only: bool = False) -> bool:
     today_date = _normalize_today(today)
+    if table_only and kepu_only:
+        raise ValueError("--table-only 和 --kepu-only 不能同时使用。")
 
-    OUTPUT_KEPU_FILE.parent.mkdir(parents=True, exist_ok=True)
+    if not table_only:
+        OUTPUT_KEPU_FILE.parent.mkdir(parents=True, exist_ok=True)
+        build_kepu_image(today_date).save(OUTPUT_KEPU_FILE, optimize=True, compress_level=9)
+        print(f"海外基金限额科普图已生成: {OUTPUT_KEPU_FILE.resolve()}")
 
-    build_kepu_image(today_date).save(OUTPUT_KEPU_FILE, optimize=True, compress_level=9)
-    print(f"海外基金限额科普图已生成: {OUTPUT_KEPU_FILE.resolve()}")
-
-    if today_date.weekday() == 6:  # 6 表示周日，0 表示周一
-        OUTPUT_TABLE_FILE.parent.mkdir(parents=True, exist_ok=True)
-        build_table_image(today_date)
-        print(f"海外基金限额表格图已生成: {OUTPUT_TABLE_FILE.resolve()}")
-    else:
-        print(f"{today_date.isoformat()} 不是北京时间周日，跳过海外基金限额表格图生成。")
+    if not kepu_only:
+        if today_date.weekday() == 6:  # 6 表示周日，0 表示周一
+            OUTPUT_TABLE_FILE.parent.mkdir(parents=True, exist_ok=True)
+            build_table_image(today_date)
+            print(f"海外基金限额表格图已生成: {OUTPUT_TABLE_FILE.resolve()}")
+        else:
+            print(f"{today_date.isoformat()} 不是北京时间周日，跳过海外基金限额表格图生成。")
 
     return True
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="每周日生成海外基金限额科普图和限额表格图")
+    parser = argparse.ArgumentParser(description="生成海外基金限额科普图或每周日限购表格图")
     parser.add_argument(
         "--today",
         default=None,
         help="用于测试的北京时间日期，例如 2026-05-03；默认使用今天。",
+    )
+    parser.add_argument(
+        "--table-only",
+        action="store_true",
+        help="只在北京时间周日生成 output/xiane.png 限购表格，不生成科普图。",
+    )
+    parser.add_argument(
+        "--kepu-only",
+        action="store_true",
+        help="只生成 output/kepu_xiane.png 科普图，不生成限购表格。",
     )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    run(today=args.today)
+    run(today=args.today, table_only=bool(args.table_only), kepu_only=bool(args.kepu_only))
 
 
 if __name__ == "__main__":

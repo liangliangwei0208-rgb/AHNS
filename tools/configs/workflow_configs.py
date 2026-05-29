@@ -13,7 +13,7 @@
 
 注意：
 - `script` 一律写相对项目根目录的路径，例如 `safe_fund.py` 或
-  `kepu/kepu_xiane.py`，不要写 Windows 绝对路径。
+  `kepu/kepu_sum_holidays.py`，不要写 Windows 绝对路径。
 - 脚本因为日期条件没有生成图片是正常情况，例如节假日图、补更新图、限额表；
   只要脚本退出码是 0，就不算失败。
 - 这里不要放邮箱密码、SMTP 授权码等敏感信息。
@@ -63,10 +63,11 @@ COMMON_WORKFLOW_STEPS = [
         "collect_images": True,
     },
     {
-        "name": "海外基金限额科普图",
+        "name": "海外基金限购表格图",
         "script": "kepu/kepu_xiane.py",
         "required": True,
         "collect_images": True,
+        "args": ["--table-only"],
     },
     {
         "name": "盘前海外基金观察图",
