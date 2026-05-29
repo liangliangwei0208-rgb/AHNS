@@ -380,6 +380,22 @@ class FundProgress:
             detail = status or self._last_status or self._current_label or text
             print(self._text_progress_line("完成" if success else "失败", detail), flush=True)
 
+    def advance_units(self, count: int, *, success: bool = True, status: str = "") -> None:
+        count = max(0, int(count or 0))
+        if count <= 0:
+            return
+        if success:
+            self.success_count += count
+        else:
+            self.failed_count += count
+        text = status or f"成功 {self.success_count} / 失败 {self.failed_count}"
+        if self._enabled and self._progress is not None and self._task_id is not None:
+            self._progress.advance(self._task_id, count)
+            self._progress.update(self._task_id, status=text)
+        elif progress_detail_enabled() and not progress_verbose_enabled():
+            detail = status or self._last_status or self._current_label or text
+            print(self._text_progress_line("完成" if success else "失败", detail), flush=True)
+
     def set_status(self, status: str) -> None:
         self._last_status = str(status or "")
         if self._enabled and self._progress is not None and self._task_id is not None:

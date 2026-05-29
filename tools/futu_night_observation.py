@@ -557,7 +557,8 @@ def build_futu_night_table(
 
     prefetch_tickers = _collect_us_tickers(fund_payloads)
     print_stage(f"夜盘批量预取美股报价: {len(prefetch_tickers)} 个标的")
-    provider.prefetch_us_returns(prefetch_tickers, target_us_date=target_date)
+    with fund_progress("夜盘报价预取", len(prefetch_tickers)) as progress:
+        provider.prefetch_us_returns(prefetch_tickers, target_us_date=target_date, progress=progress)
 
     rows: list[dict[str, Any]] = []
     with fund_progress("夜盘基金估算", len(fund_payloads)) as progress:

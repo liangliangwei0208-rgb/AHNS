@@ -441,7 +441,13 @@ class FutuNightQuoteProvider:
             return item
         return None
 
-    def prefetch_us_returns(self, tickers: Iterable[str], *, target_us_date: str) -> None:
+    def prefetch_us_returns(
+        self,
+        tickers: Iterable[str],
+        *,
+        target_us_date: str,
+        progress: Any | None = None,
+    ) -> None:
         unique = []
         seen = set()
         for ticker in tickers:
@@ -455,25 +461,65 @@ class FutuNightQuoteProvider:
 
         self.stats.us_requested_count += len(unique)
         missing: list[str] = []
+        ready_count = 0
+        failed_skip_count = 0
+        if progress is not None:
+            progress.start_item(f"检查夜盘缓存: {len(unique)} 个标的")
         for ticker in unique:
             if ("US", ticker) in self.runtime:
+                ready_count += 1
                 continue
             if ticker in self.failures:
+                failed_skip_count += 1
                 continue
             if self._get_from_cache(ticker, target_us_date) is not None:
+                ready_count += 1
                 continue
             missing.append(ticker)
 
+        if progress is not None:
+            progress.advance_units(ready_count, success=True, status=f"夜盘缓存命中/本轮已取: {ready_count} 个")
+            progress.advance_units(failed_skip_count, success=False, status=f"本轮已记录失败: {failed_skip_count} 个")
+        if not missing:
+            if progress is not None:
+                progress.set_status("夜盘报价预取完成，全部来自缓存或本轮结果")
+            return
+
+        if progress is not None:
+            progress.start_item(
+                f"连接 Futu OpenD {self.host}:{self.port}，批量读取夜盘快照: {len(missing)} 个"
+            )
         snapshot_done = self._fetch_us_snapshot_batch(missing, target_us_date=target_us_date)
+        if progress is not None:
+            progress.advance_units(
+                len(snapshot_done),
+                success=True,
+                status=f"富途快照命中: {len(snapshot_done)} 个",
+            )
         missing = [ticker for ticker in missing if ticker not in snapshot_done and ticker not in self.failures]
 
         batch_size = min(
             max(1, int(FUTU_NIGHT_SUBSCRIBE_BATCH_SIZE)),
             max(1, int(FUTU_NIGHT_SUBSCRIBE_LIMIT)),
         )
-        for start in range(0, len(missing), batch_size):
+        batch_total = (len(missing) + batch_size - 1) // batch_size if missing else 0
+        for batch_index, start in enumerate(range(0, len(missing), batch_size), start=1):
             batch = missing[start : start + batch_size]
-            self._fetch_us_batch(batch, target_us_date=target_us_date)
+            if progress is not None:
+                progress.start_item(
+                    f"订阅 Futu 1分钟K线第 {batch_index}/{batch_total} 批: {len(batch)} 个"
+                )
+            done = self._fetch_us_batch(batch, target_us_date=target_us_date)
+            failed_count = len([ticker for ticker in batch if ticker not in done and ticker in self.failures])
+            unresolved_count = max(0, len(batch) - len(done) - failed_count)
+            if progress is not None:
+                progress.advance_units(len(done), success=True, status=f"富途K线成功: {len(done)} 个")
+                progress.advance_units(failed_count, success=False, status=f"富途K线失败: {failed_count} 个")
+                progress.advance_units(unresolved_count, success=False, status=f"富途K线未返回: {unresolved_count} 个")
+        if progress is not None:
+            progress.set_status(
+                f"夜盘报价预取完成: 成功 {len(self.runtime)} 个，失败 {len(self.failures)} 个"
+            )
 
     def _fetch_us_snapshot_batch(self, tickers: list[str], *, target_us_date: str) -> set[str]:
         if not tickers:
@@ -591,13 +637,14 @@ class FutuNightQuoteProvider:
             "fetched_at_bj": self.as_of_bj.isoformat(timespec="seconds"),
         }
 
-    def _fetch_us_batch(self, tickers: list[str], *, target_us_date: str) -> None:
+    def _fetch_us_batch(self, tickers: list[str], *, target_us_date: str) -> set[str]:
         if not tickers:
-            return
+            return set()
         ctx = self._ensure_ctx()
         futu_codes = [futu_us_code(ticker) for ticker in tickers]
         self.stats.us_subscribe_batch_count += 1
         subscribed_this_batch: list[str] = []
+        done: set[str] = set()
         try:
             from futu import AuType, RET_OK, Session, SubType
 
@@ -614,7 +661,7 @@ class FutuNightQuoteProvider:
                     self.failures[ticker] = error
                     self.stats.errors[ticker] = error
                 self.stats.us_fetch_error_count += len(tickers)
-                return
+                return done
 
             subscribed_this_batch = futu_codes
             self.subscribed_codes.update(futu_codes)
@@ -648,6 +695,7 @@ class FutuNightQuoteProvider:
                         fetched_at_bj=self.as_of_bj,
                     )
                     self.stats.cache_write_count += 1
+                    done.add(ticker)
                 except Exception as exc:
                     message = repr(exc)
                     self.failures[ticker] = message
@@ -655,6 +703,7 @@ class FutuNightQuoteProvider:
                     self.stats.us_fetch_error_count += 1
         finally:
             self._unsubscribe_codes(subscribed_this_batch)
+        return done
 
     def _quote_from_kline(
         self,

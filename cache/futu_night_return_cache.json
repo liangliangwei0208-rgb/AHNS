@@ -14,7 +14,7 @@
     "value_type": "level",
     "error": "VIX 实时点位获取失败: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true') | https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true')",
     "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-05-29T16:18:05+08:00"
+    "fetched_at_bj": "2026-05-29T16:23:44+08:00"
   },
   "CN:300502:2026-05-29": {
     "return_pct": -1.6552050561015608,

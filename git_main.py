@@ -589,13 +589,15 @@ def main(
             attach_images=True,
             timeout=240,
         )
-    except Exception:
+    except Exception as exc:
         log(
             "邮件发送失败：如果 SMTP 登录正常，常见原因是邮件体积较大、网络较慢或服务端中途断开。"
             "当前仍按“正文内嵌 + 附件”发送，可稍后重试。"
         )
+        log(f"邮件发送失败详情: {exc}")
+        log("邮件发送失败不影响本轮脚本运行结果，已跳过 traceback。")
         print_failure_logs(results)
-        raise
+        return 1 if has_failures else 0
 
     log(f"邮件发送完成，耗时 {format_duration(time.perf_counter() - email_started)}")
     print_failure_logs(results)
