@@ -384,17 +384,6 @@ def _read_usable_index_cache(
             return cached.tail(days).copy()
         return None
 
-    if _cache_file_modified_today(cache_file):
-        record_market_event(
-            action="rsi_cache",
-            source="local_csv_checked_today",
-            ticker=symbol,
-            outcome="cache_hit",
-            cache_hit=True,
-        )
-        print(f"[CACHE] RSI 使用今日已检查的本地缓存: {symbol} -> {cache_file}")
-        return cached.tail(days).copy()
-
     if latest_complete_date and pd.notna(latest_date):
         latest_complete_ts = pd.Timestamp(latest_complete_date)
         if latest_date.normalize() >= latest_complete_ts.normalize():
@@ -411,6 +400,24 @@ def _read_usable_index_cache(
                 f"expected={latest_complete_date} -> {cache_file}"
             )
             return cached.tail(days).copy()
+
+        print(
+            f"[CACHE] RSI 本地缓存落后，改为刷新历史日线: "
+            f"{symbol} latest={latest_date.strftime('%Y-%m-%d')} "
+            f"expected={latest_complete_date} -> {cache_file}"
+        )
+        return None
+
+    if _cache_file_modified_today(cache_file):
+        record_market_event(
+            action="rsi_cache",
+            source="local_csv_checked_today",
+            ticker=symbol,
+            outcome="cache_hit",
+            cache_hit=True,
+        )
+        print(f"[CACHE] RSI 使用今日已检查的本地缓存: {symbol} -> {cache_file}")
+        return cached.tail(days).copy()
 
     if pd.notna(latest_date) and latest_date.normalize() >= today:
         record_market_event(
