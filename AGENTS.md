@@ -115,7 +115,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置 UTF-8 输出、仓库目录、Python 路径、日志路径、日志裁剪和 `--primary-remote gitee`。
 - `tail_ahns_log.ps1`：查看监听日志的 UTF-8 PowerShell 脚本，优先用它替代手写 `Get-Content -Wait`。
 - `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；遇到 merge 冲突会停止，不自动覆盖历史。
-- `github_gitee_sync.py`：通用 GitHub/Gitee 同名仓库初始化和同步脚本；可复制到其他本地 Git 仓库根目录使用，默认读取 `origin` 推导 Gitee remote，缺仓库时用 `GITEE_ACCESS_TOKEN` 创建公开仓库。
+- `github_gitee_sync.py`：通用 GitHub/Gitee 同名仓库初始化和同步脚本；可复制到其他本地 Git 仓库根目录使用，默认读取 `origin` 推导 Gitee remote；缺少 GitHub remote 时会询问仓库信息，并用 `GITHUB_TOKEN` / `GH_TOKEN` 创建公开 GitHub 仓库；缺 Gitee 仓库时用 `GITEE_ACCESS_TOKEN` 创建公开仓库。
 - `main.py`：主计算入口，生成市场 RSI 图、海外/全球基金详细估算图，并写入 `cache/fund_estimate_return_cache.json`。
 - `premarket_fund.py`：盘前观察图手动入口；生成 `output/safe_haiwai_premarket.png` 和盘前失败报告，不写正式基金估算缓存。
 - `intraday_fund.py`：盘中观察图手动入口；生成 `output/safe_haiwai_intraday.png` 和盘中失败报告，不写正式基金估算缓存。
@@ -504,7 +504,8 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 - Actions 自动回推缓存后，本地运行出现 JSON 解析失败：先停止继续写缓存，检查报错文件和行号，例如 `cache/security_return_cache.json` 的对应位置。常见原因是本地与远端缓存合并冲突、手工编辑残留或文件截断。修复方式应优先重新拉取远端完整缓存或用 JSON 校验定位破损片段；不要给 key-map JSON 手工加入注释字段。
 - 小电脑监听日志里如果还出现主动访问 GitHub，先检查计划任务参数和 `start_ahns_command_watcher.ps1`，应只传 `--primary-remote gitee`。
 - `sync_repos.py` 合并冲突时会停止；不要自动 reset 或覆盖远端。正确流程是人工解决冲突、`git add`、`git commit`，然后重新运行同步脚本。
-- `github_gitee_sync.py` 创建 Gitee 仓库失败时，先检查 `GITEE_ACCESS_TOKEN` 是否存在、令牌是否有创建仓库权限、Gitee 命名空间是否和 `--gitee-owner` 一致；默认创建公开仓库，私有仓库才加 `--private`。
+- `github_gitee_sync.py` 创建 GitHub 仓库失败时，先检查 `GITHUB_TOKEN` 或 `GH_TOKEN` 是否存在、令牌是否有创建仓库权限、GitHub 用户/组织是否和 `--github-owner` 一致；默认创建公开 GitHub 仓库，私有 GitHub 仓库才加 `--github-private`。
+- `github_gitee_sync.py` 创建 Gitee 仓库失败时，先检查 `GITEE_ACCESS_TOKEN` 是否存在、令牌是否有创建仓库权限、Gitee 命名空间是否和 `--gitee-owner` 一致；默认创建公开 Gitee 仓库，私有 Gitee 仓库才加 `--private`。
 
 ## 当前状态摘要
 

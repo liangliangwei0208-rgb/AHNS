@@ -213,7 +213,7 @@ Set-Location G:\AHNS
 & F:\anaconda\envs\py310\python.exe .\github_gitee_sync.py
 ```
 
-`github_gitee_sync.py` 可以复制到其他本地 Git 仓库根目录使用。它默认读取 `origin` 的 GitHub 地址，支持 `git@github.com:owner/repo.git` 和 `https://github.com/owner/repo.git`，并推导同名 Gitee 仓库 `git@gitee.com:owner/repo.git`。如果 Gitee 仓库不存在，会读取环境变量 `GITEE_ACCESS_TOKEN` 并自动创建公开仓库；如需私有仓库，运行时加 `--private`。令牌只从环境变量读取，不要写进仓库文件。
+`github_gitee_sync.py` 可以复制到其他本地 Git 仓库根目录使用。它默认读取 `origin` 的 GitHub 地址，支持 `git@github.com:owner/repo.git` 和 `https://github.com/owner/repo.git`，并推导同名 Gitee 仓库 `git@gitee.com:owner/repo.git`。如果本地仓库还没有 GitHub remote，脚本会询问 GitHub owner / 仓库名 / 是否私有，并用 `GITHUB_TOKEN` 或 `GH_TOKEN` 创建 GitHub 仓库，再添加 `origin` remote。如果 Gitee 仓库不存在，会读取环境变量 `GITEE_ACCESS_TOKEN` 并自动创建公开仓库；如需私有 Gitee 仓库，运行时加 `--private`。令牌只从环境变量读取，不要写进仓库文件。
 
 首次使用前可检查本机 Gitee 环境：
 
@@ -226,6 +226,14 @@ Set-Location G:\AHNS
 ```powershell
 & F:\anaconda\envs\py310\python.exe .\github_gitee_sync.py --dry-run
 ```
+
+如果脚本运行在非交互环境，且本地还没有 GitHub remote，需要显式传入 GitHub 仓库信息：
+
+```powershell
+& F:\anaconda\envs\py310\python.exe .\github_gitee_sync.py --github-owner liangliangwei0208-rgb --github-repo NewRepo
+```
+
+GitHub 仓库默认公开；如需创建私有 GitHub 仓库，使用 `--github-private`。Gitee 仓库默认公开；如需创建私有 Gitee 仓库，使用 `--private`。
 
 如果已有 `gitee` remote 但地址和推导目标不一致，先确认目标无误，再使用：
 
@@ -240,7 +248,7 @@ Set-Location G:\AHNS
 - `start_ahns_command_watcher.ps1`：计划任务调用的启动脚本，设置 UTF-8 输出、仓库目录、Python 路径、日志路径、日志裁剪和 `--primary-remote gitee`。
 - `tail_ahns_log.ps1`：查看监听日志的 UTF-8 PowerShell 脚本，优先用它替代手写 `Get-Content -Wait`。
 - `sync_repos.py`：主机电脑三边同步脚本，用于把本地、GitHub、Gitee 对齐。
-- `github_gitee_sync.py`：通用同名仓库同步脚本，可复制到其他仓库使用；会从 GitHub remote 推导 Gitee remote，必要时用 `GITEE_ACCESS_TOKEN` 自动创建公开仓库。
+- `github_gitee_sync.py`：通用同名仓库同步脚本，可复制到其他仓库使用；会从 GitHub remote 推导 Gitee remote；若缺少 GitHub remote，会询问仓库信息并用 `GITHUB_TOKEN` / `GH_TOKEN` 创建 GitHub 仓库；必要时再用 `GITEE_ACCESS_TOKEN` 自动创建公开 Gitee 仓库。
 - `tools/configs/workflow_configs.py`：维护 GitHub 流程和 Service 流程。无时间窗步骤属于完整日流程，始终运行；带 `run_window_bj` 的实时观察步骤只在命中北京时间窗口时追加运行，不会替代完整流程。GitHub 流程不含富途夜盘，Service 流程额外包含富途夜盘。
 - `tools/configs/fund_universe_configs.py`：维护海外/全球基金池；新增基金代码优先改这里，基金代码请写 6 位字符串。
 - `tools/configs/fund_proxy_configs.py`：维护代理型基金和海外有效披露持仓增强系数。
