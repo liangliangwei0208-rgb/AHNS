@@ -38,7 +38,8 @@
 - `service_runner.py` 默认 `DEFAULT_PRIMARY_REMOTE=gitee`，`DEFAULT_FALLBACK_REMOTE=None`；如需临时兜底 GitHub，必须显式传 `--fallback-remote origin` 或设置环境变量。
 - 小电脑监听运行时间是北京时间 06:00-24:00。`AHNS Command Watcher` 每日 06:00 和登录后启动；`start_ahns_command_watcher.ps1` 在 06:00 前直接退出；`AHNS Command Watcher Stop` 每日 00:00 停止监听。
 - `Futu OpenD Autostart` 登录后启动 `C:\Users\Administrator\AppData\Roaming\Futu_OpenD\Futu_OpenD.exe`。富途夜盘依赖 Futu OpenD 已登录并在线；自动启动只能打开程序，不能替代扫码或登录。
-- 小电脑监听日志在 `C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log`。
+- 小电脑监听日志在 `C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log`。日志占用磁盘，不会一直占用内存；`start_ahns_command_watcher.ps1` 启动时会在日志超过 20MB 后只保留最近 3000 行。
+- 查看监听日志优先运行 `C:\Users\Administrator\Desktop\AHNS\tail_ahns_log.ps1`，它会先切换 UTF-8，避免 PowerShell 中文乱码。
 - 不要把 Gitee 私人令牌、GitHub token、邮箱授权码写进 README、AGENTS、脚本或提交历史；本地凭据走 Git Credential Manager、环境变量或本机私有配置。
 
 常用检查命令：
@@ -52,7 +53,7 @@ Get-CimInstance Win32_Process |
   Where-Object { $_.CommandLine -match "Futu_OpenD|service_command_watcher.py" } |
   Select-Object ProcessId, Name, CommandLine
 
-Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log" -Encoding UTF8 -Tail 80 -Wait
+& "C:\Users\Administrator\Desktop\AHNS\tail_ahns_log.ps1"
 ```
 
 ## 当前工作流
@@ -111,7 +112,8 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `service_command_watcher.py`：小电脑服务器长期监听入口，默认监听 `gitee/main` 的 `service_command.json`，根据 `run_flag` 触发服务流程。
 - `service_runner.py`：小电脑服务器单次运行流程，负责 pull、运行 `service_main.py`、提交允许范围内的变化、push。
 - `service_main.py`：小电脑服务触发后的业务入口，复用 `git_main.py` 总控逻辑，但使用包含富途夜盘窗口的 Service 流程。
-- `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置仓库目录、Python 路径、日志路径和 `--primary-remote gitee`。
+- `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置 UTF-8 输出、仓库目录、Python 路径、日志路径、日志裁剪和 `--primary-remote gitee`。
+- `tail_ahns_log.ps1`：查看监听日志的 UTF-8 PowerShell 脚本，优先用它替代手写 `Get-Content -Wait`。
 - `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；遇到 merge 冲突会停止，不自动覆盖历史。
 - `main.py`：主计算入口，生成市场 RSI 图、海外/全球基金详细估算图，并写入 `cache/fund_estimate_return_cache.json`。
 - `premarket_fund.py`：盘前观察图手动入口；生成 `output/safe_haiwai_premarket.png` 和盘前失败报告，不写正式基金估算缓存。
@@ -144,7 +146,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 
 - 日常总入口：`git_main.py`、`service_main.py`、`main.py`、`safe_fund.py`、`safe_holidays.py`、`sum_holidays.py`。
 - 实时观察入口：`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py`。
-- 小电脑与同步入口：`service_command_watcher.py`、`service_runner.py`、`start_ahns_command_watcher.ps1`、`sync_repos.py`、`service_command.json`。
+- 小电脑与同步入口：`service_command_watcher.py`、`service_runner.py`、`start_ahns_command_watcher.ps1`、`tail_ahns_log.ps1`、`sync_repos.py`、`service_command.json`。
 - 诊断和手动工具：`check_project.py`、`fund_estimate_breakdown.py`、`stock_analysis.py`、`refresh_fund_limit_cache.py`。
 - 内部实现模块：优先看 `tools/`；经常维护的常量和配置优先看 `tools/configs/`；科普图脚本放在 `kepu/`。
 
