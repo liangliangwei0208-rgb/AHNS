@@ -128,7 +128,7 @@ def command_file_git_path(command_file: Path) -> str:
         raise CommandWatcherError(f"Command file must be inside repository: {command_file}") from exc
 
 
-def commit_and_push_command_status(command_file: Path, branch: str) -> bool:
+def commit_and_push_command_status(command_file: Path, branch: str, remote: str) -> bool:
     git_path = command_file_git_path(command_file)
     service_runner.run_git(["add", "--", git_path])
     files = service_runner.staged_files()
@@ -144,21 +144,22 @@ def commit_and_push_command_status(command_file: Path, branch: str) -> bool:
     service_runner.assert_staged_files_are_safe(files)
     service_runner.ensure_git_identity()
     service_runner.run_git(["commit", "-m", COMMAND_STATUS_COMMIT_MESSAGE])
-    service_runner.push_with_retry(branch)
+    service_runner.push_with_retry(branch, remote)
     return True
 
 
-def pull_latest(branch: str) -> None:
-    service_runner.run_git(["pull", "--rebase", "origin", branch])
+def pull_latest(branch: str, remotes: list[str]) -> str:
+    return service_runner.pull_with_fallback(branch, remotes)
 
 
-def prepare_git() -> str:
+def prepare_git(primary_remote: str, fallback_remote: str | None) -> tuple[str, list[str]]:
     service_runner.run_git(["--version"])
     branch = service_runner.current_branch()
-    remote = service_runner.origin_url()
+    remotes = service_runner.remote_candidates(primary_remote, fallback_remote)
     log(f"Current branch: {branch}")
-    log(f"Origin: {remote}")
-    return branch
+    for remote in remotes:
+        log(f"Remote {remote}: {service_runner.remote_url(remote)}")
+    return branch, remotes
 
 
 def run_requested_command(
@@ -166,6 +167,7 @@ def run_requested_command(
     *,
     command_file: Path,
     branch: str,
+    remote: str,
     python_exe: str,
 ) -> int:
     no_send = command_no_send(command)
@@ -182,6 +184,8 @@ def run_requested_command(
             no_send=no_send,
             receiver=receiver,
             skip_git=False,
+            primary_remote=remote,
+            fallback_remote=None,
         )
         exit_code = int(result.service_exit_code)
         message = f"service_main.py exit code {exit_code}"
@@ -200,7 +204,7 @@ def run_requested_command(
     )
     write_command(command_file, updated)
     log("Command flag reset to 0; committing status update.")
-    commit_and_push_command_status(command_file, branch)
+    commit_and_push_command_status(command_file, branch, remote)
     return exit_code
 
 
@@ -208,9 +212,10 @@ def check_once(
     *,
     command_file: Path,
     branch: str,
+    remotes: list[str],
     python_exe: str,
 ) -> int:
-    pull_latest(branch)
+    active_remote = pull_latest(branch, remotes)
     try:
         command = load_command(command_file)
     except CommandWatcherError as exc:
@@ -226,6 +231,7 @@ def check_once(
         command,
         command_file=command_file,
         branch=branch,
+        remote=active_remote,
         python_exe=python_exe,
     )
 
@@ -262,7 +268,7 @@ def next_backoff_seconds(base_interval_seconds: int, consecutive_failures: int) 
 
 def record_success(state: WatchState, *, base_interval_seconds: int) -> None:
     if state.consecutive_failures:
-        log("GitHub sync recovered; polling interval reset.")
+        log("Git remote sync recovered; polling interval reset.")
     state.consecutive_failures = 0
     state.current_sleep_seconds = max(5, int(base_interval_seconds or DEFAULT_INTERVAL_SECONDS))
 
@@ -277,7 +283,7 @@ def record_failure(
     state.current_sleep_seconds = next_backoff_seconds(base_interval_seconds, state.consecutive_failures)
     if is_likely_network_or_git_sync_error(exc):
         log(
-            "[WARN] GitHub sync failed; will retry after "
+            "[WARN] Git remote sync failed; will retry after "
             f"{state.current_sleep_seconds}s "
             f"(consecutive failures: {state.consecutive_failures}). Reason: {exc}"
         )
@@ -312,6 +318,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=str(DEFAULT_COMMAND_FILE),
         help=f"command JSON 文件路径，默认 {DEFAULT_COMMAND_FILE}",
     )
+    parser.add_argument(
+        "--primary-remote",
+        default=service_runner.DEFAULT_PRIMARY_REMOTE,
+        help=f"优先同步的 Git remote，默认 {service_runner.DEFAULT_PRIMARY_REMOTE}",
+    )
+    parser.add_argument(
+        "--fallback-remote",
+        default=service_runner.DEFAULT_FALLBACK_REMOTE,
+        help="主 remote 不可用时兜底同步的 Git remote，例如 origin",
+    )
     return parser.parse_args(argv)
 
 
@@ -320,7 +336,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         command_file = normalize_command_file(args.command_file)
         interval_seconds = max(5, int(args.interval_seconds or DEFAULT_INTERVAL_SECONDS))
-        branch = prepare_git()
+        branch, remotes = prepare_git(args.primary_remote, args.fallback_remote)
     except Exception as exc:
         log(f"[ERROR] {exc}")
         return 1
@@ -334,6 +350,7 @@ def main(argv: list[str] | None = None) -> int:
             exit_code = check_once(
                 command_file=command_file,
                 branch=branch,
+                remotes=remotes,
                 python_exe=str(args.python_exe),
             )
             record_success(state, base_interval_seconds=interval_seconds)

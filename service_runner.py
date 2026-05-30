@@ -23,6 +23,8 @@ from typing import Iterable, Sequence
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 DEFAULT_SERVICE_PYTHON = r"D:\anaconda\envs\py310\python.exe"
+DEFAULT_PRIMARY_REMOTE = os.environ.get("AHNS_SERVICE_PRIMARY_REMOTE", "origin")
+DEFAULT_FALLBACK_REMOTE = os.environ.get("AHNS_SERVICE_FALLBACK_REMOTE", "").strip() or None
 LOCAL_CHANGE_COMMIT_MESSAGE = "Update service local changes [skip ci]"
 RUNTIME_CHANGE_COMMIT_MESSAGE = "Update service runtime changes [skip ci]"
 SERVICE_GIT_USER_NAME = "ahns-service[bot]"
@@ -119,12 +121,43 @@ def current_branch() -> str:
     return branch
 
 
-def origin_url() -> str:
-    _, url = git_output(["remote", "get-url", "origin"])
+def remote_candidates(primary_remote: str, fallback_remote: str | None = None) -> list[str]:
+    candidates: list[str] = []
+    for remote in (primary_remote, fallback_remote):
+        remote = str(remote or "").strip()
+        if remote and remote not in candidates:
+            candidates.append(remote)
+    if not candidates:
+        raise ServiceRunnerError("At least one git remote must be configured.")
+    return candidates
+
+
+def remote_url(remote: str) -> str:
+    remote = str(remote or "").strip()
+    if not remote:
+        raise ServiceRunnerError("Git remote name is empty.")
+    _, url = git_output(["remote", "get-url", remote])
     url = url.strip()
     if not url:
-        raise ServiceRunnerError("Git remote 'origin' is not configured.")
+        raise ServiceRunnerError(f"Git remote '{remote}' is not configured.")
     return url
+
+
+def origin_url() -> str:
+    return remote_url("origin")
+
+
+def pull_with_fallback(branch: str, remotes: Sequence[str]) -> str:
+    failures: list[str] = []
+    for remote in remotes:
+        log(f"Pull from {remote}/{branch}.")
+        result = run_command(["git", "pull", "--rebase", remote, branch], check=False)
+        if result.returncode == 0:
+            return remote
+        failures.append(f"{remote}: exit code {result.returncode}")
+    raise ServiceRunnerError(
+        "git pull failed for all configured remotes: " + "; ".join(failures)
+    )
 
 
 def staged_files() -> list[str]:
@@ -175,16 +208,16 @@ def save_repo_changes(message: str) -> bool:
     return True
 
 
-def push_with_retry(branch: str) -> None:
+def push_with_retry(branch: str, remote: str = "origin") -> None:
     for attempt in range(1, 3):
-        log(f"Push attempt {attempt}.")
-        result = run_command(["git", "push", "origin", f"HEAD:{branch}"], check=False)
+        log(f"Push attempt {attempt} to {remote}.")
+        result = run_command(["git", "push", remote, f"HEAD:{branch}"], check=False)
         if result.returncode == 0:
             log("Runtime changes pushed.")
             return
 
         log(f"Push failed on attempt {attempt}; rebasing before retry.")
-        run_git(["pull", "--rebase", "origin", branch])
+        run_git(["pull", "--rebase", remote, branch])
 
     raise ServiceRunnerError("git push failed after retry")
 
@@ -217,6 +250,8 @@ def run_service_once(
     no_send: bool = False,
     receiver: str | None = None,
     skip_git: bool = False,
+    primary_remote: str = DEFAULT_PRIMARY_REMOTE,
+    fallback_remote: str | None = DEFAULT_FALLBACK_REMOTE,
 ) -> ServiceRunResult:
     python_path = Path(python_exe)
     if not python_path.exists() or not python_path.is_file():
@@ -226,16 +261,18 @@ def run_service_once(
     commits_created = False
 
     if not skip_git:
+        remotes = remote_candidates(primary_remote, fallback_remote)
         run_git(["--version"])
         branch = current_branch()
-        remote = origin_url()
         log(f"Current branch: {branch}")
-        log(f"Origin: {remote}")
+        for remote in remotes:
+            log(f"Remote {remote}: {remote_url(remote)}")
 
         commits_created = save_repo_changes(LOCAL_CHANGE_COMMIT_MESSAGE) or commits_created
-        run_git(["pull", "--rebase", "origin", branch])
+        active_remote = pull_with_fallback(branch, remotes)
     else:
         branch = ""
+        active_remote = ""
         log("Git synchronization is skipped for this run.")
 
     service_args = build_service_args(
@@ -252,8 +289,8 @@ def run_service_once(
         commits_created = save_repo_changes(RUNTIME_CHANGE_COMMIT_MESSAGE) or commits_created
 
         if commits_created:
-            run_git(["pull", "--rebase", "origin", branch])
-            push_with_retry(branch)
+            run_git(["pull", "--rebase", active_remote, branch])
+            push_with_retry(branch, active_remote)
         else:
             log("No local commits were created; push skipped.")
 
@@ -285,6 +322,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="跳过 pull/commit/push，仅运行 service_main.py，便于本地调试",
     )
+    parser.add_argument(
+        "--primary-remote",
+        default=DEFAULT_PRIMARY_REMOTE,
+        help=f"优先同步的 Git remote，默认 {DEFAULT_PRIMARY_REMOTE}",
+    )
+    parser.add_argument(
+        "--fallback-remote",
+        default=DEFAULT_FALLBACK_REMOTE,
+        help="主 remote 不可用时兜底同步的 Git remote，例如 origin",
+    )
     return parser.parse_args(argv)
 
 
@@ -296,6 +343,8 @@ def main(argv: list[str] | None = None) -> int:
             no_send=bool(args.no_send),
             receiver=args.receiver,
             skip_git=bool(args.skip_git),
+            primary_remote=args.primary_remote,
+            fallback_remote=args.fallback_remote,
         )
     except Exception as exc:
         log(f"[ERROR] {exc}")
