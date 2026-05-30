@@ -12,7 +12,7 @@
 
 三类运行环境请先区分清楚：
 
-- 主机电脑：仓库根目录 `G:\AHNS`，Python `F:\anaconda\envs\py310\python.exe`，用于写代码、验证、运行 `git_main.py` 和 `sync_repos.py`。
+- 主机电脑：仓库根目录 `G:\AHNS`，Python `F:\anaconda\envs\py310\python.exe`，用于写代码、验证、运行 `git_main.py`、`sync_repos.py` 和通用 `github_gitee_sync.py`。
 - 小电脑服务器：仓库根目录 `C:\Users\Administrator\Desktop\AHNS`，Python `D:\anaconda\envs\py310\python.exe`，用于监听 Gitee command、运行 `service_main.py`，并支持富途夜盘。
 - GitHub Actions：Ubuntu runner，Python 3.10，运行 GitHub 版 `git_main.py`，不运行富途夜盘，不自动生成 `first_pic.py`。
 
@@ -33,7 +33,7 @@
 ## 小电脑服务器约定
 
 - 小电脑服务器默认只主动使用 `gitee/main`，把 Gitee 当国内快速指令通道；不要在没有用户明确要求时恢复 GitHub fallback。
-- GitHub 仍是主仓库和长期存档；主机电脑改完代码后运行 `sync_repos.py`，负责把本地、GitHub、Gitee 三边同步。
+- GitHub 仍是主仓库和长期存档；主机电脑改完代码后运行 `sync_repos.py`，负责把本地、GitHub、Gitee 三边同步；其他仓库可复制 `github_gitee_sync.py` 做同名 GitHub/Gitee 仓库初始化和三边同步。
 - 监听入口是 `service_command_watcher.py --interval-seconds 60 --primary-remote gitee`，计划任务实际调用 `start_ahns_command_watcher.ps1`。
 - `service_runner.py` 默认 `DEFAULT_PRIMARY_REMOTE=gitee`，`DEFAULT_FALLBACK_REMOTE=None`；如需临时兜底 GitHub，必须显式传 `--fallback-remote origin` 或设置环境变量。
 - 小电脑监听运行时间是北京时间 06:00-24:00。`AHNS Command Watcher` 每日 06:00 和登录后启动；`start_ahns_command_watcher.ps1` 在 06:00 前直接退出；`AHNS Command Watcher Stop` 每日 00:00 停止监听。
@@ -115,6 +115,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置 UTF-8 输出、仓库目录、Python 路径、日志路径、日志裁剪和 `--primary-remote gitee`。
 - `tail_ahns_log.ps1`：查看监听日志的 UTF-8 PowerShell 脚本，优先用它替代手写 `Get-Content -Wait`。
 - `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；遇到 merge 冲突会停止，不自动覆盖历史。
+- `github_gitee_sync.py`：通用 GitHub/Gitee 同名仓库初始化和同步脚本；可复制到其他本地 Git 仓库根目录使用，默认读取 `origin` 推导 Gitee remote，缺仓库时用 `GITEE_ACCESS_TOKEN` 创建公开仓库。
 - `main.py`：主计算入口，生成市场 RSI 图、海外/全球基金详细估算图，并写入 `cache/fund_estimate_return_cache.json`。
 - `premarket_fund.py`：盘前观察图手动入口；生成 `output/safe_haiwai_premarket.png` 和盘前失败报告，不写正式基金估算缓存。
 - `intraday_fund.py`：盘中观察图手动入口；生成 `output/safe_haiwai_intraday.png` 和盘中失败报告，不写正式基金估算缓存。
@@ -146,7 +147,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 
 - 日常总入口：`git_main.py`、`service_main.py`、`main.py`、`safe_fund.py`、`safe_holidays.py`、`sum_holidays.py`。
 - 实时观察入口：`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py`。
-- 小电脑与同步入口：`service_command_watcher.py`、`service_runner.py`、`start_ahns_command_watcher.ps1`、`tail_ahns_log.ps1`、`sync_repos.py`、`service_command.json`。
+- 小电脑与同步入口：`service_command_watcher.py`、`service_runner.py`、`start_ahns_command_watcher.ps1`、`tail_ahns_log.ps1`、`sync_repos.py`、`github_gitee_sync.py`、`service_command.json`。
 - 诊断和手动工具：`check_project.py`、`fund_estimate_breakdown.py`、`stock_analysis.py`、`refresh_fund_limit_cache.py`。
 - 内部实现模块：优先看 `tools/`；经常维护的常量和配置优先看 `tools/configs/`；科普图脚本放在 `kepu/`。
 
@@ -397,13 +398,13 @@ safe 公开图的视觉样式已集中到 `tools/configs/safe_image_style_config
 全项目编译：
 
 ```powershell
-$files = @('.\git_main.py','.\service_main.py','.\service_runner.py','.\service_command_watcher.py','.\sync_repos.py','.\check_project.py','.\main.py','.\premarket_fund.py','.\intraday_fund.py','.\afterhours_fund.py','.\futu_night_fund.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
+$files = @('.\git_main.py','.\service_main.py','.\service_runner.py','.\service_command_watcher.py','.\sync_repos.py','.\github_gitee_sync.py','.\check_project.py','.\main.py','.\premarket_fund.py','.\intraday_fund.py','.\afterhours_fund.py','.\futu_night_fund.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
 ```
 
 小电脑服务端脚本编译检查：
 
 ```powershell
-& D:\anaconda\envs\py310\python.exe -m py_compile .\service_main.py .\service_runner.py .\service_command_watcher.py .\sync_repos.py
+& D:\anaconda\envs\py310\python.exe -m py_compile .\service_main.py .\service_runner.py .\service_command_watcher.py .\sync_repos.py .\github_gitee_sync.py
 ```
 
 同步脚本预演：
@@ -411,6 +412,13 @@ $files = @('.\git_main.py','.\service_main.py','.\service_runner.py','.\service_
 ```powershell
 Set-Location G:\AHNS
 & F:\anaconda\envs\py310\python.exe .\sync_repos.py --dry-run
+```
+
+通用 GitHub/Gitee 同名仓库同步脚本检查：
+
+```powershell
+& F:\anaconda\envs\py310\python.exe .\github_gitee_sync.py --init-gitee
+& F:\anaconda\envs\py310\python.exe .\github_gitee_sync.py --dry-run
 ```
 
 运行前自检：
@@ -496,6 +504,7 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 - Actions 自动回推缓存后，本地运行出现 JSON 解析失败：先停止继续写缓存，检查报错文件和行号，例如 `cache/security_return_cache.json` 的对应位置。常见原因是本地与远端缓存合并冲突、手工编辑残留或文件截断。修复方式应优先重新拉取远端完整缓存或用 JSON 校验定位破损片段；不要给 key-map JSON 手工加入注释字段。
 - 小电脑监听日志里如果还出现主动访问 GitHub，先检查计划任务参数和 `start_ahns_command_watcher.ps1`，应只传 `--primary-remote gitee`。
 - `sync_repos.py` 合并冲突时会停止；不要自动 reset 或覆盖远端。正确流程是人工解决冲突、`git add`、`git commit`，然后重新运行同步脚本。
+- `github_gitee_sync.py` 创建 Gitee 仓库失败时，先检查 `GITEE_ACCESS_TOKEN` 是否存在、令牌是否有创建仓库权限、Gitee 命名空间是否和 `--gitee-owner` 一致；默认创建公开仓库，私有仓库才加 `--private`。
 
 ## 当前状态摘要
 
@@ -508,5 +517,5 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 - 缓存说明由 `tools/cache_metadata.py` 维护；安全 JSON 内嵌 `_cache_info`，其他缓存通过 `cache/README.md` 说明。
 - 行情失败报告分为正式估算的 `output/failed_holdings_latest.txt` 和四个实时观察失败报告。
 - GitHub Actions 会定时或手动运行并自动回推缓存；本地提交前要注意先同步远端缓存，避免 JSON 合并损坏。
-- 小电脑服务器当前只主动监听和同步 `gitee/main`；GitHub 同步由主机电脑运行 `sync_repos.py` 负责。
+- 小电脑服务器当前只主动监听和同步 `gitee/main`；GitHub 同步由主机电脑运行 `sync_repos.py` 负责；复制到其他仓库的一次性同名仓库初始化可用 `github_gitee_sync.py`。
 - `C:\Users\Administrator\Desktop\AHNS` 是当前仓库根目录；旧的 `AHNS\AHNS` 嵌套目录不要再写入脚本或计划任务。
