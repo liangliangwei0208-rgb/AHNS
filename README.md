@@ -123,7 +123,7 @@ Set-Location G:\AHNS
 & F:\anaconda\envs\py310\python.exe .\futu_night_fund.py
 ```
 
-非窗口时间调试或人工预览可加 `--force`：
+非窗口时间调试或人工预览可加 `--force`。富途夜盘例外：`--force` 只绕过北京时间 11:30-16:30 配置窗口，仍会检查美股夜盘是否真实开市；周末或美国节假日没有夜盘时会直接跳过。
 
 ```powershell
 & F:\anaconda\envs\py310\python.exe .\premarket_fund.py --force
@@ -230,7 +230,7 @@ Set-Location G:\AHNS
 - 正式主流程只使用完整日线，并且只有正式主流程写 `fund_estimate_return_cache.json`。
 - 盘前美股只接受目标美股交易日的 `pre` 时段报价；`--force` 调试时也不会把 regular/post/closed 数据当作盘前。
 - 盘中美股只接受目标美股交易日 regular 报价；盘后图主标题使用下一估值日，但报告保留实际盘后报价日。
-- 富途夜盘只保留 Futu OpenAPI 实现；需要本机安装可选依赖 `futu-api` 并启动 Futu OpenD，连接参数在 `tools/configs/futu_night_configs.py`。
+- 富途夜盘只保留 Futu OpenAPI 实现；需要本机安装可选依赖 `futu-api` 并启动 Futu OpenD，连接参数在 `tools/configs/futu_night_configs.py`。入口会先判断目标美股夜盘是否处于开市窗口，周末或美国节假日没有夜盘时不加载持仓、不连接 Futu。
 - 实时短缓存分别是 `premarket_quote_cache.json`、`intraday_quote_cache.json`、`afterhours_quote_cache.json`、`futu_night_return_cache.json`，TTL 保持 15 分钟；失败结果不跨运行缓存。
 
 ## 海外基准表配置

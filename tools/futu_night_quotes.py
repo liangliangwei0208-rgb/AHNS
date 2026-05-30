@@ -54,6 +54,17 @@ class FutuNightQuoteStats:
     errors: dict[str, str] = field(default_factory=dict)
 
 
+@dataclass(frozen=True)
+class FutuNightSessionStatus:
+    is_open: bool
+    reason: str
+    target_us_date: str
+    window_start_bj: datetime
+    window_end_bj: datetime
+    window_start_et: datetime
+    window_end_et: datetime
+
+
 def _safe_float(value: Any) -> float | None:
     try:
         if value is None:
@@ -167,19 +178,78 @@ def futu_night_valuation_date(as_of_bj: datetime | str | None = None) -> str:
     return _next_us_trading_date_after(target_date.isoformat())
 
 
+def _is_us_trading_date(day: str) -> bool:
+    target = datetime.strptime(str(day), "%Y-%m-%d").date()
+    try:
+        schedule = _market_schedule("US", target, target)
+        return bool(schedule is not None and not schedule.empty)
+    except Exception:
+        return target.weekday() < 5
+
+
 def _night_window_et(target_us_date: str) -> tuple[datetime, datetime]:
-    previous_date = _previous_us_trading_date(target_us_date)
+    # Futu overnight for a US valuation date is the previous calendar evening,
+    # not the previous exchange trading date. Otherwise a Monday target would
+    # incorrectly include the whole weekend after Friday 20:00 ET.
+    target_date = datetime.strptime(str(target_us_date), "%Y-%m-%d").date()
+    previous_date = target_date - timedelta(days=1)
     start = datetime.combine(
-        datetime.strptime(previous_date, "%Y-%m-%d").date(),
+        previous_date,
         time(20, 0),
         tzinfo=US_EASTERN_TZ,
     )
     end = datetime.combine(
-        datetime.strptime(str(target_us_date), "%Y-%m-%d").date(),
+        target_date,
         time(4, 0),
         tzinfo=US_EASTERN_TZ,
     )
     return start, end
+
+
+def futu_night_session_status(as_of_bj: datetime | str | None = None) -> FutuNightSessionStatus:
+    as_of = coerce_bj_datetime(as_of_bj)
+    as_of_et = as_of.astimezone(US_EASTERN_TZ)
+    target_us_date = futu_night_valuation_date(as_of)
+    start_et, end_et = _night_window_et(target_us_date)
+    start_bj = start_et.astimezone(BJ_TZ)
+    end_bj = end_et.astimezone(BJ_TZ)
+
+    window_text = (
+        f"{start_bj.isoformat(timespec='seconds')} - "
+        f"{end_bj.isoformat(timespec='seconds')}"
+    )
+    if not _is_us_trading_date(target_us_date):
+        return FutuNightSessionStatus(
+            is_open=False,
+            reason=f"目标夜盘不可用：{target_us_date} 不是 NYSE 交易日，未运行富途夜盘。",
+            target_us_date=target_us_date,
+            window_start_bj=start_bj,
+            window_end_bj=end_bj,
+            window_start_et=start_et,
+            window_end_et=end_et,
+        )
+    if as_of_et < start_et or as_of_et > end_et:
+        return FutuNightSessionStatus(
+            is_open=False,
+            reason=(
+                "当前不在美股夜盘开市窗口，未运行富途夜盘；"
+                f"目标估值日 {target_us_date}，夜盘窗口北京时间 {window_text}。"
+            ),
+            target_us_date=target_us_date,
+            window_start_bj=start_bj,
+            window_end_bj=end_bj,
+            window_start_et=start_et,
+            window_end_et=end_et,
+        )
+    return FutuNightSessionStatus(
+        is_open=True,
+        reason=f"美股夜盘开市中，目标估值日 {target_us_date}。",
+        target_us_date=target_us_date,
+        window_start_bj=start_bj,
+        window_end_bj=end_bj,
+        window_start_et=start_et,
+        window_end_et=end_et,
+    )
 
 
 def _quote_time_bj_text(dt_et: datetime) -> str:
@@ -795,6 +865,8 @@ __all__ = [
     "FutuNightQuoteProvider",
     "FutuNightQuoteStats",
     "FutuNightReturnCache",
+    "FutuNightSessionStatus",
+    "futu_night_session_status",
     "futu_night_valuation_date",
     "futu_us_code",
     "normalize_us_ticker",

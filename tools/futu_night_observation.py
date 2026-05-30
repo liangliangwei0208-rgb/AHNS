@@ -37,6 +37,7 @@ from tools.fund_universe import HAIWAI_FUND_CODES
 from tools.futu_night_quotes import (
     FutuNightQuoteProvider,
     FutuNightReturnCache,
+    futu_night_session_status,
     futu_night_valuation_date,
 )
 from tools.get_top10_holdings import (
@@ -825,6 +826,17 @@ def run_futu_night_observation(
     if not force and not in_futu_night_window(generated_at):
         window_text = f"{FUTU_NIGHT_START_BJ.strftime('%H:%M')}-{FUTU_NIGHT_END_BJ.strftime('%H:%M')}"
         reason = f"当前北京时间不在 {window_text} 夜盘观察窗口，未生成夜盘图；如需测试请使用 --force。"
+        print(reason, flush=True)
+        return PremarketRunResult(
+            generated=False,
+            reason=reason,
+            output_file=output_path,
+            report_file=report_path,
+        )
+
+    session_status = futu_night_session_status(generated_at)
+    if not session_status.is_open:
+        reason = session_status.reason
         print(reason, flush=True)
         return PremarketRunResult(
             generated=False,

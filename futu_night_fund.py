@@ -1,7 +1,8 @@
 """
 Manual Futu overnight overseas fund observation entrypoint.
 
-Default window: Beijing time 11:30-16:30. Use --force for manual tests.
+Default window: Beijing time 11:30-16:30, and the target US overnight
+session must be open. Use --force only to bypass the Beijing time window.
 This script does not write cache/fund_estimate_return_cache.json.
 """
 
@@ -17,7 +18,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--force",
         action="store_true",
-        help="忽略北京时间 11:30-16:30 窗口限制，强制生成夜盘观察图",
+        help="忽略北京时间 11:30-16:30 窗口限制；仍会检查美股夜盘是否开市",
     )
     parser.add_argument(
         "--now",
