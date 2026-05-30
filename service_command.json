@@ -1,11 +1,11 @@
 {
-  "run_flag": 1,
+  "run_flag": 0,
   "no_send": false,
   "receiver": "",
   "status": "success",
   "requested_at_bj": "",
-  "last_started_at_bj": "2026-05-30T00:23:09+08:00",
-  "last_finished_at_bj": "2026-05-30T00:25:23+08:00",
+  "last_started_at_bj": "2026-05-30T14:51:41+08:00",
+  "last_finished_at_bj": "2026-05-30T14:55:48+08:00",
   "last_exit_code": 0,
   "last_message": "service_main.py exit code 0"
 }
