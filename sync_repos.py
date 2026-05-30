@@ -157,10 +157,9 @@ def sync_repositories(
     ensure_remote_exists(repo, github_remote)
     ensure_remote_exists(repo, gitee_remote)
 
-    run_git(repo, ["fetch", github_remote, branch], dry_run=dry_run)
-    run_git(repo, ["fetch", gitee_remote, branch], dry_run=dry_run)
-
     if dry_run:
+        run_git(repo, ["fetch", github_remote, branch], dry_run=True)
+        run_git(repo, ["fetch", gitee_remote, branch], dry_run=True)
         run_git(repo, ["merge", "--no-edit", remote_ref(github_remote, branch)], dry_run=True)
         run_git(repo, ["merge", "--no-edit", remote_ref(gitee_remote, branch)], dry_run=True)
         run_git(repo, ["push", github_remote, f"HEAD:{branch}"], dry_run=True)
@@ -168,9 +167,21 @@ def sync_repositories(
         log("Dry run complete. No repository changes were made.")
         return
 
+    remote_failures: list[str] = []
+    fetched_remotes: list[str] = []
+    for remote in (github_remote, gitee_remote):
+        result = run_git(repo, ["fetch", remote, branch], check=False)
+        if result.returncode == 0:
+            fetched_remotes.append(remote)
+        else:
+            remote_failures.append(f"fetch {remote}: exit code {result.returncode}")
+
+    if not fetched_remotes:
+        raise SyncError("Could not fetch any remote. " + "; ".join(remote_failures))
+
     try:
-        run_git(repo, ["merge", "--no-edit", remote_ref(github_remote, branch)])
-        run_git(repo, ["merge", "--no-edit", remote_ref(gitee_remote, branch)])
+        for remote in fetched_remotes:
+            run_git(repo, ["merge", "--no-edit", remote_ref(remote, branch)])
     except SyncError:
         print(
             "\nMerge stopped. Resolve conflicts manually, then run:\n"
@@ -181,11 +192,20 @@ def sync_repositories(
         )
         raise
 
-    run_git(repo, ["push", github_remote, f"HEAD:{branch}"])
-    run_git(repo, ["push", gitee_remote, f"HEAD:{branch}"])
-    run_git(repo, ["fetch", github_remote, branch])
-    run_git(repo, ["fetch", gitee_remote, branch])
+    for remote in (github_remote, gitee_remote):
+        result = run_git(repo, ["push", remote, f"HEAD:{branch}"], check=False)
+        if result.returncode != 0:
+            remote_failures.append(f"push {remote}: exit code {result.returncode}")
+
+    for remote in (github_remote, gitee_remote):
+        run_git(repo, ["fetch", remote, branch], check=False)
+
     print_final_refs(repo, branch, github_remote, gitee_remote)
+    if remote_failures:
+        log("Repository sync partially complete.")
+        for failure in remote_failures:
+            log(f"[WARN] {failure}")
+        raise SyncError("One or more remote operations failed.")
     log("Repository sync complete.")
 
 
