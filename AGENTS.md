@@ -1,12 +1,14 @@
 # AHNS 项目接手说明
 
-更新时间：2026-05-14
+更新时间：2026-05-30
 
 本项目用于生成每日市场分析图、海外/全球基金模型估算表、盘前/盘中/盘后/富途夜盘观察图、安全版公开发布图、海外基金节假日累计观察图、节后补更新观察图，以及面向小白的科普说明图。国内基金收益预估业务线已停用，但 A 股/港股/韩国行情能力仍保留用于海外/全球基金持仓估算。正式主流程只使用完整日线；四个实时观察入口均不写正式基金估算缓存。默认运行环境为：
 
 ```powershell
 & F:\anaconda\envs\py310\python.exe <script.py>
 ```
+
+本机是小电脑服务器时，仓库根目录是 `C:\Users\Administrator\Desktop\AHNS`，不再使用 `C:\Users\Administrator\Desktop\AHNS\AHNS` 嵌套目录；小电脑 Python 默认是 `D:\anaconda\envs\py310\python.exe`。
 
 ## 操作约束
 
@@ -21,6 +23,31 @@
 - 不要把 `cache/`、`output/`、`__pycache__/` 视为源码依据；它们是运行产物或缓存。
 - 不要把真实 QQ 邮箱 SMTP 授权码写入可提交源码；本地使用 `tools/email_local_config.py` 或环境变量。
 - 文档和配置文件保持 UTF-8；修改缓存结构前先确认读取方是否按 key-map 遍历，避免把说明字段误当业务数据。
+
+## 小电脑服务器约定
+
+- 小电脑服务器默认只主动使用 `gitee/main`，把 Gitee 当国内快速指令通道；不要在没有用户明确要求时恢复 GitHub fallback。
+- GitHub 仍是主仓库和长期存档；主机电脑改完代码后运行 `sync_repos.py`，负责把本地、GitHub、Gitee 三边同步。
+- 监听入口是 `service_command_watcher.py --interval-seconds 60 --primary-remote gitee`，计划任务实际调用 `start_ahns_command_watcher.ps1`。
+- `service_runner.py` 默认 `DEFAULT_PRIMARY_REMOTE=gitee`，`DEFAULT_FALLBACK_REMOTE=None`；如需临时兜底 GitHub，必须显式传 `--fallback-remote origin` 或设置环境变量。
+- 小电脑监听运行时间是北京时间 06:00-24:00。`AHNS Command Watcher` 每日 06:00 和登录后启动；`start_ahns_command_watcher.ps1` 在 06:00 前直接退出；`AHNS Command Watcher Stop` 每日 00:00 停止监听。
+- `Futu OpenD Autostart` 登录后启动 `C:\Users\Administrator\AppData\Roaming\Futu_OpenD\Futu_OpenD.exe`。富途夜盘依赖 Futu OpenD 已登录并在线；自动启动只能打开程序，不能替代扫码或登录。
+- 小电脑监听日志在 `C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log`。
+- 不要把 Gitee 私人令牌、GitHub token、邮箱授权码写进 README、AGENTS、脚本或提交历史；本地凭据走 Git Credential Manager、环境变量或本机私有配置。
+
+常用检查命令：
+
+```powershell
+schtasks /Query /TN "Futu OpenD Autostart"
+schtasks /Query /TN "AHNS Command Watcher"
+schtasks /Query /TN "AHNS Command Watcher Stop"
+
+Get-CimInstance Win32_Process |
+  Where-Object { $_.CommandLine -match "Futu_OpenD|service_command_watcher.py" } |
+  Select-Object ProcessId, Name, CommandLine
+
+Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log" -Encoding UTF8 -Tail 80 -Wait
+```
 
 ## 当前工作流
 
@@ -74,6 +101,11 @@
 
 - `git_main.py`：项目总控入口，顺序运行全部脚本，收集本次图片并发送邮件；子脚本失败会继续运行后续步骤，并在最后汇总错误输出，同步写入邮件正文；支持 `--no-send` 和 `--receiver`。
 - `check_project.py`：运行前自检入口，只检查不修改，用于确认环境、缓存、依赖、邮箱配置和流程配置是否基本正常。
+- `service_command_watcher.py`：小电脑服务器长期监听入口，默认监听 `gitee/main`，根据 `service_command.json` 触发服务流程。
+- `service_runner.py`：小电脑服务器单次运行流程，负责 pull、运行 `service_main.py`、提交允许范围内的变化、push。
+- `service_main.py`：小电脑服务触发后的业务入口，按 command 文件描述执行对应项目命令。
+- `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置仓库目录、Python 路径、日志路径和 `--primary-remote gitee`。
+- `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；遇到 merge 冲突会停止，不自动覆盖历史。
 - `main.py`：主计算入口，生成市场 RSI 图、海外/全球基金详细估算图，并写入 `cache/fund_estimate_return_cache.json`。
 - `premarket_fund.py`：盘前观察图手动入口；生成 `output/safe_haiwai_premarket.png` 和盘前失败报告，不写正式基金估算缓存。
 - `intraday_fund.py`：盘中观察图手动入口；生成 `output/safe_haiwai_intraday.png` 和盘中失败报告，不写正式基金估算缓存。
@@ -347,6 +379,18 @@ safe 公开图的视觉样式已集中到 `tools/configs/safe_image_style_config
 $files = @('.\git_main.py','.\check_project.py','.\main.py','.\premarket_fund.py','.\intraday_fund.py','.\afterhours_fund.py','.\futu_night_fund.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
 ```
 
+小电脑和同步脚本编译检查：
+
+```powershell
+& D:\anaconda\envs\py310\python.exe -m py_compile .\service_main.py .\service_runner.py .\service_command_watcher.py .\sync_repos.py
+```
+
+同步脚本预演：
+
+```powershell
+& D:\anaconda\envs\py310\python.exe .\sync_repos.py --dry-run
+```
+
 运行前自检：
 
 ```powershell
@@ -428,6 +472,8 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 - RSI 图仍频繁重拉历史：检查对应 `cache/*_index_daily.csv` 是否存在、最新日期是否足够新，以及文件是否已在当天检查过。
 - 需要查看本轮异常持仓：打开 `output/failed_holdings_latest.txt`，先看“运行汇总”和“唯一证券汇总”，再看底部“失败/未完成持仓明细”。
 - Actions 自动回推缓存后，本地运行出现 JSON 解析失败：先停止继续写缓存，检查报错文件和行号，例如 `cache/security_return_cache.json` 的对应位置。常见原因是本地与远端缓存合并冲突、手工编辑残留或文件截断。修复方式应优先重新拉取远端完整缓存或用 JSON 校验定位破损片段；不要给 key-map JSON 手工加入注释字段。
+- 小电脑监听日志里如果还出现主动访问 GitHub，先检查计划任务参数和 `start_ahns_command_watcher.ps1`，应只传 `--primary-remote gitee`。
+- `sync_repos.py` 合并冲突时会停止；不要自动 reset 或覆盖远端。正确流程是人工解决冲突、`git add`、`git commit`，然后重新运行同步脚本。
 
 ## 当前状态摘要
 
@@ -439,3 +485,5 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 - 缓存说明由 `tools/cache_metadata.py` 维护；安全 JSON 内嵌 `_cache_info`，其他缓存通过 `cache/README.md` 说明。
 - 行情失败报告分为正式估算的 `output/failed_holdings_latest.txt` 和四个实时观察失败报告。
 - GitHub Actions 会定时或手动运行并自动回推缓存；本地提交前要注意先同步远端缓存，避免 JSON 合并损坏。
+- 小电脑服务器当前只主动监听和同步 `gitee/main`；GitHub 同步由主机电脑运行 `sync_repos.py` 负责。
+- `C:\Users\Administrator\Desktop\AHNS` 是当前仓库根目录；旧的 `AHNS\AHNS` 嵌套目录不要再写入脚本或计划任务。

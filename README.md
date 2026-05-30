@@ -27,6 +27,10 @@ AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RS
 .
 ├── git_main.py                  # 总控入口
 ├── check_project.py             # 运行前自检，只检查不修改
+├── service_command_watcher.py    # 小电脑服务器指令监听入口，默认监听 gitee/main
+├── service_runner.py             # 小电脑服务器单次同步、运行、提交、推送流程
+├── start_ahns_command_watcher.ps1 # Windows 计划任务启动脚本
+├── sync_repos.py                 # 主机电脑同步本地、GitHub、Gitee 三边仓库
 ├── main.py                      # 主计算入口
 ├── premarket_fund.py            # 盘前观察图手动入口，不写正式估算缓存
 ├── intraday_fund.py             # 盘中观察图手动入口，不写正式估算缓存
@@ -112,8 +116,70 @@ AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RS
 & F:\anaconda\envs\py310\python.exe .\futu_night_fund.py --force
 ```
 
+## 小电脑服务器与仓库同步
+
+当前小电脑服务器仓库根目录是 `C:\Users\Administrator\Desktop\AHNS`，不再使用 `AHNS\AHNS` 嵌套目录。
+
+运行职责分工：
+
+- 小电脑服务器只负责国内快速通道 `gitee/main`：拉取指令、运行服务、提交运行结果、推送回 Gitee。
+- GitHub 仍然是主仓库和长期存档，但小电脑默认不主动访问 GitHub，避免国内网络错误拖慢监听。
+- 主机电脑改完代码后，手动运行 `sync_repos.py`，把本地、GitHub、Gitee 三边对齐。
+
+小电脑监听入口：
+
+```powershell
+Set-Location "C:\Users\Administrator\Desktop\AHNS"
+& D:\anaconda\envs\py310\python.exe .\service_command_watcher.py --interval-seconds 60 --primary-remote gitee
+```
+
+计划任务约定：
+
+- `Futu OpenD Autostart`：登录 `Administrator` 后启动 `C:\Users\Administrator\AppData\Roaming\Futu_OpenD\Futu_OpenD.exe`。
+- `AHNS Command Watcher`：每日 06:00 启动，登录后也会启动；实际执行 `start_ahns_command_watcher.ps1`，脚本在 06:00 前会直接退出。
+- `AHNS Command Watcher Stop`：每日 00:00 停止监听任务，并结束仍在运行的 `service_command_watcher.py`。
+
+监听日志：
+
+```text
+C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log
+```
+
+检查小电脑是否正在监听：
+
+```powershell
+schtasks /Query /TN "Futu OpenD Autostart"
+schtasks /Query /TN "AHNS Command Watcher"
+schtasks /Query /TN "AHNS Command Watcher Stop"
+
+Get-CimInstance Win32_Process |
+  Where-Object { $_.CommandLine -match "Futu_OpenD|service_command_watcher.py" } |
+  Select-Object ProcessId, Name, CommandLine
+
+Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log" -Encoding UTF8 -Tail 80 -Wait
+```
+
+主机电脑同步本地、GitHub、Gitee：
+
+```powershell
+Set-Location "C:\Users\Administrator\Desktop\AHNS"
+& D:\anaconda\envs\py310\python.exe .\sync_repos.py
+```
+
+`sync_repos.py` 默认同步 `main` 分支，默认远程名是 `origin`（GitHub）和 `gitee`（Gitee）。流程是：检查分支和工作区、拉取两个远程、合并远程提交、推送到两个远程、打印最终提交位置。遇到真实 merge 冲突时会停止，不会自动覆盖历史；需要手动解决冲突、`git add`、`git commit` 后再重新运行。
+
+预演同步命令但不修改仓库：
+
+```powershell
+& D:\anaconda\envs\py310\python.exe .\sync_repos.py --dry-run
+```
+
 ## 常用维护入口
 
+- `service_command_watcher.py`：小电脑服务器长期监听入口，默认优先使用 `gitee`，不再默认兜底访问 GitHub。
+- `service_runner.py`：小电脑服务器一次性服务流程，负责 pull、运行 `service_main.py`、提交安全范围内的变化、push。
+- `start_ahns_command_watcher.ps1`：计划任务调用的启动脚本，设置仓库目录、Python 路径、日志路径和 `--primary-remote gitee`。
+- `sync_repos.py`：主机电脑三边同步脚本，用于把本地、GitHub、Gitee 对齐。
 - `tools/configs/workflow_configs.py`：维护 `git_main.py` 每天运行哪些脚本、运行顺序、必要性标记、图片是否进入邮件候选。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。
 - `tools/configs/fund_universe_configs.py`：维护海外/全球基金池；新增基金代码优先改这里，基金代码请写 6 位字符串。
 - `tools/configs/fund_proxy_configs.py`：维护代理型基金和海外有效披露持仓增强系数。
@@ -380,6 +446,18 @@ Matplotlib 表格和 RSI 图默认使用 180 DPI，科普图使用 Pillow 固定
 
 ```powershell
 $files = @('.\git_main.py','.\check_project.py','.\main.py','.\premarket_fund.py','.\intraday_fund.py','.\afterhours_fund.py','.\futu_night_fund.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
+```
+
+小电脑和同步脚本编译检查：
+
+```powershell
+& D:\anaconda\envs\py310\python.exe -m py_compile .\service_main.py .\service_runner.py .\service_command_watcher.py .\sync_repos.py
+```
+
+同步脚本预演：
+
+```powershell
+& D:\anaconda\envs\py310\python.exe .\sync_repos.py --dry-run
 ```
 
 总入口预演：
