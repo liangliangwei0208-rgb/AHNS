@@ -23,8 +23,8 @@ from typing import Iterable, Sequence
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 DEFAULT_SERVICE_PYTHON = r"D:\anaconda\envs\py310\python.exe"
-DEFAULT_PRIMARY_REMOTE = os.environ.get("AHNS_SERVICE_PRIMARY_REMOTE", "origin")
-DEFAULT_FALLBACK_REMOTE = os.environ.get("AHNS_SERVICE_FALLBACK_REMOTE", "").strip() or None
+DEFAULT_PRIMARY_REMOTE = os.environ.get("AHNS_SERVICE_PRIMARY_REMOTE", "gitee")
+DEFAULT_FALLBACK_REMOTE = os.environ.get("AHNS_SERVICE_FALLBACK_REMOTE", "origin").strip() or None
 LOCAL_CHANGE_COMMIT_MESSAGE = "Update service local changes [skip ci]"
 RUNTIME_CHANGE_COMMIT_MESSAGE = "Update service runtime changes [skip ci]"
 SERVICE_GIT_USER_NAME = "ahns-service[bot]"
@@ -127,9 +127,19 @@ def remote_candidates(primary_remote: str, fallback_remote: str | None = None) -
         remote = str(remote or "").strip()
         if remote and remote not in candidates:
             candidates.append(remote)
-    if not candidates:
-        raise ServiceRunnerError("At least one git remote must be configured.")
-    return candidates
+    available: list[str] = []
+    unavailable: list[str] = []
+    for remote in candidates:
+        code, _ = git_output(["remote", "get-url", remote], check=False)
+        if code == 0:
+            available.append(remote)
+        else:
+            unavailable.append(remote)
+    if unavailable:
+        log("Configured git remote is not available locally: " + ", ".join(unavailable))
+    if not available:
+        raise ServiceRunnerError("At least one configured git remote must exist locally.")
+    return available
 
 
 def remote_url(remote: str) -> str:
