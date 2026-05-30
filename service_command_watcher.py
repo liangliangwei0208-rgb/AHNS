@@ -1,8 +1,8 @@
 """
 service_command_watcher.py
 
-Watch a tracked JSON command file from GitHub and trigger the small-server
-service runner when run_flag is set to 1.
+Watch a tracked JSON command file from Gitee by default and trigger the
+small-server service runner when run_flag is set to 1.
 """
 from __future__ import annotations
 
@@ -296,7 +296,7 @@ def record_failure(
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="监听 GitHub command 文件并触发 AHNS 小电脑服务流程")
+    parser = argparse.ArgumentParser(description="监听 Gitee command 文件并触发 AHNS 小电脑服务流程")
     parser.add_argument(
         "--python-exe",
         default=service_runner.DEFAULT_SERVICE_PYTHON,

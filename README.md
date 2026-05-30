@@ -1,6 +1,6 @@
 # AHNS
 
-AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RSI 图、海外/全球基金模型估算表、盘前观察图、安全版公开发布图、海外基金节假日/节后观察图，以及面向小白的说明类科普图。项目通过本地缓存、数据质量覆盖和 GitHub Actions 自动回推，尽量减少重复请求和人工维护成本。
+AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RSI 图、海外/全球基金模型估算表、盘前/盘中/盘后/富途夜盘实时观察图、安全版公开发布图、海外基金节假日/节后观察图，以及面向小白的说明类科普图。项目通过本地缓存、数据质量覆盖、GitHub Actions 自动回推和 Gitee 小电脑快速通道，尽量减少重复请求和人工维护成本。
 
 > 本项目仅供个人学习记录，不构成任何投资建议；非实时净值，最终以基金公司公告和销售平台展示为准。
 
@@ -21,39 +21,55 @@ AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RS
 - 支持 QQ 邮箱自动发送本次运行生成或更新的图片。
 - 支持 GitHub Actions 定时运行、手动触发、缓存自动回推和失败图片 artifact。
 
+## 运行环境与分工
+
+本项目现在按三类运行环境维护，Codex 接手时请先判断自己在哪台机器上：
+
+| 环境 | 仓库目录 | Python | 主要职责 | Git 远程 |
+| --- | --- | --- | --- | --- |
+| 主机电脑 | `G:\AHNS` | `F:\anaconda\envs\py310\python.exe` | 日常改代码、验证、运行 `git_main.py`、执行 `sync_repos.py` 同步三边仓库 | `origin`=GitHub，`gitee`=Gitee |
+| 小电脑服务器 | `C:\Users\Administrator\Desktop\AHNS` | `D:\anaconda\envs\py310\python.exe` | 常驻监听 `service_command.json`，触发 `service_main.py`，支持富途夜盘 | 默认只主动使用 `gitee/main` |
+| GitHub Actions | GitHub runner workspace | Actions 自带 Python 3.10 | 定时/手动运行 GitHub 版 `git_main.py`，回推运行缓存 | `origin/main` |
+
+GitHub 仍是长期主仓和 Actions 运行源；Gitee 是小电脑服务器的国内快速指令通道。主机电脑改完代码后运行 `sync_repos.py`，把本地、GitHub、Gitee 三边对齐。
+
 ## 目录结构
 
 ```text
 .
-├── git_main.py                  # 总控入口
-├── check_project.py             # 运行前自检，只检查不修改
-├── service_command_watcher.py    # 小电脑服务器指令监听入口，默认监听 gitee/main
-├── service_runner.py             # 小电脑服务器单次同步、运行、提交、推送流程
-├── start_ahns_command_watcher.ps1 # Windows 计划任务启动脚本
-├── sync_repos.py                 # 主机电脑同步本地、GitHub、Gitee 三边仓库
-├── main.py                      # 主计算入口
+├── git_main.py                  # GitHub/主机总控入口：完整日流程 + 命中窗口追加实时观察
+├── service_main.py              # 小电脑总控入口：复用 git_main，总流程额外包含富途夜盘窗口
+├── main.py                      # 主计算入口：市场 RSI、正式海外/全球基金估算、正式缓存写入
+├── safe_fund.py                 # safe 每日基金图
+├── safe_holidays.py             # safe 节假日累计图
+├── sum_holidays.py              # 节后补更新观察图
 ├── premarket_fund.py            # 盘前观察图手动入口，不写正式估算缓存
 ├── intraday_fund.py             # 盘中观察图手动入口，不写正式估算缓存
 ├── afterhours_fund.py           # 盘后观察图手动入口，不写正式估算缓存
 ├── futu_night_fund.py           # 富途夜盘观察图手动入口，不写正式估算缓存
+├── check_project.py             # 运行前自检，只检查不修改
 ├── fund_estimate_breakdown.py    # 基金估算完整拆解查询工具
-├── safe_fund.py                 # safe 每日基金图
-├── safe_holidays.py             # safe 节假日累计图
-├── holidays.py                  # 详细版节假日累计图
-├── sum_holidays.py              # 节后补更新观察图
 ├── stock_analysis.py            # 市场 RSI 图入口
-├── kepu/                        # 科普图片脚本
-├── tools/                       # 基金估算、缓存、绘图、邮件等模块
-├── tools/configs/               # 常维护配置：基金池、代理、基准源、safe样式、映射、RSI、流程等
+├── service_command_watcher.py    # 小电脑 Gitee command 监听入口
+├── service_runner.py             # 小电脑单次同步、运行、提交、推送流程
+├── start_ahns_command_watcher.ps1 # 小电脑 Windows 计划任务启动脚本
+├── sync_repos.py                # 主机电脑同步本地、GitHub、Gitee 三边仓库
+├── service_command.json         # Gitee command 指令文件，run_flag=1 触发小电脑运行
+├── kepu/                        # 手动科普图与日期条件科普/限额表脚本
+├── tools/                       # 基金估算、缓存、绘图、邮件、行情源等内部模块
+├── tools/configs/               # 常维护配置：基金池、代理、基准源、safe 样式、映射、RSI、流程等
 ├── cache/                       # 运行缓存，会被提交并由 Actions 自动更新；说明见 cache/README.md
 └── output/                      # 运行输出图片，不提交
 ```
 
-## 本地运行
+顶层入口暂不移动，目的是保持 VSCode、Actions、计划任务和你平时手动运行的命令稳定。未来如果继续整理目录，建议只迁移内部实现，顶层保留同名薄入口做兼容转发。
+
+## 主机电脑本地运行
 
 推荐 Python 版本：3.10。
 
 ```powershell
+Set-Location G:\AHNS
 & F:\anaconda\envs\py310\python.exe -m pip install -r requirements.txt
 ```
 
@@ -162,8 +178,8 @@ Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.lo
 主机电脑同步本地、GitHub、Gitee：
 
 ```powershell
-Set-Location "C:\Users\Administrator\Desktop\AHNS"
-& D:\anaconda\envs\py310\python.exe .\sync_repos.py
+Set-Location G:\AHNS
+& F:\anaconda\envs\py310\python.exe .\sync_repos.py
 ```
 
 `sync_repos.py` 默认同步 `main` 分支，默认远程名是 `origin`（GitHub）和 `gitee`（Gitee）。流程是：检查分支和工作区、拉取两个远程、合并远程提交、推送到两个远程、打印最终提交位置。遇到真实 merge 冲突时会停止，不会自动覆盖历史；需要手动解决冲突、`git add`、`git commit` 后再重新运行。
@@ -171,16 +187,16 @@ Set-Location "C:\Users\Administrator\Desktop\AHNS"
 预演同步命令但不修改仓库：
 
 ```powershell
-& D:\anaconda\envs\py310\python.exe .\sync_repos.py --dry-run
+& F:\anaconda\envs\py310\python.exe .\sync_repos.py --dry-run
 ```
 
 ## 常用维护入口
 
-- `service_command_watcher.py`：小电脑服务器长期监听入口，默认优先使用 `gitee`，不再默认兜底访问 GitHub。
+- `service_command_watcher.py`：小电脑服务器长期监听入口，默认监听 `gitee/main` 的 `service_command.json`，不再默认兜底访问 GitHub。
 - `service_runner.py`：小电脑服务器一次性服务流程，负责 pull、运行 `service_main.py`、提交安全范围内的变化、push。
 - `start_ahns_command_watcher.ps1`：计划任务调用的启动脚本，设置仓库目录、Python 路径、日志路径和 `--primary-remote gitee`。
 - `sync_repos.py`：主机电脑三边同步脚本，用于把本地、GitHub、Gitee 对齐。
-- `tools/configs/workflow_configs.py`：维护 `git_main.py` 每天运行哪些脚本、运行顺序、必要性标记、图片是否进入邮件候选。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。
+- `tools/configs/workflow_configs.py`：维护 GitHub 流程和 Service 流程。无时间窗步骤属于完整日流程，始终运行；带 `run_window_bj` 的实时观察步骤只在命中北京时间窗口时追加运行，不会替代完整流程。GitHub 流程不含富途夜盘，Service 流程额外包含富途夜盘。
 - `tools/configs/fund_universe_configs.py`：维护海外/全球基金池；新增基金代码优先改这里，基金代码请写 6 位字符串。
 - `tools/configs/fund_proxy_configs.py`：维护代理型基金和海外有效披露持仓增强系数。
 - `tools/configs/residual_benchmark_configs.py`：维护海外股票持仓型基金的补偿仓位基准；默认纳斯达克100，`007844` 当前使用 `XOP`。
@@ -307,9 +323,7 @@ workflow 文件：`.github/workflows/ahns-daily.yml`。
 
 - 手动触发：`workflow_dispatch`
 - 定时触发：
-  - UTC `0 20 * * *`，北京时间 04:00
-  - UTC `0 22 * * *`，北京时间 06:00
-  - UTC `0 0 * * *`，北京时间 08:00
+  - UTC `10 21 * * *`，北京时间次日 05:10
 
 运行环境：
 
@@ -323,6 +337,8 @@ workflow 文件：`.github/workflows/ahns-daily.yml`。
 - `QQ_EMAIL_ACCOUNT`
 - `QQ_EMAIL_AUTH_CODE`
 - `QQ_EMAIL_RECEIVER` 可选
+
+Actions 运行 `python git_main.py`，使用 GitHub 流程：完整日流程会照常运行，命中盘前/盘中/盘后窗口时追加对应实时观察；不运行富途夜盘，也不自动生成 `first_pic.py`。
 
 Actions 运行后如 `cache/` 或 `investment_quote_history.json` 发生变化，会自动提交回仓库，提交信息为：
 
@@ -338,7 +354,7 @@ Update runtime cache [skip ci]
 
 常见输出：
 
-- `output/first_pic.png`
+- `output/first_pic.png`（手动运行 `kepu/first_pic.py` 生成；总入口不再自动生成）
 - `output/nasdaq_analysis.png`
 - `output/nasdaq.png`
 - `output/honglidibo_analysis.png`
@@ -356,7 +372,7 @@ Update runtime cache [skip ci]
 - `output/sum_holidays.png`（详细版已停用，后续不再新生成/覆盖）
 - `output/safe_sum_holidays.png`
 - `output/kepu_sum_holidays.png`
-- `output/kepu_xiane.png`
+- `output/kepu_xiane.png`（限额科普图，保留手动入口；总入口只生成周日限额表）
 - `output/xiane.png`（海外基金限额表，仅北京时间周日生成）
 
 排查报告：
@@ -439,25 +455,26 @@ Matplotlib 表格和 RSI 图默认使用 180 DPI，科普图使用 Pillow 固定
 - 增加一个只读数据源健康检查脚本：集中探测新浪、东方财富、AkShare、CBOE/FRED、Yahoo fallback 是否可用，不写基金缓存，便于 Actions 或本地运行前快速判断网络状态。
 - 补强美股特殊代码和基金持仓映射：石油、能源、ADR、改名或退市证券更容易出现行情源滞后，后续可把常见问题 ticker 写入映射或替代代理配置。
 - 给 safe 图增加自动视觉回归检查：对输出图片做基础尺寸、非空、水印存在、表格行数和 VIX/累计过滤检查，避免样式配置改动后才在发布时发现异常。
+- 第二轮目录整理可考虑把服务端同步/监听实现移动到内部包，例如 `tools/service/`，但必须保留顶层 `service_command_watcher.py`、`service_runner.py`、`sync_repos.py` 作为兼容入口。
 
 ## 验证命令
 
 全项目编译：
 
 ```powershell
-$files = @('.\git_main.py','.\check_project.py','.\main.py','.\premarket_fund.py','.\intraday_fund.py','.\afterhours_fund.py','.\futu_night_fund.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
+$files = @('.\git_main.py','.\service_main.py','.\service_runner.py','.\service_command_watcher.py','.\sync_repos.py','.\check_project.py','.\main.py','.\premarket_fund.py','.\intraday_fund.py','.\afterhours_fund.py','.\futu_night_fund.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
 ```
 
-小电脑和同步脚本编译检查：
+主机电脑服务端/同步脚本编译检查：
 
 ```powershell
-& D:\anaconda\envs\py310\python.exe -m py_compile .\service_main.py .\service_runner.py .\service_command_watcher.py .\sync_repos.py
+& F:\anaconda\envs\py310\python.exe -m py_compile .\service_main.py .\service_runner.py .\service_command_watcher.py .\sync_repos.py
 ```
 
 同步脚本预演：
 
 ```powershell
-& D:\anaconda\envs\py310\python.exe .\sync_repos.py --dry-run
+& F:\anaconda\envs\py310\python.exe .\sync_repos.py --dry-run
 ```
 
 总入口预演：

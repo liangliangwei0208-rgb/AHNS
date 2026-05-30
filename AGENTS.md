@@ -2,13 +2,19 @@
 
 更新时间：2026-05-30
 
-本项目用于生成每日市场分析图、海外/全球基金模型估算表、盘前/盘中/盘后/富途夜盘观察图、安全版公开发布图、海外基金节假日累计观察图、节后补更新观察图，以及面向小白的科普说明图。国内基金收益预估业务线已停用，但 A 股/港股/韩国行情能力仍保留用于海外/全球基金持仓估算。正式主流程只使用完整日线；四个实时观察入口均不写正式基金估算缓存。默认运行环境为：
+本项目用于生成每日市场分析图、海外/全球基金模型估算表、盘前/盘中/盘后/富途夜盘观察图、安全版公开发布图、海外基金节假日累计观察图、节后补更新观察图，以及面向小白的科普说明图。国内基金收益预估业务线已停用，但 A 股/港股/韩国行情能力仍保留用于海外/全球基金持仓估算。正式主流程只使用完整日线；四个实时观察入口均不写正式基金估算缓存。
+
+主机电脑默认运行环境为：
 
 ```powershell
 & F:\anaconda\envs\py310\python.exe <script.py>
 ```
 
-本机是小电脑服务器时，仓库根目录是 `C:\Users\Administrator\Desktop\AHNS`，不再使用 `C:\Users\Administrator\Desktop\AHNS\AHNS` 嵌套目录；小电脑 Python 默认是 `D:\anaconda\envs\py310\python.exe`。
+三类运行环境请先区分清楚：
+
+- 主机电脑：仓库根目录 `G:\AHNS`，Python `F:\anaconda\envs\py310\python.exe`，用于写代码、验证、运行 `git_main.py` 和 `sync_repos.py`。
+- 小电脑服务器：仓库根目录 `C:\Users\Administrator\Desktop\AHNS`，Python `D:\anaconda\envs\py310\python.exe`，用于监听 Gitee command、运行 `service_main.py`，并支持富途夜盘。
+- GitHub Actions：Ubuntu runner，Python 3.10，运行 GitHub 版 `git_main.py`，不运行富途夜盘，不自动生成 `first_pic.py`。
 
 ## 操作约束
 
@@ -69,25 +75,26 @@ Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.lo
 & F:\anaconda\envs\py310\python.exe .\git_main.py --no-send
 ```
 
-`git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、必要性标记、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。实时观察窗口也在该配置文件维护，命中独占窗口时只运行对应实时观察脚本。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。
+`git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、必要性标记、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。无时间窗步骤属于完整日流程，始终运行；命中实时观察窗口时，只是在完整日流程后追加对应实时观察脚本，不会替代完整流程。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。
 
-当前默认运行顺序：
+GitHub / 主机 `git_main.py` 当前完整日流程：
 
-1. `kepu/first_pic.py`
-2. `main.py`
-3. `safe_fund.py`
-4. `safe_holidays.py`
-5. `holidays.py`
-6. `sum_holidays.py`
-7. `kepu/kepu_sum_holidays.py`
-8. `kepu/kepu_xiane.py`
+1. `main.py`
+2. `safe_fund.py`
+3. `safe_holidays.py`
+4. `sum_holidays.py`
+5. `kepu/kepu_sum_holidays.py`
+6. `kepu/kepu_xiane.py --table-only`
+
+自动总入口不再运行 `kepu/first_pic.py`，也不自动生成 `output/kepu_xiane.png` 限额科普图；周日限购表格图 `output/xiane.png` 仍由 `kepu/kepu_xiane.py --table-only` 生成。
 
 实时观察窗口：
 
 - 08:00-11:29：`afterhours_fund.py --force`
-- 11:30-16:30：`futu_night_fund.py --force`
 - 17:30-21:00：`premarket_fund.py --force`
 - 22:40-次日 02:00：`intraday_fund.py --force`
+
+GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py` 使用 Service 流程，额外在 11:30-16:30 追加 `futu_night_fund.py --force`。
 
 `git_main.py` 会扫描 `output/` 中本次新生成或更新的图片，并通过 `tools/email_send.py` 发送邮件。邮件发送保留“正文内嵌图片 + 附件图片”的方式；发送前会打印图片数量、单张大小和总大小。
 
@@ -95,15 +102,15 @@ Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.lo
 
 `check_project.py` 是只读体检工具：检查 Python 环境、关键目录、`cache/mark.jpg`、核心缓存、邮箱配置、依赖导入、Git 状态和总入口配置。它不联网、不拉行情、不出图、不写缓存、不发邮件、不删除文件、不提交 Git。
 
-`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py` 是独立实时观察入口；在 `git_main.py` 命中对应窗口时独占运行，也可手动用 `--force` 调试。它们不写 `cache/fund_estimate_return_cache.json`。
+`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py` 是独立实时观察入口；在总入口命中对应窗口时追加运行，也可手动用 `--force` 调试。它们不写 `cache/fund_estimate_return_cache.json`。
 
 ## 关键文件
 
 - `git_main.py`：项目总控入口，顺序运行全部脚本，收集本次图片并发送邮件；子脚本失败会继续运行后续步骤，并在最后汇总错误输出，同步写入邮件正文；支持 `--no-send` 和 `--receiver`。
 - `check_project.py`：运行前自检入口，只检查不修改，用于确认环境、缓存、依赖、邮箱配置和流程配置是否基本正常。
-- `service_command_watcher.py`：小电脑服务器长期监听入口，默认监听 `gitee/main`，根据 `service_command.json` 触发服务流程。
+- `service_command_watcher.py`：小电脑服务器长期监听入口，默认监听 `gitee/main` 的 `service_command.json`，根据 `run_flag` 触发服务流程。
 - `service_runner.py`：小电脑服务器单次运行流程，负责 pull、运行 `service_main.py`、提交允许范围内的变化、push。
-- `service_main.py`：小电脑服务触发后的业务入口，按 command 文件描述执行对应项目命令。
+- `service_main.py`：小电脑服务触发后的业务入口，复用 `git_main.py` 总控逻辑，但使用包含富途夜盘窗口的 Service 流程。
 - `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置仓库目录、Python 路径、日志路径和 `--primary-remote gitee`。
 - `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；遇到 merge 冲突会停止，不自动覆盖历史。
 - `main.py`：主计算入口，生成市场 RSI 图、海外/全球基金详细估算图，并写入 `cache/fund_estimate_return_cache.json`。
@@ -116,9 +123,9 @@ Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.lo
 - `safe_holidays.py`：只读缓存，生成安全版海外节假日累计观察图。
 - `holidays.py`：只读缓存，生成详细版海外节假日累计观察图。
 - `sum_holidays.py`：只读缓存，生成节后第 1 / 第 2 个 A 股交易日的海外基金补更新观察图。
-- `kepu/first_pic.py`：生成“基金预估图怎么看？”科普首图。
+- `kepu/first_pic.py`：手动生成“基金预估图怎么看？”科普首图；当前总入口不自动运行。
 - `kepu/kepu_sum_holidays.py`：生成节后海外基金补更新规则科普图，仅节后第 1 / 第 2 个 A 股交易日出图。
-- `kepu/kepu_xiane.py`：每天生成海外基金限额科普图；限额表格图仅北京时间周日生成。
+- `kepu/kepu_xiane.py`：手动可生成海外基金限额科普图；总入口只用 `--table-only` 保留北京时间周日限额表格图。
 - `tools/email_send.py`：QQ 邮箱发送模块；环境变量优先，其次读取未跟踪的本地配置文件。
 - `tools/get_top10_holdings.py`：基金估算、持仓读取、锚点行情收益、缓存写入、基金表格绘图的核心实现。
 - `tools/fund_estimator.py`：历史兼容模块，动态转发到 `tools/get_top10_holdings.py`；新增核心逻辑优先看 `tools/get_top10_holdings.py`。
@@ -130,6 +137,18 @@ Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.lo
 - `tools/safe_display.py`：safe 图脱敏、居中 logo 水印和“鱼师AHNS”品牌文字水印工具。
 - `tools/configs/`：集中维护常改配置，包括基金池、代理基金、证券映射、RSI 配置、交易日历参数和总入口运行流程。
 - `tools/rsi_data.py` / `stock_analysis.py`：市场指数、ETF 行情分析和 RSI 图表。
+
+## 目录与入口分层
+
+当前顶层入口文件刻意保留不移动，避免破坏用户手动命令、GitHub Actions、Windows 计划任务和 VSCode 运行配置。接手时按用途理解即可：
+
+- 日常总入口：`git_main.py`、`service_main.py`、`main.py`、`safe_fund.py`、`safe_holidays.py`、`sum_holidays.py`。
+- 实时观察入口：`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py`。
+- 小电脑与同步入口：`service_command_watcher.py`、`service_runner.py`、`start_ahns_command_watcher.ps1`、`sync_repos.py`、`service_command.json`。
+- 诊断和手动工具：`check_project.py`、`fund_estimate_breakdown.py`、`stock_analysis.py`、`refresh_fund_limit_cache.py`。
+- 内部实现模块：优先看 `tools/`；经常维护的常量和配置优先看 `tools/configs/`；科普图脚本放在 `kepu/`。
+
+后续若要进一步整理目录，建议采用“内部实现迁移 + 顶层同名薄入口保留”的方式，例如把服务端实现移动到 `tools/service/`，但仍保留顶层 `service_command_watcher.py` 等入口文件做兼容转发。不要直接移动或改名主流可运行脚本。
 
 ## 配置维护入口
 
@@ -146,7 +165,7 @@ Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.lo
 - `tools/configs/security_mappings.py`：美股 / 韩国证券代码映射；韩国六位数字代码需要配合名称别名匹配，避免误判 A 股。
 - `tools/configs/rsi_configs.py`：市场 RSI 图标的配置。
 - `tools/configs/market_calendar_configs.py`：市场交易日历名称、收盘缓冲、韩国节假日置零策略。
-- `tools/configs/workflow_configs.py`：`git_main.py` 每日运行流程和实时观察窗口。新增脚本时复制一项并改 `name` / `script`；想让某一步只生成不发邮件，改 `collect_images=False`；`required` 只做必要性日志标记，不再控制中断。
+- `tools/configs/workflow_configs.py`：GitHub / Service 两套总入口流程和实时观察窗口。新增脚本时复制一项并改 `name` / `script`；想让某一步只生成不发邮件，改 `collect_images=False`；`required` 只做必要性日志标记，不再控制中断。
 - `tools/cache_metadata.py`：缓存说明维护入口。新增缓存文件时同步补充用途、生产者、消费者、刷新策略、保留策略和注意事项；不要为了说明强行改 key-map 缓存 schema。
 
 旧入口会尽量保留兼容，例如 `tools/fund_universe.py` 仍可导入 `HAIWAI_FUND_CODES`，但真实配置已移动到 `tools/configs/fund_universe_configs.py`。
@@ -177,7 +196,7 @@ Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.lo
 
 ## 输出图片
 
-- 科普首图：`output/first_pic.png`
+- 科普首图：`output/first_pic.png`（手动运行 `kepu/first_pic.py` 生成；总入口不再自动生成）
 - RSI / 市场图：
   - `output/nasdaq_analysis.png`
   - `output/nasdaq.png`
@@ -209,7 +228,7 @@ Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.lo
   - `output/safe_sum_holidays.png`
 - 科普图：
   - `output/kepu_sum_holidays.png`
-  - `output/kepu_xiane.png`
+  - `output/kepu_xiane.png`（限额科普图，保留手动入口；总入口只生成周日限额表）
   - `output/xiane.png`
 
 旧的 `output/guonei*.png` 文件可能仍在本地目录中，但后续主流程不再生成或加入邮件。不要为了清理旧输出而批量删除文件。
@@ -376,10 +395,10 @@ safe 公开图的视觉样式已集中到 `tools/configs/safe_image_style_config
 全项目编译：
 
 ```powershell
-$files = @('.\git_main.py','.\check_project.py','.\main.py','.\premarket_fund.py','.\intraday_fund.py','.\afterhours_fund.py','.\futu_night_fund.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
+$files = @('.\git_main.py','.\service_main.py','.\service_runner.py','.\service_command_watcher.py','.\sync_repos.py','.\check_project.py','.\main.py','.\premarket_fund.py','.\intraday_fund.py','.\afterhours_fund.py','.\futu_night_fund.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
 ```
 
-小电脑和同步脚本编译检查：
+小电脑服务端脚本编译检查：
 
 ```powershell
 & D:\anaconda\envs\py310\python.exe -m py_compile .\service_main.py .\service_runner.py .\service_command_watcher.py .\sync_repos.py
@@ -388,7 +407,8 @@ $files = @('.\git_main.py','.\check_project.py','.\main.py','.\premarket_fund.py
 同步脚本预演：
 
 ```powershell
-& D:\anaconda\envs\py310\python.exe .\sync_repos.py --dry-run
+Set-Location G:\AHNS
+& F:\anaconda\envs\py310\python.exe .\sync_repos.py --dry-run
 ```
 
 运行前自检：
@@ -477,7 +497,8 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 
 ## 当前状态摘要
 
-- 总控入口是 `git_main.py`，流程由 `tools/configs/workflow_configs.py` 管理；`main.py` 保持主计算职责，不作为日常配置入口。
+- 总控入口是 `git_main.py` / `service_main.py`，流程由 `tools/configs/workflow_configs.py` 管理；`main.py` 保持主计算职责，不作为日常配置入口。
+- GitHub / 主机流程不含富途夜盘，也不自动生成 `first_pic.py`；小电脑 Service 流程额外包含富途夜盘窗口。
 - 海外/全球基金估算已经统一为 `valuation_anchor_date` 锚点口径；正式主流程只用完整日线，盘前/盘中/盘后/富途夜盘实时观察由独立入口承担。
 - safe 公开图、水印、标题、颜色、表格行距和列宽已集中到 `tools/configs/safe_image_style_configs.py`。
 - 海外基准表和补偿仓位均配置化；正式图看 `market_benchmark_configs.py` 与 `residual_benchmark_configs.py`，实时观察图看 `premarket_configs.py`、`intraday_configs.py`、`afterhours_configs.py`、`futu_night_configs.py`。
