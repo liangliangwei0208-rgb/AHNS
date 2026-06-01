@@ -1,4 +1,93 @@
 {
+  "VIX_LEVEL:VIX:2026-06-01": {
+    "benchmark_key": "vix",
+    "label": "VIX恐慌指数",
+    "ticker": "VIX",
+    "market": "VIX_LEVEL",
+    "kind": "vix_level",
+    "return_pct": null,
+    "value": 15.32,
+    "display_value": "15.32",
+    "trade_date": "2026-05-29",
+    "source": "vix_latest_close_fallback:CBOE",
+    "status": "traded",
+    "value_type": "level",
+    "error": "VIX 实时点位获取失败: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true') | https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true')",
+    "cache_scope": "futu_night",
+    "fetched_at_bj": "2026-06-01T14:57:19+08:00"
+  },
+  "US:DOW:2026-06-01": {
+    "return_pct": 0.0,
+    "source": "futu_night_snapshot",
+    "status": "traded",
+    "trade_date": "2026-06-01",
+    "quote_time_bj": "2026-06-01T14:56:36+08:00",
+    "market": "US",
+    "ticker": "DOW",
+    "futu_code": "US.DOW",
+    "latest_price": 33.75,
+    "reference_price": 34.42,
+    "cache_scope": "futu_night",
+    "fetched_at_bj": "2026-06-01T14:57:19+08:00"
+  },
+  "US:EOG:2026-06-01": {
+    "return_pct": 0.0,
+    "source": "futu_night_1m_calc",
+    "status": "traded",
+    "trade_date": "2026-06-01",
+    "quote_time_bj": "2026-06-01T14:58:00+08:00",
+    "market": "US",
+    "ticker": "EOG",
+    "futu_code": "US.EOG",
+    "latest_price": 133.42,
+    "reference_price": 133.42,
+    "cache_scope": "futu_night",
+    "fetched_at_bj": "2026-06-01T14:57:19+08:00"
+  },
+  "CN:300476:2026-06-01": {
+    "return_pct": -7.101378486920639,
+    "source": "sina_cn_realtime_with_date",
+    "status": "traded",
+    "trade_date": "2026-06-01",
+    "quote_time_bj": "2026-06-01 14:58:12",
+    "cache_scope": "futu_night",
+    "fetched_at_bj": "2026-06-01T14:57:19+08:00",
+    "market": "CN",
+    "ticker": "300476"
+  },
+  "HK:00981:2026-06-01": {
+    "return_pct": -2.51,
+    "source": "tencent_hk_realtime",
+    "status": "traded",
+    "trade_date": "2026-06-01",
+    "quote_time_bj": "2026/06/01 14:43:19",
+    "cache_scope": "futu_night",
+    "fetched_at_bj": "2026-06-01T14:57:19+08:00",
+    "market": "HK",
+    "ticker": "00981"
+  },
+  "HK:01347:2026-06-01": {
+    "return_pct": -6.32,
+    "source": "tencent_hk_realtime",
+    "status": "traded",
+    "trade_date": "2026-06-01",
+    "quote_time_bj": "2026/06/01 14:43:14",
+    "cache_scope": "futu_night",
+    "fetched_at_bj": "2026-06-01T14:57:19+08:00",
+    "market": "HK",
+    "ticker": "01347"
+  },
+  "CN:688256:2026-06-01": {
+    "return_pct": -5.418320610687022,
+    "source": "sina_cn_realtime_with_date",
+    "status": "traded",
+    "trade_date": "2026-06-01",
+    "quote_time_bj": "2026-06-01 14:58:21",
+    "cache_scope": "futu_night",
+    "fetched_at_bj": "2026-06-01T14:57:19+08:00",
+    "market": "CN",
+    "ticker": "688256"
+  },
   "CN:300502:2026-06-01": {
     "return_pct": -3.7865383254299667,
     "source": "sina_cn_realtime_with_date",
@@ -196,23 +285,6 @@
     "fetched_at_bj": "2026-06-01T14:48:57+08:00",
     "market": "HK",
     "ticker": "03750"
-  },
-  "VIX_LEVEL:VIX:2026-06-01": {
-    "benchmark_key": "vix",
-    "label": "VIX恐慌指数",
-    "ticker": "VIX",
-    "market": "VIX_LEVEL",
-    "kind": "vix_level",
-    "return_pct": null,
-    "value": 15.34000015258789,
-    "display_value": "15.34",
-    "trade_date": "2026-05-29",
-    "source": "yahoo_chart_realtime_vix",
-    "status": "traded",
-    "value_type": "level",
-    "quote_time_bj": "2026-05-30T04:14:00+08:00",
-    "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-06-01T14:48:57+08:00"
   },
   "US:AAOI:2026-06-01": {
     "return_pct": 0.41,
@@ -508,20 +580,6 @@
     "cache_scope": "futu_night",
     "fetched_at_bj": "2026-06-01T14:48:57+08:00"
   },
-  "US:DOW:2026-06-01": {
-    "return_pct": 0.0,
-    "source": "futu_night_snapshot",
-    "status": "traded",
-    "trade_date": "2026-06-01",
-    "quote_time_bj": "2026-06-01T14:09:41+08:00",
-    "market": "US",
-    "ticker": "DOW",
-    "futu_code": "US.DOW",
-    "latest_price": 33.75,
-    "reference_price": 34.42,
-    "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-06-01T14:48:57+08:00"
-  },
   "US:DVN:2026-06-01": {
     "return_pct": 0.629,
     "source": "futu_night_snapshot",
@@ -533,20 +591,6 @@
     "futu_code": "US.DVN",
     "latest_price": 44.77,
     "reference_price": 44.11,
-    "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-06-01T14:48:57+08:00"
-  },
-  "US:EOG:2026-06-01": {
-    "return_pct": 0.029,
-    "source": "futu_night_snapshot",
-    "status": "traded",
-    "trade_date": "2026-06-01",
-    "quote_time_bj": "2026-06-01T14:09:11+08:00",
-    "market": "US",
-    "ticker": "EOG",
-    "futu_code": "US.EOG",
-    "latest_price": 133.42,
-    "reference_price": 134.58,
     "cache_scope": "futu_night",
     "fetched_at_bj": "2026-06-01T14:48:57+08:00"
   },
@@ -1641,49 +1685,5 @@
     "reference_price": 444.22,
     "cache_scope": "futu_night",
     "fetched_at_bj": "2026-06-01T14:48:57+08:00"
-  },
-  "CN:300476:2026-06-01": {
-    "return_pct": -5.725605123195477,
-    "source": "sina_cn_realtime_with_date",
-    "status": "traded",
-    "trade_date": "2026-06-01",
-    "quote_time_bj": "2026-06-01 14:16:27",
-    "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-06-01T14:15:24+08:00",
-    "market": "CN",
-    "ticker": "300476"
-  },
-  "HK:00981:2026-06-01": {
-    "return_pct": -2.08,
-    "source": "tencent_hk_realtime",
-    "status": "traded",
-    "trade_date": "2026-06-01",
-    "quote_time_bj": "2026/06/01 14:01:23",
-    "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-06-01T14:15:24+08:00",
-    "market": "HK",
-    "ticker": "00981"
-  },
-  "HK:01347:2026-06-01": {
-    "return_pct": -5.7,
-    "source": "tencent_hk_realtime",
-    "status": "traded",
-    "trade_date": "2026-06-01",
-    "quote_time_bj": "2026/06/01 14:01:13",
-    "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-06-01T14:15:24+08:00",
-    "market": "HK",
-    "ticker": "01347"
-  },
-  "CN:688256:2026-06-01": {
-    "return_pct": -4.562595419847327,
-    "source": "sina_cn_realtime_with_date",
-    "status": "traded",
-    "trade_date": "2026-06-01",
-    "quote_time_bj": "2026-06-01 14:16:30",
-    "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-06-01T14:15:24+08:00",
-    "market": "CN",
-    "ticker": "688256"
   }
 }
