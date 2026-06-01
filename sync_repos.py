@@ -3,7 +3,8 @@ Synchronize the local AHNS repository with GitHub and Gitee.
 
 This script is intended to be run on the main development computer after
 editing code. It keeps the local branch, GitHub remote, and Gitee remote on the
-same branch without rewriting history.1234
+same branch without rewriting history.
+！！！运行此代码需要打开代理！！！！
 """
 from __future__ import annotations
 
