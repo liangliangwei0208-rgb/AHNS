@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import time as time_module
 from dataclasses import dataclass, field
 from datetime import datetime, time, timedelta
@@ -39,6 +40,29 @@ from tools.premarket_estimator import BJ_TZ, US_EASTERN_TZ, coerce_bj_datetime
 
 
 FUTU_NIGHT_CACHE_SCOPE = "futu_night"
+FUTU_REFERENCE_PRICE_FIELDS = (
+    "last_close",
+    "prev_close",
+    "previous_close",
+    "pre_close",
+    "prev_close_price",
+    "last_close_price",
+    "regular_close",
+    "regular_market_previous_close",
+)
+FUTU_LATEST_PRICE_FIELDS = (
+    "overnight_price",
+    "last_price",
+    "latest_price",
+    "cur_price",
+    "price",
+    "close",
+)
+FUTU_CHANGE_VALUE_FIELDS = (
+    "overnight_change_val",
+    "change_val",
+    "change",
+)
 
 
 @dataclass
@@ -97,6 +121,85 @@ def futu_us_code(ticker: Any) -> str:
     if ticker_norm.startswith("US."):
         return ticker_norm
     return f"US.{ticker_norm}"
+
+
+def _row_to_dict(row: Any) -> dict[str, Any]:
+    if row is None:
+        return {}
+    if isinstance(row, dict):
+        return dict(row)
+    if hasattr(row, "to_dict"):
+        try:
+            return dict(row.to_dict())
+        except Exception:
+            return {}
+    return {}
+
+
+def _first_float(mapping: Any, field_names: Iterable[str], *, require_positive: bool = True) -> float | None:
+    data = _row_to_dict(mapping)
+    lowered = {str(key).strip().lower(): value for key, value in data.items()}
+    for field in field_names:
+        value = lowered.get(str(field).lower())
+        value_f = _safe_float(value)
+        if value_f is not None and (not require_positive or value_f > 0):
+            return value_f
+    return None
+
+
+def _reference_price_from_mapping(mapping: Any, *, latest_price: float | None = None) -> float | None:
+    direct = _first_float(mapping, FUTU_REFERENCE_PRICE_FIELDS)
+    if direct is not None:
+        return direct
+    if latest_price is None or latest_price <= 0:
+        latest_price = _first_float(mapping, FUTU_LATEST_PRICE_FIELDS)
+    change_val = _first_float(mapping, FUTU_CHANGE_VALUE_FIELDS, require_positive=False)
+    if latest_price is not None and change_val is not None:
+        previous = float(latest_price) - float(change_val)
+        if previous > 0:
+            return previous
+    return None
+
+
+def _format_columns_for_error(data: Any) -> str:
+    columns = getattr(data, "columns", None)
+    if columns is None:
+        columns = getattr(data, "index", None)
+    if columns is None:
+        return ""
+    try:
+        return ",".join(str(column) for column in list(columns))
+    except Exception:
+        return ""
+
+
+def _message_matches_ticker(message: str, ticker: str, futu_code: str) -> bool:
+    text = str(message or "").upper()
+    candidates = {
+        normalize_us_ticker(ticker),
+        str(futu_code or "").strip().upper(),
+    }
+    if "." in str(futu_code or ""):
+        candidates.add(str(futu_code).split(".", 1)[1].strip().upper())
+    for candidate in candidates:
+        if not candidate:
+            continue
+        pattern = rf"(?<![A-Z0-9]){re.escape(candidate)}(?![A-Z0-9])"
+        if re.search(pattern, text):
+            return True
+    return False
+
+
+def _tickers_mentioned_in_futu_error(
+    message: Any,
+    tickers: list[str],
+    futu_codes: list[str],
+) -> set[str]:
+    return {
+        ticker
+        for ticker, code in zip(tickers, futu_codes)
+        if _message_matches_ticker(str(message or ""), ticker, code)
+    }
 
 
 def _parse_bj_datetime(value: Any) -> datetime | None:
@@ -443,6 +546,7 @@ class FutuNightQuoteProvider:
         self.ctx = None
         self.runtime: dict[tuple[str, str], dict[str, Any]] = {}
         self.failures: dict[str, str] = {}
+        self.snapshot_rows: dict[str, dict[str, Any]] = {}
         self.subscribed_codes: set[str] = set()
         self.subscribed_at: dict[str, datetime] = {}
         self.stats = FutuNightQuoteStats()
@@ -469,6 +573,27 @@ class FutuNightQuoteProvider:
             raise RuntimeError("未安装 futu-api，请先安装或确认当前 Python 环境") from exc
         self.ctx = OpenQuoteContext(host=self.host, port=self.port)
         return self.ctx
+
+    def _record_us_failure(self, ticker: str, message: str) -> None:
+        ticker_norm = normalize_us_ticker(ticker)
+        if not ticker_norm:
+            return
+        if ticker_norm not in self.failures:
+            self.stats.us_fetch_error_count += 1
+        self.failures[ticker_norm] = message
+        self.stats.errors[ticker_norm] = message
+
+    def _record_us_diagnostic(self, ticker: str, scope: str, message: str) -> None:
+        ticker_norm = normalize_us_ticker(ticker)
+        if not ticker_norm:
+            return
+        self.stats.errors[f"{ticker_norm}:{scope}"] = message
+
+    def _snapshot_reference_price(self, ticker: str, *, latest_price: float | None = None) -> float | None:
+        row = self.snapshot_rows.get(normalize_us_ticker(ticker))
+        if not row:
+            return None
+        return _reference_price_from_mapping(row, latest_price=latest_price)
 
     def _unsubscribe_codes(self, codes: list[str]) -> None:
         if not codes or self.ctx is None:
@@ -566,6 +691,18 @@ class FutuNightQuoteProvider:
                 success=True,
                 status=f"富途快照命中: {len(snapshot_done)} 个",
             )
+        snapshot_failed = [
+            ticker for ticker in missing
+            if ticker not in snapshot_done and ticker in self.failures
+        ]
+        if progress is not None and snapshot_failed:
+            failed_text = ",".join(snapshot_failed[:5])
+            suffix = "" if len(snapshot_failed) <= 5 else f" 等 {len(snapshot_failed)} 个"
+            progress.advance_units(
+                len(snapshot_failed),
+                success=False,
+                status=f"富途快照失败/未知标的: {failed_text}{suffix}",
+            )
         missing = [ticker for ticker in missing if ticker not in snapshot_done and ticker not in self.failures]
 
         batch_size = min(
@@ -579,7 +716,7 @@ class FutuNightQuoteProvider:
                 progress.start_item(
                     f"订阅 Futu 1分钟K线第 {batch_index}/{batch_total} 批: {len(batch)} 个"
                 )
-            done = self._fetch_us_batch(batch, target_us_date=target_us_date)
+            done = self._fetch_us_batch(batch, target_us_date=target_us_date, progress=progress)
             failed_count = len([ticker for ticker in batch if ticker not in done and ticker in self.failures])
             unresolved_count = max(0, len(batch) - len(done) - failed_count)
             if progress is not None:
@@ -601,6 +738,13 @@ class FutuNightQuoteProvider:
 
             ret, data = ctx.get_market_snapshot(futu_codes)
             if ret != RET_OK:
+                invalid_tickers = _tickers_mentioned_in_futu_error(data, tickers, futu_codes)
+                if invalid_tickers:
+                    for ticker in invalid_tickers:
+                        self._record_us_failure(ticker, f"富途快照失败，疑似未知股票: {data}")
+                    remaining = [ticker for ticker in tickers if ticker not in invalid_tickers]
+                    return self._fetch_us_snapshot_batch(remaining, target_us_date=target_us_date)
+                # 快照只是第一层加速源；无法定位坏标的时交给后续订阅拆批继续处理。
                 return set()
             if data is None or getattr(data, "empty", True):
                 return set()
@@ -616,6 +760,7 @@ class FutuNightQuoteProvider:
             row = rows_by_code.get(code.upper())
             if row is None:
                 continue
+            self.snapshot_rows[ticker] = _row_to_dict(row)
             try:
                 item = self._quote_from_snapshot(
                     ticker,
@@ -634,10 +779,8 @@ class FutuNightQuoteProvider:
                 self.stats.cache_write_count += 1
                 done.add(ticker)
             except Exception as exc:
-                message = repr(exc)
-                self.failures[ticker] = message
-                self.stats.errors[ticker] = message
-                self.stats.us_fetch_error_count += 1
+                # 快照字段在不同权限/时段下不稳定，失败不应阻止后续 K 线兜底。
+                self._record_us_diagnostic(ticker, "snapshot", repr(exc))
         return done
 
     def _quote_from_snapshot(
@@ -681,21 +824,30 @@ class FutuNightQuoteProvider:
             check_staleness=True,
         )
 
-        overnight_price = _safe_float(row.get("overnight_price"))
+        overnight_price = _first_float(row, FUTU_LATEST_PRICE_FIELDS)
         overnight_change_rate = _safe_float(row.get("overnight_change_rate"))
-        overnight_change_val = _safe_float(row.get("overnight_change_val"))
+        if overnight_change_rate is None:
+            overnight_change_rate = _safe_float(row.get("change_rate"))
+        overnight_change_val = _first_float(row, FUTU_CHANGE_VALUE_FIELDS, require_positive=False)
+        used_calc = False
         if overnight_price is None or overnight_price <= 0:
             raise RuntimeError(f"富途快照缺少有效 overnight_price: {code}")
         if overnight_change_rate is None and overnight_change_val is not None:
             previous = float(overnight_price) - float(overnight_change_val)
             if previous:
                 overnight_change_rate = float(overnight_change_val) / previous * 100.0
+                used_calc = True
+        reference_price = _reference_price_from_mapping(row, latest_price=overnight_price)
+        if overnight_change_rate is None and reference_price is not None:
+            overnight_change_rate = (float(overnight_price) / float(reference_price) - 1.0) * 100.0
+            used_calc = True
         if overnight_change_rate is None:
-            raise RuntimeError(f"富途快照缺少有效 overnight_change_rate: {code}")
+            columns = _format_columns_for_error(row)
+            raise RuntimeError(f"富途快照缺少有效 overnight_change_rate 和基准价: {code}, columns={columns}")
 
         return {
             "return_pct": float(overnight_change_rate),
-            "source": "futu_night_snapshot",
+            "source": "futu_night_snapshot_calc" if used_calc else "futu_night_snapshot",
             "status": "traded",
             "trade_date": str(target_us_date),
             "quote_time_bj": quote_dt_bj.isoformat(timespec="seconds"),
@@ -703,11 +855,19 @@ class FutuNightQuoteProvider:
             "ticker": ticker,
             "futu_code": code,
             "latest_price": float(overnight_price),
+            "reference_price": None if reference_price is None else float(reference_price),
             "cache_scope": FUTU_NIGHT_CACHE_SCOPE,
             "fetched_at_bj": self.as_of_bj.isoformat(timespec="seconds"),
         }
 
-    def _fetch_us_batch(self, tickers: list[str], *, target_us_date: str) -> set[str]:
+    def _fetch_us_batch(
+        self,
+        tickers: list[str],
+        *,
+        target_us_date: str,
+        progress: Any | None = None,
+        depth: int = 0,
+    ) -> set[str]:
         if not tickers:
             return set()
         ctx = self._ensure_ctx()
@@ -727,10 +887,44 @@ class FutuNightQuoteProvider:
             )
             if ret != RET_OK:
                 error = f"富途订阅失败: {message}"
-                for ticker in tickers:
-                    self.failures[ticker] = error
-                    self.stats.errors[ticker] = error
-                self.stats.us_fetch_error_count += len(tickers)
+                invalid_tickers = _tickers_mentioned_in_futu_error(message, tickers, futu_codes)
+                if invalid_tickers:
+                    invalid_text = ",".join(sorted(invalid_tickers))
+                    if progress is not None:
+                        progress.set_status(f"富途订阅发现未知标的: {invalid_text}，剔除后重试")
+                    for ticker in invalid_tickers:
+                        self._record_us_failure(ticker, f"富途订阅失败，疑似未知股票: {message}")
+                    remaining = [ticker for ticker in tickers if ticker not in invalid_tickers]
+                    if remaining:
+                        return self._fetch_us_batch(
+                            remaining,
+                            target_us_date=target_us_date,
+                            progress=progress,
+                            depth=depth + 1,
+                        )
+                    return done
+
+                if len(tickers) > 1:
+                    mid = max(1, len(tickers) // 2)
+                    if progress is not None:
+                        progress.set_status(
+                            f"富途订阅批次失败，拆分定位: {len(tickers)} -> {mid}/{len(tickers) - mid}"
+                        )
+                    first = self._fetch_us_batch(
+                        tickers[:mid],
+                        target_us_date=target_us_date,
+                        progress=progress,
+                        depth=depth + 1,
+                    )
+                    second = self._fetch_us_batch(
+                        tickers[mid:],
+                        target_us_date=target_us_date,
+                        progress=progress,
+                        depth=depth + 1,
+                    )
+                    return set(first) | set(second)
+
+                self._record_us_failure(tickers[0], error)
                 return done
 
             subscribed_this_batch = futu_codes
@@ -768,9 +962,7 @@ class FutuNightQuoteProvider:
                     done.add(ticker)
                 except Exception as exc:
                     message = repr(exc)
-                    self.failures[ticker] = message
-                    self.stats.errors[ticker] = message
-                    self.stats.us_fetch_error_count += 1
+                    self._record_us_failure(ticker, message)
         finally:
             self._unsubscribe_codes(subscribed_this_batch)
         return done
@@ -791,8 +983,6 @@ class FutuNightQuoteProvider:
             raise RuntimeError(f"富途夜盘 K 线缺少 time_key: {code}")
         if "close" not in df.columns:
             raise RuntimeError(f"富途夜盘 K 线缺少 close: {code}")
-        if "change_rate" not in df.columns:
-            raise RuntimeError(f"富途夜盘 K 线缺少可用夜盘涨跌幅字段: {code}")
 
         start_et, end_et = _night_window_et(target_us_date)
         candidates: list[tuple[datetime, Any]] = []
@@ -823,12 +1013,21 @@ class FutuNightQuoteProvider:
         return_pct = _safe_float(latest_row.get("change_rate"))
         if latest_price is None or latest_price <= 0:
             raise RuntimeError(f"富途夜盘最新价格无效: {code}, close={latest_row.get('close')}")
+        source = "futu_night_1m"
+        reference_price = None
         if return_pct is None:
-            raise RuntimeError(f"富途夜盘 K 线缺少有效涨跌幅: {code}")
+            reference_price = _reference_price_from_mapping(latest_row, latest_price=latest_price)
+            if reference_price is None:
+                reference_price = self._snapshot_reference_price(ticker, latest_price=latest_price)
+            if reference_price is None:
+                columns = _format_columns_for_error(df)
+                raise RuntimeError(f"富途夜盘 K 线缺少有效涨跌幅和基准价: {code}, columns={columns}")
+            return_pct = (float(latest_price) / float(reference_price) - 1.0) * 100.0
+            source = "futu_night_1m_calc"
 
         return {
             "return_pct": float(return_pct),
-            "source": "futu_night_1m",
+            "source": source,
             "status": "traded",
             "trade_date": str(target_us_date),
             "quote_time_bj": _quote_time_bj_text(latest_dt_et),
@@ -836,6 +1035,7 @@ class FutuNightQuoteProvider:
             "ticker": ticker,
             "futu_code": code,
             "latest_price": float(latest_price),
+            "reference_price": None if reference_price is None else float(reference_price),
             "cache_scope": FUTU_NIGHT_CACHE_SCOPE,
             "fetched_at_bj": self.as_of_bj.isoformat(timespec="seconds"),
         }

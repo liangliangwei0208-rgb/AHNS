@@ -16772,7 +16772,7 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-05-30T14:55:13+08:00"
+    "fetched_at": "2026-06-01T14:50:29+08:00"
   },
   "SECURITY:CN:688498:2026-06-01": {
     "market": "CN",
@@ -16796,7 +16796,7 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-05-30T14:55:25+08:00"
+    "fetched_at": "2026-06-01T14:50:33+08:00"
   },
   "SECURITY:HK:02513:2026-06-01": {
     "market": "HK",
@@ -16844,7 +16844,7 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-05-30T14:55:23+08:00"
+    "fetched_at": "2026-06-01T14:50:40+08:00"
   },
   "SECURITY:KR:005930:2026-06-01": {
     "market": "KR",
@@ -16868,7 +16868,7 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-05-30T14:55:13+08:00"
+    "fetched_at": "2026-06-01T14:50:43+08:00"
   },
   "SECURITY:HK:00981:2026-06-01": {
     "market": "HK",
@@ -16880,7 +16880,7 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-05-30T14:55:17+08:00"
+    "fetched_at": "2026-06-01T14:50:46+08:00"
   },
   "SECURITY:HK:01347:2026-06-01": {
     "market": "HK",
@@ -16892,7 +16892,7 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-05-30T14:55:17+08:00"
+    "fetched_at": "2026-06-01T14:50:51+08:00"
   },
   "SECURITY:HK:09988:2026-06-01": {
     "market": "HK",
@@ -16916,7 +16916,7 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-05-30T14:55:18+08:00"
+    "fetched_at": "2026-06-01T14:50:53+08:00"
   },
   "SECURITY:HK:01088:2026-06-01": {
     "market": "HK",
