@@ -4,13 +4,14 @@ Synchronize the local AHNS repository with GitHub and Gitee.
 This script is intended to be run on the main development computer after
 editing code. It keeps the local branch, GitHub remote, and Gitee remote on the
 same branch without rewriting history.
-！！！运行此代码需要打开代理！！！！
+GitHub is expected to use the local SakuraCat proxy; Gitee should stay direct.
 """
 from __future__ import annotations
 
 import argparse
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
@@ -19,6 +20,8 @@ from typing import Sequence
 DEFAULT_BRANCH = "main"
 DEFAULT_GITHUB_REMOTE = "origin"
 DEFAULT_GITEE_REMOTE = "gitee"
+REMOTE_RETRY_ATTEMPTS = 3
+GITHUB_PROXY_DISABLE_CONFIG = "http.https://github.com.proxy="
 
 
 class SyncError(RuntimeError):
@@ -77,6 +80,59 @@ def run_git(
     return GitResult(result.returncode, result.stdout or "", result.stderr or "")
 
 
+def looks_like_network_failure(result: GitResult) -> bool:
+    output = f"{result.stdout}\n{result.stderr}".lower()
+    network_markers = (
+        "unable to connect",
+        "failed to connect",
+        "could not connect",
+        "connection closed",
+        "connection reset",
+        "timed out",
+        "timeout",
+        "ssl",
+        "proxy",
+        "relay host",
+    )
+    return any(marker in output for marker in network_markers)
+
+
+def remote_failure_message(action: str, label: str, result: GitResult) -> str:
+    reason = "疑似代理/网络瞬时失败" if looks_like_network_failure(result) else "远程操作失败"
+    return f"{action} {label}: exit code {result.returncode}（{reason}）"
+
+
+def run_remote_git_with_retry(
+    repo: Path,
+    args: Sequence[str],
+    *,
+    action: str,
+    label: str,
+    attempts: int = REMOTE_RETRY_ATTEMPTS,
+) -> GitResult:
+    result = GitResult(1, "", "")
+    for attempt in range(1, attempts + 1):
+        result = run_git(repo, args, check=False)
+        if result.returncode == 0:
+            return result
+        if not looks_like_network_failure(result):
+            return result
+        if attempt >= attempts:
+            break
+
+        delay_seconds = attempt * 2
+        log(
+            f"[WARN] {action} {label} 疑似代理/网络瞬时失败，"
+            f"{delay_seconds}s 后重试 ({attempt + 1}/{attempts})。"
+        )
+        time.sleep(delay_seconds)
+
+    if label == "GitHub" and looks_like_network_failure(result):
+        log("[WARN] GitHub 代理重试仍失败，尝试直连 GitHub 一次。")
+        return run_git(repo, ["-c", GITHUB_PROXY_DISABLE_CONFIG, *args], check=False)
+    return result
+
+
 def git_output(repo: Path, args: Sequence[str]) -> str:
     result = subprocess.run(
         ["git", *args],
@@ -128,19 +184,36 @@ def remote_ref(remote: str, branch: str) -> str:
     return f"{remote}/{branch}"
 
 
-def print_final_refs(repo: Path, branch: str, github_remote: str, gitee_remote: str) -> None:
+def collect_final_refs(
+    repo: Path,
+    branch: str,
+    github_remote: str,
+    gitee_remote: str,
+) -> dict[str, str | None]:
     refs = [
         ("local", "HEAD"),
         (github_remote, remote_ref(github_remote, branch)),
         (gitee_remote, remote_ref(gitee_remote, branch)),
     ]
-    log("最终提交位置:")
+    commits: dict[str, str | None] = {}
     for label, ref in refs:
         try:
-            commit = git_output(repo, ["rev-parse", "--short=12", ref])
-        except SyncError as exc:
-            commit = f"不可用 ({exc})"
-        print(f"  {label}: {commit}")
+            commits[label] = git_output(repo, ["rev-parse", "--verify", ref])
+        except SyncError:
+            commits[label] = None
+    return commits
+
+
+def print_final_refs(commits: dict[str, str | None]) -> None:
+    log("最终提交位置:")
+    for label, commit in commits.items():
+        display = commit[:12] if commit else "不可用"
+        print(f"  {label}: {display}")
+
+
+def final_refs_are_aligned(commits: dict[str, str | None]) -> bool:
+    values = list(commits.values())
+    return bool(values) and all(values) and len(set(values)) == 1
 
 
 def sync_repositories(
@@ -180,11 +253,16 @@ def sync_repositories(
     for remote in (github_remote, gitee_remote):
         label = "GitHub" if remote == github_remote else "Gitee"
         step(f"拉取 {label} 最新代码")
-        result = run_git(repo, ["fetch", remote, branch], check=False)
+        result = run_remote_git_with_retry(
+            repo,
+            ["fetch", remote, branch],
+            action="fetch",
+            label=label,
+        )
         if result.returncode == 0:
             fetched_remotes.append(remote)
         else:
-            remote_failures.append(f"fetch {remote}: exit code {result.returncode}")
+            remote_failures.append(remote_failure_message("fetch", label, result))
 
     if not fetched_remotes:
         raise SyncError("GitHub 和 Gitee 都拉取失败。" + "; ".join(remote_failures))
@@ -196,7 +274,7 @@ def sync_repositories(
             run_git(repo, ["merge", "--no-edit", remote_ref(remote, branch)])
     except SyncError:
         print(
-            "\n合并已停止。请手动解决冲突，然后执行：\n"
+            "\n合并已停止，通常是真实 merge 冲突。请手动解决冲突，然后执行：\n"
             "  git add <resolved files>\n"
             "  git commit\n"
             "  python sync_repos.py\n",
@@ -207,20 +285,44 @@ def sync_repositories(
     for remote in (github_remote, gitee_remote):
         label = "GitHub" if remote == github_remote else "Gitee"
         step(f"推送同步结果到 {label}")
-        result = run_git(repo, ["push", remote, f"HEAD:{branch}"], check=False)
+        result = run_remote_git_with_retry(
+            repo,
+            ["push", remote, f"HEAD:{branch}"],
+            action="push",
+            label=label,
+        )
         if result.returncode != 0:
-            remote_failures.append(f"push {remote}: exit code {result.returncode}")
+            remote_failures.append(remote_failure_message("push", label, result))
 
+    refresh_failures: list[str] = []
     for remote in (github_remote, gitee_remote):
         label = "GitHub" if remote == github_remote else "Gitee"
         step(f"刷新 {label} 远程提交位置")
-        run_git(repo, ["fetch", remote, branch], check=False)
+        result = run_remote_git_with_retry(
+            repo,
+            ["fetch", remote, branch],
+            action="refresh",
+            label=label,
+        )
+        if result.returncode != 0:
+            refresh_failures.append(remote_failure_message("refresh", label, result))
 
-    print_final_refs(repo, branch, github_remote, gitee_remote)
-    if remote_failures:
+    all_failures = [*remote_failures, *refresh_failures]
+    final_commits = collect_final_refs(repo, branch, github_remote, gitee_remote)
+    refs_aligned = final_refs_are_aligned(final_commits)
+    print_final_refs(final_commits)
+    if all_failures:
+        if refs_aligned and not refresh_failures:
+            log("仓库同步完成：本地、GitHub、Gitee 已对齐；中途出现过临时远程失败。")
+            for failure in all_failures:
+                log(f"[WARN] {failure}")
+            return
+
         log("仓库同步部分完成：至少一个远程操作失败。")
-        for failure in remote_failures:
+        for failure in all_failures:
             log(f"[WARN] {failure}")
+        if not refs_aligned:
+            log("[ERROR] 最终提交位置未对齐，请检查远程网络或真实合并冲突。")
         raise SyncError("存在远程操作失败，请稍后重新运行同步脚本。")
     log("仓库同步完成：本地、GitHub、Gitee 已对齐。")
 

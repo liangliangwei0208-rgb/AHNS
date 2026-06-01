@@ -199,7 +199,7 @@ Set-Location G:\AHNS
 & F:\anaconda\envs\py310\python.exe .\sync_repos.py
 ```
 
-`sync_repos.py` 默认同步 `main` 分支，默认远程名是 `origin`（GitHub）和 `gitee`（Gitee）。流程是：检查分支和工作区、拉取两个远程、合并远程提交、推送到两个远程、打印最终提交位置。遇到真实 merge 冲突时会停止，不会自动覆盖历史；需要手动解决冲突、`git add`、`git commit` 后再重新运行。
+`sync_repos.py` 默认同步 `main` 分支，默认远程名是 `origin`（GitHub）和 `gitee`（Gitee）。主机电脑建议让 `origin` 使用 `https://github.com/liangliangwei0208-rgb/AHNS.git`，并只给 `github.com` 配置 SakuraCat HTTP 代理和 OpenSSL；`gitee` 保持直连。流程是：检查分支和工作区、拉取两个远程、合并远程提交、推送到两个远程、打印最终提交位置。遇到疑似代理/网络瞬时失败会短暂重试；GitHub 代理重试仍失败时会尝试直连一次；遇到真实 merge 冲突时会停止，不会自动覆盖历史；需要手动解决冲突、`git add`、`git commit` 后再重新运行。若 GitHub 中途网络失败但最后刷新后本地、GitHub、Gitee 三边提交一致，脚本会保留 WARN 并按同步成功处理。
 
 预演同步命令但不修改仓库：
 
