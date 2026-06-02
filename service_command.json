@@ -4,8 +4,8 @@
   "receiver": "",
   "status": "success",
   "requested_at_bj": "",
-  "last_started_at_bj": "2026-05-30T14:51:41+08:00",
-  "last_finished_at_bj": "2026-05-30T14:55:48+08:00",
+  "last_started_at_bj": "2026-06-02T09:59:23+08:00",
+  "last_finished_at_bj": "2026-06-02T10:02:35+08:00",
   "last_exit_code": 0,
   "last_message": "service_main.py exit code 0"
 }
