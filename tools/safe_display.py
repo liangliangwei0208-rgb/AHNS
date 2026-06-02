@@ -8,6 +8,7 @@ safe 系列公开展示工具。
 from __future__ import annotations
 
 import math
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +24,7 @@ BRAND_WATERMARK_TEXT = "鱼师AHNS"
 # Safe 系列图片是否用星号隐藏基金名称后半段。
 # 默认脱敏；个别本地调试场景可在调用处显式传 enabled=False。
 MASK_FUND_NAME_WITH_STAR = True
+_WATERMARK_FONT_WARNING_PRINTED = False
 
 
 def mask_fund_name(name: Any, *, enabled: bool | None = None) -> str:
@@ -46,21 +48,107 @@ def mask_fund_name(name: Any, *, enabled: bool | None = None) -> str:
     return text[:keep_len] + "***"
 
 
+def _try_truetype_font(
+    font_path: str,
+    *,
+    size: int,
+    index: int | None = None,
+) -> ImageFont.ImageFont | None:
+    path = Path(font_path)
+    if not path.exists():
+        return None
+    try:
+        if index is None:
+            return ImageFont.truetype(str(path), size=size)
+        return ImageFont.truetype(str(path), size=size, index=index)
+    except Exception:
+        return None
+
+
+def _font_display_name(font: ImageFont.ImageFont) -> str:
+    try:
+        name = font.getname()
+        return " ".join(str(part) for part in name)
+    except Exception:
+        return ""
+
+
+def _warn_default_watermark_font() -> None:
+    global _WATERMARK_FONT_WARNING_PRINTED
+    if _WATERMARK_FONT_WARNING_PRINTED:
+        return
+    _WATERMARK_FONT_WARNING_PRINTED = True
+    print(
+        "[WARN] 未找到可用中文水印字体，safe 图水印将使用 Pillow 默认字体；"
+        "Linux 可安装 fonts-noto-cjk fonts-wqy-microhei。",
+        flush=True,
+    )
+
+
+@lru_cache(maxsize=None)
 def get_watermark_font(size: int) -> ImageFont.ImageFont:
-    """优先使用 Windows 中文字体，保证水印中文字稳定显示。"""
-    font_paths = [
+    """跨平台加载中文水印字体，避免 GitHub Actions 下中文变成方块。"""
+    direct_candidates = [
+        # Windows：保持主机电脑原有优先级
         r"C:\Windows\Fonts\msyhbd.ttc",
         r"C:\Windows\Fonts\msyh.ttc",
         r"C:\Windows\Fonts\simhei.ttf",
         r"C:\Windows\Fonts\simsun.ttc",
+
+        # Ubuntu / Debian：GitHub Actions 已安装 fonts-noto-cjk
+        "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Bold.otf",
+        "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Regular.otf",
+        "/usr/share/fonts/opentype/noto/NotoSerifCJKsc-Bold.otf",
+        "/usr/share/fonts/opentype/noto/NotoSerifCJKsc-Regular.otf",
+        "/usr/share/fonts/truetype/noto/NotoSansSC-Bold.ttf",
+        "/usr/share/fonts/truetype/noto/NotoSansSC-Regular.ttf",
+        "/usr/share/fonts/truetype/noto/NotoSerifSC-Bold.ttf",
+        "/usr/share/fonts/truetype/noto/NotoSerifSC-Regular.ttf",
+
+        # Ubuntu / Debian：fonts-wqy-microhei / fonts-wqy-zenhei
+        "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
+        "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+
+        # macOS：本地临时验证时也能兜住
+        "/System/Library/Fonts/PingFang.ttc",
+        "/System/Library/Fonts/STHeiti Medium.ttc",
+        "/System/Library/Fonts/STHeiti Light.ttc",
     ]
-    for font_path in font_paths:
+    for font_path in direct_candidates:
+        font = _try_truetype_font(font_path, size=size)
+        if font is not None:
+            return font
+
+    ttc_candidates = [
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc",
+    ]
+    for font_path in ttc_candidates:
         path = Path(font_path)
-        if path.exists():
-            try:
-                return ImageFont.truetype(str(path), size=size)
-            except Exception:
-                pass
+        if not path.exists():
+            continue
+        # Noto CJK TTC 通常 index=2 是简体中文；保留其它 index 作为兜底。
+        fallback_font = None
+        for index in [2, 0, 1, 3, 4, 5, 6, 7, 8, 9]:
+            font = _try_truetype_font(font_path, size=size, index=index)
+            if font is None:
+                continue
+            if fallback_font is None:
+                fallback_font = font
+            font_name = _font_display_name(font)
+            if (
+                "CJK SC" in font_name
+                or "Sans SC" in font_name
+                or "Serif SC" in font_name
+                or font_name.endswith(" SC")
+            ):
+                return font
+        if fallback_font is not None:
+            return fallback_font
+
+    _warn_default_watermark_font()
     return ImageFont.load_default()
 
 
