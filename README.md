@@ -199,7 +199,13 @@ Set-Location G:\AHNS
 & F:\anaconda\envs\py310\python.exe .\sync_repos.py
 ```
 
-`sync_repos.py` 默认同步 `main` 分支，默认远程名是 `origin`（GitHub）和 `gitee`（Gitee）。主机电脑建议让 `origin` 使用 `https://github.com/liangliangwei0208-rgb/AHNS.git`，并只给 `github.com` 配置 SakuraCat HTTP 代理和 OpenSSL；`gitee` 保持直连。流程是：检查分支和工作区、拉取两个远程、合并远程提交、推送到两个远程、打印最终提交位置。遇到疑似代理/网络瞬时失败会短暂重试；GitHub 代理重试仍失败时会尝试直连一次；遇到真实 merge 冲突时会停止，不会自动覆盖历史；需要手动解决冲突、`git add`、`git commit` 后再重新运行。若 GitHub 中途网络失败但最后刷新后本地、GitHub、Gitee 三边提交一致，脚本会保留 WARN 并按同步成功处理。
+`sync_repos.py` 默认同步 `main` 分支，默认远程名是 `origin`（GitHub）和 `gitee`（Gitee）。主机电脑建议让 `origin` 使用 `https://github.com/liangliangwei0208-rgb/AHNS.git`，并只给 `github.com` 配置 SakuraCat HTTP 代理和 OpenSSL；`gitee` 保持直连。流程是：检查分支和工作区、拉取两个远程、合并远程提交、推送到两个远程、打印最终提交位置。遇到疑似代理/网络瞬时失败会短暂重试；GitHub 代理重试仍失败时会尝试直连一次。若 GitHub Actions 和小电脑同时写运行缓存，`sync_repos.py` 会自动合并白名单缓存冲突：`cache/*_index_daily.csv` 按日期合并，`cache/fund_estimate_return_cache.json` 和 `cache/security_return_cache.json` 按 key 保留数据质量更好、时间更新的记录。源码、配置、文档或非白名单文件冲突不会自动处理，需要手动解决冲突、`git add`、`git commit` 后再重新运行。若 GitHub 中途网络失败但最后刷新后本地、GitHub、Gitee 三边提交一致，脚本会保留 WARN 并按同步成功处理。
+
+如果仓库已经卡在运行缓存 merge 冲突状态，可只恢复当前冲突，不重新拉取或推送：
+
+```powershell
+& F:\anaconda\envs\py310\python.exe .\sync_repos.py --resolve-cache-conflicts
+```
 
 预演同步命令但不修改仓库：
 
@@ -495,7 +501,7 @@ Matplotlib 表格和 RSI 图默认使用 180 DPI，科普图使用 Pillow 固定
 
 - Yahoo、新浪、东方财富出现 `SSLEOFError`、`Max retries exceeded` 等网络错误时，通常是接口或链路临时不稳定。代码会记录失败链路并继续处理其他证券；若状态是 `pending/missing/stale`，下次运行不会被这条诊断缓存挡住，会继续重试。
 - 单只证券失败，例如某只美股日线源全部失败，只影响持有该证券的基金有效持仓覆盖率；先看 `output/failed_holdings_latest.txt` 的“异常证券”和“失败/未完成持仓明细”。
-- Actions 自动回推缓存后，如果本地运行提示 JSON 解析失败，先同步远端完整缓存或按报错行号修复破损 JSON。不要给 `security_return_cache.json` 这类 key-map JSON 手工插入注释字段。
+- Actions 自动回推缓存后，如果本地运行提示 JSON 解析失败，先看是否处于 merge 冲突。运行缓存冲突优先用 `sync_repos.py --resolve-cache-conflicts` 自动合并；若仍有 JSON 解析错误，再按报错行号修复破损 JSON。不要给 `security_return_cache.json` 这类 key-map JSON 手工插入注释字段。
 - 国内 ETF 需要实时结果，RSI 缓存优化不会取消 `include_realtime=True` 的实时补点。
 - 刚收盘或海外市场尚未完整收盘时，美股可能是 `pending`，贡献暂时为 0，后续重新运行会刷新。
 - 如果 `fund_estimate_breakdown.py` 已显示某个持仓修复为正确涨跌幅，但基金合计仍是旧值，需要先运行 `main.py` 或 `git_main.py --no-send` 重新写入基金缓存。

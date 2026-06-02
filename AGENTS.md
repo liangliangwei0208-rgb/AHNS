@@ -114,7 +114,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `service_main.py`：小电脑服务触发后的业务入口，复用 `git_main.py` 总控逻辑，但使用包含富途夜盘窗口的 Service 流程。
 - `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置 UTF-8 输出、仓库目录、Python 路径、日志路径、日志裁剪和 `--primary-remote gitee`。
 - `tail_ahns_log.ps1`：查看监听日志的 UTF-8 PowerShell 脚本，优先用它替代手写 `Get-Content -Wait`。
-- `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；建议 `origin` 使用 GitHub HTTPS，并只给 `github.com` 走 SakuraCat HTTP 代理和 OpenSSL，`gitee` 保持直连；疑似网络瞬时失败会短暂重试，GitHub 代理重试仍失败时会直连一次，遇到真实 merge 冲突会停止，不自动覆盖历史。
+- `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；建议 `origin` 使用 GitHub HTTPS，并只给 `github.com` 走 SakuraCat HTTP 代理和 OpenSSL，`gitee` 保持直连；疑似网络瞬时失败会短暂重试，GitHub 代理重试仍失败时会直连一次；只会自动合并运行缓存白名单冲突，例如 `cache/*_index_daily.csv`、`cache/fund_estimate_return_cache.json`、`cache/security_return_cache.json`，源码、配置和文档冲突仍会停止。
 - `github_gitee_sync.py`：通用 GitHub/Gitee 同名仓库初始化和同步脚本；可复制到其他本地 Git 仓库根目录使用，默认读取 `origin` 推导 Gitee remote；缺少 GitHub remote 时会询问仓库信息，并用 `GITHUB_TOKEN` / `GH_TOKEN` 创建公开 GitHub 仓库；缺 Gitee 仓库时用 `GITEE_ACCESS_TOKEN` 创建公开仓库。
 - `main.py`：主计算入口，生成市场 RSI 图、海外/全球基金详细估算图，并写入 `cache/fund_estimate_return_cache.json`。
 - `premarket_fund.py`：盘前观察图手动入口；生成 `output/safe_haiwai_premarket.png` 和盘前失败报告，不写正式基金估算缓存。
@@ -501,9 +501,9 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 - A 股节假日判断频繁联网：检查 `cache/a_share_trade_calendar_cache.json` 是否存在、`fetched_at` 是否在 7 天内；缓存新鲜时脚本日志应显示 `fresh`。
 - RSI 图仍频繁重拉历史：检查对应 `cache/*_index_daily.csv` 是否存在、最新日期是否足够新，以及文件是否已在当天检查过。
 - 需要查看本轮异常持仓：打开 `output/failed_holdings_latest.txt`，先看“运行汇总”和“唯一证券汇总”，再看底部“失败/未完成持仓明细”。
-- Actions 自动回推缓存后，本地运行出现 JSON 解析失败：先停止继续写缓存，检查报错文件和行号，例如 `cache/security_return_cache.json` 的对应位置。常见原因是本地与远端缓存合并冲突、手工编辑残留或文件截断。修复方式应优先重新拉取远端完整缓存或用 JSON 校验定位破损片段；不要给 key-map JSON 手工加入注释字段。
+- Actions 自动回推缓存后，本地运行出现 JSON 解析失败：先停止继续写缓存，检查是否处于 Git merge 冲突。运行缓存冲突优先运行 `sync_repos.py --resolve-cache-conflicts` 自动合并；如果不是 merge 冲突，再按报错文件和行号定位破损片段。不要给 key-map JSON 手工加入注释字段。
 - 小电脑监听日志里如果还出现主动访问 GitHub，先检查计划任务参数和 `start_ahns_command_watcher.ps1`，应只传 `--primary-remote gitee`。
-- `sync_repos.py` 合并冲突时会停止；不要自动 reset 或覆盖远端。正确流程是人工解决冲突、`git add`、`git commit`，然后重新运行同步脚本。
+- `sync_repos.py` 只自动处理运行缓存白名单冲突；遇到源码、配置、文档或非白名单缓存冲突会停止。不要自动 reset 或覆盖远端；正确流程是人工解决冲突、`git add`、`git commit`，然后重新运行同步脚本。
 - `github_gitee_sync.py` 创建 GitHub 仓库失败时，先检查 `GITHUB_TOKEN` 或 `GH_TOKEN` 是否存在、令牌是否有创建仓库权限、GitHub 用户/组织是否和 `--github-owner` 一致；默认创建公开 GitHub 仓库，私有 GitHub 仓库才加 `--github-private`。
 - `github_gitee_sync.py` 创建 Gitee 仓库失败时，先检查 `GITEE_ACCESS_TOKEN` 是否存在、令牌是否有创建仓库权限、Gitee 命名空间是否和 `--gitee-owner` 一致；默认创建公开 Gitee 仓库，私有 Gitee 仓库才加 `--private`。
 
