@@ -247,6 +247,23 @@ GitHub 仓库默认公开；如需创建私有 GitHub 仓库，使用 `--github-
 & F:\anaconda\envs\py310\python.exe .\github_gitee_sync.py --fix-remote
 ```
 
+### 手机端触发小电脑运行
+
+如果不方便在手机浏览器里打开 Gitee 修改 `service_command.json`，可以直接用 GitHub App 手动运行 workflow：`Trigger Service Command`。这个 workflow 只做一件事：把 Gitee `main` 上的 `service_command.json` 改成 `run_flag=1` 并推回 Gitee；小电脑 watcher 下一轮轮询到后会照常运行 `service_main.py`，结束后再把 `run_flag` 改回 `0` 并回写状态。
+
+GitHub 仓库需要在 Settings -> Secrets and variables -> Actions -> Secrets 中配置：
+
+- `GITEE_PRIVATE_CODE`：Gitee 私人令牌。必须放在 Secrets，不建议放普通 Variables，避免日志遮盖规则不生效。
+
+手机端使用方式：
+
+1. 打开 GitHub App，进入仓库的 Actions。
+2. 选择 `Trigger Service Command`。
+3. 点 `Run workflow`，可选设置 `no_send`、`receiver` 和 `message`。
+4. 等待小电脑 watcher 轮询，当前默认最多约 60 秒响应。
+
+这个 workflow 基于 Gitee 最新 `main` 提交修改指令文件，只 stage `service_command.json`，不会提交缓存、输出图或源码，也不会把 Gitee 令牌写入仓库、Git config 或日志明文。Actions 日志会打印触发人、输入摘要、Gitee fetch、指令提交和每次送达尝试；如果 Gitee 推送临时失败，会按默认 HTTPS、HTTP/1.1、刷新最新 Gitee main 后重建提交、放宽 HTTP 低速保护的顺序重试，最后再用 Gitee API 直接更新 `service_command.json` 作为兜底。
+
 ## 常用维护入口
 
 - `service_command_watcher.py`：小电脑服务器长期监听入口，默认监听 `gitee/main` 的 `service_command.json`，不再默认兜底访问 GitHub。
@@ -377,12 +394,14 @@ Copy-Item .\tools\email_local_config.example.py .\tools\email_local_config.py
 ## GitHub Actions
 
 workflow 文件：`.github/workflows/ahns-daily.yml`。
+手机端触发小电脑运行的 workflow 文件：`.github/workflows/trigger-service-command.yml`。
 
 触发方式：
 
 - 手动触发：`workflow_dispatch`
 - 定时触发：
   - UTC `10 21 * * *`，北京时间次日 05:10
+- `Trigger Service Command` 仅手动触发，不设置定时任务；它只向 Gitee 写入 `service_command.json` 指令，不运行 `git_main.py`。该 workflow 会在日志和 Step Summary 里打印触发状态，并对 Gitee push 做多轮重试；Git push 全部失败时，会用 Gitee API 兜底更新指令文件。
 
 运行环境：
 
@@ -396,6 +415,7 @@ workflow 文件：`.github/workflows/ahns-daily.yml`。
 - `QQ_EMAIL_ACCOUNT`
 - `QQ_EMAIL_AUTH_CODE`
 - `QQ_EMAIL_RECEIVER` 可选
+- `GITEE_PRIVATE_CODE`：Gitee 私人令牌，仅 `Trigger Service Command` 使用，必须配置为 Secret。
 
 Actions 运行 `python git_main.py`，使用 GitHub 流程：完整日流程会照常运行，命中盘前/盘中/盘后窗口时追加对应实时观察；不运行富途夜盘，也不自动生成 `first_pic.py`。
 

@@ -36,6 +36,8 @@
 - GitHub 仍是主仓库和长期存档；主机电脑改完代码后运行 `sync_repos.py`，负责把本地、GitHub、Gitee 三边同步；其他仓库可复制 `github_gitee_sync.py` 做同名 GitHub/Gitee 仓库初始化和三边同步。
 - 监听入口是 `service_command_watcher.py --interval-seconds 60 --primary-remote gitee`，计划任务实际调用 `start_ahns_command_watcher.ps1`。
 - `service_runner.py` 默认 `DEFAULT_PRIMARY_REMOTE=gitee`，`DEFAULT_FALLBACK_REMOTE=None`；如需临时兜底 GitHub，必须显式传 `--fallback-remote origin` 或设置环境变量。
+- 手机端触发小电脑运行优先用 GitHub Actions workflow `Trigger Service Command`。它只把 Gitee `service_command.json` 写成 `run_flag=1` 并推回 Gitee；小电脑仍只监听 `gitee/main`，下一轮轮询后运行服务流程。该 workflow 会打印触发摘要、Gitee fetch、指令提交和每次送达尝试，并按多种 Git/HTTP 参数重试 Gitee 推送；Git push 全部失败时，会用 Gitee API 兜底更新指令文件。
+- `Trigger Service Command` 需要 GitHub Actions Secret `GITEE_PRIVATE_CODE`。该值必须放在 Secrets，不要放普通 Variables，不要写入 README、AGENTS、workflow 明文或本地 Git config。
 - 小电脑监听运行时间是北京时间 06:00-24:00。`AHNS Command Watcher` 每日 06:00 和登录后启动；`start_ahns_command_watcher.ps1` 在 06:00 前直接退出；`AHNS Command Watcher Stop` 每日 00:00 停止监听。
 - `Futu OpenD Autostart` 登录后启动 `C:\Users\Administrator\AppData\Roaming\Futu_OpenD\Futu_OpenD.exe`。富途夜盘依赖 Futu OpenD 已登录并在线；自动启动只能打开程序，不能替代扫码或登录。
 - 小电脑监听日志在 `C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log`。日志占用磁盘，不会一直占用内存；`start_ahns_command_watcher.ps1` 启动时会在日志超过 20MB 后只保留最近 3000 行。
@@ -112,6 +114,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `service_command_watcher.py`：小电脑服务器长期监听入口，默认监听 `gitee/main` 的 `service_command.json`，根据 `run_flag` 触发服务流程。
 - `service_runner.py`：小电脑服务器单次运行流程，负责 pull、运行 `service_main.py`、提交允许范围内的变化、push。
 - `service_main.py`：小电脑服务触发后的业务入口，复用 `git_main.py` 总控逻辑，但使用包含富途夜盘窗口的 Service 流程。
+- `.github/workflows/trigger-service-command.yml`：GitHub App 手动触发小电脑运行的入口，只更新并推送 Gitee 上的 `service_command.json`，不运行主业务流程。
 - `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置 UTF-8 输出、仓库目录、Python 路径、日志路径、日志裁剪和 `--primary-remote gitee`。
 - `tail_ahns_log.ps1`：查看监听日志的 UTF-8 PowerShell 脚本，优先用它替代手写 `Get-Content -Wait`。
 - `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；建议 `origin` 使用 GitHub HTTPS，并只给 `github.com` 走 SakuraCat HTTP 代理和 OpenSSL，`gitee` 保持直连；疑似网络瞬时失败会短暂重试，GitHub 代理重试仍失败时会直连一次；只会自动合并运行缓存白名单冲突，例如 `cache/*_index_daily.csv`、`cache/fund_estimate_return_cache.json`、`cache/security_return_cache.json`，源码、配置和文档冲突仍会停止。
