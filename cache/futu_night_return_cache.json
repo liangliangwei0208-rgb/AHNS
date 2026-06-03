@@ -1,4 +1,35 @@
 {
+  "US:MRK:2026-06-03": {
+    "return_pct": 0.0,
+    "source": "futu_night_1m_calc",
+    "status": "traded",
+    "trade_date": "2026-06-03",
+    "quote_time_bj": "2026-06-03T15:24:00+08:00",
+    "market": "US",
+    "ticker": "MRK",
+    "futu_code": "US.MRK",
+    "latest_price": 115.94,
+    "reference_price": 115.94,
+    "cache_scope": "futu_night",
+    "fetched_at_bj": "2026-06-03T15:23:45+08:00"
+  },
+  "VIX_LEVEL:VIX:2026-06-03": {
+    "benchmark_key": "vix",
+    "label": "VIX恐慌指数",
+    "ticker": "VIX",
+    "market": "VIX_LEVEL",
+    "kind": "vix_level",
+    "return_pct": null,
+    "value": 15.77,
+    "display_value": "15.77",
+    "trade_date": "2026-06-02",
+    "source": "vix_latest_close_fallback:CBOE",
+    "status": "traded",
+    "value_type": "level",
+    "error": "VIX 实时点位获取失败: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true') | https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true')",
+    "cache_scope": "futu_night",
+    "fetched_at_bj": "2026-06-03T15:23:45+08:00"
+  },
   "US:AAOI:2026-06-03": {
     "return_pct": 2.609,
     "source": "futu_night_snapshot",
@@ -612,20 +643,6 @@
     "futu_code": "US.MPWR",
     "latest_price": 1613.97,
     "reference_price": 1542.39,
-    "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-06-03T15:14:53+08:00"
-  },
-  "US:MRK:2026-06-03": {
-    "return_pct": 0.25,
-    "source": "futu_night_snapshot",
-    "status": "traded",
-    "trade_date": "2026-06-03",
-    "quote_time_bj": "2026-06-03T14:38:32+08:00",
-    "market": "US",
-    "ticker": "MRK",
-    "futu_code": "US.MRK",
-    "latest_price": 115.94,
-    "reference_price": 115.17,
     "cache_scope": "futu_night",
     "fetched_at_bj": "2026-06-03T15:14:53+08:00"
   },
@@ -1646,23 +1663,6 @@
     "fetched_at_bj": "2026-06-03T15:14:53+08:00",
     "market": "HK",
     "ticker": "03750"
-  },
-  "VIX_LEVEL:VIX:2026-06-03": {
-    "benchmark_key": "vix",
-    "label": "VIX恐慌指数",
-    "ticker": "VIX",
-    "market": "VIX_LEVEL",
-    "kind": "vix_level",
-    "return_pct": null,
-    "value": 15.77,
-    "display_value": "15.77",
-    "trade_date": "2026-06-02",
-    "source": "vix_latest_close_fallback:CBOE",
-    "status": "traded",
-    "value_type": "level",
-    "error": "VIX 实时点位获取失败: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true') | https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true')",
-    "cache_scope": "futu_night",
-    "fetched_at_bj": "2026-06-03T15:14:53+08:00"
   },
   "VIX_LEVEL:VIX:2026-06-02": {
     "benchmark_key": "vix",
