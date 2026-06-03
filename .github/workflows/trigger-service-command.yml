@@ -1,6 +1,6 @@
 name: Trigger Service Command
 
-"on":
+on:
   workflow_dispatch:
     inputs:
       no_send:
@@ -38,9 +38,9 @@ jobs:
       GITEE_USERNAME: liangliang2000
       GITEE_REPOSITORY: https://gitee.com/liangliang2000/AHNS.git
       GITEE_TOKEN: ${{ secrets.GITEE_PRIVATE_CODE }}
-      INPUT_NO_SEND: ${{ inputs.no_send }}
-      INPUT_RECEIVER: ${{ inputs.receiver }}
-      INPUT_MESSAGE: ${{ inputs.message }}
+      INPUT_NO_SEND: ${{ github.event.inputs.no_send }}
+      INPUT_RECEIVER: ${{ github.event.inputs.receiver }}
+      INPUT_MESSAGE: ${{ github.event.inputs.message }}
 
     steps:
       - name: Checkout GitHub repository
@@ -48,295 +48,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check Gitee token
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "${GITEE_TOKEN}" ]; then
-            echo "::error::Missing GitHub Actions secret: GITEE_PRIVATE_CODE"
-            exit 1
-          fi
-          echo "::add-mask::${GITEE_TOKEN}"
-          echo "Trigger actor: ${GITHUB_ACTOR}"
-          echo "GitHub run id: ${GITHUB_RUN_ID}"
-          echo "Input no_send: ${INPUT_NO_SEND}"
-          if [ -n "${INPUT_RECEIVER}" ]; then
-            echo "Input receiver: provided"
-          else
-            echo "Input receiver: default"
-          fi
+      - name: Compile trigger helper
+        run: python -m py_compile tools/trigger_service_command.py
 
-      - name: Prepare Gitee credentials
-        shell: bash
-        run: |
-          set -euo pipefail
-          askpass="${RUNNER_TEMP}/gitee-askpass.sh"
-          cat > "${askpass}" <<'EOF'
-#!/usr/bin/env bash
-case "$1" in
-  *Username*) printf '%s\n' "${GITEE_USERNAME}" ;;
-  *Password*) printf '%s\n' "${GITEE_TOKEN}" ;;
-  *) printf '\n' ;;
-esac
-EOF
-          chmod 700 "${askpass}"
-          echo "GIT_ASKPASS=${askpass}" >> "${GITHUB_ENV}"
-          echo "GIT_TERMINAL_PROMPT=0" >> "${GITHUB_ENV}"
-          echo "Gitee credential helper is ready."
-
-      - name: Load latest Gitee main
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "::group::Fetch Gitee main"
-          git remote remove gitee 2>/dev/null || true
-          git remote add gitee "${GITEE_REPOSITORY}"
-          echo "Gitee repository: ${GITEE_REPOSITORY}"
-          git -c http.version=HTTP/1.1 fetch --verbose gitee main
-          git checkout -B gitee-command FETCH_HEAD
-          echo "Loaded Gitee main at $(git rev-parse --short=12 HEAD)"
-          echo "::endgroup::"
-
-      - name: Prepare command update helper
-        shell: bash
-        run: |
-          set -euo pipefail
-          helper="${RUNNER_TEMP}/update_service_command.py"
-          cat > "${helper}" <<'PY'
-import json
-import os
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
-
-command_file = Path("service_command.json")
-command = json.loads(command_file.read_text(encoding="utf-8"))
-if not isinstance(command, dict):
-    raise SystemExit("service_command.json root must be a JSON object")
-
-def truthy(value: str) -> bool:
-    return str(value or "").strip().lower() in {"1", "true", "yes", "on"}
-
-now_bj = datetime.now(timezone(timedelta(hours=8))).isoformat(timespec="seconds")
-message = (os.environ.get("INPUT_MESSAGE") or "").strip()
-actor = os.environ.get("GITHUB_ACTOR") or "unknown"
-run_id = os.environ.get("GITHUB_RUN_ID") or "unknown"
-request_message = f"requested from GitHub Actions by {actor}, run_id={run_id}"
-if message:
-    request_message = f"{request_message}: {message}"
-
-command["run_flag"] = 1
-command["no_send"] = truthy(os.environ.get("INPUT_NO_SEND", "false"))
-command["receiver"] = (os.environ.get("INPUT_RECEIVER") or "").strip()
-command["status"] = "requested"
-command["requested_at_bj"] = now_bj
-command["last_message"] = request_message[:500]
-
-command_file.write_text(
-    json.dumps(command, ensure_ascii=False, indent=2) + "\n",
-    encoding="utf-8",
-)
-
-print(
-    "service_command.json updated: "
-    f"run_flag=1, status=requested, no_send={command['no_send']}, "
-    f"receiver_set={bool(command['receiver'])}, requested_at_bj={now_bj}"
-)
-PY
-          echo "COMMAND_UPDATE_SCRIPT=${helper}" >> "${GITHUB_ENV}"
-
-      - name: Update command file
-        shell: bash
-        run: |
-          set -euo pipefail
-          python "${COMMAND_UPDATE_SCRIPT}"
-
-      - name: Commit command request
-        id: commit_request
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add -- service_command.json
-          if git diff --cached --quiet; then
-            echo "service_command.json did not change."
-            echo "commit_created=false" >> "${GITHUB_OUTPUT}"
-            exit 0
-          fi
-
-          git commit -m "Request service run from GitHub [skip ci]"
-          echo "Command request commit: $(git rev-parse --short=12 HEAD)"
-          echo "commit_created=true" >> "${GITHUB_OUTPUT}"
-
-      - name: Push command request to Gitee
-        if: steps.commit_request.outputs.commit_created == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          push_attempt() {
-            local label="$1"
-            shift
-            echo "::group::${label}"
-            if "$@"; then
-              echo "${label}: success"
-              echo "::endgroup::"
-              return 0
-            fi
-            local code=$?
-            echo "::warning::${label}: failed with exit code ${code}"
-            echo "::endgroup::"
-            return "${code}"
-          }
-
-          recommit_on_latest_gitee() {
-            echo "::group::Refresh latest Gitee main and recommit command"
-            if ! git -c http.version=HTTP/1.1 fetch --verbose gitee main; then
-              echo "::warning::Could not refresh latest Gitee main before retry."
-              echo "::endgroup::"
-              return 1
-            fi
-
-            git checkout -B gitee-command FETCH_HEAD
-            python "${COMMAND_UPDATE_SCRIPT}"
-            git add -- service_command.json
-            if git diff --cached --quiet; then
-              echo "No command diff after refreshing latest Gitee main."
-              echo "::endgroup::"
-              return 0
-            fi
-
-            git commit -m "Request service run from GitHub [skip ci]"
-            echo "Recreated command request commit: $(git rev-parse --short=12 HEAD)"
-            echo "::endgroup::"
-            return 0
-          }
-
-          update_command_with_gitee_api() {
-            echo "::group::Fallback: update service_command.json through Gitee API"
-            local api_base="https://gitee.com/api/v5/repos/liangliang2000/AHNS/contents/service_command.json"
-            local api_json="${RUNNER_TEMP}/gitee-service-command.json"
-            local api_sha_file="${RUNNER_TEMP}/gitee-service-command.sha"
-            local api_response="${RUNNER_TEMP}/gitee-update-response.json"
-
-            if ! curl --fail --silent --show-error \
-              --connect-timeout 20 \
-              --max-time 60 \
-              --retry 2 \
-              --retry-delay 5 \
-              --retry-all-errors \
-              --get \
-              --data-urlencode "access_token=${GITEE_TOKEN}" \
-              --data-urlencode "ref=main" \
-              "${api_base}" \
-              --output "${api_json}"; then
-              echo "::warning::Gitee API could not read current service_command.json."
-              echo "::endgroup::"
-              return 1
-            fi
-
-            python - "${api_json}" "${api_sha_file}" <<'PY'
-import base64
-import json
-import sys
-from pathlib import Path
-
-payload = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-sha = str(payload.get("sha") or "").strip()
-content = str(payload.get("content") or "")
-if not sha or not content:
-    raise SystemExit("Gitee API response is missing sha or content")
-Path("service_command.json").write_bytes(base64.b64decode("".join(content.split())))
-Path(sys.argv[2]).write_text(sha, encoding="utf-8")
-PY
-
-            python "${COMMAND_UPDATE_SCRIPT}"
-            local content_b64
-            local api_sha
-            content_b64="$(base64 -w0 service_command.json)"
-            api_sha="$(cat "${api_sha_file}")"
-
-            if ! curl --fail --silent --show-error \
-              --connect-timeout 20 \
-              --max-time 60 \
-              --retry 2 \
-              --retry-delay 5 \
-              --retry-all-errors \
-              --request PUT \
-              --data-urlencode "access_token=${GITEE_TOKEN}" \
-              --data-urlencode "content=${content_b64}" \
-              --data-urlencode "message=Request service run from GitHub [skip ci]" \
-              --data-urlencode "branch=main" \
-              --data-urlencode "sha=${api_sha}" \
-              --data-urlencode "committer[name]=github-actions[bot]" \
-              --data-urlencode "committer[email]=41898282+github-actions[bot]@users.noreply.github.com" \
-              "${api_base}" \
-              --output "${api_response}"; then
-              echo "::warning::Gitee API update failed."
-              echo "::endgroup::"
-              return 1
-            fi
-
-            python - "${api_response}" <<'PY'
-import json
-import sys
-from pathlib import Path
-
-payload = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-commit = payload.get("commit") if isinstance(payload, dict) else None
-sha = ""
-if isinstance(commit, dict):
-    sha = str(commit.get("sha") or "")
-print(f"Gitee API update succeeded. commit={sha[:12] or 'unknown'}")
-PY
-            echo "::endgroup::"
-            return 0
-          }
-
-          if push_attempt "Push attempt 1: default HTTPS" \
-            git push gitee HEAD:main; then
-            echo "Command request pushed to Gitee."
-            exit 0
-          fi
-
-          sleep 5
-          if push_attempt "Push attempt 2: force HTTP/1.1" \
-            git -c http.version=HTTP/1.1 push gitee HEAD:main; then
-            echo "Command request pushed to Gitee."
-            exit 0
-          fi
-
-          sleep 10
-          recommit_on_latest_gitee || true
-          if push_attempt "Push attempt 3: refreshed latest Gitee main" \
-            git -c http.version=HTTP/1.1 push gitee HEAD:main; then
-            echo "Command request pushed to Gitee after refresh."
-            exit 0
-          fi
-
-          sleep 10
-          if push_attempt "Push attempt 4: relaxed HTTP timeout guard" \
-            git \
-              -c http.version=HTTP/1.1 \
-              -c http.lowSpeedLimit=0 \
-              -c http.lowSpeedTime=999999 \
-              push gitee HEAD:main; then
-            echo "Command request pushed to Gitee with relaxed HTTP guard."
-            exit 0
-          fi
-
-          if update_command_with_gitee_api; then
-            echo "Command request updated through Gitee API fallback."
-            exit 0
-          fi
-
-          echo "::error::Failed to deliver service_command.json request to Gitee after all Git and API attempts."
-          exit 1
+      - name: Request service run through Gitee
+        run: python tools/trigger_service_command.py
 
       - name: Write trigger summary
         if: always()
-        shell: bash
         run: |
           {
             echo "## Trigger Service Command"
@@ -350,6 +69,5 @@ PY
               echo "- receiver: default"
             fi
             echo "- Gitee repository: ${GITEE_REPOSITORY}"
-            echo "- Commit created: ${{ steps.commit_request.outputs.commit_created || 'unknown' }}"
             echo "- Delivery fallbacks: git push default, HTTP/1.1, refreshed Gitee main, relaxed HTTP guard, Gitee API"
           } >> "${GITHUB_STEP_SUMMARY}"

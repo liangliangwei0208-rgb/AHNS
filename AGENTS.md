@@ -114,7 +114,8 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `service_command_watcher.py`：小电脑服务器长期监听入口，默认监听 `gitee/main` 的 `service_command.json`，根据 `run_flag` 触发服务流程。
 - `service_runner.py`：小电脑服务器单次运行流程，负责 pull、运行 `service_main.py`、提交允许范围内的变化、push。
 - `service_main.py`：小电脑服务触发后的业务入口，复用 `git_main.py` 总控逻辑，但使用包含富途夜盘窗口的 Service 流程。
-- `.github/workflows/trigger-service-command.yml`：GitHub App 手动触发小电脑运行的入口，只更新并推送 Gitee 上的 `service_command.json`，不运行主业务流程。
+- `.github/workflows/trigger-service-command.yml`：GitHub App 手动触发小电脑运行的入口，只编译并调用 `tools/trigger_service_command.py`，不直接内嵌复杂业务逻辑，不运行主业务流程。
+- `tools/trigger_service_command.py`：GitHub Actions 触发小电脑运行的 helper，负责基于 Gitee 最新 `main` 更新 `service_command.json`、提交、Git push 多轮重试，以及 Gitee API 兜底。
 - `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置 UTF-8 输出、仓库目录、Python 路径、日志路径、日志裁剪和 `--primary-remote gitee`。
 - `tail_ahns_log.ps1`：查看监听日志的 UTF-8 PowerShell 脚本，优先用它替代手写 `Get-Content -Wait`。
 - `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；建议 `origin` 使用 GitHub HTTPS，并只给 `github.com` 走 SakuraCat HTTP 代理和 OpenSSL，`gitee` 保持直连；疑似网络瞬时失败会短暂重试，GitHub 代理重试仍失败时会直连一次；只会自动合并运行缓存白名单冲突，例如 `cache/*_index_daily.csv`、`cache/fund_estimate_return_cache.json`、`cache/security_return_cache.json`，源码、配置和文档冲突仍会停止。
