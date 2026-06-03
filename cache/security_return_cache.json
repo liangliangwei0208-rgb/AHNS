@@ -177,6 +177,18 @@
     "error": "",
     "fetched_at": "2026-06-01T20:20:10+08:00"
   },
+  "SECURITY:CN:002384:2026-06-02": {
+    "market": "CN",
+    "ticker": "002384",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 10.0,
+    "status": "traded",
+    "source": "ak_stock_zh_a_hist_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:07+08:00"
+  },
   "SECURITY:CN:300308:2026-05-08": {
     "market": "CN",
     "ticker": "300308",
@@ -344,6 +356,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-01T20:20:02+08:00"
+  },
+  "SECURITY:CN:300308:2026-06-02": {
+    "market": "CN",
+    "ticker": "300308",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 5.47,
+    "status": "traded",
+    "source": "ak_stock_zh_a_hist_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:06+08:00"
   },
   "SECURITY:CN:300476:2026-05-08": {
     "market": "CN",
@@ -513,6 +537,18 @@
     "error": "",
     "fetched_at": "2026-06-01T20:20:22+08:00"
   },
+  "SECURITY:CN:300476:2026-06-02": {
+    "market": "CN",
+    "ticker": "300476",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 1.97,
+    "status": "traded",
+    "source": "ak_stock_zh_a_hist_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:26+08:00"
+  },
   "SECURITY:CN:300502:2026-05-08": {
     "market": "CN",
     "ticker": "300502",
@@ -680,6 +716,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-01T20:20:02+08:00"
+  },
+  "SECURITY:CN:300502:2026-06-02": {
+    "market": "CN",
+    "ticker": "300502",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 9.88,
+    "status": "traded",
+    "source": "ak_stock_zh_a_hist_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:04+08:00"
   },
   "SECURITY:CN:688256:2026-05-08": {
     "market": "CN",
@@ -849,6 +897,18 @@
     "error": "",
     "fetched_at": "2026-06-01T20:20:30+08:00"
   },
+  "SECURITY:CN:688256:2026-06-02": {
+    "market": "CN",
+    "ticker": "688256",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 5.01,
+    "status": "traded",
+    "source": "ak_stock_zh_a_hist_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:35+08:00"
+  },
   "SECURITY:CN:688498:2026-05-08": {
     "market": "CN",
     "ticker": "688498",
@@ -1016,6 +1076,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-01T20:20:03+08:00"
+  },
+  "SECURITY:CN:688498:2026-06-02": {
+    "market": "CN",
+    "ticker": "688498",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 12.43,
+    "status": "traded",
+    "source": "ak_stock_zh_a_hist_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:06+08:00"
   },
   "SECURITY:CN:688519:2026-05-08": {
     "market": "CN",
@@ -1185,6 +1257,18 @@
     "error": "",
     "fetched_at": "2026-06-01T20:21:06+08:00"
   },
+  "SECURITY:CN:688519:2026-06-02": {
+    "market": "CN",
+    "ticker": "688519",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 10.33,
+    "status": "traded",
+    "source": "ak_stock_zh_a_hist_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:21+08:00"
+  },
   "SECURITY:FOREIGN_FUTURES:XAU:2026-05-08": {
     "market": "FOREIGN_FUTURES",
     "ticker": "XAU",
@@ -1328,6 +1412,18 @@
     "calendar_is_open": null,
     "error": "",
     "fetched_at": "2026-06-02T09:59:49+08:00"
+  },
+  "SECURITY:FOREIGN_FUTURES:XAU:2026-06-02": {
+    "market": "FOREIGN_FUTURES",
+    "ticker": "XAU",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.06890169801434531,
+    "status": "traded",
+    "source": "ak_futures_foreign_hist_sina",
+    "calendar_is_open": null,
+    "error": "",
+    "fetched_at": "2026-06-03T10:04:40+08:00"
   },
   "SECURITY:HK:00100:2026-05-08": {
     "market": "HK",
@@ -1497,6 +1593,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:17+08:00"
   },
+  "SECURITY:HK:00100:2026-06-02": {
+    "market": "HK",
+    "ticker": "00100",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -5.720338983050843,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:20+08:00"
+  },
   "SECURITY:HK:00522:2026-05-08": {
     "market": "HK",
     "ticker": "00522",
@@ -1664,6 +1772,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:27+08:00"
+  },
+  "SECURITY:HK:00522:2026-06-02": {
+    "market": "HK",
+    "ticker": "00522",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.4846526655896466,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:19+08:00"
   },
   "SECURITY:HK:00700:2026-05-08": {
     "market": "HK",
@@ -1833,6 +1953,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:16+08:00"
   },
+  "SECURITY:HK:00700:2026-06-02": {
+    "market": "HK",
+    "ticker": "00700",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 10.45871559633027,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:18+08:00"
+  },
   "SECURITY:HK:00883:2026-05-08": {
     "market": "HK",
     "ticker": "00883",
@@ -2000,6 +2132,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:45+08:00"
+  },
+  "SECURITY:HK:00883:2026-06-02": {
+    "market": "HK",
+    "ticker": "00883",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 2.4719101123595433,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:45+08:00"
   },
   "SECURITY:HK:00981:2026-05-08": {
     "market": "HK",
@@ -2169,6 +2313,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:32+08:00"
   },
+  "SECURITY:HK:00981:2026-06-02": {
+    "market": "HK",
+    "ticker": "00981",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 3.15,
+    "status": "traded",
+    "source": "ak_stock_hk_hist_em_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:32+08:00"
+  },
   "SECURITY:HK:01088:2026-05-08": {
     "market": "HK",
     "ticker": "01088",
@@ -2336,6 +2492,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:44+08:00"
+  },
+  "SECURITY:HK:01088:2026-06-02": {
+    "market": "HK",
+    "ticker": "01088",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -2.201524132091448,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:44+08:00"
   },
   "SECURITY:HK:01179:2026-05-08": {
     "market": "HK",
@@ -2505,6 +2673,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:15+08:00"
   },
+  "SECURITY:HK:01179:2026-06-02": {
+    "market": "HK",
+    "ticker": "01179",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.05627462014630158,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:17+08:00"
+  },
   "SECURITY:HK:01347:2026-05-08": {
     "market": "HK",
     "ticker": "01347",
@@ -2672,6 +2852,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:33+08:00"
+  },
+  "SECURITY:HK:01347:2026-06-02": {
+    "market": "HK",
+    "ticker": "01347",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -2.89,
+    "status": "traded",
+    "source": "ak_stock_hk_hist_em_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:33+08:00"
   },
   "SECURITY:HK:02513:2026-05-08": {
     "market": "HK",
@@ -2841,6 +3033,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:24+08:00"
   },
+  "SECURITY:HK:02513:2026-06-02": {
+    "market": "HK",
+    "ticker": "02513",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -3.683492496589358,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:16+08:00"
+  },
   "SECURITY:HK:03750:2026-05-14": {
     "market": "HK",
     "ticker": "03750",
@@ -2960,6 +3164,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:23+08:00"
+  },
+  "SECURITY:HK:03750:2026-06-02": {
+    "market": "HK",
+    "ticker": "03750",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 3.45,
+    "status": "traded",
+    "source": "ak_stock_hk_hist_em_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:25+08:00"
   },
   "SECURITY:HK:06869:2026-05-08": {
     "market": "HK",
@@ -3129,6 +3345,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:18+08:00"
   },
+  "SECURITY:HK:06869:2026-06-02": {
+    "market": "HK",
+    "ticker": "06869",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 10.751665080875373,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:20+08:00"
+  },
   "SECURITY:HK:09899:2026-05-08": {
     "market": "HK",
     "ticker": "09899",
@@ -3296,6 +3524,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:26+08:00"
+  },
+  "SECURITY:HK:09899:2026-06-02": {
+    "market": "HK",
+    "ticker": "09899",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 6.677937447168225,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:18+08:00"
   },
   "SECURITY:HK:09988:2026-05-08": {
     "market": "HK",
@@ -3465,6 +3705,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:35+08:00"
   },
+  "SECURITY:HK:09988:2026-06-02": {
+    "market": "HK",
+    "ticker": "09988",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 6.6,
+    "status": "traded",
+    "source": "ak_stock_hk_hist_em_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:35+08:00"
+  },
   "SECURITY:KR:000660:2026-05-08": {
     "market": "KR",
     "ticker": "000660",
@@ -3632,6 +3884,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-01T20:20:21+08:00"
+  },
+  "SECURITY:KR:000660:2026-06-02": {
+    "market": "KR",
+    "ticker": "000660",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.12695725772323319,
+    "status": "traded",
+    "source": "pykrx_ohlcv_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:25+08:00"
   },
   "SECURITY:KR:005930:2026-05-08": {
     "market": "KR",
@@ -3801,6 +4065,18 @@
     "error": "",
     "fetched_at": "2026-06-01T20:20:21+08:00"
   },
+  "SECURITY:KR:005930:2026-06-02": {
+    "market": "KR",
+    "ticker": "005930",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 3.29512893982808,
+    "status": "traded",
+    "source": "pykrx_ohlcv_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:26+08:00"
+  },
   "SECURITY:UNKNOWN:285AJP:2026-05-19": {
     "market": "UNKNOWN",
     "ticker": "285AJP",
@@ -3860,6 +4136,18 @@
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
     "fetched_at": "2026-06-02T10:00:31+08:00"
+  },
+  "SECURITY:UNKNOWN:285AJP:2026-06-02": {
+    "market": "UNKNOWN",
+    "ticker": "285AJP",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "missing",
+    "source": "calendar_failed",
+    "calendar_is_open": null,
+    "error": "未配置交易日历: market=UNKNOWN",
+    "fetched_at": "2026-06-03T10:05:31+08:00"
   },
   "SECURITY:UNKNOWN:BRK_B:2026-05-19": {
     "market": "UNKNOWN",
@@ -3921,6 +4209,18 @@
     "error": "未配置交易日历: market=UNKNOWN",
     "fetched_at": "2026-06-02T10:01:18+08:00"
   },
+  "SECURITY:UNKNOWN:BRK_B:2026-06-02": {
+    "market": "UNKNOWN",
+    "ticker": "BRK_B",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "missing",
+    "source": "calendar_failed",
+    "calendar_is_open": null,
+    "error": "未配置交易日历: market=UNKNOWN",
+    "fetched_at": "2026-06-03T10:06:21+08:00"
+  },
   "SECURITY:UNKNOWN:FR0000073272:2026-05-19": {
     "market": "UNKNOWN",
     "ticker": "FR0000073272",
@@ -3980,6 +4280,18 @@
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
     "fetched_at": "2026-06-02T10:00:51+08:00"
+  },
+  "SECURITY:UNKNOWN:FR0000073272:2026-06-02": {
+    "market": "UNKNOWN",
+    "ticker": "FR0000073272",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "missing",
+    "source": "calendar_failed",
+    "calendar_is_open": null,
+    "error": "未配置交易日历: market=UNKNOWN",
+    "fetched_at": "2026-06-03T10:05:52+08:00"
   },
   "SECURITY:UNKNOWN:JP3684400009:2026-05-19": {
     "market": "UNKNOWN",
@@ -4041,6 +4353,18 @@
     "error": "未配置交易日历: market=UNKNOWN",
     "fetched_at": "2026-06-02T10:00:27+08:00"
   },
+  "SECURITY:UNKNOWN:JP3684400009:2026-06-02": {
+    "market": "UNKNOWN",
+    "ticker": "JP3684400009",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "missing",
+    "source": "calendar_failed",
+    "calendar_is_open": null,
+    "error": "未配置交易日历: market=UNKNOWN",
+    "fetched_at": "2026-06-03T10:05:26+08:00"
+  },
   "SECURITY:UNKNOWN:RR.:2026-05-19": {
     "market": "UNKNOWN",
     "ticker": "RR.",
@@ -4100,6 +4424,18 @@
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
     "fetched_at": "2026-06-02T10:00:30+08:00"
+  },
+  "SECURITY:UNKNOWN:RR.:2026-06-02": {
+    "market": "UNKNOWN",
+    "ticker": "RR.",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "missing",
+    "source": "calendar_failed",
+    "calendar_is_open": null,
+    "error": "未配置交易日历: market=UNKNOWN",
+    "fetched_at": "2026-06-03T10:05:30+08:00"
   },
   "SECURITY:US:.INX:2026-05-08": {
     "market": "US",
@@ -4245,6 +4581,18 @@
     "error": "",
     "fetched_at": "2026-06-02T09:59:48+08:00"
   },
+  "SECURITY:US:.INX:2026-06-02": {
+    "market": "US",
+    "ticker": ".INX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.12920857478198045,
+    "status": "traded",
+    "source": "rsi_module_index_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:04:39+08:00"
+  },
   "SECURITY:US:.NDX:2026-05-08": {
     "market": "US",
     "ticker": ".NDX",
@@ -4388,6 +4736,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T09:59:47+08:00"
+  },
+  "SECURITY:US:.NDX:2026-06-02": {
+    "market": "US",
+    "ticker": ".NDX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.4808971849131538,
+    "status": "traded",
+    "source": "rsi_module_index_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:04:38+08:00"
   },
   "SECURITY:US:.SOX:2026-05-08": {
     "market": "US",
@@ -4533,6 +4893,18 @@
     "error": "",
     "fetched_at": "2026-06-02T09:59:49+08:00"
   },
+  "SECURITY:US:.SOX:2026-06-02": {
+    "market": "US",
+    "ticker": ".SOX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 5.866425016860322,
+    "status": "traded",
+    "source": "rsi_module_index_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:04:40+08:00"
+  },
   "SECURITY:US:AAOI:2026-05-08": {
     "market": "US",
     "ticker": "AAOI",
@@ -4676,6 +5048,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:31+08:00"
+  },
+  "SECURITY:US:AAOI:2026-06-02": {
+    "market": "US",
+    "ticker": "AAOI",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 8.994452523294028,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:31+08:00"
   },
   "SECURITY:US:AAPL:2026-05-08": {
     "market": "US",
@@ -4821,6 +5205,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:07+08:00"
   },
+  "SECURITY:US:AAPL:2026-06-02": {
+    "market": "US",
+    "ticker": "AAPL",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 2.902288531226538,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:04:58+08:00"
+  },
   "SECURITY:US:AEIS:2026-05-08": {
     "market": "US",
     "ticker": "AEIS",
@@ -4964,6 +5360,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:19+08:00"
+  },
+  "SECURITY:US:AEIS:2026-06-02": {
+    "market": "US",
+    "ticker": "AEIS",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 5.983370100118779,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:11+08:00"
   },
   "SECURITY:US:ALNY:2026-05-08": {
     "market": "US",
@@ -5109,6 +5517,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:39+08:00"
   },
+  "SECURITY:US:ALNY:2026-06-02": {
+    "market": "US",
+    "ticker": "ALNY",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -3.216858911477183,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:39+08:00"
+  },
   "SECURITY:US:AMAT:2026-05-08": {
     "market": "US",
     "ticker": "AMAT",
@@ -5252,6 +5672,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:34+08:00"
+  },
+  "SECURITY:US:AMAT:2026-06-02": {
+    "market": "US",
+    "ticker": "AMAT",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 6.958115983150348,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:34+08:00"
   },
   "SECURITY:US:AMD:2026-05-08": {
     "market": "US",
@@ -5397,6 +5829,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:16+08:00"
   },
+  "SECURITY:US:AMD:2026-06-02": {
+    "market": "US",
+    "ticker": "AMD",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 2.2366847666281053,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:09+08:00"
+  },
   "SECURITY:US:AMGN:2026-05-08": {
     "market": "US",
     "ticker": "AMGN",
@@ -5540,6 +5984,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:38+08:00"
+  },
+  "SECURITY:US:AMGN:2026-06-02": {
+    "market": "US",
+    "ticker": "AMGN",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.26433324218394505,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:38+08:00"
   },
   "SECURITY:US:AMZN:2026-05-08": {
     "market": "US",
@@ -5685,6 +6141,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:10+08:00"
   },
+  "SECURITY:US:AMZN:2026-06-02": {
+    "market": "US",
+    "ticker": "AMZN",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -1.814284620684381,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:01+08:00"
+  },
   "SECURITY:US:APA:2026-05-08": {
     "market": "US",
     "ticker": "APA",
@@ -5828,6 +6296,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:52+08:00"
+  },
+  "SECURITY:US:APA:2026-06-02": {
+    "market": "US",
+    "ticker": "APA",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.15894039735100396,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:53+08:00"
   },
   "SECURITY:US:ARGX:2026-05-08": {
     "market": "US",
@@ -5973,6 +6453,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:42+08:00"
   },
+  "SECURITY:US:ARGX:2026-06-02": {
+    "market": "US",
+    "ticker": "ARGX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -4.056979511775061,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:42+08:00"
+  },
   "SECURITY:US:ASML:2026-05-08": {
     "market": "US",
     "ticker": "ASML",
@@ -6116,6 +6608,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:23+08:00"
+  },
+  "SECURITY:US:ASML:2026-06-02": {
+    "market": "US",
+    "ticker": "ASML",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 4.715800040268459,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:15+08:00"
   },
   "SECURITY:US:AVGO:2026-05-08": {
     "market": "US",
@@ -6261,6 +6765,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:08+08:00"
   },
+  "SECURITY:US:AVGO:2026-06-02": {
+    "market": "US",
+    "ticker": "AVGO",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 4.695958432071645,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:00+08:00"
+  },
   "SECURITY:US:AXTI:2026-05-08": {
     "market": "US",
     "ticker": "AXTI",
@@ -6404,6 +6920,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:13+08:00"
+  },
+  "SECURITY:US:AXTI:2026-06-02": {
+    "market": "US",
+    "ticker": "AXTI",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 1.1866727521679499,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:05+08:00"
   },
   "SECURITY:US:BIIB:2026-05-08": {
     "market": "US",
@@ -6549,6 +7077,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:40+08:00"
   },
+  "SECURITY:US:BIIB:2026-06-02": {
+    "market": "US",
+    "ticker": "BIIB",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -1.768714560682505,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:41+08:00"
+  },
   "SECURITY:US:BKNG:2026-05-14": {
     "market": "US",
     "ticker": "BKNG",
@@ -6644,6 +7184,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:25+08:00"
+  },
+  "SECURITY:US:BKNG:2026-06-02": {
+    "market": "US",
+    "ticker": "BKNG",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -1.205317577548004,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:28+08:00"
   },
   "SECURITY:US:BTI:2026-05-08": {
     "market": "US",
@@ -6789,6 +7341,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:51+08:00"
   },
+  "SECURITY:US:BTI:2026-06-02": {
+    "market": "US",
+    "ticker": "BTI",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.8852459016393421,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:52+08:00"
+  },
   "SECURITY:US:C:2026-05-08": {
     "market": "US",
     "ticker": "C",
@@ -6933,6 +7497,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:48+08:00"
   },
+  "SECURITY:US:C:2026-06-02": {
+    "market": "US",
+    "ticker": "C",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 1.6809977535052978,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:49+08:00"
+  },
   "SECURITY:US:CAT:2026-05-13": {
     "market": "US",
     "ticker": "CAT",
@@ -7040,6 +7616,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:19+08:00"
+  },
+  "SECURITY:US:CAT:2026-06-02": {
+    "market": "US",
+    "ticker": "CAT",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 5.136590551909026,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:22+08:00"
   },
   "SECURITY:US:CHRD:2026-05-08": {
     "market": "US",
@@ -7185,6 +7773,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:00+08:00"
   },
+  "SECURITY:US:CHRD:2026-06-02": {
+    "market": "US",
+    "ticker": "CHRD",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.00724637681158713,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:01+08:00"
+  },
   "SECURITY:US:CIEN:2026-05-08": {
     "market": "US",
     "ticker": "CIEN",
@@ -7328,6 +7928,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:17+08:00"
+  },
+  "SECURITY:US:CIEN:2026-06-02": {
+    "market": "US",
+    "ticker": "CIEN",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 10.07531468899774,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:09+08:00"
   },
   "SECURITY:US:COHR:2026-05-08": {
     "market": "US",
@@ -7473,6 +8085,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:17+08:00"
   },
+  "SECURITY:US:COHR:2026-06-02": {
+    "market": "US",
+    "ticker": "COHR",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 17.632956737393222,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:09+08:00"
+  },
   "SECURITY:US:COP:2026-05-08": {
     "market": "US",
     "ticker": "COP",
@@ -7616,6 +8240,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:45+08:00"
+  },
+  "SECURITY:US:COP:2026-06-02": {
+    "market": "US",
+    "ticker": "COP",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 1.116110053642494,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:46+08:00"
   },
   "SECURITY:US:CRCL:2026-05-08": {
     "market": "US",
@@ -7761,6 +8397,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:50+08:00"
   },
+  "SECURITY:US:CRCL:2026-06-02": {
+    "market": "US",
+    "ticker": "CRCL",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -3.92493093264743,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:51+08:00"
+  },
   "SECURITY:US:CSCO:2026-05-14": {
     "market": "US",
     "ticker": "CSCO",
@@ -7857,6 +8505,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:29+08:00"
   },
+  "SECURITY:US:CSCO:2026-06-02": {
+    "market": "US",
+    "ticker": "CSCO",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 5.497403774828991,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:32+08:00"
+  },
   "SECURITY:US:CTRA:2026-05-19": {
     "market": "US",
     "ticker": "CTRA",
@@ -7916,6 +8576,18 @@
     "calendar_is_open": true,
     "error": "trade_date=2026-05-06 与 valuation_anchor_date=2026-06-01 不一致",
     "fetched_at": "2026-06-02T10:01:14+08:00"
+  },
+  "SECURITY:US:CTRA:2026-06-02": {
+    "market": "US",
+    "ticker": "CTRA",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-05-06",
+    "return_pct": 0.0,
+    "status": "stale",
+    "source": "ak_stock_us_daily_trade_date_older_than_anchor",
+    "calendar_is_open": true,
+    "error": "trade_date=2026-05-06 与 valuation_anchor_date=2026-06-02 不一致",
+    "fetched_at": "2026-06-03T10:06:16+08:00"
   },
   "SECURITY:US:CVNA:2026-05-14": {
     "market": "US",
@@ -8012,6 +8684,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:20+08:00"
+  },
+  "SECURITY:US:CVNA:2026-06-02": {
+    "market": "US",
+    "ticker": "CVNA",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -7.6056338028169135,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:23+08:00"
   },
   "SECURITY:US:CVX:2026-05-08": {
     "market": "US",
@@ -8157,6 +8841,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:47+08:00"
   },
+  "SECURITY:US:CVX:2026-06-02": {
+    "market": "US",
+    "ticker": "CVX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.925577140397138,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:47+08:00"
+  },
   "SECURITY:US:DAL:2026-05-08": {
     "market": "US",
     "ticker": "DAL",
@@ -8300,6 +8996,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:55+08:00"
+  },
+  "SECURITY:US:DAL:2026-06-02": {
+    "market": "US",
+    "ticker": "DAL",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -1.7797962440162074,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:57+08:00"
   },
   "SECURITY:US:DELL:2026-05-08": {
     "market": "US",
@@ -8445,6 +9153,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:55+08:00"
   },
+  "SECURITY:US:DELL:2026-06-02": {
+    "market": "US",
+    "ticker": "DELL",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -6.577817838441058,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:56+08:00"
+  },
   "SECURITY:US:DOW:2026-05-08": {
     "market": "US",
     "ticker": "DOW",
@@ -8588,6 +9308,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:53+08:00"
+  },
+  "SECURITY:US:DOW:2026-06-02": {
+    "market": "US",
+    "ticker": "DOW",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.0864802536754139,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:54+08:00"
   },
   "SECURITY:US:DVN:2026-05-08": {
     "market": "US",
@@ -8733,6 +9465,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:07+08:00"
   },
+  "SECURITY:US:DVN:2026-06-02": {
+    "market": "US",
+    "ticker": "DVN",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.19434247462751797,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:09+08:00"
+  },
   "SECURITY:US:EOG:2026-05-08": {
     "market": "US",
     "ticker": "EOG",
@@ -8876,6 +9620,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:56+08:00"
+  },
+  "SECURITY:US:EOG:2026-06-02": {
+    "market": "US",
+    "ticker": "EOG",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 1.4346362172449112,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:58+08:00"
   },
   "SECURITY:US:EQT:2026-05-08": {
     "market": "US",
@@ -9021,6 +9777,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:11+08:00"
   },
+  "SECURITY:US:EQT:2026-06-02": {
+    "market": "US",
+    "ticker": "EQT",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -1.049583785740138,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:13+08:00"
+  },
   "SECURITY:US:FANG:2026-05-08": {
     "market": "US",
     "ticker": "FANG",
@@ -9164,6 +9932,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:56+08:00"
+  },
+  "SECURITY:US:FANG:2026-06-02": {
+    "market": "US",
+    "ticker": "FANG",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 1.69321207858113,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:57+08:00"
   },
   "SECURITY:US:FUTU:2026-05-08": {
     "market": "US",
@@ -9309,6 +10089,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:16+08:00"
   },
+  "SECURITY:US:FUTU:2026-06-02": {
+    "market": "US",
+    "ticker": "FUTU",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.8556149732620311,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:19+08:00"
+  },
   "SECURITY:US:GE:2026-05-08": {
     "market": "US",
     "ticker": "GE",
@@ -9452,6 +10244,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:30+08:00"
+  },
+  "SECURITY:US:GE:2026-06-02": {
+    "market": "US",
+    "ticker": "GE",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -2.119531731361679,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:29+08:00"
   },
   "SECURITY:US:GEV:2026-05-08": {
     "market": "US",
@@ -9597,6 +10401,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:29+08:00"
   },
+  "SECURITY:US:GEV:2026-06-02": {
+    "market": "US",
+    "ticker": "GEV",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 2.012540240284477,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:28+08:00"
+  },
   "SECURITY:US:GILD:2026-05-08": {
     "market": "US",
     "ticker": "GILD",
@@ -9740,6 +10556,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:37+08:00"
+  },
+  "SECURITY:US:GILD:2026-06-02": {
+    "market": "US",
+    "ticker": "GILD",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -2.6926010678871126,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:37+08:00"
   },
   "SECURITY:US:GLW:2026-05-08": {
     "market": "US",
@@ -9885,6 +10713,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:13+08:00"
   },
+  "SECURITY:US:GLW:2026-06-02": {
+    "market": "US",
+    "ticker": "GLW",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 13.412563667232602,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:05+08:00"
+  },
   "SECURITY:US:GOOG:2026-05-08": {
     "market": "US",
     "ticker": "GOOG",
@@ -10028,6 +10868,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:09+08:00"
+  },
+  "SECURITY:US:GOOG:2026-06-02": {
+    "market": "US",
+    "ticker": "GOOG",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -3.808578023511733,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:01+08:00"
   },
   "SECURITY:US:GOOGL:2026-05-08": {
     "market": "US",
@@ -10173,6 +11025,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:15+08:00"
   },
+  "SECURITY:US:GOOGL:2026-06-02": {
+    "market": "US",
+    "ticker": "GOOGL",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -3.8579057842017095,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:07+08:00"
+  },
   "SECURITY:US:HD:2026-05-14": {
     "market": "US",
     "ticker": "HD",
@@ -10269,6 +11133,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:23+08:00"
   },
+  "SECURITY:US:HD:2026-06-02": {
+    "market": "US",
+    "ticker": "HD",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.2671473172615846,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:26+08:00"
+  },
   "SECURITY:US:IBB:2026-05-14": {
     "market": "US",
     "ticker": "IBB",
@@ -10364,6 +11240,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:36+08:00"
+  },
+  "SECURITY:US:IBB:2026-06-02": {
+    "market": "US",
+    "ticker": "IBB",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -3.011159001003716,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:36+08:00"
   },
   "SECURITY:US:INSM:2026-05-08": {
     "market": "US",
@@ -10509,6 +11397,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:40+08:00"
   },
+  "SECURITY:US:INSM:2026-06-02": {
+    "market": "US",
+    "ticker": "INSM",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -2.1691973969631184,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:40+08:00"
+  },
   "SECURITY:US:INTC:2026-05-08": {
     "market": "US",
     "ticker": "INTC",
@@ -10652,6 +11552,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:23+08:00"
+  },
+  "SECURITY:US:INTC:2026-06-02": {
+    "market": "US",
+    "ticker": "INTC",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -1.2805268453306429,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:14+08:00"
   },
   "SECURITY:US:JBL:2026-05-08": {
     "market": "US",
@@ -10797,6 +11709,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:52+08:00"
   },
+  "SECURITY:US:JBL:2026-06-02": {
+    "market": "US",
+    "ticker": "JBL",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 3.664194238408758,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:53+08:00"
+  },
   "SECURITY:US:KLAC:2026-05-08": {
     "market": "US",
     "ticker": "KLAC",
@@ -10940,6 +11864,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:25+08:00"
+  },
+  "SECURITY:US:KLAC:2026-06-02": {
+    "market": "US",
+    "ticker": "KLAC",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 5.420506793674362,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:17+08:00"
   },
   "SECURITY:US:LITE:2026-05-08": {
     "market": "US",
@@ -11085,6 +12021,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:12+08:00"
   },
+  "SECURITY:US:LITE:2026-06-02": {
+    "market": "US",
+    "ticker": "LITE",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 13.718232044198908,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:03+08:00"
+  },
   "SECURITY:US:LLY:2026-05-08": {
     "market": "US",
     "ticker": "LLY",
@@ -11229,6 +12177,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:29+08:00"
   },
+  "SECURITY:US:LLY:2026-06-02": {
+    "market": "US",
+    "ticker": "LLY",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -1.6678987248198052,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:28+08:00"
+  },
   "SECURITY:US:LOW:2026-05-14": {
     "market": "US",
     "ticker": "LOW",
@@ -11324,6 +12284,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:26+08:00"
+  },
+  "SECURITY:US:LOW:2026-06-02": {
+    "market": "US",
+    "ticker": "LOW",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.5103514684641319,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:29+08:00"
   },
   "SECURITY:US:LRCX:2026-05-08": {
     "market": "US",
@@ -11469,6 +12441,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:21+08:00"
   },
+  "SECURITY:US:LRCX:2026-06-02": {
+    "market": "US",
+    "ticker": "LRCX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 5.452194752774986,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:13+08:00"
+  },
   "SECURITY:US:LYB:2026-05-08": {
     "market": "US",
     "ticker": "LYB",
@@ -11613,6 +12597,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:53+08:00"
   },
+  "SECURITY:US:LYB:2026-06-02": {
+    "market": "US",
+    "ticker": "LYB",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.2532022639261333,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:55+08:00"
+  },
   "SECURITY:US:MAR:2026-05-14": {
     "market": "US",
     "ticker": "MAR",
@@ -11709,6 +12705,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:28+08:00"
   },
+  "SECURITY:US:MAR:2026-06-02": {
+    "market": "US",
+    "ticker": "MAR",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.8488964346349714,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:31+08:00"
+  },
   "SECURITY:US:MCD:2026-05-14": {
     "market": "US",
     "ticker": "MCD",
@@ -11804,6 +12812,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:24+08:00"
+  },
+  "SECURITY:US:MCD:2026-06-02": {
+    "market": "US",
+    "ticker": "MCD",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.09054362391800463,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:27+08:00"
   },
   "SECURITY:US:MDLZ:2026-05-08": {
     "market": "US",
@@ -11949,6 +12969,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:48+08:00"
   },
+  "SECURITY:US:MDLZ:2026-06-02": {
+    "market": "US",
+    "ticker": "MDLZ",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.032760032760048574,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:48+08:00"
+  },
   "SECURITY:US:META:2026-05-08": {
     "market": "US",
     "ticker": "META",
@@ -12092,6 +13124,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:10+08:00"
+  },
+  "SECURITY:US:META:2026-06-02": {
+    "market": "US",
+    "ticker": "META",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.47296284577081904,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:02+08:00"
   },
   "SECURITY:US:MKSI:2026-05-08": {
     "market": "US",
@@ -12237,6 +13281,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:21+08:00"
   },
+  "SECURITY:US:MKSI:2026-06-02": {
+    "market": "US",
+    "ticker": "MKSI",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 4.325924060197717,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:13+08:00"
+  },
   "SECURITY:US:MPC:2026-05-08": {
     "market": "US",
     "ticker": "MPC",
@@ -12380,6 +13436,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:06+08:00"
+  },
+  "SECURITY:US:MPC:2026-06-02": {
+    "market": "US",
+    "ticker": "MPC",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 1.7010747699682804,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:07+08:00"
   },
   "SECURITY:US:MPWR:2026-05-08": {
     "market": "US",
@@ -12525,6 +13593,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:28+08:00"
   },
+  "SECURITY:US:MPWR:2026-06-02": {
+    "market": "US",
+    "ticker": "MPWR",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 5.3553251771601085,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:27+08:00"
+  },
   "SECURITY:US:MRK:2026-05-08": {
     "market": "US",
     "ticker": "MRK",
@@ -12668,6 +13748,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:50+08:00"
+  },
+  "SECURITY:US:MRK:2026-06-02": {
+    "market": "US",
+    "ticker": "MRK",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.41677520187548556,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:51+08:00"
   },
   "SECURITY:US:MRVL:2026-05-08": {
     "market": "US",
@@ -12813,6 +13905,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:11+08:00"
   },
+  "SECURITY:US:MRVL:2026-06-02": {
+    "market": "US",
+    "ticker": "MRVL",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 32.520621610536395,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:02+08:00"
+  },
   "SECURITY:US:MSFT:2026-05-08": {
     "market": "US",
     "ticker": "MSFT",
@@ -12956,6 +14060,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:08+08:00"
+  },
+  "SECURITY:US:MSFT:2026-06-02": {
+    "market": "US",
+    "ticker": "MSFT",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -4.171371493094755,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:04:59+08:00"
   },
   "SECURITY:US:MTDR:2026-05-08": {
     "market": "US",
@@ -13101,6 +14217,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:01+08:00"
   },
+  "SECURITY:US:MTDR:2026-06-02": {
+    "market": "US",
+    "ticker": "MTDR",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.12484394506866447,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:03+08:00"
+  },
   "SECURITY:US:MU:2026-05-08": {
     "market": "US",
     "ticker": "MU",
@@ -13244,6 +14372,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:15+08:00"
+  },
+  "SECURITY:US:MU:2026-06-02": {
+    "market": "US",
+    "ticker": "MU",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 2.761950748430708,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:08+08:00"
   },
   "SECURITY:US:MUR:2026-05-08": {
     "market": "US",
@@ -13389,6 +14529,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:00+08:00"
   },
+  "SECURITY:US:MUR:2026-06-02": {
+    "market": "US",
+    "ticker": "MUR",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 1.7421602787456303,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:00+08:00"
+  },
   "SECURITY:US:NFLX:2026-05-08": {
     "market": "US",
     "ticker": "NFLX",
@@ -13533,6 +14685,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:06+08:00"
   },
+  "SECURITY:US:NFLX:2026-06-02": {
+    "market": "US",
+    "ticker": "NFLX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -2.9353523587652863,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:04:57+08:00"
+  },
   "SECURITY:US:NIO:2026-05-14": {
     "market": "US",
     "ticker": "NIO",
@@ -13628,6 +14792,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:20+08:00"
+  },
+  "SECURITY:US:NIO:2026-06-02": {
+    "market": "US",
+    "ticker": "NIO",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.5016722408026641,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:22+08:00"
   },
   "SECURITY:US:NVDA:2026-05-08": {
     "market": "US",
@@ -13773,6 +14949,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:06+08:00"
   },
+  "SECURITY:US:NVDA:2026-06-02": {
+    "market": "US",
+    "ticker": "NVDA",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.6863968621857786,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:04:58+08:00"
+  },
   "SECURITY:US:ONTO:2026-05-08": {
     "market": "US",
     "ticker": "ONTO",
@@ -13917,6 +15105,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:31+08:00"
   },
+  "SECURITY:US:ONTO:2026-06-02": {
+    "market": "US",
+    "ticker": "ONTO",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 8.724727230065298,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:30+08:00"
+  },
   "SECURITY:US:ORLY:2026-05-14": {
     "market": "US",
     "ticker": "ORLY",
@@ -14012,6 +15212,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:27+08:00"
+  },
+  "SECURITY:US:ORLY:2026-06-02": {
+    "market": "US",
+    "ticker": "ORLY",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.47322253000923187,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:30+08:00"
   },
   "SECURITY:US:OXY:2026-05-08": {
     "market": "US",
@@ -14157,6 +15369,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:54+08:00"
   },
+  "SECURITY:US:OXY:2026-06-02": {
+    "market": "US",
+    "ticker": "OXY",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.2885268160217169,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:56+08:00"
+  },
   "SECURITY:US:PBF:2026-05-08": {
     "market": "US",
     "ticker": "PBF",
@@ -14301,6 +15525,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:01+08:00"
   },
+  "SECURITY:US:PBF:2026-06-02": {
+    "market": "US",
+    "ticker": "PBF",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 3.2034425053789173,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:02+08:00"
+  },
   "SECURITY:US:PLTR:2026-05-14": {
     "market": "US",
     "ticker": "PLTR",
@@ -14397,6 +15633,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:28+08:00"
   },
+  "SECURITY:US:PLTR:2026-06-02": {
+    "market": "US",
+    "ticker": "PLTR",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -5.278555866791168,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:32+08:00"
+  },
   "SECURITY:US:PONY:2026-05-14": {
     "market": "US",
     "ticker": "PONY",
@@ -14492,6 +15740,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:22+08:00"
+  },
+  "SECURITY:US:PONY:2026-06-02": {
+    "market": "US",
+    "ticker": "PONY",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.3707136237256714,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:25+08:00"
   },
   "SECURITY:US:PSX:2026-05-08": {
     "market": "US",
@@ -14637,6 +15897,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:05+08:00"
   },
+  "SECURITY:US:PSX:2026-06-02": {
+    "market": "US",
+    "ticker": "PSX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 1.2871726586773047,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:07+08:00"
+  },
   "SECURITY:US:RACE:2026-05-14": {
     "market": "US",
     "ticker": "RACE",
@@ -14732,6 +16004,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:21+08:00"
+  },
+  "SECURITY:US:RACE:2026-06-02": {
+    "market": "US",
+    "ticker": "RACE",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 1.3085557209941534,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:24+08:00"
   },
   "SECURITY:US:REGN:2026-05-08": {
     "market": "US",
@@ -14877,6 +16161,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:39+08:00"
   },
+  "SECURITY:US:REGN:2026-06-02": {
+    "market": "US",
+    "ticker": "REGN",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.3762527885992073,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:39+08:00"
+  },
   "SECURITY:US:RIVN:2026-05-14": {
     "market": "US",
     "ticker": "RIVN",
@@ -14972,6 +16268,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:21+08:00"
+  },
+  "SECURITY:US:RIVN:2026-06-02": {
+    "market": "US",
+    "ticker": "RIVN",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 2.0058997050147465,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:24+08:00"
   },
   "SECURITY:US:RPRX:2026-05-08": {
     "market": "US",
@@ -15117,6 +16425,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:43+08:00"
   },
+  "SECURITY:US:RPRX:2026-06-02": {
+    "market": "US",
+    "ticker": "RPRX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -2.1203334541500585,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:43+08:00"
+  },
   "SECURITY:US:SBUX:2026-05-14": {
     "market": "US",
     "ticker": "SBUX",
@@ -15212,6 +16532,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:27+08:00"
+  },
+  "SECURITY:US:SBUX:2026-06-02": {
+    "market": "US",
+    "ticker": "SBUX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -1.0361620557455153,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:29+08:00"
   },
   "SECURITY:US:SM:2026-05-08": {
     "market": "US",
@@ -15357,6 +16689,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:58+08:00"
   },
+  "SECURITY:US:SM:2026-06-02": {
+    "market": "US",
+    "ticker": "SM",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.8264462809917328,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:00+08:00"
+  },
   "SECURITY:US:SNDK:2026-05-08": {
     "market": "US",
     "ticker": "SNDK",
@@ -15500,6 +16844,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:19+08:00"
+  },
+  "SECURITY:US:SNDK:2026-06-02": {
+    "market": "US",
+    "ticker": "SNDK",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -2.5587220293328827,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:10+08:00"
   },
   "SECURITY:US:T:2026-05-08": {
     "market": "US",
@@ -15645,6 +17001,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:47+08:00"
   },
+  "SECURITY:US:T:2026-06-02": {
+    "market": "US",
+    "ticker": "T",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.36659877800406804,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:48+08:00"
+  },
   "SECURITY:US:TER:2026-05-08": {
     "market": "US",
     "ticker": "TER",
@@ -15789,6 +17157,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:20+08:00"
   },
+  "SECURITY:US:TER:2026-06-02": {
+    "market": "US",
+    "ticker": "TER",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 6.265731994478574,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:12+08:00"
+  },
   "SECURITY:US:TJX:2026-05-14": {
     "market": "US",
     "ticker": "TJX",
@@ -15884,6 +17264,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:25+08:00"
+  },
+  "SECURITY:US:TJX:2026-06-02": {
+    "market": "US",
+    "ticker": "TJX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.6153846153846176,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:27+08:00"
   },
   "SECURITY:US:TPL:2026-05-08": {
     "market": "US",
@@ -16029,6 +17421,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:01:08+08:00"
   },
+  "SECURITY:US:TPL:2026-06-02": {
+    "market": "US",
+    "ticker": "TPL",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.7033647448605462,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:09+08:00"
+  },
   "SECURITY:US:TSEM:2026-05-08": {
     "market": "US",
     "ticker": "TSEM",
@@ -16172,6 +17576,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:14+08:00"
+  },
+  "SECURITY:US:TSEM:2026-06-02": {
+    "market": "US",
+    "ticker": "TSEM",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 8.783114877440301,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:07+08:00"
   },
   "SECURITY:US:TSLA:2026-05-08": {
     "market": "US",
@@ -16317,6 +17733,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:09+08:00"
   },
+  "SECURITY:US:TSLA:2026-06-02": {
+    "market": "US",
+    "ticker": "TSLA",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 1.8899682600750145,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:00+08:00"
+  },
   "SECURITY:US:TSM:2026-05-08": {
     "market": "US",
     "ticker": "TSM",
@@ -16460,6 +17888,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:12+08:00"
+  },
+  "SECURITY:US:TSM:2026-06-02": {
+    "market": "US",
+    "ticker": "TSM",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 2.5388517778849096,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:03+08:00"
   },
   "SECURITY:US:TTMI:2026-05-08": {
     "market": "US",
@@ -16605,6 +18045,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:22+08:00"
   },
+  "SECURITY:US:TTMI:2026-06-02": {
+    "market": "US",
+    "ticker": "TTMI",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 4.163767107399674,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:14+08:00"
+  },
   "SECURITY:US:TXN:2026-05-08": {
     "market": "US",
     "ticker": "TXN",
@@ -16748,6 +18200,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:34+08:00"
+  },
+  "SECURITY:US:TXN:2026-06-02": {
+    "market": "US",
+    "ticker": "TXN",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 5.088676671214198,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:33+08:00"
   },
   "SECURITY:US:UTHR:2026-05-08": {
     "market": "US",
@@ -16893,6 +18357,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:41+08:00"
   },
+  "SECURITY:US:UTHR:2026-06-02": {
+    "market": "US",
+    "ticker": "UTHR",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -0.8391171826227506,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:41+08:00"
+  },
   "SECURITY:US:VG:2026-05-08": {
     "market": "US",
     "ticker": "VG",
@@ -17036,6 +18512,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:57+08:00"
+  },
+  "SECURITY:US:VG:2026-06-02": {
+    "market": "US",
+    "ticker": "VG",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -2.444794952681395,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:59+08:00"
   },
   "SECURITY:US:VIAV:2026-05-08": {
     "market": "US",
@@ -17181,6 +18669,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:18+08:00"
   },
+  "SECURITY:US:VIAV:2026-06-02": {
+    "market": "US",
+    "ticker": "VIAV",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 11.349757843756581,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:10+08:00"
+  },
   "SECURITY:US:VLO:2026-05-08": {
     "market": "US",
     "ticker": "VLO",
@@ -17324,6 +18824,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:01:07+08:00"
+  },
+  "SECURITY:US:VLO:2026-06-02": {
+    "market": "US",
+    "ticker": "VLO",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 2.2730872802154245,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:06:08+08:00"
   },
   "SECURITY:US:VRTX:2026-05-08": {
     "market": "US",
@@ -17469,6 +18981,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:37+08:00"
   },
+  "SECURITY:US:VRTX:2026-06-02": {
+    "market": "US",
+    "ticker": "VRTX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": -3.036040145985397,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:37+08:00"
+  },
   "SECURITY:US:WDC:2026-05-08": {
     "market": "US",
     "ticker": "WDC",
@@ -17612,6 +19136,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T10:00:28+08:00"
+  },
+  "SECURITY:US:WDC:2026-06-02": {
+    "market": "US",
+    "ticker": "WDC",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 3.0941047235444774,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:27+08:00"
   },
   "SECURITY:US:WFC:2026-05-08": {
     "market": "US",
@@ -17757,6 +19293,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:49+08:00"
   },
+  "SECURITY:US:WFC:2026-06-02": {
+    "market": "US",
+    "ticker": "WFC",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 2.9415576001036614,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:50+08:00"
+  },
   "SECURITY:US:XOM:2026-05-08": {
     "market": "US",
     "ticker": "XOM",
@@ -17901,6 +19449,18 @@
     "error": "",
     "fetched_at": "2026-06-02T10:00:46+08:00"
   },
+  "SECURITY:US:XOM:2026-06-02": {
+    "market": "US",
+    "ticker": "XOM",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.12049805864238206,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:05:46+08:00"
+  },
   "SECURITY:US:XOP:2026-05-08": {
     "market": "US",
     "ticker": "XOP",
@@ -18044,6 +19604,18 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-02T09:59:48+08:00"
+  },
+  "SECURITY:US:XOP:2026-06-02": {
+    "market": "US",
+    "ticker": "XOP",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": 0.5837850717817394,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-03T10:04:39+08:00"
   },
   "SECURITY:VIX_LEVEL:VIX:2026-05-08": {
     "market": "VIX_LEVEL",
@@ -18225,6 +19797,21 @@
     "display_value": "16.05",
     "value_type": "level"
   },
+  "SECURITY:VIX_LEVEL:VIX:2026-06-02": {
+    "market": "VIX_LEVEL",
+    "ticker": "VIX",
+    "valuation_anchor_date": "2026-06-02",
+    "trade_date": "2026-06-02",
+    "return_pct": null,
+    "status": "traded",
+    "source": "CBOE",
+    "calendar_is_open": null,
+    "error": "",
+    "fetched_at": "2026-06-03T10:04:42+08:00",
+    "value": 15.77,
+    "display_value": "15.77",
+    "value_type": "level"
+  },
   "US:GOOGL:2026-05-15:last_close": {
     "fetched_at": "2026-05-15T00:01:17",
     "market": "US",
@@ -18264,1592 +19851,5 @@
     "valuation_mode": "last_close",
     "trade_date": "2026-05-13",
     "last_refresh_attempt_at": "2026-05-15T00:00:40"
-  },
-  "SECURITY:US:.NDX:2026-06-02": {
-    "market": "US",
-    "ticker": ".NDX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-01",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "rsi_module_index_daily_trade_date_older_than_anchor",
-    "calendar_is_open": true,
-    "error": "trade_date=2026-06-01 与 valuation_anchor_date=2026-06-02 不一致",
-    "fetched_at": "2026-06-03T07:13:24+08:00"
-  },
-  "SECURITY:US:.INX:2026-06-02": {
-    "market": "US",
-    "ticker": ".INX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-01",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "rsi_module_index_daily_trade_date_older_than_anchor",
-    "calendar_is_open": true,
-    "error": "trade_date=2026-06-01 与 valuation_anchor_date=2026-06-02 不一致",
-    "fetched_at": "2026-06-03T07:13:47+08:00"
-  },
-  "SECURITY:US:XOP:2026-06-02": {
-    "market": "US",
-    "ticker": "XOP",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.58,
-    "status": "traded",
-    "source": "eastmoney_us_hist_daily_107_pct",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:07:50+08:00"
-  },
-  "SECURITY:US:.SOX:2026-06-02": {
-    "market": "US",
-    "ticker": ".SOX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-01",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "rsi_module_index_daily_trade_date_older_than_anchor",
-    "calendar_is_open": true,
-    "error": "trade_date=2026-06-01 与 valuation_anchor_date=2026-06-02 不一致",
-    "fetched_at": "2026-06-03T07:07:51+08:00"
-  },
-  "SECURITY:FOREIGN_FUTURES:XAU:2026-06-02": {
-    "market": "FOREIGN_FUTURES",
-    "ticker": "XAU",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.06890169801434531,
-    "status": "traded",
-    "source": "ak_futures_foreign_hist_sina",
-    "calendar_is_open": null,
-    "error": "",
-    "fetched_at": "2026-06-03T07:07:52+08:00"
-  },
-  "SECURITY:VIX_LEVEL:VIX:2026-06-02": {
-    "market": "VIX_LEVEL",
-    "ticker": "VIX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-01",
-    "return_pct": null,
-    "status": "stale",
-    "source": "CBOE",
-    "calendar_is_open": null,
-    "error": "VIX trade_date=2026-06-01 与 valuation_anchor_date=2026-06-02 不一致",
-    "fetched_at": "2026-06-03T07:07:53+08:00",
-    "value": 16.05,
-    "display_value": "16.05",
-    "value_type": "level"
-  },
-  "SECURITY:US:NFLX:2026-06-02": {
-    "market": "US",
-    "ticker": "NFLX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -2.935348500706192,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:05+08:00"
-  },
-  "SECURITY:US:NVDA:2026-06-02": {
-    "market": "US",
-    "ticker": "NVDA",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.6863968621857786,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:06+08:00"
-  },
-  "SECURITY:US:AAPL:2026-06-02": {
-    "market": "US",
-    "ticker": "AAPL",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 2.902293336585249,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:08+08:00"
-  },
-  "SECURITY:US:MSFT:2026-06-02": {
-    "market": "US",
-    "ticker": "MSFT",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -4.171369737114238,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:11+08:00"
-  },
-  "SECURITY:US:AVGO:2026-06-02": {
-    "market": "US",
-    "ticker": "AVGO",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 4.695959746546929,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:13+08:00"
-  },
-  "SECURITY:US:TSLA:2026-06-02": {
-    "market": "US",
-    "ticker": "TSLA",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 1.8899647156100485,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:15+08:00"
-  },
-  "SECURITY:US:GOOG:2026-06-02": {
-    "market": "US",
-    "ticker": "GOOG",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -3.8085706251631546,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:18+08:00"
-  },
-  "SECURITY:US:AMZN:2026-06-02": {
-    "market": "US",
-    "ticker": "AMZN",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -1.81429249589532,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:20+08:00"
-  },
-  "SECURITY:US:META:2026-06-02": {
-    "market": "US",
-    "ticker": "META",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.47295717669062487,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:22+08:00"
-  },
-  "SECURITY:US:MRVL:2026-06-02": {
-    "market": "US",
-    "ticker": "MRVL",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 32.5206299280056,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:24+08:00"
-  },
-  "SECURITY:US:TSM:2026-06-02": {
-    "market": "US",
-    "ticker": "TSM",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 2.538851188996727,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:27+08:00"
-  },
-  "SECURITY:US:LITE:2026-06-02": {
-    "market": "US",
-    "ticker": "LITE",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 13.718234741885361,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:30+08:00"
-  },
-  "SECURITY:CN:300502:2026-06-02": {
-    "market": "CN",
-    "ticker": "300502",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 9.882027595539977,
-    "status": "traded",
-    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:34+08:00"
-  },
-  "SECURITY:US:GLW:2026-06-02": {
-    "market": "US",
-    "ticker": "GLW",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 13.41256217179463,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:37+08:00"
-  },
-  "SECURITY:US:AXTI:2026-06-02": {
-    "market": "US",
-    "ticker": "AXTI",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 1.1866727521679499,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:38+08:00"
-  },
-  "SECURITY:CN:300308:2026-06-02": {
-    "market": "CN",
-    "ticker": "300308",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 5.469911504424774,
-    "status": "traded",
-    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:41+08:00"
-  },
-  "SECURITY:CN:688498:2026-06-02": {
-    "market": "CN",
-    "ticker": "688498",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 12.433857504844248,
-    "status": "traded",
-    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:44+08:00"
-  },
-  "SECURITY:US:TSEM:2026-06-02": {
-    "market": "US",
-    "ticker": "TSEM",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 8.783112019560836,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:47+08:00"
-  },
-  "SECURITY:US:GOOGL:2026-06-02": {
-    "market": "US",
-    "ticker": "GOOGL",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -3.8579029152286393,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:50+08:00"
-  },
-  "SECURITY:CN:002384:2026-06-02": {
-    "market": "CN",
-    "ticker": "002384",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 10.002607561929588,
-    "status": "traded",
-    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:53+08:00"
-  },
-  "SECURITY:US:MU:2026-06-02": {
-    "market": "US",
-    "ticker": "MU",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 2.761948390723079,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:57+08:00"
-  },
-  "SECURITY:US:AMD:2026-06-02": {
-    "market": "US",
-    "ticker": "AMD",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 2.2366794807830104,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:08:59+08:00"
-  },
-  "SECURITY:US:CIEN:2026-06-02": {
-    "market": "US",
-    "ticker": "CIEN",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 10.07531468899774,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:01+08:00"
-  },
-  "SECURITY:US:COHR:2026-06-02": {
-    "market": "US",
-    "ticker": "COHR",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 17.632962752323998,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:04+08:00"
-  },
-  "SECURITY:US:VIAV:2026-06-02": {
-    "market": "US",
-    "ticker": "VIAV",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 11.349756157394285,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:07+08:00"
-  },
-  "SECURITY:US:SNDK:2026-06-02": {
-    "market": "US",
-    "ticker": "SNDK",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -2.5587203002709336,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:09+08:00"
-  },
-  "SECURITY:US:AEIS:2026-06-02": {
-    "market": "US",
-    "ticker": "AEIS",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 5.9833718812178915,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:12+08:00"
-  },
-  "SECURITY:US:TER:2026-06-02": {
-    "market": "US",
-    "ticker": "TER",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 6.265730321811902,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:15+08:00"
-  },
-  "SECURITY:US:LRCX:2026-06-02": {
-    "market": "US",
-    "ticker": "LRCX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 5.452197531263381,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:19+08:00"
-  },
-  "SECURITY:US:MKSI:2026-06-02": {
-    "market": "US",
-    "ticker": "MKSI",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 4.325921052075321,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:22+08:00"
-  },
-  "SECURITY:US:TTMI:2026-06-02": {
-    "market": "US",
-    "ticker": "TTMI",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 4.163762801047843,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:25+08:00"
-  },
-  "SECURITY:US:INTC:2026-06-02": {
-    "market": "US",
-    "ticker": "INTC",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -1.2805282195479162,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:28+08:00"
-  },
-  "SECURITY:US:ASML:2026-06-02": {
-    "market": "US",
-    "ticker": "ASML",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 4.715796764095104,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:31+08:00"
-  },
-  "SECURITY:HK:02513:2026-06-02": {
-    "market": "HK",
-    "ticker": "02513",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -3.683492496589358,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:34+08:00"
-  },
-  "SECURITY:US:KLAC:2026-06-02": {
-    "market": "US",
-    "ticker": "KLAC",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 5.42050215418195,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:37+08:00"
-  },
-  "SECURITY:HK:09899:2026-06-02": {
-    "market": "HK",
-    "ticker": "09899",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 6.677937447168225,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:39+08:00"
-  },
-  "SECURITY:HK:00522:2026-06-02": {
-    "market": "HK",
-    "ticker": "00522",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.4846526655896466,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:41+08:00"
-  },
-  "SECURITY:KR:000660:2026-06-02": {
-    "market": "KR",
-    "ticker": "000660",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.12695725772323319,
-    "status": "traded",
-    "source": "pykrx_ohlcv_pct",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:44+08:00"
-  },
-  "SECURITY:KR:005930:2026-06-02": {
-    "market": "KR",
-    "ticker": "005930",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 3.29512893982808,
-    "status": "traded",
-    "source": "pykrx_ohlcv_pct",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:45+08:00"
-  },
-  "SECURITY:CN:300476:2026-06-02": {
-    "market": "CN",
-    "ticker": "300476",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 1.9658244486636445,
-    "status": "traded",
-    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:48+08:00"
-  },
-  "SECURITY:UNKNOWN:JP3684400009:2026-06-02": {
-    "market": "UNKNOWN",
-    "ticker": "JP3684400009",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-03T07:09:48+08:00"
-  },
-  "SECURITY:US:WDC:2026-06-02": {
-    "market": "US",
-    "ticker": "WDC",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 3.0941047235444774,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:49+08:00"
-  },
-  "SECURITY:US:MPWR:2026-06-02": {
-    "market": "US",
-    "ticker": "MPWR",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 5.3553235434271595,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:52+08:00"
-  },
-  "SECURITY:US:LLY:2026-06-02": {
-    "market": "US",
-    "ticker": "LLY",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -1.667892032176388,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:09:56+08:00"
-  },
-  "SECURITY:US:GEV:2026-06-02": {
-    "market": "US",
-    "ticker": "GEV",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 2.0125408004945777,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:00+08:00"
-  },
-  "SECURITY:US:GE:2026-06-02": {
-    "market": "US",
-    "ticker": "GE",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -2.1195331957629238,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:03+08:00"
-  },
-  "SECURITY:UNKNOWN:RR.:2026-06-02": {
-    "market": "UNKNOWN",
-    "ticker": "RR.",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-03T07:10:03+08:00"
-  },
-  "SECURITY:US:ONTO:2026-06-02": {
-    "market": "US",
-    "ticker": "ONTO",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 8.724720079010817,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:06+08:00"
-  },
-  "SECURITY:US:AAOI:2026-06-02": {
-    "market": "US",
-    "ticker": "AAOI",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 8.994450968350032,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:09+08:00"
-  },
-  "SECURITY:UNKNOWN:285AJP:2026-06-02": {
-    "market": "UNKNOWN",
-    "ticker": "285AJP",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-03T07:10:10+08:00"
-  },
-  "SECURITY:HK:00981:2026-06-02": {
-    "market": "HK",
-    "ticker": "00981",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 3.146633102580232,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:13+08:00"
-  },
-  "SECURITY:HK:01347:2026-06-02": {
-    "market": "HK",
-    "ticker": "01347",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -2.8890347997373667,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:14+08:00"
-  },
-  "SECURITY:US:TXN:2026-06-02": {
-    "market": "US",
-    "ticker": "TXN",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 5.088676671214198,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:15+08:00"
-  },
-  "SECURITY:US:AMAT:2026-06-02": {
-    "market": "US",
-    "ticker": "AMAT",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 6.958110184193167,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:18+08:00"
-  },
-  "SECURITY:HK:09988:2026-06-02": {
-    "market": "HK",
-    "ticker": "09988",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 6.59609120521174,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:19+08:00"
-  },
-  "SECURITY:CN:688256:2026-06-02": {
-    "market": "CN",
-    "ticker": "688256",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 5.0080775444264924,
-    "status": "traded",
-    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:22+08:00"
-  },
-  "SECURITY:US:IBB:2026-06-02": {
-    "market": "US",
-    "ticker": "IBB",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -3.0111536823260066,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:26+08:00"
-  },
-  "SECURITY:US:GILD:2026-06-02": {
-    "market": "US",
-    "ticker": "GILD",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -2.692605830928896,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:28+08:00"
-  },
-  "SECURITY:US:VRTX:2026-06-02": {
-    "market": "US",
-    "ticker": "VRTX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -3.036039631363796,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:31+08:00"
-  },
-  "SECURITY:US:AMGN:2026-06-02": {
-    "market": "US",
-    "ticker": "AMGN",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.26433175471111126,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:34+08:00"
-  },
-  "SECURITY:US:REGN:2026-06-02": {
-    "market": "US",
-    "ticker": "REGN",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.3762544312372773,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:38+08:00"
-  },
-  "SECURITY:US:ALNY:2026-06-02": {
-    "market": "US",
-    "ticker": "ALNY",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -3.2168621616722404,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:41+08:00"
-  },
-  "SECURITY:US:INSM:2026-06-02": {
-    "market": "US",
-    "ticker": "INSM",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -2.1691973969631184,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:42+08:00"
-  },
-  "SECURITY:US:BIIB:2026-06-02": {
-    "market": "US",
-    "ticker": "BIIB",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -1.7687114248826297,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:45+08:00"
-  },
-  "SECURITY:US:UTHR:2026-06-02": {
-    "market": "US",
-    "ticker": "UTHR",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.8391185349769237,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:48+08:00"
-  },
-  "SECURITY:US:ARGX:2026-06-02": {
-    "market": "US",
-    "ticker": "ARGX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -4.0569846375139385,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:51+08:00"
-  },
-  "SECURITY:US:RPRX:2026-06-02": {
-    "market": "US",
-    "ticker": "RPRX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -2.1203370372813057,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:55+08:00"
-  },
-  "SECURITY:HK:01088:2026-06-02": {
-    "market": "HK",
-    "ticker": "01088",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -2.201524132091448,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:10:58+08:00"
-  },
-  "SECURITY:HK:00883:2026-06-02": {
-    "market": "HK",
-    "ticker": "00883",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 2.4719101123595433,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:00+08:00"
-  },
-  "SECURITY:US:COP:2026-06-02": {
-    "market": "US",
-    "ticker": "COP",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 1.1161108280764331,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:04+08:00"
-  },
-  "SECURITY:US:XOM:2026-06-02": {
-    "market": "US",
-    "ticker": "XOM",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.12049315162525609,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:08+08:00"
-  },
-  "SECURITY:US:CVX:2026-06-02": {
-    "market": "US",
-    "ticker": "CVX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.9255777881694405,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:13+08:00"
-  },
-  "SECURITY:US:T:2026-06-02": {
-    "market": "US",
-    "ticker": "T",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.36659941093613035,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:17+08:00"
-  },
-  "SECURITY:US:MDLZ:2026-06-02": {
-    "market": "US",
-    "ticker": "MDLZ",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.032760782987084625,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:21+08:00"
-  },
-  "SECURITY:US:C:2026-06-02": {
-    "market": "US",
-    "ticker": "C",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 1.6809963827602692,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:25+08:00"
-  },
-  "SECURITY:US:WFC:2026-06-02": {
-    "market": "US",
-    "ticker": "WFC",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 2.941563206327036,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:29+08:00"
-  },
-  "SECURITY:US:MRK:2026-06-02": {
-    "market": "US",
-    "ticker": "MRK",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.41677812326563757,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:33+08:00"
-  },
-  "SECURITY:US:CRCL:2026-06-02": {
-    "market": "US",
-    "ticker": "CRCL",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -3.92493093264743,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:34+08:00"
-  },
-  "SECURITY:US:BTI:2026-06-02": {
-    "market": "US",
-    "ticker": "BTI",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.8852474025038415,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:41+08:00"
-  },
-  "SECURITY:UNKNOWN:FR0000073272:2026-06-02": {
-    "market": "UNKNOWN",
-    "ticker": "FR0000073272",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-03T07:11:41+08:00"
-  },
-  "SECURITY:US:JBL:2026-06-02": {
-    "market": "US",
-    "ticker": "JBL",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 3.664194238408758,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:42+08:00"
-  },
-  "SECURITY:US:APA:2026-06-02": {
-    "market": "US",
-    "ticker": "APA",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.15894403520799738,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:46+08:00"
-  },
-  "SECURITY:US:DOW:2026-06-02": {
-    "market": "US",
-    "ticker": "DOW",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.08648773474162486,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:50+08:00"
-  },
-  "SECURITY:US:LYB:2026-06-02": {
-    "market": "US",
-    "ticker": "LYB",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.2532022639261333,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:51+08:00"
-  },
-  "SECURITY:US:OXY:2026-06-02": {
-    "market": "US",
-    "ticker": "OXY",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.2885301916594196,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:54+08:00"
-  },
-  "SECURITY:US:DELL:2026-06-02": {
-    "market": "US",
-    "ticker": "DELL",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -6.577816649187418,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:11:58+08:00"
-  },
-  "SECURITY:US:DAL:2026-06-02": {
-    "market": "US",
-    "ticker": "DAL",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -1.779801836149042,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:01+08:00"
-  },
-  "SECURITY:US:FANG:2026-06-02": {
-    "market": "US",
-    "ticker": "FANG",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 1.6932096356612414,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:03+08:00"
-  },
-  "SECURITY:US:EOG:2026-06-02": {
-    "market": "US",
-    "ticker": "EOG",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 1.4346411827829142,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:07+08:00"
-  },
-  "SECURITY:US:VG:2026-06-02": {
-    "market": "US",
-    "ticker": "VG",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -2.444794952681395,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:08+08:00"
-  },
-  "SECURITY:US:SM:2026-06-02": {
-    "market": "US",
-    "ticker": "SM",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.8264477284860128,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:11+08:00"
-  },
-  "SECURITY:US:MUR:2026-06-02": {
-    "market": "US",
-    "ticker": "MUR",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 1.7421540800235835,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:14+08:00"
-  },
-  "SECURITY:US:CHRD:2026-06-02": {
-    "market": "US",
-    "ticker": "CHRD",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.0072423962579226675,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:17+08:00"
-  },
-  "SECURITY:US:PBF:2026-06-02": {
-    "market": "US",
-    "ticker": "PBF",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 3.2034336104088013,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:20+08:00"
-  },
-  "SECURITY:US:MTDR:2026-06-02": {
-    "market": "US",
-    "ticker": "MTDR",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.12484340147175255,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:23+08:00"
-  },
-  "SECURITY:US:CTRA:2026-06-02": {
-    "market": "US",
-    "ticker": "CTRA",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-05-07",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "yahoo_chart_adjclose_daily_us_fallback_trade_date_older_than_anchor",
-    "calendar_is_open": true,
-    "error": "trade_date=2026-05-07 与 valuation_anchor_date=2026-06-02 不一致",
-    "fetched_at": "2026-06-03T07:12:49+08:00"
-  },
-  "SECURITY:US:PSX:2026-06-02": {
-    "market": "US",
-    "ticker": "PSX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 1.287168217223389,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:29+08:00"
-  },
-  "SECURITY:US:MPC:2026-06-02": {
-    "market": "US",
-    "ticker": "MPC",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 1.7010723862171284,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:32+08:00"
-  },
-  "SECURITY:US:VLO:2026-06-02": {
-    "market": "US",
-    "ticker": "VLO",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 2.273089417094565,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:35+08:00"
-  },
-  "SECURITY:US:DVN:2026-06-02": {
-    "market": "US",
-    "ticker": "DVN",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.19434279835672807,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:38+08:00"
-  },
-  "SECURITY:US:TPL:2026-06-02": {
-    "market": "US",
-    "ticker": "TPL",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.703363729358486,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:41+08:00"
-  },
-  "SECURITY:US:EQT:2026-06-02": {
-    "market": "US",
-    "ticker": "EQT",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -1.0495802279664845,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:47+08:00"
-  },
-  "SECURITY:HK:01179:2026-06-02": {
-    "market": "HK",
-    "ticker": "01179",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.05627462014630158,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:52+08:00"
-  },
-  "SECURITY:HK:00700:2026-06-02": {
-    "market": "HK",
-    "ticker": "00700",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 10.45871559633027,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:54+08:00"
-  },
-  "SECURITY:US:FUTU:2026-06-02": {
-    "market": "US",
-    "ticker": "FUTU",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.8556149732620311,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:54+08:00"
-  },
-  "SECURITY:HK:00100:2026-06-02": {
-    "market": "HK",
-    "ticker": "00100",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -5.720338983050843,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:56+08:00"
-  },
-  "SECURITY:HK:06869:2026-06-02": {
-    "market": "HK",
-    "ticker": "06869",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 10.751665080875373,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:12:58+08:00"
-  },
-  "SECURITY:CN:688519:2026-06-02": {
-    "market": "CN",
-    "ticker": "688519",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 10.330177788039707,
-    "status": "traded",
-    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:02+08:00"
-  },
-  "SECURITY:UNKNOWN:BRK_B:2026-06-02": {
-    "market": "UNKNOWN",
-    "ticker": "BRK_B",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-03T07:13:02+08:00"
-  },
-  "SECURITY:US:CAT:2026-06-02": {
-    "market": "US",
-    "ticker": "CAT",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 5.136592049489419,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:06+08:00"
-  },
-  "SECURITY:US:NIO:2026-06-02": {
-    "market": "US",
-    "ticker": "NIO",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.5016757477033895,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:09+08:00"
-  },
-  "SECURITY:US:CVNA:2026-06-02": {
-    "market": "US",
-    "ticker": "CVNA",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -7.605635951942125,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:13+08:00"
-  },
-  "SECURITY:US:RIVN:2026-06-02": {
-    "market": "US",
-    "ticker": "RIVN",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 2.005900514950354,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:16+08:00"
-  },
-  "SECURITY:US:RACE:2026-06-02": {
-    "market": "US",
-    "ticker": "RACE",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 1.3085578547725296,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:19+08:00"
-  },
-  "SECURITY:US:PONY:2026-06-02": {
-    "market": "US",
-    "ticker": "PONY",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.3707132714962258,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:22+08:00"
-  },
-  "SECURITY:HK:03750:2026-06-02": {
-    "market": "HK",
-    "ticker": "03750",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 3.450564034505632,
-    "status": "traded",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:24+08:00"
-  },
-  "SECURITY:US:HD:2026-06-02": {
-    "market": "US",
-    "ticker": "HD",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.26714299325487634,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:27+08:00"
-  },
-  "SECURITY:US:MCD:2026-06-02": {
-    "market": "US",
-    "ticker": "MCD",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.0905436287216066,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:30+08:00"
-  },
-  "SECURITY:US:TJX:2026-06-02": {
-    "market": "US",
-    "ticker": "TJX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 0.6153862136865751,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:34+08:00"
-  },
-  "SECURITY:US:BKNG:2026-06-02": {
-    "market": "US",
-    "ticker": "BKNG",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -1.2053136107136209,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:36+08:00"
-  },
-  "SECURITY:US:LOW:2026-06-02": {
-    "market": "US",
-    "ticker": "LOW",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.510350300514395,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:40+08:00"
-  },
-  "SECURITY:US:SBUX:2026-06-02": {
-    "market": "US",
-    "ticker": "SBUX",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -1.0361620557455153,
-    "status": "traded",
-    "source": "ak_stock_us_daily",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:41+08:00"
-  },
-  "SECURITY:US:ORLY:2026-06-02": {
-    "market": "US",
-    "ticker": "ORLY",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.4732179542972448,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:44+08:00"
-  },
-  "SECURITY:US:MAR:2026-06-02": {
-    "market": "US",
-    "ticker": "MAR",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -0.8488915964532717,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:47+08:00"
-  },
-  "SECURITY:US:PLTR:2026-06-02": {
-    "market": "US",
-    "ticker": "PLTR",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": -5.278553407853337,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:50+08:00"
-  },
-  "SECURITY:US:CSCO:2026-06-02": {
-    "market": "US",
-    "ticker": "CSCO",
-    "valuation_anchor_date": "2026-06-02",
-    "trade_date": "2026-06-02",
-    "return_pct": 5.49740218271233,
-    "status": "traded",
-    "source": "yahoo_chart_adjclose_daily_us_fallback",
-    "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-06-03T07:13:53+08:00"
   }
 }
