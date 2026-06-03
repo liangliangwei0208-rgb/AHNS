@@ -1,6 +1,6 @@
 name: Trigger Service Command
 
-on:
+"on":
   workflow_dispatch:
     inputs:
       no_send:
@@ -38,9 +38,9 @@ jobs:
       GITEE_USERNAME: liangliang2000
       GITEE_REPOSITORY: https://gitee.com/liangliang2000/AHNS.git
       GITEE_TOKEN: ${{ secrets.GITEE_PRIVATE_CODE }}
-      INPUT_NO_SEND: ${{ github.event.inputs.no_send || 'false' }}
-      INPUT_RECEIVER: ${{ github.event.inputs.receiver || '' }}
-      INPUT_MESSAGE: ${{ github.event.inputs.message || '' }}
+      INPUT_NO_SEND: ${{ inputs.no_send }}
+      INPUT_RECEIVER: ${{ inputs.receiver }}
+      INPUT_MESSAGE: ${{ inputs.message }}
 
     steps:
       - name: Checkout GitHub repository
