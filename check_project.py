@@ -309,13 +309,69 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
         else:
             items.append(make_item("ERROR", f"{label} workflow 富途夜盘", f"GitHub 流程不应包含 futu_night_fund.py，实际 {all_scripts}"))
 
-        night_expected = daily_scripts + (("futu_night_fund.py",) if include_futu_night else ())
+        def expected_scripts_at(*, include_safe_fund: bool, extra_scripts: tuple[str, ...] = ()) -> tuple[str, ...]:
+            extra_set = set(extra_scripts)
+            selected: list[str] = []
+            for step in steps:
+                script = step.script_path.name
+                if not step.has_run_window:
+                    selected.append(script)
+                elif script == "safe_fund.py" and include_safe_fund:
+                    selected.append(script)
+                elif script in extra_set:
+                    selected.append(script)
+            return tuple(selected)
+
         workflow_cases = [
-            ("2026-05-14T09:00:00+08:00", daily_scripts + ("afterhours_fund.py",), "09:00 盘后"),
-            ("2026-05-14T11:45:00+08:00", night_expected, "11:45 富途夜盘"),
-            ("2026-05-14T18:00:00+08:00", daily_scripts + ("premarket_fund.py",), "18:00 盘前"),
-            ("2026-05-14T23:30:00+08:00", daily_scripts + ("intraday_fund.py",), "23:30 盘中"),
-            ("2026-05-15T01:00:00+08:00", daily_scripts + ("intraday_fund.py",), "次日 01:00 盘中"),
+            (
+                "2026-05-14T07:30:00+08:00",
+                expected_scripts_at(include_safe_fund=True),
+                "07:30 收盘观察",
+            ),
+            (
+                "2026-05-14T13:40:00+08:00",
+                expected_scripts_at(
+                    include_safe_fund=True,
+                    extra_scripts=(("futu_night_fund.py",) if include_futu_night else ()),
+                ),
+                "13:40 收盘观察截止",
+            ),
+            (
+                "2026-05-14T13:41:00+08:00",
+                expected_scripts_at(
+                    include_safe_fund=False,
+                    extra_scripts=(("futu_night_fund.py",) if include_futu_night else ()),
+                ),
+                "13:41 收盘观察跳过",
+            ),
+            (
+                "2026-05-14T09:00:00+08:00",
+                expected_scripts_at(include_safe_fund=True, extra_scripts=("afterhours_fund.py",)),
+                "09:00 盘后",
+            ),
+            (
+                "2026-05-14T11:45:00+08:00",
+                expected_scripts_at(
+                    include_safe_fund=True,
+                    extra_scripts=(("futu_night_fund.py",) if include_futu_night else ()),
+                ),
+                "11:45 富途夜盘",
+            ),
+            (
+                "2026-05-14T18:00:00+08:00",
+                expected_scripts_at(include_safe_fund=False, extra_scripts=("premarket_fund.py",)),
+                "18:00 盘前",
+            ),
+            (
+                "2026-05-14T23:30:00+08:00",
+                expected_scripts_at(include_safe_fund=False, extra_scripts=("intraday_fund.py",)),
+                "23:30 盘中",
+            ),
+            (
+                "2026-05-15T01:00:00+08:00",
+                expected_scripts_at(include_safe_fund=False, extra_scripts=("intraday_fund.py",)),
+                "次日 01:00 盘中",
+            ),
         ]
         for text, expected_scripts, title in workflow_cases:
             dt = datetime.fromisoformat(text).astimezone(bj_tz)

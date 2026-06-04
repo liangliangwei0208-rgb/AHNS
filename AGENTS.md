@@ -78,16 +78,16 @@ Get-CimInstance Win32_Process |
 & F:\anaconda\envs\py310\python.exe .\git_main.py --no-send
 ```
 
-`git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、必要性标记、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。无时间窗步骤属于完整日流程，始终运行；命中实时观察窗口时，只是在完整日流程后追加对应实时观察脚本，不会替代完整流程。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。
+`git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、必要性标记、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。无时间窗步骤属于完整日流程，始终运行；带 `run_window_bj` 的步骤只在命中北京时间窗口时运行。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。
 
-GitHub / 主机 `git_main.py` 当前完整日流程：
+GitHub / 主机 `git_main.py` 当前完整日流程和限时步骤：
 
 1. `main.py`
-2. `safe_fund.py`
-3. `safe_holidays.py`
-4. `sum_holidays.py`
-5. `kepu/kepu_sum_holidays.py`
-6. `kepu/kepu_xiane.py --table-only`
+2. `safe_holidays.py`
+3. `sum_holidays.py`
+4. `kepu/kepu_sum_holidays.py`
+5. `kepu/kepu_xiane.py --table-only`
+6. `safe_fund.py` 仅在 06:00-13:40 运行，生成收盘观察图 `output/safe_haiwai_fund.png`
 
 自动总入口不再运行 `kepu/first_pic.py`，也不自动生成 `output/kepu_xiane.png` 限额科普图；周日限购表格图 `output/xiane.png` 仍由 `kepu/kepu_xiane.py --table-only` 生成。
 
@@ -95,7 +95,7 @@ GitHub / 主机 `git_main.py` 当前完整日流程：
 
 - 08:00-11:29：`afterhours_fund.py --force`
 - 17:30-21:00：`premarket_fund.py --force`
-- 22:40-次日 02:00：`intraday_fund.py --force`
+- 22:40-次日 01:30：`intraday_fund.py --force`
 
 GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py` 使用 Service 流程，额外在 11:30-16:30 追加 `futu_night_fund.py --force`。
 
@@ -126,7 +126,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `afterhours_fund.py`：盘后观察图手动入口；生成 `output/safe_haiwai_afterhours.png` 和盘后失败报告，不写正式基金估算缓存。
 - `futu_night_fund.py`：富途夜盘观察图手动入口；生成 `output/safe_haiwai_night.png` 和夜盘失败报告，不写正式基金估算缓存。
 - `fund_estimate_breakdown.py`：只读缓存的估算拆解工具；运行后可手工输入基金代码、正式估值日期或实时观察类型，打印完整持仓贡献表；支持 `--latest`、`--save-txt` 和 `--observation 盘中`。
-- `safe_fund.py`：只读基金估算缓存，生成安全版海外/全球每日基金估算图。
+- `safe_fund.py`：只读基金估算缓存，生成安全版海外/全球收盘观察图；自动总入口只在北京时间 06:00-13:40 运行它，晚上盘前窗口不会再输出收盘观察图。
 - `safe_holidays.py`：只读缓存，生成安全版海外节假日累计观察图。
 - `holidays.py`：只读缓存，生成详细版海外节假日累计观察图。
 - `sum_holidays.py`：只读缓存，生成节后第 1 / 第 2 个 A 股交易日的海外基金补更新观察图。
@@ -293,7 +293,7 @@ safe 公开图的视觉样式已集中到 `tools/configs/safe_image_style_config
 盘前、盘中、盘后和富途夜盘观察是独立于正式主流程的轻量入口。它们的目标是“尽可能使用当下已经有效的信息”，而不是生产正式净值估算缓存。
 
 - 入口：`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py`。
-- 默认时间窗：盘后 08:00-12:00；富途夜盘 11:30-16:30；盘前 17:30-21:00；盘中 22:40-次日 02:00；测试时使用 `--force`。富途夜盘的 `--force` 只绕过北京时间配置窗口，仍会检查美股夜盘是否真实开市。
+- 默认时间窗：收盘观察 06:00-13:40；盘后 08:00-11:29；富途夜盘 11:30-16:30；盘前 17:30-21:00；盘中 22:40-次日 01:30；测试时使用 `--force`。富途夜盘的 `--force` 只绕过北京时间配置窗口，仍会检查美股夜盘是否真实开市。
 - 日期口径：盘后图主标题使用下一美股估值日，报告保留盘后报价日；盘前/盘中使用目标美股交易日；富途夜盘使用夜盘目标估值日。
 - 数据边界：盘前美股只接受目标美股交易日的 `pre` 时段报价；盘中只接受 regular 报价；盘后只接受 post 报价；富途夜盘只使用 Futu OpenAPI。
 - 富途夜盘依赖：需要本地安装可选 `futu-api` 并启动 Futu OpenD；连接参数在 `tools/configs/futu_night_configs.py`。入口会先判断目标美股夜盘是否处于开市窗口，周末或美国节假日没有夜盘时不加载持仓、不连接 Futu。

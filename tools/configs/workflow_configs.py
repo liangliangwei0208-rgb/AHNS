@@ -9,7 +9,7 @@
 - 想新增脚本：复制一段字典，改 `name` 和 `script`。
 - 想临时不把某个脚本生成的图片发邮件：把 `collect_images` 改成 False。
 - 脚本失败不会中断总流程；`required` 仅用于日志里标记必要性，最后统一汇总失败日志。
-- 想控制某个脚本只在固定北京时间追加运行：配置 `run_window_bj=("HH:MM", "HH:MM")`。
+- 想控制某个脚本只在固定北京时间运行：配置 `run_window_bj=("HH:MM", "HH:MM")`。
 
 注意：
 - `script` 一律写相对项目根目录的路径，例如 `safe_fund.py` 或
@@ -29,7 +29,7 @@ from __future__ import annotations
 # - required: True 表示日志中标为必要步骤；失败也会继续运行后续步骤，并在最后汇总。
 # - collect_images: True 表示收集这一步本次新生成/更新的图片用于邮件发送。
 # - run_window_bj: 可选，北京时间闭区间；支持跨午夜窗口，例如 ("22:40", "02:00")。
-#   命中窗口时，该步骤会追加到日常完整流程之后运行；不会替代日常流程。
+#   命中窗口时才运行该步骤；实时观察脚本仍会和日常完整流程同轮运行。
 # - args: 可选，运行脚本时追加的参数；实时观察由总入口控制窗口，因此这里传 --force。
 COMMON_WORKFLOW_STEPS = [
     {
@@ -43,6 +43,7 @@ COMMON_WORKFLOW_STEPS = [
         "script": "safe_fund.py",
         "required": True,
         "collect_images": True,
+        "run_window_bj": ("06:00", "13:40"),
     },
     {
         "name": "安全版海外节假日图",

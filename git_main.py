@@ -5,7 +5,7 @@ AHNS 项目总控入口：
 1. 运行 main.py 生成市场和基金估算图；
 2. 运行 safe_fund.py、safe_holidays.py、sum_holidays.py 生成公开展示图；
 3. 运行 kepu 科普脚本，按日期条件生成节后说明图和每周限额图；
-4. 按 workflow_configs.py 中的 run_window_bj 追加实时观察流程；
+4. 按 workflow_configs.py 中的 run_window_bj 运行限时/实时步骤；
 5. 收集本次新建或更新的图片并发送邮件。
 
 本地默认使用 tools.email_send.py 中的邮箱配置；GitHub Actions 可通过
@@ -256,10 +256,10 @@ def select_workflow_steps_for_time(
     steps: list[WorkflowStep],
     current_time: datetime | None = None,
 ) -> list[WorkflowStep]:
-    """按配置中的北京时间窗口追加实时观察步骤。
+    """按配置中的北京时间窗口选择限时/实时步骤。
 
     无运行窗口的步骤属于日常完整流程，始终运行；带窗口的步骤只在命中
-    对应北京时间窗口时追加运行。
+    对应北京时间窗口时运行。
     """
     now_bj = coerce_beijing_datetime(current_time or datetime.now(BJ_TZ))
     current = now_bj.time().replace(microsecond=0)
@@ -520,16 +520,16 @@ def main(
         if step.has_run_window
     ]
     if configured_windows:
-        log("配置化实时观察窗口: " + "；".join(configured_windows))
+        log("配置化限时/实时窗口: " + "；".join(configured_windows))
     daily_steps = [step for step in steps if not step.has_run_window]
-    realtime_steps = [step for step in steps if step.has_run_window]
-    if realtime_steps:
+    window_steps = [step for step in steps if step.has_run_window]
+    if window_steps:
         log(
-            "当前命中实时观察窗口，完整日流程照常运行，并追加实时观察步骤: "
-            + " -> ".join(step.name for step in realtime_steps)
+            "当前命中限时/实时窗口，完整日流程照常运行，并运行窗口步骤: "
+            + " -> ".join(step.name for step in window_steps)
         )
     else:
-        log("当前未命中实时观察窗口，仅运行完整日流程/非窗口步骤")
+        log("当前未命中限时/实时窗口，仅运行完整日流程/非窗口步骤")
     if daily_steps:
         log("完整日流程步骤: " + " -> ".join(step.name for step in daily_steps))
     log("实际运行顺序: " + " -> ".join(step.name for step in steps))
