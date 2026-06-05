@@ -1,11 +1,11 @@
 {
-  "run_flag": 1,
+  "run_flag": 0,
   "no_send": false,
   "receiver": "",
-  "status": "requested",
+  "status": "success",
   "requested_at_bj": "2026-06-05T13:26:20+08:00",
-  "last_started_at_bj": "2026-06-05T10:06:41+08:00",
-  "last_finished_at_bj": "2026-06-05T10:09:48+08:00",
+  "last_started_at_bj": "2026-06-05T14:21:34+08:00",
+  "last_finished_at_bj": "2026-06-05T14:24:29+08:00",
   "last_exit_code": 0,
-  "last_message": "requested from GitHub Actions by liangliangwei0208-rgb, run_id=26997214021"
+  "last_message": "service_main.py exit code 0"
 }
