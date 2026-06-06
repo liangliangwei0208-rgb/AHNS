@@ -22802,25 +22802,25 @@
     "market": "US",
     "ticker": ".NDX",
     "valuation_anchor_date": "2026-06-05",
-    "trade_date": "2026-06-04",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "rsi_module_index_daily_trade_date_older_than_anchor",
+    "trade_date": "2026-06-05",
+    "return_pct": -4.769205267179622,
+    "status": "traded",
+    "source": "rsi_module_index_daily",
     "calendar_is_open": true,
-    "error": "trade_date=2026-06-04 与 valuation_anchor_date=2026-06-05 不一致",
-    "fetched_at": "2026-06-06T06:53:21+08:00"
+    "error": "",
+    "fetched_at": "2026-06-06T08:28:52+08:00"
   },
   "SECURITY:US:.INX:2026-06-05": {
     "market": "US",
     "ticker": ".INX",
     "valuation_anchor_date": "2026-06-05",
-    "trade_date": "2026-06-04",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "rsi_module_index_daily_trade_date_older_than_anchor",
+    "trade_date": "2026-06-05",
+    "return_pct": -2.644537174185424,
+    "status": "traded",
+    "source": "rsi_module_index_daily",
     "calendar_is_open": true,
-    "error": "trade_date=2026-06-04 与 valuation_anchor_date=2026-06-05 不一致",
-    "fetched_at": "2026-06-06T06:53:47+08:00"
+    "error": "",
+    "fetched_at": "2026-06-06T08:28:52+08:00"
   },
   "SECURITY:US:XOP:2026-06-05": {
     "market": "US",
@@ -22838,13 +22838,13 @@
     "market": "US",
     "ticker": ".SOX",
     "valuation_anchor_date": "2026-06-05",
-    "trade_date": "2026-06-04",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "rsi_module_index_daily_trade_date_older_than_anchor",
+    "trade_date": "2026-06-05",
+    "return_pct": -10.256917955490952,
+    "status": "traded",
+    "source": "rsi_module_index_daily",
     "calendar_is_open": true,
-    "error": "trade_date=2026-06-04 与 valuation_anchor_date=2026-06-05 不一致",
-    "fetched_at": "2026-06-06T06:48:39+08:00"
+    "error": "",
+    "fetched_at": "2026-06-06T08:28:53+08:00"
   },
   "SECURITY:FOREIGN_FUTURES:XAU:2026-06-05": {
     "market": "FOREIGN_FUTURES",
@@ -22868,7 +22868,7 @@
     "source": "CBOE",
     "calendar_is_open": null,
     "error": "VIX trade_date=2026-06-04 与 valuation_anchor_date=2026-06-05 不一致",
-    "fetched_at": "2026-06-06T06:48:41+08:00",
+    "fetched_at": "2026-06-06T08:28:53+08:00",
     "value": 15.4,
     "display_value": "15.40",
     "value_type": "level"
@@ -23363,7 +23363,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-06T06:50:12+08:00"
+    "fetched_at": "2026-06-06T08:29:03+08:00"
   },
   "SECURITY:US:WDC:2026-06-05": {
     "market": "US",
@@ -23435,7 +23435,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-06T06:50:27+08:00"
+    "fetched_at": "2026-06-06T08:29:03+08:00"
   },
   "SECURITY:US:ONTO:2026-06-05": {
     "market": "US",
@@ -23471,7 +23471,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-06T06:50:33+08:00"
+    "fetched_at": "2026-06-06T08:29:03+08:00"
   },
   "SECURITY:HK:00981:2026-06-05": {
     "market": "HK",
@@ -23831,7 +23831,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-06T06:51:44+08:00"
+    "fetched_at": "2026-06-06T08:29:04+08:00"
   },
   "SECURITY:US:JBL:2026-06-05": {
     "market": "US",
@@ -24023,7 +24023,7 @@
     "source": "ak_stock_us_daily_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2026-05-06 与 valuation_anchor_date=2026-06-05 不一致",
-    "fetched_at": "2026-06-06T06:52:58+08:00"
+    "fetched_at": "2026-06-06T08:29:16+08:00"
   },
   "SECURITY:US:PSX:2026-06-05": {
     "market": "US",
@@ -24179,7 +24179,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-06T06:53:02+08:00"
+    "fetched_at": "2026-06-06T08:29:16+08:00"
   },
   "SECURITY:US:CAT:2026-06-05": {
     "market": "US",
