@@ -4,9 +4,9 @@
   "receiver": "",
   "holding_change_fund_code": "",
   "status": "success",
-  "requested_at_bj": "2026-06-04T19:13:17+08:00",
-  "last_started_at_bj": "2026-06-04T19:13:27+08:00",
-  "last_finished_at_bj": "2026-06-04T19:17:46+08:00",
+  "requested_at_bj": "2026-06-05T13:26:20+08:00",
+  "last_started_at_bj": "2026-06-05T14:21:34+08:00",
+  "last_finished_at_bj": "2026-06-05T14:24:29+08:00",
   "last_exit_code": 0,
   "last_message": "service_main.py exit code 0"
 }
