@@ -87,6 +87,22 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为基金持仓。",
         ],
     },
+    "fund_holding_change_state.json": {
+        "purpose": "基金前十大持仓变化图的已处理状态缓存，用于判断持仓缓存是否发生新披露或内容变化。",
+        "producer": "fund_holding_change.py --auto 在自动检测持仓变化后写入。",
+        "consumers": [
+            "fund_holding_change.py",
+            "git_main.py",
+            "service_main.py",
+        ],
+        "refresh_policy": "首次运行只初始化当前持仓指纹；后续季度或真实披露字段指纹变化时生成持仓变化图并更新状态。",
+        "retention_policy": "每个 fund_code:topN 一个 key，更新时覆盖同 key；不按日期追加。",
+        "data_shape": "顶层是 fund_code:topN -> 状态记录，包含 latest_quarter_key、fingerprint、last_checked_at、last_image。",
+        "notes": [
+            "不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为基金状态。",
+            "该文件只记录是否已经处理过持仓变化，不保存完整持仓明细。",
+        ],
+    },
     "fund_purchase_limit_cache.json": {
         "purpose": "基金限购金额缓存，用于每日基金图展示模型观察限购信息。",
         "producer": "tools/get_top10_holdings.py 解析公开网页限购文本后写入。",

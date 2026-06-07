@@ -58,6 +58,18 @@ def truthy(value: object) -> bool:
     return str(value or "").strip().lower() in {"1", "true", "yes", "on"}
 
 
+def normalize_optional_fund_code(value: object) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    digits = "".join(char for char in text if char.isdigit())
+    if not digits:
+        raise TriggerCommandError(f"holding_fund_code must contain digits, got: {text!r}")
+    if len(digits) > 6:
+        raise TriggerCommandError(f"holding_fund_code must be one 6-digit fund code, got: {text!r}")
+    return digits.zfill(6)
+
+
 def now_bj_iso() -> str:
     return datetime.now(tz=BJ_TZ).isoformat(timespec="seconds")
 
@@ -154,6 +166,7 @@ def command_payload(
     *,
     no_send: bool,
     receiver: str,
+    holding_fund_code: str,
     message: str,
     actor: str,
     run_id: str,
@@ -166,6 +179,7 @@ def command_payload(
         "run_flag": 1,
         "no_send": bool(no_send),
         "receiver": receiver.strip(),
+        "holding_change_fund_code": holding_fund_code,
         "status": "requested",
         "requested_at_bj": requested_at,
         "last_message": request_message[:500],
@@ -177,6 +191,7 @@ def update_command_file(
     *,
     no_send: bool,
     receiver: str,
+    holding_fund_code: str,
     message: str,
     actor: str,
     run_id: str,
@@ -193,6 +208,7 @@ def update_command_file(
     updates = command_payload(
         no_send=no_send,
         receiver=receiver,
+        holding_fund_code=holding_fund_code,
         message=message,
         actor=actor,
         run_id=run_id,
@@ -205,7 +221,9 @@ def update_command_file(
     log(
         "Command updated: "
         f"run_flag=1, status=requested, no_send={updates['no_send']}, "
-        f"receiver_set={bool(updates['receiver'])}, requested_at_bj={updates['requested_at_bj']}"
+        f"receiver_set={bool(updates['receiver'])}, "
+        f"holding_fund_code={updates['holding_change_fund_code'] or '(auto)'}, "
+        f"requested_at_bj={updates['requested_at_bj']}"
     )
     return command
 
@@ -242,6 +260,7 @@ def recreate_commit_on_latest_gitee(
     git_env: dict[str, str],
     no_send: bool,
     receiver: str,
+    holding_fund_code: str,
     message: str,
     actor: str,
     run_id: str,
@@ -253,6 +272,7 @@ def recreate_commit_on_latest_gitee(
             command_file,
             no_send=no_send,
             receiver=receiver,
+            holding_fund_code=holding_fund_code,
             message=message,
             actor=actor,
             run_id=run_id,
@@ -299,6 +319,7 @@ def update_with_gitee_api(
     command_file: Path,
     no_send: bool,
     receiver: str,
+    holding_fund_code: str,
     message: str,
     actor: str,
     run_id: str,
@@ -320,6 +341,7 @@ def update_with_gitee_api(
             command_file,
             no_send=no_send,
             receiver=receiver,
+            holding_fund_code=holding_fund_code,
             message=message,
             actor=actor,
             run_id=run_id,
@@ -359,6 +381,7 @@ def deliver_command_request(
     api_url: str,
     no_send: bool,
     receiver: str,
+    holding_fund_code: str,
     message: str,
     actor: str,
     run_id: str,
@@ -371,6 +394,7 @@ def deliver_command_request(
     log(f"GitHub run id: {run_id or 'unknown'}")
     log(f"no_send: {no_send}")
     log(f"receiver: {'provided' if receiver else 'default'}")
+    log(f"holding_fund_code: {holding_fund_code or '(auto)'}")
     log(f"Gitee repository: {repository}")
 
     git_env = build_git_env(username, token)
@@ -380,6 +404,7 @@ def deliver_command_request(
         command_file,
         no_send=no_send,
         receiver=receiver,
+        holding_fund_code=holding_fund_code,
         message=message,
         actor=actor,
         run_id=run_id,
@@ -406,6 +431,7 @@ def deliver_command_request(
         git_env=git_env,
         no_send=no_send,
         receiver=receiver,
+        holding_fund_code=holding_fund_code,
         message=message,
         actor=actor,
         run_id=run_id,
@@ -442,6 +468,7 @@ def deliver_command_request(
         command_file=command_file,
         no_send=no_send,
         receiver=receiver,
+        holding_fund_code=holding_fund_code,
         message=message,
         actor=actor,
         run_id=run_id,
@@ -465,6 +492,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--token-env", default="GITEE_TOKEN")
     parser.add_argument("--no-send", default=os.environ.get("INPUT_NO_SEND", "false"))
     parser.add_argument("--receiver", default=os.environ.get("INPUT_RECEIVER", ""))
+    parser.add_argument("--holding-fund-code", default=os.environ.get("INPUT_HOLDING_FUND_CODE", ""))
     parser.add_argument("--message", default=os.environ.get("INPUT_MESSAGE", ""))
     parser.add_argument("--actor", default=os.environ.get("GITHUB_ACTOR", "unknown"))
     parser.add_argument("--run-id", default=os.environ.get("GITHUB_RUN_ID", "unknown"))
@@ -483,6 +511,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             api_url=str(args.gitee_api_url),
             no_send=truthy(args.no_send),
             receiver=str(args.receiver or ""),
+            holding_fund_code=normalize_optional_fund_code(args.holding_fund_code),
             message=str(args.message or ""),
             actor=str(args.actor or ""),
             run_id=str(args.run_id or ""),

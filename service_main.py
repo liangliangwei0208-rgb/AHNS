@@ -9,7 +9,7 @@ AHNS 小电脑/远程服务器总控入口。
 """
 from __future__ import annotations
 
-from git_main import main as run_workflow_main
+from git_main import main as run_workflow_main, send_uncaught_exception_email
 from tools.configs.workflow_configs import SERVICE_WORKFLOW_STEPS
 
 
@@ -23,4 +23,12 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except Exception as exc:
+        sent = send_uncaught_exception_email(
+            entry_name="service_main.py",
+            workflow_label="Service 小电脑",
+            exc=exc,
+        )
+        raise SystemExit(0 if sent else 1)

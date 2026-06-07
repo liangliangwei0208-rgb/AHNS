@@ -102,6 +102,11 @@ def command_receiver(command: dict[str, Any]) -> str | None:
     return receiver or None
 
 
+def command_holding_change_fund_code(command: dict[str, Any]) -> str | None:
+    code = str(command.get("holding_change_fund_code") or "").strip()
+    return code or None
+
+
 def build_completed_command(
     command: dict[str, Any],
     *,
@@ -172,10 +177,12 @@ def run_requested_command(
 ) -> int:
     no_send = command_no_send(command)
     receiver = command_receiver(command)
+    holding_change_fund_code = command_holding_change_fund_code(command)
     started_at = now_bj()
     log(
         "Run command detected: "
-        f"no_send={no_send}, receiver={receiver or '(default)'}"
+        f"no_send={no_send}, receiver={receiver or '(default)'}, "
+        f"holding_change_fund_code={holding_change_fund_code or '(auto)'}"
     )
 
     try:
@@ -183,6 +190,7 @@ def run_requested_command(
             python_exe=python_exe,
             no_send=no_send,
             receiver=receiver,
+            holding_change_fund_code=holding_change_fund_code,
             skip_git=False,
             primary_remote=remote,
             fallback_remote=None,

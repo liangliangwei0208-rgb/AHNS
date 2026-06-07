@@ -1027,77 +1027,185 @@ def _yahoo_afterhours_return_pct(
     raise RuntimeError(" | ".join(errors))
 
 
+def _vix_level_item(
+    *,
+    value: float,
+    trade_date: str,
+    source: str,
+    quote_time_bj: str = "",
+    error: str = "",
+) -> dict[str, Any]:
+    return {
+        "benchmark_key": "vix",
+        "label": "VIX恐慌指数",
+        "ticker": "VIX",
+        "market": "VIX_LEVEL",
+        "kind": "vix_level",
+        "return_pct": None,
+        "value": float(value),
+        "display_value": f"{float(value):.2f}",
+        "trade_date": str(trade_date or ""),
+        "source": str(source or ""),
+        "status": "traded",
+        "value_type": "level",
+        "quote_time_bj": str(quote_time_bj or ""),
+        "error": str(error or ""),
+    }
+
+
+def _vix_trade_date_from_ts(quote_ts: int | None, meta: dict[str, Any], default_date: str) -> tuple[str, str]:
+    if not quote_ts:
+        return str(default_date or ""), ""
+    quote_dt_utc = datetime.fromtimestamp(int(quote_ts), tz=ZoneInfo("UTC"))
+    quote_dt_bj = quote_dt_utc.astimezone(BJ_TZ)
+    exchange_tz_name = str(meta.get("exchangeTimezoneName") or "America/Chicago")
+    try:
+        trade_date = quote_dt_utc.astimezone(ZoneInfo(exchange_tz_name)).date().isoformat()
+    except Exception:
+        trade_date = quote_dt_bj.date().isoformat()
+    return trade_date, quote_dt_bj.isoformat(timespec="seconds")
+
+
+def _fetch_yahoo_chart_vix_level(
+    *,
+    url: str,
+    params: dict[str, Any],
+    today: str,
+    timeout: int,
+    source: str,
+) -> dict[str, Any]:
+    resp = requests.get(
+        url,
+        params=params,
+        headers={"User-Agent": "Mozilla/5.0"},
+        timeout=timeout,
+    )
+    resp.raise_for_status()
+    payload = resp.json()
+    result = (payload.get("chart") or {}).get("result") or []
+    if not result:
+        raise RuntimeError("Yahoo VIX chart 返回空数据")
+    item = result[0]
+    meta = item.get("meta") or {}
+    timestamps = item.get("timestamp") or []
+    quotes = (item.get("indicators") or {}).get("quote") or []
+    closes = quotes[0].get("close") if quotes else []
+
+    value = None
+    quote_ts = None
+    if timestamps and closes:
+        for ts_value, close_value in reversed(list(zip(timestamps, closes))):
+            close_f = _safe_float(close_value)
+            if close_f is not None:
+                value = close_f
+                quote_ts = int(ts_value)
+                break
+    if value is None:
+        value = _safe_float(meta.get("regularMarketPrice"))
+        quote_ts = int(meta.get("regularMarketTime") or 0) or None
+    if value is None:
+        raise RuntimeError("Yahoo VIX chart 缺少有效点位")
+
+    trade_date, quote_time_bj = _vix_trade_date_from_ts(quote_ts, meta, today)
+    return _vix_level_item(
+        value=float(value),
+        trade_date=trade_date,
+        source=source,
+        quote_time_bj=quote_time_bj,
+    )
+
+
+def _fetch_yfinance_vix_level(today: str) -> dict[str, Any]:
+    import yfinance as yf
+
+    errors = []
+    ticker = yf.Ticker("^VIX")
+    for period, interval in (("1d", "1m"), ("5d", "5m"), ("10d", "1d")):
+        try:
+            df = ticker.history(period=period, interval=interval, prepost=True, auto_adjust=False)
+            if df is None or df.empty or "Close" not in df.columns:
+                raise RuntimeError("yfinance 返回空数据")
+            close = df["Close"].dropna()
+            if close.empty:
+                raise RuntimeError("yfinance 缺少有效 Close")
+            value = _safe_float(close.iloc[-1])
+            if value is None:
+                raise RuntimeError("yfinance 最新 VIX 点位无效")
+            last_index = close.index[-1]
+            try:
+                ts = pd.Timestamp(last_index)
+                if ts.tzinfo is None:
+                    ts = ts.tz_localize("America/Chicago")
+                trade_date = ts.tz_convert("America/Chicago").date().isoformat()
+                quote_time_bj = ts.tz_convert(BJ_TZ).isoformat(timespec="seconds")
+            except Exception:
+                trade_date = today
+                quote_time_bj = ""
+            return _vix_level_item(
+                value=float(value),
+                trade_date=trade_date,
+                source=f"yfinance_vix_{period}_{interval}",
+                quote_time_bj=quote_time_bj,
+            )
+        except Exception as exc:
+            errors.append(f"yfinance {period}/{interval}: {repr(exc)}")
+    raise RuntimeError(" | ".join(errors))
+
+
+def _fetch_latest_close_vix_level(today: str, *, errors: list[str] | None = None) -> dict[str, Any]:
+    vix = fetch_latest_complete_vix_close()
+    value = _safe_float(vix.get("close"))
+    if value is None:
+        raise RuntimeError(f"VIX 最新完整收盘点位无效: {vix}")
+    error_text = "" if not errors else "realtime fallback: " + " | ".join(errors)
+    return _vix_level_item(
+        value=float(value),
+        trade_date=str(vix.get("date") or today),
+        source=f"vix_latest_close_fallback:{vix.get('source', '')}",
+        error=error_text,
+    )
+
+
 def _fetch_realtime_vix_level(today: str, *, timeout: int = 8) -> dict[str, Any]:
     """
-    Fetch the latest available VIX level from Yahoo's intraday chart endpoint.
+    Fetch the latest available VIX level.
+
+    Priority is aligned with premarket/intraday/afterhours/night observations:
+    Yahoo 1m realtime first, slower Yahoo/yfinance fallbacks next, and complete
+    daily close sources last.
     """
-    urls = [
-        "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX",
-        "https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX",
+    chart_urls = [
+        ("query1", "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX"),
+        ("query2", "https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX"),
+    ]
+    chart_params = [
+        ("1d_1m", {"range": "1d", "interval": "1m", "includePrePost": "true"}),
+        ("1d_5m", {"range": "1d", "interval": "5m", "includePrePost": "true"}),
+        ("5d_5m", {"range": "5d", "interval": "5m", "includePrePost": "true"}),
     ]
     errors = []
-    for url in urls:
-        try:
-            resp = requests.get(
-                url,
-                params={"range": "1d", "interval": "1m", "includePrePost": "true"},
-                headers={"User-Agent": "Mozilla/5.0"},
-                timeout=timeout,
-            )
-            resp.raise_for_status()
-            payload = resp.json()
-            result = (payload.get("chart") or {}).get("result") or []
-            if not result:
-                raise RuntimeError("Yahoo VIX chart 返回空数据")
-            item = result[0]
-            meta = item.get("meta") or {}
-            timestamps = item.get("timestamp") or []
-            quotes = (item.get("indicators") or {}).get("quote") or []
-            closes = quotes[0].get("close") if quotes else []
+    for range_label, params in chart_params:
+        for host_label, url in chart_urls:
+            try:
+                return _fetch_yahoo_chart_vix_level(
+                    url=url,
+                    params=params,
+                    today=today,
+                    timeout=timeout,
+                    source=f"yahoo_chart_realtime_vix_{host_label}_{range_label}",
+                )
+            except Exception as exc:
+                errors.append(f"yahoo {host_label} {range_label}: {repr(exc)}")
 
-            value = None
-            quote_ts = None
-            if timestamps and closes:
-                for ts_value, close_value in reversed(list(zip(timestamps, closes))):
-                    close_f = _safe_float(close_value)
-                    if close_f is not None:
-                        value = close_f
-                        quote_ts = int(ts_value)
-                        break
-            if value is None:
-                value = _safe_float(meta.get("regularMarketPrice"))
-                quote_ts = int(meta.get("regularMarketTime") or 0) or None
-            if value is None:
-                raise RuntimeError("Yahoo VIX chart 缺少有效点位")
+    try:
+        return _fetch_yfinance_vix_level(today)
+    except Exception as exc:
+        errors.append(f"yfinance: {repr(exc)}")
 
-            quote_dt_bj = None
-            trade_date = today
-            if quote_ts:
-                quote_dt_utc = datetime.fromtimestamp(int(quote_ts), tz=ZoneInfo("UTC"))
-                quote_dt_bj = quote_dt_utc.astimezone(BJ_TZ)
-                exchange_tz_name = str(meta.get("exchangeTimezoneName") or "America/Chicago")
-                try:
-                    trade_date = quote_dt_utc.astimezone(ZoneInfo(exchange_tz_name)).date().isoformat()
-                except Exception:
-                    trade_date = quote_dt_bj.date().isoformat()
-
-            return {
-                "benchmark_key": "vix",
-                "label": "VIX恐慌指数",
-                "ticker": "VIX",
-                "market": "VIX_LEVEL",
-                "kind": "vix_level",
-                "return_pct": None,
-                "value": float(value),
-                "display_value": f"{float(value):.2f}",
-                "trade_date": trade_date,
-                "source": "yahoo_chart_realtime_vix",
-                "status": "traded",
-                "value_type": "level",
-                "quote_time_bj": "" if quote_dt_bj is None else quote_dt_bj.isoformat(timespec="seconds"),
-            }
-        except Exception as exc:
-            errors.append(f"{url}: {repr(exc)}")
+    try:
+        return _fetch_latest_close_vix_level(today, errors=errors)
+    except Exception as exc:
+        errors.append(f"latest_close: {repr(exc)}")
 
     raise RuntimeError("VIX 实时点位获取失败: " + " | ".join(errors))
 

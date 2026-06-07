@@ -259,6 +259,7 @@ def run_service_once(
     python_exe: str = DEFAULT_SERVICE_PYTHON,
     no_send: bool = False,
     receiver: str | None = None,
+    holding_change_fund_code: str | None = None,
     skip_git: bool = False,
     primary_remote: str = DEFAULT_PRIMARY_REMOTE,
     fallback_remote: str | None = DEFAULT_FALLBACK_REMOTE,
@@ -291,7 +292,11 @@ def run_service_once(
         receiver=receiver,
     )
     log(f"Running service_main.py with {python_path}")
-    service_result = run_command(service_args, check=False, env=service_env())
+    env = service_env()
+    if holding_change_fund_code:
+        env["AHNS_HOLDING_CHANGE_FUND_CODE"] = str(holding_change_fund_code).strip()
+        log(f"Manual holding change fund code: {env['AHNS_HOLDING_CHANGE_FUND_CODE']}")
+    service_result = run_command(service_args, check=False, env=env)
     service_exit_code = service_result.returncode
     log(f"service_main.py exited with code {service_exit_code}")
 
@@ -328,6 +333,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="透传给 service_main.py：临时指定收件邮箱",
     )
     parser.add_argument(
+        "--holding-change-fund-code",
+        default=None,
+        help="本轮强制生成指定基金的持仓变化图；留空则自动检测",
+    )
+    parser.add_argument(
         "--skip-git",
         action="store_true",
         help="跳过 pull/commit/push，仅运行 service_main.py，便于本地调试",
@@ -352,6 +362,7 @@ def main(argv: list[str] | None = None) -> int:
             python_exe=args.python_exe,
             no_send=bool(args.no_send),
             receiver=args.receiver,
+            holding_change_fund_code=args.holding_change_fund_code,
             skip_git=bool(args.skip_git),
             primary_remote=args.primary_remote,
             fallback_remote=args.fallback_remote,

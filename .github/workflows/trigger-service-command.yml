@@ -4,17 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       no_send:
-        description: "只运行小电脑服务流程，不发送邮件"
+        description: "Run service without sending email"
         required: false
         default: false
         type: boolean
       receiver:
-        description: "临时收件邮箱，留空则使用小电脑默认配置"
+        description: "Optional receiver email; blank uses service default"
+        required: false
+        default: ""
+        type: string
+      holding_fund_code:
+        description: "Optional 6-digit fund code for holding-change chart"
         required: false
         default: ""
         type: string
       message:
-        description: "触发备注，留空即可"
+        description: "Optional trigger note"
         required: false
         default: ""
         type: string
@@ -40,6 +45,7 @@ jobs:
       GITEE_TOKEN: ${{ secrets.GITEE_PRIVATE_CODE }}
       INPUT_NO_SEND: ${{ github.event.inputs.no_send }}
       INPUT_RECEIVER: ${{ github.event.inputs.receiver }}
+      INPUT_HOLDING_FUND_CODE: ${{ github.event.inputs.holding_fund_code }}
       INPUT_MESSAGE: ${{ github.event.inputs.message }}
 
     steps:
@@ -67,6 +73,11 @@ jobs:
               echo "- receiver: provided"
             else
               echo "- receiver: default"
+            fi
+            if [ -n "${INPUT_HOLDING_FUND_CODE}" ]; then
+              echo "- holding_fund_code: ${INPUT_HOLDING_FUND_CODE}"
+            else
+              echo "- holding_fund_code: auto"
             fi
             echo "- Gitee repository: ${GITEE_REPOSITORY}"
             echo "- Delivery fallbacks: git push default, HTTP/1.1, refreshed Gitee main, relaxed HTTP guard, Gitee API"

@@ -39,6 +39,13 @@ COMMON_WORKFLOW_STEPS = [
         "collect_images": True,
     },
     {
+        "name": "基金持仓变化图",
+        "script": "fund_holding_change.py",
+        "required": False,
+        "collect_images": True,
+        "args": ["--auto"],
+    },
+    {
         "name": "安全版海外基金图",
         "script": "safe_fund.py",
         "required": True,

@@ -129,6 +129,18 @@
 - 说明位置：本 README
 - 注意：不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为限购记录。
 
+### `futu_night_return_cache.json`
+- 用途：富途夜盘观察用的持仓股和基准涨跌幅结果缓存，避免 15 分钟内重复请求相同证券。
+- 生成：tools/futu_night_observation.py 通过 tools/futu_night_quotes.py 写入已校验估值日的涨跌幅结果。
+- 读取：futu_night_fund.py, tools/futu_night_observation.py, tools/futu_night_quotes.py
+- 刷新：15 分钟内复用；过期、估值日不匹配、报价时间过旧或过新的记录必须重新请求。
+- 保留：写入时删除超过 1 天的记录，并按 fetched_at_bj 只保留最新 500 条。
+- 结构：顶层是 market:ticker:target_us_date -> 行情记录的映射，例如 US:NVDA:2026-05-14。
+- 说明位置：本 README
+- 注意：只服务富途夜盘观察，不写入也不替代正式基金估算缓存。
+- 注意：缓存保存的是已计算涨跌幅结果，不保存全量 K 线或 CSV。
+- 注意：不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为行情记录。
+
 ### `intraday_quote_cache.json`
 - 用途：盘中观察用的实时行情短缓存，避免同一晚反复运行时反复请求重复持仓股和盘中基准。
 - 生成：tools/premarket_estimator.py 在生成盘中观察图时写入可展示的实时涨跌幅或点位。

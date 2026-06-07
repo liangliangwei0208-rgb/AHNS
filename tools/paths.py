@@ -18,6 +18,7 @@ OUTPUT_DIR = PROJECT_ROOT / "output"
 
 FUND_ESTIMATE_CACHE = CACHE_DIR / "fund_estimate_return_cache.json"
 FUND_HOLDINGS_CACHE = CACHE_DIR / "fund_holdings_cache.json"
+FUND_HOLDING_CHANGE_STATE_CACHE = CACHE_DIR / "fund_holding_change_state.json"
 FUND_PURCHASE_LIMIT_CACHE = CACHE_DIR / "fund_purchase_limit_cache.json"
 SECURITY_RETURN_CACHE = CACHE_DIR / "security_return_cache.json"
 PREMARKET_QUOTE_CACHE = CACHE_DIR / "premarket_quote_cache.json"
@@ -74,6 +75,7 @@ __all__ = [
     "OUTPUT_DIR",
     "FUND_ESTIMATE_CACHE",
     "FUND_HOLDINGS_CACHE",
+    "FUND_HOLDING_CHANGE_STATE_CACHE",
     "FUND_PURCHASE_LIMIT_CACHE",
     "SECURITY_RETURN_CACHE",
     "PREMARKET_QUOTE_CACHE",

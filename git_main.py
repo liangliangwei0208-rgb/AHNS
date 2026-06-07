@@ -18,6 +18,7 @@ import os
 import subprocess
 import sys
 import time
+import traceback
 from dataclasses import dataclass
 from datetime import datetime, time as datetime_time
 from pathlib import Path
@@ -495,6 +496,55 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def build_uncaught_exception_email_text(*, entry_name: str, workflow_label: str, exc: Exception) -> str:
+    finished_at = datetime.now(BJ_TZ)
+    return "\n".join(
+        [
+            "【AHNS 总入口异常】",
+            f"入口：{entry_name}",
+            f"流程：{workflow_label}",
+            f"时间：{finished_at.strftime('%Y-%m-%d %H:%M:%S')}",
+            f"错误：{type(exc).__name__}: {exc}",
+            "",
+            "【Traceback】",
+            traceback.format_exc(),
+            "",
+            "【提示】",
+            RISK_NOTE,
+        ]
+    )
+
+
+def send_uncaught_exception_email(
+    *,
+    entry_name: str,
+    workflow_label: str,
+    exc: Exception,
+    receiver: str | None = None,
+) -> bool:
+    subject = f"AHNS 总入口异常 - {entry_name} - {datetime.now(BJ_TZ).strftime('%Y-%m-%d %H:%M')}"
+    text = build_uncaught_exception_email_text(
+        entry_name=entry_name,
+        workflow_label=workflow_label,
+        exc=exc,
+    )
+    try:
+        send_email(
+            subject=subject,
+            text=text,
+            image_paths=[],
+            to_email=receiver,
+            embed_images=False,
+            attach_images=False,
+            timeout=120,
+        )
+        log("总入口异常邮件已发送")
+        return True
+    except Exception as mail_exc:
+        log(f"总入口异常邮件发送失败: {mail_exc}")
+        return False
+
+
 def main(
     argv: list[str] | None = None,
     *,
@@ -597,11 +647,11 @@ def main(
         log(f"邮件发送失败详情: {exc}")
         log("邮件发送失败不影响本轮脚本运行结果，已跳过 traceback。")
         print_failure_logs(results)
-        return 1 if has_failures else 0
+        return 1
 
     log(f"邮件发送完成，耗时 {format_duration(time.perf_counter() - email_started)}")
     print_failure_logs(results)
-    return 1 if has_failures else 0
+    return 0
 
 
 if __name__ == "__main__":
@@ -609,4 +659,9 @@ if __name__ == "__main__":
         raise SystemExit(main())
     except Exception as exc:
         log(f"[ERROR] {exc}")
-        raise SystemExit(1)
+        sent = send_uncaught_exception_email(
+            entry_name="git_main.py",
+            workflow_label="GitHub Actions",
+            exc=exc,
+        )
+        raise SystemExit(0 if sent else 1)

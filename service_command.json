@@ -2,6 +2,7 @@
   "run_flag": 0,
   "no_send": false,
   "receiver": "",
+  "holding_change_fund_code": "",
   "status": "success",
   "requested_at_bj": "2026-06-04T19:13:17+08:00",
   "last_started_at_bj": "2026-06-04T19:13:27+08:00",

@@ -34,6 +34,7 @@ from tools.paths import (
     ensure_runtime_dirs,
     relative_path_str,
 )
+from tools.premarket_estimator import _fetch_realtime_vix_level
 from tools.safe_display import apply_safe_public_watermarks, mask_fund_name
 
 
@@ -84,6 +85,45 @@ def safe_float_or_none(value: Any) -> float | None:
         return float(value)
     except Exception:
         return None
+
+
+def refresh_vix_footer_item_for_daily(item: dict[str, Any], *, valuation_date: str) -> dict[str, Any]:
+    """
+    收盘观察图里的 VIX 只作为点位观察项展示。
+
+    这里优先复用盘前/盘中/盘后/夜盘的实时 VIX 获取逻辑；如果实时源全部失败，
+    就保留 main.py 写入缓存的最新完整收盘点位，不回写正式估算缓存。
+    """
+    kind = str(item.get("kind", "")).strip().lower()
+    symbol = str(item.get("symbol", item.get("ticker", ""))).strip().upper()
+    if kind != "vix_level" and symbol != "VIX":
+        return item
+
+    try:
+        today = datetime.now().date().isoformat()
+        realtime = _fetch_realtime_vix_level(today)
+        out = dict(item)
+        out.update(
+            {
+                "label": str(item.get("label", "")).strip() or realtime.get("label", "VIX恐慌指数"),
+                "symbol": "VIX",
+                "kind": "vix_level",
+                "return_pct": None,
+                "value": safe_float_or_none(realtime.get("value")),
+                "display_value": str(realtime.get("display_value", "")).strip(),
+                "value_type": "level",
+                "trade_date": normalize_date_string(realtime.get("trade_date")) or valuation_date,
+                "source": str(realtime.get("source", "")).strip(),
+                "status": str(realtime.get("status", "traded")).strip() or "traded",
+                "error": str(realtime.get("error", "")).strip(),
+            }
+        )
+        return out
+    except Exception as exc:
+        out = dict(item)
+        old_error = str(out.get("error", "")).strip()
+        out["error"] = (old_error + " | " if old_error else "") + f"realtime_vix_failed: {exc}"
+        return out
 
 
 def format_console_pct(value: Any, digits: int = 2) -> str:
@@ -347,27 +387,26 @@ def get_benchmark_footer_items(
         used_symbols.add(symbol)
         label = str(item.get("label", "")).strip() or spec["label"]
         used_labels.add(label)
-        footer_items.append(
-            {
-                "order": spec["order"],
-                "label": label,
-                "symbol": str(item.get("symbol", "")).strip() or symbol,
-                "kind": str(item.get("kind", "")).strip() or spec["kind"],
-                "return_pct": safe_float_or_none(item.get("return_pct")),
-                "value": safe_float_or_none(item.get("value")),
-                "display_value": str(item.get("display_value", "")).strip(),
-                "value_type": str(
-                    item.get("value_type", "level" if spec["kind"] == "vix_level" else "return_pct")
-                ).strip() or "return_pct",
-                "trade_date": normalize_date_string(item.get("trade_date")) or valuation_date,
-                "source": str(item.get("source", "")).strip(),
-                "status": str(item.get("status", "missing")).strip() or "missing",
-                "error": str(item.get("error", "")).strip(),
-                "display_in_daily_fund": bool(item.get("display_in_daily_fund", spec["display_in_daily_fund"])),
-                "display_in_holidays": bool(item.get("display_in_holidays", spec["display_in_holidays"])),
-                "include_in_cumulative": bool(item.get("include_in_cumulative", spec["include_in_cumulative"])),
-            }
-        )
+        footer_item = {
+            "order": spec["order"],
+            "label": label,
+            "symbol": str(item.get("symbol", "")).strip() or symbol,
+            "kind": str(item.get("kind", "")).strip() or spec["kind"],
+            "return_pct": safe_float_or_none(item.get("return_pct")),
+            "value": safe_float_or_none(item.get("value")),
+            "display_value": str(item.get("display_value", "")).strip(),
+            "value_type": str(
+                item.get("value_type", "level" if spec["kind"] == "vix_level" else "return_pct")
+            ).strip() or "return_pct",
+            "trade_date": normalize_date_string(item.get("trade_date")) or valuation_date,
+            "source": str(item.get("source", "")).strip(),
+            "status": str(item.get("status", "missing")).strip() or "missing",
+            "error": str(item.get("error", "")).strip(),
+            "display_in_daily_fund": bool(item.get("display_in_daily_fund", spec["display_in_daily_fund"])),
+            "display_in_holidays": bool(item.get("display_in_holidays", spec["display_in_holidays"])),
+            "include_in_cumulative": bool(item.get("include_in_cumulative", spec["include_in_cumulative"])),
+        }
+        footer_items.append(refresh_vix_footer_item_for_daily(footer_item, valuation_date=valuation_date))
 
     # 兼容旧缓存：如果缓存中还有配置外的基准，也按原顺序追加展示。
     for item in selected_by_symbol.values():
@@ -382,25 +421,24 @@ def get_benchmark_footer_items(
         ):
             continue
         used_labels.add(label)
-        footer_items.append(
-            {
-                "order": item.get("order", 999),
-                "label": label,
-                "symbol": symbol,
-                "kind": str(item.get("kind", "")).strip(),
-                "return_pct": safe_float_or_none(item.get("return_pct")),
-                "value": safe_float_or_none(item.get("value")),
-                "display_value": str(item.get("display_value", "")).strip(),
-                "value_type": str(item.get("value_type", "return_pct")).strip() or "return_pct",
-                "trade_date": normalize_date_string(item.get("trade_date")) or valuation_date,
-                "source": str(item.get("source", "")).strip(),
-                "status": str(item.get("status", "")).strip(),
-                "error": str(item.get("error", "")).strip(),
-                "display_in_daily_fund": bool(item.get("display_in_daily_fund", True)),
-                "display_in_holidays": bool(item.get("display_in_holidays", True)),
-                "include_in_cumulative": bool(item.get("include_in_cumulative", True)),
-            }
-        )
+        footer_item = {
+            "order": item.get("order", 999),
+            "label": label,
+            "symbol": symbol,
+            "kind": str(item.get("kind", "")).strip(),
+            "return_pct": safe_float_or_none(item.get("return_pct")),
+            "value": safe_float_or_none(item.get("value")),
+            "display_value": str(item.get("display_value", "")).strip(),
+            "value_type": str(item.get("value_type", "return_pct")).strip() or "return_pct",
+            "trade_date": normalize_date_string(item.get("trade_date")) or valuation_date,
+            "source": str(item.get("source", "")).strip(),
+            "status": str(item.get("status", "")).strip(),
+            "error": str(item.get("error", "")).strip(),
+            "display_in_daily_fund": bool(item.get("display_in_daily_fund", True)),
+            "display_in_holidays": bool(item.get("display_in_holidays", True)),
+            "include_in_cumulative": bool(item.get("include_in_cumulative", True)),
+        }
+        footer_items.append(refresh_vix_footer_item_for_daily(footer_item, valuation_date=valuation_date))
 
     if not footer_items:
         log(f"[WARN] 未找到海外指数基准缓存 footer，valuation_date={valuation_date}")

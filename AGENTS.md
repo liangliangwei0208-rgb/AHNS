@@ -36,7 +36,7 @@
 - GitHub 仍是主仓库和长期存档；主机电脑改完代码后运行 `sync_repos.py`，负责把本地、GitHub、Gitee 三边同步；其他仓库可复制 `github_gitee_sync.py` 做同名 GitHub/Gitee 仓库初始化和三边同步。
 - 监听入口是 `service_command_watcher.py --interval-seconds 60 --primary-remote gitee`，计划任务实际调用 `start_ahns_command_watcher.ps1`。
 - `service_runner.py` 默认 `DEFAULT_PRIMARY_REMOTE=gitee`，`DEFAULT_FALLBACK_REMOTE=None`；如需临时兜底 GitHub，必须显式传 `--fallback-remote origin` 或设置环境变量。
-- 手机端触发小电脑运行优先用 GitHub Actions workflow `Trigger Service Command`。它只把 Gitee `service_command.json` 写成 `run_flag=1` 并推回 Gitee；小电脑仍只监听 `gitee/main`，下一轮轮询后运行服务流程。该 workflow 会打印触发摘要、Gitee fetch、指令提交和每次送达尝试，并按多种 Git/HTTP 参数重试 Gitee 推送；Git push 全部失败时，会用 Gitee API 兜底更新指令文件。
+- 手机端触发小电脑运行优先用 GitHub Actions workflow `Trigger Service Command`。它只把 Gitee `service_command.json` 写成 `run_flag=1` 并推回 Gitee；小电脑仍只监听 `gitee/main`，下一轮轮询后运行服务流程。该 workflow 会打印触发摘要、Gitee fetch、指令提交和每次送达尝试，并按多种 Git/HTTP 参数重试 Gitee 推送；Git push 全部失败时，会用 Gitee API 兜底更新指令文件。`holding_fund_code` 留空表示按基金库自动检测持仓变化，填写 6 位基金代码会让小电脑本轮强制生成该基金持仓变化图。
 - `Trigger Service Command` 需要 GitHub Actions Secret `GITEE_PRIVATE_CODE`。该值必须放在 Secrets，不要放普通 Variables，不要写入 README、AGENTS、workflow 明文或本地 Git config。
 - 小电脑监听运行时间是北京时间 06:00-24:00。`AHNS Command Watcher` 每日 06:00 和登录后启动；`start_ahns_command_watcher.ps1` 在 06:00 前直接退出；`AHNS Command Watcher Stop` 每日 00:00 停止监听。
 - `Futu OpenD Autostart` 登录后启动 `C:\Users\Administrator\AppData\Roaming\Futu_OpenD\Futu_OpenD.exe`。富途夜盘依赖 Futu OpenD 已登录并在线；自动启动只能打开程序，不能替代扫码或登录。
@@ -78,16 +78,17 @@ Get-CimInstance Win32_Process |
 & F:\anaconda\envs\py310\python.exe .\git_main.py --no-send
 ```
 
-`git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、必要性标记、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。无时间窗步骤属于完整日流程，始终运行；带 `run_window_bj` 的步骤只在命中北京时间窗口时运行。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。
+`git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、必要性标记、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。无时间窗步骤属于完整日流程，始终运行；带 `run_window_bj` 的步骤只在命中北京时间窗口时运行。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。邮件成功发出后，即使有子脚本失败，总入口也按退出码 0 结束；`--no-send` 预演仍保留非 0 退出码方便调试。
 
 GitHub / 主机 `git_main.py` 当前完整日流程和限时步骤：
 
 1. `main.py`
-2. `safe_holidays.py`
-3. `sum_holidays.py`
-4. `kepu/kepu_sum_holidays.py`
-5. `kepu/kepu_xiane.py --table-only`
-6. `safe_fund.py` 仅在 06:00-13:40 运行，生成收盘观察图 `output/safe_haiwai_fund.png`
+2. `fund_holding_change.py --auto`，检测基金库持仓缓存变动；首次只初始化状态，有变动或手动指定基金时生成持仓变化图并纳入邮件
+3. `safe_holidays.py`
+4. `sum_holidays.py`
+5. `kepu/kepu_sum_holidays.py`
+6. `kepu/kepu_xiane.py --table-only`
+7. `safe_fund.py` 仅在 06:00-13:40 运行，生成收盘观察图 `output/safe_haiwai_fund.png`
 
 自动总入口不再运行 `kepu/first_pic.py`，也不自动生成 `output/kepu_xiane.png` 限额科普图；周日限购表格图 `output/xiane.png` 仍由 `kepu/kepu_xiane.py --table-only` 生成。
 
@@ -126,6 +127,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `afterhours_fund.py`：盘后观察图手动入口；生成 `output/safe_haiwai_afterhours.png` 和盘后失败报告，不写正式基金估算缓存。
 - `futu_night_fund.py`：富途夜盘观察图手动入口；生成 `output/safe_haiwai_night.png` 和夜盘失败报告，不写正式基金估算缓存。
 - `fund_estimate_breakdown.py`：只读缓存的估算拆解工具；运行后可手工输入基金代码、正式估值日期或实时观察类型，打印完整持仓贡献表；支持 `--latest`、`--save-txt` 和 `--observation 盘中`。
+- `fund_holding_change.py`：基金前十大持仓变化解读图入口；手动默认分析 `012922`，总入口用 `--auto` 检测基金库持仓缓存变动，有变动或手动指定基金时生成 `output/fund_holding_change/fund_holding_change_<基金代码>.png` 并纳入邮件候选。
 - `safe_fund.py`：只读基金估算缓存，生成安全版海外/全球收盘观察图；自动总入口只在北京时间 06:00-13:40 运行它，晚上盘前窗口不会再输出收盘观察图。
 - `safe_holidays.py`：只读缓存，生成安全版海外节假日累计观察图。
 - `holidays.py`：只读缓存，生成详细版海外节假日累计观察图。
@@ -152,7 +154,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - 日常总入口：`git_main.py`、`service_main.py`、`main.py`、`safe_fund.py`、`safe_holidays.py`、`sum_holidays.py`。
 - 实时观察入口：`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py`。
 - 小电脑与同步入口：`service_command_watcher.py`、`service_runner.py`、`start_ahns_command_watcher.ps1`、`tail_ahns_log.ps1`、`sync_repos.py`、`github_gitee_sync.py`、`service_command.json`。
-- 诊断和手动工具：`check_project.py`、`fund_estimate_breakdown.py`、`stock_analysis.py`、`refresh_fund_limit_cache.py`。
+- 诊断和手动工具：`check_project.py`、`fund_estimate_breakdown.py`、`fund_holding_change.py`、`stock_analysis.py`、`refresh_fund_limit_cache.py`。
 - 内部实现模块：优先看 `tools/`；经常维护的常量和配置优先看 `tools/configs/`；科普图脚本放在 `kepu/`。
 
 后续若要进一步整理目录，建议采用“内部实现迁移 + 顶层同名薄入口保留”的方式，例如把服务端实现移动到 `tools/service/`，但仍保留顶层 `service_command_watcher.py` 等入口文件做兼容转发。不要直接移动或改名主流可运行脚本。
@@ -197,9 +199,9 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `油气开采指数`：`kind="us_security", ticker="XOP"`，优先走 AKShare 美股日线；XOP 是 ETF，不是指数本体，当前作为美国油气开采方向代理。
 - `费城半导体`：`kind="us_index", ticker=".SOX"`，走新浪美股指数。
 - `现货黄金`：`kind="foreign_futures", ticker="XAU", fallback_ticker="GC00Y"`，优先新浪外盘期货 XAU，失败后用东方财富国际期货 GC00Y 作为 COMEX 黄金代理。
-- `VIX恐慌指数`：`kind="vix_level", ticker="VIX"`，`enabled=True`，只在每日海外基金图显示最新完整交易日收盘点位；优先 CBOE 官方历史 CSV，失败后回退 FRED。它不是涨跌幅，`include_in_cumulative=False`，不会进入节假日累计图。
+- `VIX恐慌指数`：`kind="vix_level", ticker="VIX"`，`enabled=True`。收盘观察图优先复用盘前/盘中/盘后/富途夜盘的实时 VIX 源（Yahoo Chart 1m/5m、yfinance），实时失败后回退 CBOE/FRED 最新完整收盘。它不是涨跌幅，`include_in_cumulative=False`，不会进入节假日累计图。
 
-基准读取失败时只影响该基准行，不中断主流程。每个基准的结果会按 `ticker + valuation_anchor_date` 写入锚点缓存；同一估值日再次生成图片会优先读取缓存。配置里不会自动“全部一路兜到 Yahoo”，只有 `kind="yahoo"` 的项目或代码中明确写了 Yahoo fallback 的项目才会访问 Yahoo。VIX 当前不走 Yahoo。
+基准读取失败时只影响该基准行，不中断主流程。每个基准的结果会按 `ticker + valuation_anchor_date` 写入锚点缓存；同一估值日再次生成图片会优先读取缓存。配置里不会自动“全部一路兜到 Yahoo”，只有 `kind="yahoo"` 的项目或代码中明确写了 Yahoo fallback 的项目才会访问 Yahoo。VIX 是点位观察项例外：收盘观察图可走实时 Yahoo/yfinance，但正式 benchmark 缓存仍保持完整日线口径。
 
 ## 输出图片
 
@@ -213,6 +215,8 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
   - `output/shangzheng.png`
 - 基金详细估算图：
   - `output/haiwai_fund.png`（详细版当前在主流程中暂不输出，旧文件可能仍在本地）
+- 持仓变化解读图：
+  - `output/fund_holding_change/fund_holding_change_012922.png`（总入口检测到持仓变化或手动指定基金时生成，会纳入邮件候选）
 - 盘前观察图：
   - `output/safe_haiwai_premarket.png`
   - `output/premarket_failed_holdings_latest.txt`（盘前实时持仓、补偿基准和失败源报告）
@@ -497,7 +501,7 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 - `CTRA` 这类单只美股失败：只影响持有该证券的基金和对应补偿前的有效持仓覆盖率。优先看 `output/failed_holdings_latest.txt` 或盘前的 `output/premarket_failed_holdings_latest.txt`，不要为了单券失败中断整套流程。
 - VIX 每日图显示的是恐慌指数点位，不是涨跌幅；正常情况下 `safe_holidays.py`、`sum_holidays.py` 不展示 VIX。如果累计图里出现 VIX，先确认配置中 `display_in_holidays=False`、`include_in_cumulative=False`，再重新运行对应出图脚本。
 - 基准源失败：不会中断主流程，只会让对应基准行显示无有效数据或不参与累计。配置不会自动把所有基准都兜到 Yahoo；只有 `kind="yahoo"` 或明确写了 Yahoo fallback 的路径才会访问 Yahoo。
-- 国内运行访问 Yahoo 慢或失败：当前默认基准里不再主动依赖 Yahoo。纳斯达克100、标普500、费城半导体优先新浪美股指数，XOP 优先 AKShare 美股日线，黄金优先新浪外盘期货/东方财富国际期货，VIX 优先 CBOE 官方 CSV 并用 FRED 兜底。
+- 国内运行访问 Yahoo 慢或失败：纳斯达克100、标普500、费城半导体优先新浪美股指数，XOP 优先 AKShare 美股日线，黄金优先新浪外盘期货/东方财富国际期货。VIX 收盘观察图实时优先使用 Yahoo/yfinance；如果实时链路失败，会回退 CBOE 官方 CSV 和 FRED。
 - 国内 ETF 需要实时结果：RSI CSV 历史缓存足够新时，国内 ETF 仍会通过 `include_realtime=True` 补实时点；不要把这类请求误改成纯日线复用。
 - A 股或港股单日涨跌异常大：优先怀疑除权、拆股、送转、复权口径或旧缓存。先运行 `fund_estimate_breakdown.py` 查看该持仓的数据源字段；正常情况下应优先看到 `pct`、`qfq`、`hfq`、`adjclose` 等来源，而不是旧裸 close 计算来源。
 - `fund_estimate_breakdown.py` 只读缓存：如果刚修复了个股口径但基金合计仍是旧数，需要先运行 `main.py` 或 `git_main.py --no-send` 重算基金缓存，再用拆解工具查看。
