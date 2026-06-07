@@ -32,6 +32,7 @@ from tools.configs.futu_night_configs import (
     FUTU_NIGHT_START_HOUR_BJ,
     FUTU_NIGHT_START_MINUTE_BJ,
 )
+from tools.configs.premarket_configs import PREMARKET_FUND_ESTIMATION_METHOD_MAP
 from tools.console_display import fund_progress, print_dataframe_table, print_stage
 from tools.fund_universe import HAIWAI_FUND_CODES
 from tools.futu_night_quotes import (
@@ -61,8 +62,11 @@ from tools.premarket_estimator import (
     _purchase_limit_text,
     _safe_float,
     coerce_bj_datetime,
+    estimate_top10_available_normalized_return,
     estimate_boosted_valid_holding_with_residual,
+    get_observation_estimation_method,
     get_observation_residual_benchmark_key,
+    is_top10_available_normalized_method,
     save_premarket_image,
 )
 from tools.safe_display import mask_fund_name
@@ -86,6 +90,7 @@ FUTU_NIGHT_SESSION = ObservationSessionConfig(
     benchmark_specs=FUTU_NIGHT_BENCHMARK_SPECS,
     default_residual_benchmark_key=FUTU_NIGHT_DEFAULT_RESIDUAL_BENCHMARK_KEY,
     fund_residual_benchmark_map=FUTU_NIGHT_FUND_RESIDUAL_BENCHMARK_MAP,
+    fund_estimation_method_map=PREMARKET_FUND_ESTIMATION_METHOD_MAP,
     footer_benchmark_keys=FUTU_NIGHT_FOOTER_BENCHMARK_KEYS,
     footer_labels=FUTU_NIGHT_FOOTER_LABELS,
     display_return_column="夜盘模型观察",
@@ -386,6 +391,7 @@ def _estimate_fund_holdings(
     fund_code: str,
     disabled_sources: set[str],
     progress=None,
+    estimation_method: str = "",
 ) -> dict[str, Any]:
     return_pairs = []
     valid_count = 0
@@ -434,16 +440,22 @@ def _estimate_fund_holdings(
             zeroed_count += 1
             _progress_status(progress, f"{item_label} 获取失败，夜盘置零: {exc}")
 
-    calc = estimate_boosted_valid_holding_with_residual(
-        return_pairs,
-        residual_return_pct=residual_benchmark.get("return_pct"),
-    )
+    top10_available_normalized = is_top10_available_normalized_method(estimation_method)
+    if top10_available_normalized:
+        residual_benchmark = {}
+        calc = estimate_top10_available_normalized_return(return_pairs)
+    else:
+        calc = estimate_boosted_valid_holding_with_residual(
+            return_pairs,
+            residual_return_pct=residual_benchmark.get("return_pct"),
+        )
     estimate = calc["estimated_return_pct"]
     residual_weight_pct = float(calc["residual_weight_pct"] or 0.0)
     residual_return_pct = calc["residual_return_pct"]
     residual_failed = bool(residual_weight_pct > 0 and residual_return_pct is None)
 
     return {
+        "method": "top10_available_normalized" if top10_available_normalized else "boosted_valid_holding_with_residual",
         "estimate_return_pct": estimate,
         "known_contribution_pct": calc["known_contribution_pct"],
         "valid_raw_weight_sum_pct": float(calc["raw_valid_weight_pct"] or 0.0),
@@ -531,14 +543,20 @@ def build_futu_night_table(
                 if int(top_n or 0) > 0 and len(holdings_df) > int(top_n):
                     holdings_df = holdings_df.head(int(top_n)).copy()
                 progress.set_status(f"{fund_code} {fund_name} 持仓加载完成: {len(holdings_df)} 条")
-                residual_key = get_observation_residual_benchmark_key(fund_code, session=FUTU_NIGHT_SESSION)
-                residual_spec = _premarket_benchmark_spec(residual_key, session=FUTU_NIGHT_SESSION)
+                estimation_method = get_observation_estimation_method(fund_code, session=FUTU_NIGHT_SESSION)
+                if is_top10_available_normalized_method(estimation_method):
+                    residual_key = ""
+                    residual_spec = {}
+                else:
+                    residual_key = get_observation_residual_benchmark_key(fund_code, session=FUTU_NIGHT_SESSION)
+                    residual_spec = _premarket_benchmark_spec(residual_key, session=FUTU_NIGHT_SESSION)
                 fund_payloads.append(
                     {
                         "_input_order": index,
                         "fund_code": fund_code,
                         "fund_name": fund_name,
                         "holdings_df": holdings_df,
+                        "estimation_method": estimation_method,
                         "residual_key": residual_key,
                         "residual_spec": residual_spec,
                     }
@@ -593,24 +611,29 @@ def build_futu_night_table(
                 continue
 
             try:
-                progress.set_status(f"{fund_code} 获取夜盘补偿基准: {payload.get('residual_key')}")
-                residual_benchmark = _fetch_benchmark_quote(
-                    payload.get("residual_key"),
-                    target_date=target_date,
-                    provider=provider,
-                    quote_cache=quote_cache,
-                )
-                progress.set_status(
-                    (
-                        f"{fund_code} 补偿基准 -> {residual_benchmark.get('label', '')} "
-                        f"{_format_progress_return_pct(residual_benchmark.get('return_pct'))} "
-                        f"{residual_benchmark.get('source', '')} "
-                        f"{residual_benchmark.get('trade_date', '')}"
-                    ).strip()
-                )
-                residual_key = _quote_key(residual_benchmark.get("market"), residual_benchmark.get("ticker"))
-                if residual_key[0] and residual_key[1]:
-                    affected_funds[residual_key].append(fund_code)
+                estimation_method = str(payload.get("estimation_method", "") or "")
+                if is_top10_available_normalized_method(estimation_method):
+                    residual_benchmark = {}
+                    progress.set_status(f"{fund_code} 使用前十大可用持仓归一化估算，跳过夜盘补偿基准")
+                else:
+                    progress.set_status(f"{fund_code} 获取夜盘补偿基准: {payload.get('residual_key')}")
+                    residual_benchmark = _fetch_benchmark_quote(
+                        payload.get("residual_key"),
+                        target_date=target_date,
+                        provider=provider,
+                        quote_cache=quote_cache,
+                    )
+                    progress.set_status(
+                        (
+                            f"{fund_code} 补偿基准 -> {residual_benchmark.get('label', '')} "
+                            f"{_format_progress_return_pct(residual_benchmark.get('return_pct'))} "
+                            f"{residual_benchmark.get('source', '')} "
+                            f"{residual_benchmark.get('trade_date', '')}"
+                        ).strip()
+                    )
+                    residual_key = _quote_key(residual_benchmark.get("market"), residual_benchmark.get("ticker"))
+                    if residual_key[0] and residual_key[1]:
+                        affected_funds[residual_key].append(fund_code)
 
                 summary = _estimate_fund_holdings(
                     payload["holdings_df"],
@@ -622,6 +645,7 @@ def build_futu_night_table(
                     fund_code=fund_code,
                     disabled_sources=disabled_sources,
                     progress=progress,
+                    estimation_method=estimation_method,
                 )
                 rows.append(
                     {

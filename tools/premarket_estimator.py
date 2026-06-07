@@ -64,6 +64,7 @@ from tools.configs.premarket_configs import (
     PREMARKET_END_MINUTE_BJ,
     PREMARKET_FOOTER_BENCHMARK_KEYS,
     PREMARKET_FOOTER_LABELS,
+    PREMARKET_FUND_ESTIMATION_METHOD_MAP,
     PREMARKET_FUND_RESIDUAL_BENCHMARK_MAP,
     PREMARKET_START_HOUR_BJ,
     PREMARKET_START_MINUTE_BJ,
@@ -183,6 +184,7 @@ class ObservationSessionConfig:
     benchmark_specs: dict[str, dict[str, Any]]
     default_residual_benchmark_key: str
     fund_residual_benchmark_map: dict[str, str]
+    fund_estimation_method_map: dict[str, str]
     footer_benchmark_keys: tuple[str, ...]
     footer_labels: dict[str, str]
     display_return_column: str
@@ -216,6 +218,7 @@ PREMARKET_SESSION = ObservationSessionConfig(
     benchmark_specs=PREMARKET_BENCHMARK_SPECS,
     default_residual_benchmark_key=PREMARKET_DEFAULT_RESIDUAL_BENCHMARK_KEY,
     fund_residual_benchmark_map=PREMARKET_FUND_RESIDUAL_BENCHMARK_MAP,
+    fund_estimation_method_map=PREMARKET_FUND_ESTIMATION_METHOD_MAP,
     footer_benchmark_keys=PREMARKET_FOOTER_BENCHMARK_KEYS,
     footer_labels=PREMARKET_FOOTER_LABELS,
     display_return_column=DISPLAY_RETURN_COLUMN,
@@ -238,6 +241,7 @@ AFTERHOURS_SESSION = ObservationSessionConfig(
     benchmark_specs=AFTERHOURS_BENCHMARK_SPECS,
     default_residual_benchmark_key=AFTERHOURS_DEFAULT_RESIDUAL_BENCHMARK_KEY,
     fund_residual_benchmark_map=AFTERHOURS_FUND_RESIDUAL_BENCHMARK_MAP,
+    fund_estimation_method_map=PREMARKET_FUND_ESTIMATION_METHOD_MAP,
     footer_benchmark_keys=AFTERHOURS_FOOTER_BENCHMARK_KEYS,
     footer_labels=AFTERHOURS_FOOTER_LABELS,
     display_return_column="盘后模型观察",
@@ -260,6 +264,7 @@ INTRADAY_SESSION = ObservationSessionConfig(
     benchmark_specs=INTRADAY_BENCHMARK_SPECS,
     default_residual_benchmark_key=INTRADAY_DEFAULT_RESIDUAL_BENCHMARK_KEY,
     fund_residual_benchmark_map=INTRADAY_FUND_RESIDUAL_BENCHMARK_MAP,
+    fund_estimation_method_map=PREMARKET_FUND_ESTIMATION_METHOD_MAP,
     footer_benchmark_keys=INTRADAY_FOOTER_BENCHMARK_KEYS,
     footer_labels=INTRADAY_FOOTER_LABELS,
     display_return_column="盘中模型观察",
@@ -742,6 +747,68 @@ def estimate_boosted_valid_holding_with_residual(
         "residual_weight_pct": residual_weight_pct,
         "residual_return_pct": residual_return,
         "residual_contribution_pct": residual_contribution,
+    }
+
+
+TOP10_AVAILABLE_NORMALIZED_METHOD = "top10_available_normalized"
+
+
+def normalize_observation_estimation_method(value: Any) -> str:
+    return str(value or "").strip().lower()
+
+
+def is_top10_available_normalized_method(value: Any) -> bool:
+    return normalize_observation_estimation_method(value) == TOP10_AVAILABLE_NORMALIZED_METHOD
+
+
+def get_observation_estimation_method(
+    fund_code: Any,
+    *,
+    session: ObservationSessionConfig = PREMARKET_SESSION,
+) -> str:
+    code = str(fund_code or "").strip().zfill(6)
+    return normalize_observation_estimation_method(
+        session.fund_estimation_method_map.get(code, "")
+    )
+
+
+def estimate_top10_available_normalized_return(
+    weight_return_pairs: Iterable[tuple[Any, Any]],
+) -> dict[str, float | None]:
+    pairs: list[tuple[float, float]] = []
+    for weight, return_pct in weight_return_pairs:
+        weight_f = _safe_float(weight)
+        return_f = _safe_float(return_pct)
+        if weight_f is None or return_f is None or weight_f <= 0:
+            continue
+        pairs.append((weight_f, return_f))
+
+    raw_valid_weight_pct = float(sum(weight for weight, _ in pairs))
+    if raw_valid_weight_pct <= 0:
+        return {
+            "estimated_return_pct": None,
+            "known_contribution_pct": None,
+            "raw_valid_weight_pct": 0.0,
+            "boosted_weight_pct": 0.0,
+            "actual_boost": 0.0,
+            "residual_weight_pct": 0.0,
+            "residual_return_pct": None,
+            "residual_contribution_pct": 0.0,
+        }
+
+    actual_boost = 100.0 / raw_valid_weight_pct
+    estimated_return_pct = float(
+        sum(weight * actual_boost * return_pct / 100.0 for weight, return_pct in pairs)
+    )
+    return {
+        "estimated_return_pct": estimated_return_pct,
+        "known_contribution_pct": estimated_return_pct,
+        "raw_valid_weight_pct": raw_valid_weight_pct,
+        "boosted_weight_pct": 100.0,
+        "actual_boost": actual_boost,
+        "residual_weight_pct": 0.0,
+        "residual_return_pct": None,
+        "residual_contribution_pct": 0.0,
     }
 
 
@@ -2835,6 +2902,7 @@ def estimate_premarket_holdings(
     session: ObservationSessionConfig = PREMARKET_SESSION,
     progress=None,
     progress_label: str = "",
+    estimation_method: str = "",
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     cache_now = coerce_bj_datetime(cache_now)
     us_quote_mode = str(session.us_quote_mode).lower()
@@ -2951,20 +3019,28 @@ def estimate_premarket_holdings(
 
     complete_statuses = {"traded", "closed"}
     zeroed_statuses = {"zeroed"}
-    valid_mask = df[status_col].isin(complete_statuses) & df[return_col].notna() & df["占净值比例"].gt(0)
+    top10_available_normalized = is_top10_available_normalized_method(estimation_method)
+    usable_statuses = complete_statuses | (zeroed_statuses if top10_available_normalized else set())
+    valid_mask = df[status_col].isin(usable_statuses) & df[return_col].notna() & df["占净值比例"].gt(0)
     zeroed_mask = df[status_col].isin(zeroed_statuses)
     residual_benchmark = residual_benchmark or {}
-    calc = estimate_boosted_valid_holding_with_residual(
-        zip(df.loc[valid_mask, "占净值比例"], df.loc[valid_mask, return_col]),
-        residual_return_pct=residual_benchmark.get("return_pct"),
-    )
+    if top10_available_normalized:
+        residual_benchmark = {}
+        calc = estimate_top10_available_normalized_return(
+            zip(df.loc[valid_mask, "占净值比例"], df.loc[valid_mask, return_col]),
+        )
+    else:
+        calc = estimate_boosted_valid_holding_with_residual(
+            zip(df.loc[valid_mask, "占净值比例"], df.loc[valid_mask, return_col]),
+            residual_return_pct=residual_benchmark.get("return_pct"),
+        )
     estimate = calc["estimated_return_pct"]
     raw_valid_weight = float(calc["raw_valid_weight_pct"] or 0.0)
     boosted_weight = float(calc["boosted_weight_pct"] or 0.0)
     actual_boost = float(calc["actual_boost"] or 0.0)
     df[effective_weight_col] = pd.NA
     df[contribution_col] = pd.NA
-    if zeroed_mask.any():
+    if zeroed_mask.any() and not top10_available_normalized:
         df.loc[zeroed_mask, effective_weight_col] = 0.0
         df.loc[zeroed_mask, contribution_col] = 0.0
     if raw_valid_weight > 0:
@@ -2980,6 +3056,7 @@ def estimate_premarket_holdings(
     residual_return_pct = calc["residual_return_pct"]
     residual_failed = bool(residual_weight_pct > 0 and residual_return_pct is None)
     summary = {
+        "method": TOP10_AVAILABLE_NORMALIZED_METHOD if top10_available_normalized else "boosted_valid_holding_with_residual",
         "estimate_return_pct": estimate,
         "known_contribution_pct": calc["known_contribution_pct"],
         "raw_weight_sum_pct": raw_weight_sum,
@@ -3210,29 +3287,34 @@ def build_premarket_table(
                 if int(top_n or 0) > 0 and len(holdings_df) > int(top_n):
                     holdings_df = holdings_df.head(int(top_n)).copy()
                 progress.set_status(f"{fund_code} {fund_name} 持仓加载完成: {len(holdings_df)} 条")
-                residual_key = get_observation_residual_benchmark_key(fund_code, session=session)
-                progress.set_status(f"{fund_code} 获取{session.window_word}补偿基准: {residual_key}")
-                residual_benchmark = fetch_premarket_benchmark_quote(
-                    residual_key,
-                    today=today,
-                    quote_cache=quote_cache,
-                    disabled_sources=disabled_sources,
-                    persistent_quote_cache=persistent_quote_cache,
-                    cache_now=generated_at,
-                    session=session,
-                )
-                progress.set_status(
-                    (
-                        f"{fund_code} 补偿基准 -> {residual_benchmark.get('label', '')} "
-                        f"{_format_progress_return_pct(residual_benchmark.get('return_pct'))} "
-                        f"{residual_benchmark.get('source', '')} "
-                        f"{residual_benchmark.get('trade_date', '')}"
-                    ).strip()
-                )
-                residual_market = str(residual_benchmark.get("market", "")).strip().upper()
-                residual_ticker = str(residual_benchmark.get("ticker", "")).strip().upper()
-                if residual_market and residual_ticker:
-                    affected_funds[(residual_market, residual_ticker)].append(fund_code)
+                estimation_method = get_observation_estimation_method(fund_code, session=session)
+                if is_top10_available_normalized_method(estimation_method):
+                    residual_benchmark = {}
+                    progress.set_status(f"{fund_code} 使用前十大可用持仓归一化估算，跳过补偿基准")
+                else:
+                    residual_key = get_observation_residual_benchmark_key(fund_code, session=session)
+                    progress.set_status(f"{fund_code} 获取{session.window_word}补偿基准: {residual_key}")
+                    residual_benchmark = fetch_premarket_benchmark_quote(
+                        residual_key,
+                        today=today,
+                        quote_cache=quote_cache,
+                        disabled_sources=disabled_sources,
+                        persistent_quote_cache=persistent_quote_cache,
+                        cache_now=generated_at,
+                        session=session,
+                    )
+                    progress.set_status(
+                        (
+                            f"{fund_code} 补偿基准 -> {residual_benchmark.get('label', '')} "
+                            f"{_format_progress_return_pct(residual_benchmark.get('return_pct'))} "
+                            f"{residual_benchmark.get('source', '')} "
+                            f"{residual_benchmark.get('trade_date', '')}"
+                        ).strip()
+                    )
+                    residual_market = str(residual_benchmark.get("market", "")).strip().upper()
+                    residual_ticker = str(residual_benchmark.get("ticker", "")).strip().upper()
+                    if residual_market and residual_ticker:
+                        affected_funds[(residual_market, residual_ticker)].append(fund_code)
                 detail_df, summary = estimate_premarket_holdings(
                     holdings_df,
                     today=today,
@@ -3244,6 +3326,7 @@ def build_premarket_table(
                     session=session,
                     progress=progress,
                     progress_label=fund_code,
+                    estimation_method=estimation_method,
                 )
                 for _, item in detail_df.iterrows():
                     market = str(item.get("市场", "")).strip().upper()

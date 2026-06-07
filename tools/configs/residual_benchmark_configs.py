@@ -59,9 +59,15 @@ FUND_RESIDUAL_BENCHMARK_MAP = {
     "001092": "biotech_ibb",
 }
 
+FUND_ESTIMATION_METHOD_MAP = {
+    # 只使用前十大持仓，可取行情的持仓重新归一化到 100%，不走补偿仓位。
+    "015205": "top10_available_normalized",
+}
+
 
 __all__ = [
     "DEFAULT_RESIDUAL_BENCHMARK_KEY",
     "RESIDUAL_BENCHMARK_SPECS",
     "FUND_RESIDUAL_BENCHMARK_MAP",
+    "FUND_ESTIMATION_METHOD_MAP",
 ]

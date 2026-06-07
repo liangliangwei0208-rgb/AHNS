@@ -103,6 +103,7 @@ from tools.configs.cache_policy_configs import (
 )
 from tools.configs.residual_benchmark_configs import (
     DEFAULT_RESIDUAL_BENCHMARK_KEY,
+    FUND_ESTIMATION_METHOD_MAP,
     FUND_RESIDUAL_BENCHMARK_MAP,
     RESIDUAL_BENCHMARK_SPECS,
 )
@@ -4570,6 +4571,18 @@ def _configured_residual_benchmark_for_fund(fund_code: str) -> str:
     return FUND_RESIDUAL_BENCHMARK_MAP.get(code, DEFAULT_RESIDUAL_BENCHMARK_KEY)
 
 
+TOP10_AVAILABLE_NORMALIZED_METHOD = "top10_available_normalized"
+
+
+def _configured_estimation_method_for_fund(fund_code: str) -> str:
+    code = str(fund_code or "").strip().zfill(6)
+    return str(FUND_ESTIMATION_METHOD_MAP.get(code, "") or "").strip().lower()
+
+
+def _is_top10_available_normalized_method(method: str | None) -> bool:
+    return str(method or "").strip().lower() == TOP10_AVAILABLE_NORMALIZED_METHOD
+
+
 def _fetch_residual_benchmark_for_fund(
     fund_code: str,
     *,
@@ -5217,6 +5230,7 @@ def estimate_stock_holdings_return(
     valuation_anchor_date=None,
     progress=None,
     progress_label="",
+    stock_estimation_method=None,
 ):
     """
     使用前 N 大股票持仓估算基金收益。
@@ -5383,7 +5397,11 @@ def estimate_stock_holdings_return(
     available_raw_weight_sum_pct = float(pd.to_numeric(df.loc[valid_mask, "占净值比例"], errors="coerce").fillna(0).sum())
     failed_raw_weight_sum_pct = float(pd.to_numeric(df.loc[~valid_mask, "占净值比例"], errors="coerce").fillna(0).sum())
 
-    use_residual_benchmark = stock_residual_benchmark_return_pct is not None
+    top10_available_normalized = _is_top10_available_normalized_method(stock_estimation_method)
+    use_residual_benchmark = (
+        stock_residual_benchmark_return_pct is not None
+        and not top10_available_normalized
+    )
 
     if use_residual_benchmark:
         residual_label = stock_residual_benchmark_label or "剩余仓位基准"
@@ -5504,20 +5522,32 @@ def estimate_stock_holdings_return(
             estimated_return_pct = None
             available_weight_sum_pct = 0.0
             failed_weight_sum_pct = float(df["归一化权重"].sum())
-            method = "stock_topn_available_normalized_failed"
+            method = (
+                f"{TOP10_AVAILABLE_NORMALIZED_METHOD}_failed"
+                if top10_available_normalized
+                else "stock_topn_available_normalized_failed"
+            )
         else:
             available_weight_sum_pct = float(df.loc[valid_mask, "归一化权重"].sum())
             failed_weight_sum_pct = float(df.loc[~valid_mask, "归一化权重"].sum())
 
             if available_weight_sum_pct <= 0:
                 estimated_return_pct = None
-                method = "stock_topn_available_normalized_failed"
+                method = (
+                    f"{TOP10_AVAILABLE_NORMALIZED_METHOD}_failed"
+                    if top10_available_normalized
+                    else "stock_topn_available_normalized_failed"
+                )
             else:
                 if renormalize_available_holdings:
                     df.loc[valid_mask, "有效估算权重"] = (
                         df.loc[valid_mask, "归一化权重"] / available_weight_sum_pct * 100.0
                     )
-                    method = "stock_topn_available_normalized"
+                    method = (
+                        TOP10_AVAILABLE_NORMALIZED_METHOD
+                        if top10_available_normalized
+                        else "stock_topn_available_normalized"
+                    )
                 else:
                     df.loc[valid_mask, "有效估算权重"] = df.loc[valid_mask, "归一化权重"]
                     method = "stock_topn_original_normalized"
@@ -5956,6 +5986,7 @@ def estimate_one_fund(
     stale_market_estimate_date=None,
     valuation_anchor_date=None,
     progress=None,
+    stock_estimation_method=None,
 ):
     """
     估算单只基金的今日涨跌幅。
@@ -6009,6 +6040,13 @@ def estimate_one_fund(
     """
     fund_code = str(fund_code).zfill(6)
     fund_name = get_fund_name(fund_code)
+    stock_estimation_method = (
+        str(stock_estimation_method or "").strip().lower()
+        or _configured_estimation_method_for_fund(fund_code)
+    )
+    if _is_top10_available_normalized_method(stock_estimation_method):
+        renormalize_available_holdings = True
+        stock_residual_benchmark_return_pct = None
 
     if proxy_map is None:
         proxy_map = DEFAULT_FUND_PROXY_MAP
@@ -6039,6 +6077,7 @@ def estimate_one_fund(
             valuation_anchor_date=valuation_anchor_date,
             progress=progress,
             progress_label=fund_code,
+            stock_estimation_method=stock_estimation_method,
         )
     else:
         _progress_status(progress, f"{fund_code} {fund_name} 加载前{top_n}大股票持仓")
@@ -6175,8 +6214,10 @@ def estimate_funds(
                     mode_norm == "proxy"
                     or (mode_norm == "auto" and code in proxy_map)
                 )
+                stock_estimation_method = _configured_estimation_method_for_fund(code)
+                top10_available_normalized = _is_top10_available_normalized_method(stock_estimation_method)
                 residual_kwargs = {}
-                if will_use_stock_holdings and (
+                if will_use_stock_holdings and not top10_available_normalized and (
                     stock_residual_benchmark_return_pct is not None
                     or stock_residual_benchmark is not None
                     or auto_residual_benchmark_enabled
@@ -6223,7 +6264,9 @@ def estimate_funds(
                     prefer_intraday=prefer_intraday,
                     us_realtime=us_realtime,
                     hk_realtime=hk_realtime,
-                    renormalize_available_holdings=renormalize_available_holdings,
+                    renormalize_available_holdings=(
+                        True if top10_available_normalized else renormalize_available_holdings
+                    ),
                     include_purchase_limit=include_purchase_limit,
                     purchase_limit_timeout=purchase_limit_timeout,
                     purchase_limit_cache_days=purchase_limit_cache_days,
@@ -6247,6 +6290,7 @@ def estimate_funds(
                     stale_market_estimate_date=stale_market_estimate_date,
                     valuation_anchor_date=valuation_anchor_date,
                     progress=progress,
+                    stock_estimation_method=stock_estimation_method,
                 )
 
                 result_row["_输入顺序"] = i

@@ -164,6 +164,11 @@ PREMARKET_FUND_RESIDUAL_BENCHMARK_MAP = {
     "001092": "biotech",
 }
 
+PREMARKET_FUND_ESTIMATION_METHOD_MAP = {
+    # 盘前/盘中/盘后/夜盘：只使用前十大持仓，可取行情持仓重新归一化到 100%。
+    "015205": "top10_available_normalized",
+}
+
 
 def _footer_enabled_for_session(spec: dict, session: str) -> bool:
     flag = f"display_in_{session}_footer"
@@ -235,6 +240,7 @@ __all__ = [
     "PREMARKET_END_MINUTE_BJ",
     "PREMARKET_FOOTER_BENCHMARK_KEYS",
     "PREMARKET_FOOTER_LABELS",
+    "PREMARKET_FUND_ESTIMATION_METHOD_MAP",
     "PREMARKET_FUND_RESIDUAL_BENCHMARK_MAP",
     "PREMARKET_START_HOUR_BJ",
     "PREMARKET_START_MINUTE_BJ",
