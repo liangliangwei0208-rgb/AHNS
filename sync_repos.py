@@ -28,8 +28,12 @@ DEFAULT_GITEE_REMOTE = "gitee"
 REMOTE_RETRY_ATTEMPTS = 3
 GITHUB_PROXY_DISABLE_CONFIG = "http.https://github.com.proxy="
 CACHE_CONFLICT_EXACT_PATHS = {
+    "cache/a_share_trade_calendar_cache.json",
+    "cache/afterhours_quote_cache.json",
     "cache/fund_estimate_return_cache.json",
+    "cache/intraday_quote_cache.json",
     "cache/security_return_cache.json",
+    "investment_quote_history.json",
 }
 CACHE_INDEX_DAILY_PATTERN = re.compile(r"^cache/[^/]+_index_daily\.csv$")
 
@@ -496,15 +500,81 @@ def merge_security_return_cache(ours_text: str, theirs_text: str) -> str:
     return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
 
 
+def merge_a_share_trade_calendar_cache(ours_text: str, theirs_text: str) -> str:
+    ours = json.loads(ours_text)
+    theirs = json.loads(theirs_text)
+    if not isinstance(ours, dict) or not isinstance(theirs, dict):
+        raise SyncError("A 股交易日历缓存不是 JSON object，无法自动合并。")
+
+    ours_time = parse_datetime_like(ours.get("fetched_at"))
+    theirs_time = parse_datetime_like(theirs.get("fetched_at"))
+    base = dict(theirs if (theirs_time or datetime.min) >= (ours_time or datetime.min) else ours)
+    for key, value in ours.items():
+        base.setdefault(key, value)
+
+    trade_dates: set[str] = set()
+    for source in (ours, theirs):
+        values = source.get("trade_dates")
+        if isinstance(values, list):
+            trade_dates.update(str(value) for value in values if value)
+    base["trade_dates"] = sorted(trade_dates)
+
+    fetched_values = [value for value in (ours.get("fetched_at"), theirs.get("fetched_at")) if value]
+    if fetched_values:
+        base["fetched_at"] = max(
+            fetched_values,
+            key=lambda value: parse_datetime_like(value) or datetime.min,
+        )
+    return json.dumps(base, ensure_ascii=False, indent=2) + "\n"
+
+
+def merge_investment_quote_history(ours_text: str, theirs_text: str) -> str:
+    ours = json.loads(ours_text)
+    theirs = json.loads(theirs_text)
+    if not isinstance(ours, dict) or not isinstance(theirs, dict):
+        raise SyncError("投资语录历史不是 JSON object，无法自动合并。")
+
+    ours_by_date = ours.get("by_date") if isinstance(ours.get("by_date"), dict) else {}
+    theirs_by_date = theirs.get("by_date") if isinstance(theirs.get("by_date"), dict) else {}
+    prefer_theirs = len(theirs_by_date) >= len(ours_by_date)
+
+    by_date: dict[str, Any] = {}
+    for date_key in sorted(set(ours_by_date) | set(theirs_by_date)):
+        if date_key in ours_by_date and date_key in theirs_by_date:
+            by_date[date_key] = theirs_by_date[date_key] if prefer_theirs else ours_by_date[date_key]
+        elif date_key in theirs_by_date:
+            by_date[date_key] = theirs_by_date[date_key]
+        else:
+            by_date[date_key] = ours_by_date[date_key]
+
+    used_quotes: list[Any] = []
+    for quote in by_date.values():
+        if quote not in used_quotes:
+            used_quotes.append(quote)
+    for source in (ours.get("used_quotes"), theirs.get("used_quotes")):
+        if isinstance(source, list):
+            for quote in source:
+                if quote not in used_quotes:
+                    used_quotes.append(quote)
+
+    return json.dumps({"by_date": by_date, "used_quotes": used_quotes}, ensure_ascii=False, indent=2) + "\n"
+
+
 def merge_cache_conflict_file(repo: Path, path: str) -> None:
     ours_text = git_stage_text(repo, 2, path)
     theirs_text = git_stage_text(repo, 3, path)
     if CACHE_INDEX_DAILY_PATTERN.match(path):
         merged_text = merge_index_daily_csv(ours_text, theirs_text)
+    elif path == "cache/a_share_trade_calendar_cache.json":
+        merged_text = merge_a_share_trade_calendar_cache(ours_text, theirs_text)
+    elif path in {"cache/afterhours_quote_cache.json", "cache/intraday_quote_cache.json"}:
+        merged_text = merge_security_return_cache(ours_text, theirs_text)
     elif path == "cache/fund_estimate_return_cache.json":
         merged_text = merge_fund_estimate_cache(ours_text, theirs_text)
     elif path == "cache/security_return_cache.json":
         merged_text = merge_security_return_cache(ours_text, theirs_text)
+    elif path == "investment_quote_history.json":
+        merged_text = merge_investment_quote_history(ours_text, theirs_text)
     else:
         raise SyncError(f"不支持自动合并的缓存文件: {path}")
 
