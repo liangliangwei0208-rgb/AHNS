@@ -56,7 +56,6 @@ from tools.configs.intraday_configs import (
     INTRADAY_START_HOUR_BJ,
     INTRADAY_START_MINUTE_BJ,
 )
-from tools.configs.fund_proxy_configs import OVERSEAS_VALID_HOLDING_BOOST
 from tools.configs.premarket_configs import (
     PREMARKET_BENCHMARK_SPECS,
     PREMARKET_DEFAULT_RESIDUAL_BENCHMARK_KEY,
@@ -68,6 +67,7 @@ from tools.configs.premarket_configs import (
     PREMARKET_FUND_RESIDUAL_BENCHMARK_MAP,
     PREMARKET_START_HOUR_BJ,
     PREMARKET_START_MINUTE_BJ,
+    PREMARKET_VALID_HOLDING_BOOST,
 )
 from tools.configs.safe_image_style_configs import SAFE_TITLE_STYLE, safe_daily_table_kwargs
 from tools.console_display import fund_progress, print_dataframe_table
@@ -674,7 +674,7 @@ def _remember_premarket_quote(
 def estimate_boosted_valid_holding_return(
     weight_return_pairs: Iterable[tuple[Any, Any]],
     *,
-    boost: float = OVERSEAS_VALID_HOLDING_BOOST,
+    boost: float = PREMARKET_VALID_HOLDING_BOOST,
 ) -> tuple[float | None, float, float, float]:
     """
     Estimate by raw valid holding weight times boost, capped at 100%.
@@ -713,7 +713,7 @@ def estimate_boosted_valid_holding_with_residual(
     weight_return_pairs: Iterable[tuple[Any, Any]],
     *,
     residual_return_pct: Any = None,
-    boost: float = OVERSEAS_VALID_HOLDING_BOOST,
+    boost: float = PREMARKET_VALID_HOLDING_BOOST,
 ) -> dict[str, float | None]:
     """
     Use the same shape as the official overseas stock-holding estimate:

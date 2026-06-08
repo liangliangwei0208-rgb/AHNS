@@ -153,6 +153,12 @@ PREMARKET_BENCHMARK_SPECS = {
 
 PREMARKET_DEFAULT_RESIDUAL_BENCHMARK_KEY = "nasdaq100"
 
+# 盘前/盘中/盘后/富途夜盘海外股票持仓型基金的有效持仓增强系数。
+# 仅作用于“有效持仓增强 + 补偿基准”口径：
+# 有效披露持仓占比先乘以该系数，封顶到 100%，剩余权重再走补偿基准。
+# `top10_available_normalized` 基金不使用该系数，也不走补偿基准。
+PREMARKET_VALID_HOLDING_BOOST = 1.15
+
 
 PREMARKET_FUND_RESIDUAL_BENCHMARK_MAP = {
     "007844": "oil_gas_ep",
@@ -236,6 +242,7 @@ __all__ = [
     "INTRADAY_FOOTER_LABELS",
     "PREMARKET_BENCHMARK_SPECS",
     "PREMARKET_DEFAULT_RESIDUAL_BENCHMARK_KEY",
+    "PREMARKET_VALID_HOLDING_BOOST",
     "PREMARKET_END_HOUR_BJ",
     "PREMARKET_END_MINUTE_BJ",
     "PREMARKET_FOOTER_BENCHMARK_KEYS",

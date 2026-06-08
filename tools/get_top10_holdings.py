@@ -84,7 +84,7 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from matplotlib import font_manager
 
-from tools.configs.fund_proxy_configs import DEFAULT_FUND_PROXY_MAP, OVERSEAS_VALID_HOLDING_BOOST
+from tools.configs.fund_proxy_configs import DEFAULT_FUND_PROXY_MAP
 from tools.configs.market_calendar_configs import (
     KR_MARKET_ZERO_HOLIDAYS,
     KR_MARKET_ZERO_HOLIDAY_MD,
@@ -105,6 +105,7 @@ from tools.configs.residual_benchmark_configs import (
     DEFAULT_RESIDUAL_BENCHMARK_KEY,
     FUND_ESTIMATION_METHOD_MAP,
     FUND_RESIDUAL_BENCHMARK_MAP,
+    OVERSEAS_VALID_HOLDING_BOOST,
     RESIDUAL_BENCHMARK_SPECS,
 )
 from tools.configs.security_mappings import KR_TICKER_MAP, US_TICKER_MAP

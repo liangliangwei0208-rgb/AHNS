@@ -18,6 +18,12 @@ from __future__ import annotations
 
 DEFAULT_RESIDUAL_BENCHMARK_KEY = "nasdaq100"
 
+# 正式日线海外股票持仓型基金的有效持仓增强系数。
+# 仅作用于“有效持仓增强 + 补偿基准”口径：
+# 有效披露持仓占比先乘以该系数，封顶到 100%，剩余权重再走补偿基准。
+# `top10_available_normalized` 基金不使用该系数，也不走补偿基准。
+OVERSEAS_VALID_HOLDING_BOOST = 1.15
+
 RESIDUAL_BENCHMARK_SPECS = {
     "nasdaq100": {
         "label": "纳斯达克100",
@@ -67,6 +73,7 @@ FUND_ESTIMATION_METHOD_MAP = {
 
 __all__ = [
     "DEFAULT_RESIDUAL_BENCHMARK_KEY",
+    "OVERSEAS_VALID_HOLDING_BOOST",
     "RESIDUAL_BENCHMARK_SPECS",
     "FUND_RESIDUAL_BENCHMARK_MAP",
     "FUND_ESTIMATION_METHOD_MAP",

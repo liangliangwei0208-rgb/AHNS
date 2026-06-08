@@ -4,11 +4,13 @@
 维护影响：
 - `DEFAULT_FUND_PROXY_MAP` 决定哪些基金不读取前十大持仓，而是用 ETF/指数代理资产估算。
 - 新增代理基金时，每个 component 至少维护 `name`、`code`、`type`、`weight_pct`。
-- `OVERSEAS_VALID_HOLDING_BOOST` 是海外股票持仓型基金的有效披露持仓增强系数；
-  修改它会直接影响海外/全球基金持仓估算结果。
+- `OVERSEAS_VALID_HOLDING_BOOST` 这里只保留兼容导出；正式维护位置在
+  `tools/configs/residual_benchmark_configs.py`。
 """
+from tools.configs.residual_benchmark_configs import OVERSEAS_VALID_HOLDING_BOOST
 
-OVERSEAS_VALID_HOLDING_BOOST = 1.15
+# 兼容旧导入路径：有效持仓增强系数的主维护位置已移动到
+# `tools/configs/residual_benchmark_configs.py`。
 
 DEFAULT_FUND_PROXY_MAP = {
     # 华泰柏瑞中证红利低波动 ETF 联接
