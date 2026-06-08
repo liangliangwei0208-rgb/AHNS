@@ -127,7 +127,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `afterhours_fund.py`：盘后观察图手动入口；生成 `output/safe_haiwai_afterhours.png` 和盘后失败报告，不写正式基金估算缓存。
 - `futu_night_fund.py`：富途夜盘观察图手动入口；生成 `output/safe_haiwai_night.png` 和夜盘失败报告，不写正式基金估算缓存。
 - `fund_estimate_breakdown.py`：只读缓存的估算拆解工具；运行后可手工输入基金代码、正式估值日期或实时观察类型，打印完整持仓贡献表；支持 `--latest`、`--save-txt` 和 `--observation 盘中`。
-- `fund_holding_change.py`：基金前十大持仓变化解读图入口；手动默认分析 `012922`，总入口用 `--auto` 检测基金库持仓缓存变动，有变动或手动指定基金时生成 `output/fund_holding_change/fund_holding_change_<基金代码>.png` 并纳入邮件候选。
+- `fund_holding_change.py`：基金前十大持仓变化解读图入口；手动默认分析 `012922`，总入口用 `--auto` 检测基金库持仓缓存变动。自动变动图按披露批次生成到 `output/fund_holding_change/latest/1_<基金代码>.png` 这类编号文件；手动指定基金生成到 `output/fund_holding_change/manual/<基金代码>.png`，两者都会纳入邮件候选。
 - `safe_fund.py`：只读基金估算缓存，生成安全版海外/全球收盘观察图；自动总入口只在北京时间 06:00-13:40 运行它，晚上盘前窗口不会再输出收盘观察图。
 - `safe_holidays.py`：只读缓存，生成安全版海外节假日累计观察图。
 - `holidays.py`：只读缓存，生成详细版海外节假日累计观察图。
@@ -216,7 +216,8 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - 基金详细估算图：
   - `output/haiwai_fund.png`（详细版当前在主流程中暂不输出，旧文件可能仍在本地）
 - 持仓变化解读图：
-  - `output/fund_holding_change/fund_holding_change_012922.png`（总入口检测到持仓变化或手动指定基金时生成，会纳入邮件候选）
+  - `output/fund_holding_change/latest/1_012922.png`（自动检测到披露变化时按本轮批次编号生成，示例为第 1 张）
+  - `output/fund_holding_change/manual/012922.png`（手动指定基金时生成，不计入自动披露批次编号）
 - 盘前观察图：
   - `output/safe_haiwai_premarket.png`
   - `output/premarket_failed_holdings_latest.txt`（盘前实时持仓、补偿基准和失败源报告）

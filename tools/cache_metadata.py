@@ -103,6 +103,22 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "该文件只记录是否已经处理过持仓变化，不保存完整持仓明细。",
         ],
     },
+    "fund_holding_change_batch_state.json": {
+        "purpose": "基金前十大持仓变化图的披露批次状态缓存，用于维护 latest/ 下 1_基金代码.png 的本轮编号和上一轮图片清理状态。",
+        "producer": "fund_holding_change.py --auto 在自动检测到持仓变化并生成图片后写入。",
+        "consumers": [
+            "fund_holding_change.py",
+            "git_main.py",
+            "service_main.py",
+        ],
+        "refresh_policy": "同一披露批次内基金首次生成图片时分配递增序号；新季度批次开始时把当前批次归档为上一轮。",
+        "retention_policy": "当前批次满基金池数量且首张图生成超过 3 天后，按缓存中记录的明确图片路径逐个清理上一轮图片。",
+        "data_shape": "顶层包含 current、previous、last_cleaned_previous；current.funds 按基金代码记录 index、image、quarter_key、generated_at。",
+        "notes": [
+            "不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为批次状态。",
+            "本缓存只记录图片批次和编号，不保存完整持仓明细。",
+        ],
+    },
     "fund_purchase_limit_cache.json": {
         "purpose": "基金限购金额缓存，用于每日基金图展示模型观察限购信息。",
         "producer": "tools/get_top10_holdings.py 解析公开网页限购文本后写入。",

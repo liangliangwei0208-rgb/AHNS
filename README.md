@@ -457,7 +457,8 @@ Update runtime cache [skip ci]
 - `output/shangzheng_analysis.png`
 - `output/shangzheng.png`
 - `output/haiwai_fund.png`（详细版当前在主流程中暂不输出，旧文件可能仍存在）
-- `output/fund_holding_change/fund_holding_change_012922.png`（持仓变化解读图；总入口检测到持仓变化或手动指定基金时生成）
+- `output/fund_holding_change/latest/1_012922.png`（自动检测到披露变化时按本轮批次编号生成，示例为第 1 张）
+- `output/fund_holding_change/manual/012922.png`（手动指定基金时生成，不计入自动披露批次编号）
 - `output/safe_haiwai_afterhours.png`（盘后观察图，手动运行 `afterhours_fund.py` 生成）
 - `output/safe_haiwai_night.png`（富途夜盘观察图，手动运行 `futu_night_fund.py` 生成）
 - `output/safe_haiwai_premarket.png`（盘前观察图，手动运行 `premarket_fund.py` 生成）

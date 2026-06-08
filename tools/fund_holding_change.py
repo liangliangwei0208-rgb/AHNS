@@ -32,6 +32,7 @@ from tools.configs.fund_universe_configs import HAIWAI_FUND_CODES
 from tools.get_top10_holdings import detect_market_and_ticker, quarter_key
 from tools.paths import (
     FUND_ESTIMATE_CACHE,
+    FUND_HOLDING_CHANGE_BATCH_STATE_CACHE,
     FUND_HOLDING_CHANGE_STATE_CACHE,
     FUND_HOLDINGS_CACHE,
     MARK_IMAGE,
@@ -44,7 +45,11 @@ from tools.safe_display import get_watermark_font
 
 DEFAULT_FUND_CODE = "012922"
 HOLDING_CHANGE_OUTPUT_DIR = OUTPUT_DIR / "fund_holding_change"
-DEFAULT_OUTPUT = HOLDING_CHANGE_OUTPUT_DIR / "fund_holding_change_012922.png"
+HOLDING_CHANGE_LATEST_DIR = HOLDING_CHANGE_OUTPUT_DIR / "latest"
+HOLDING_CHANGE_PREVIOUS_DIR = HOLDING_CHANGE_OUTPUT_DIR / "previous"
+HOLDING_CHANGE_MANUAL_DIR = HOLDING_CHANGE_OUTPUT_DIR / "manual"
+DEFAULT_OUTPUT = HOLDING_CHANGE_MANUAL_DIR / f"{DEFAULT_FUND_CODE}.png"
+BATCH_CLEANUP_GRACE_DAYS = 3
 EASTMONEY_HOLDING_URL = "http://fundf10.eastmoney.com/FundArchivesDatas.aspx"
 EASTMONEY_REFERER = "http://fundf10.eastmoney.com/ccmx_{fund_code}.html"
 
@@ -329,6 +334,243 @@ def _load_change_state() -> dict[str, Any]:
 
 def _save_change_state(state: dict[str, Any]) -> None:
     _write_json(FUND_HOLDING_CHANGE_STATE_CACHE, state)
+
+
+def _load_batch_state() -> dict[str, Any]:
+    data = _load_json(FUND_HOLDING_CHANGE_BATCH_STATE_CACHE, {})
+    return data if isinstance(data, dict) else {}
+
+
+def _save_batch_state(state: dict[str, Any]) -> None:
+    _write_json(FUND_HOLDING_CHANGE_BATCH_STATE_CACHE, state)
+
+
+def _parse_iso_datetime(value: Any) -> datetime | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text)
+    except Exception:
+        return None
+
+
+def _repo_path_from_text(value: Any) -> Path | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    path = Path(text)
+    return path if path.is_absolute() else OUTPUT_DIR.parent / path
+
+
+def _is_safe_holding_change_file(path: Path) -> bool:
+    try:
+        resolved = path.resolve()
+        root = HOLDING_CHANGE_OUTPUT_DIR.resolve()
+        return resolved.is_file() and resolved.is_relative_to(root) and resolved.suffix.lower() == ".png"
+    except Exception:
+        return False
+
+
+def _delete_previous_batch_images(previous_batch: dict[str, Any]) -> int:
+    deleted = 0
+    funds = previous_batch.get("funds")
+    if not isinstance(funds, dict):
+        return deleted
+
+    for item in funds.values():
+        if not isinstance(item, dict):
+            continue
+        path = _repo_path_from_text(item.get("image"))
+        if path is None or not _is_safe_holding_change_file(path):
+            continue
+        # 只删除批次状态中记录的明确文件路径，避免通配符或递归删除。
+        path.unlink()
+        deleted += 1
+        print(f"[HOLDING_CHANGE] 清理上一轮图片: {relative_path_str(path)}", flush=True)
+    return deleted
+
+
+def _move_current_batch_to_previous(batch_state: dict[str, Any]) -> None:
+    current = batch_state.get("current")
+    if not isinstance(current, dict) or not current.get("funds"):
+        batch_state["current"] = None
+        return
+
+    funds = current.get("funds")
+    if not isinstance(funds, dict):
+        batch_state["current"] = None
+        return
+
+    HOLDING_CHANGE_PREVIOUS_DIR.mkdir(parents=True, exist_ok=True)
+    previous = dict(current)
+    previous["archived_at"] = datetime.now().isoformat(timespec="seconds")
+    previous_funds: dict[str, Any] = {}
+
+    for fund_code, item in funds.items():
+        if not isinstance(item, dict):
+            continue
+        next_item = dict(item)
+        source = _repo_path_from_text(next_item.get("image"))
+        if source is not None and _is_safe_holding_change_file(source):
+            target = HOLDING_CHANGE_PREVIOUS_DIR / source.name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            source.replace(target)
+            next_item["image"] = relative_path_str(target)
+            print(
+                f"[HOLDING_CHANGE] 上一轮图片归档: {relative_path_str(source)} -> {relative_path_str(target)}",
+                flush=True,
+            )
+        previous_funds[str(fund_code)] = next_item
+
+    previous["funds"] = previous_funds
+    batch_state["previous"] = previous
+    batch_state["current"] = None
+
+
+def _new_batch_record(*, period: HoldingPeriod, top_n: int, fund_pool_count: int, now: str) -> dict[str, Any]:
+    return {
+        "batch_key": f"top{int(top_n)}:{int(period.quarter_key)}",
+        "top_n": int(top_n),
+        "quarter_key": int(period.quarter_key),
+        "quarter_label": str(period.quarter_label),
+        "fund_pool_count": int(fund_pool_count),
+        "first_generated_at": now,
+        "updated_at": now,
+        "funds": {},
+    }
+
+
+def _current_batch_for_period(
+    *,
+    batch_state: dict[str, Any],
+    period: HoldingPeriod,
+    top_n: int,
+    fund_pool_count: int,
+    now: str,
+) -> dict[str, Any]:
+    expected_key = f"top{int(top_n)}:{int(period.quarter_key)}"
+    current = batch_state.get("current")
+    if not isinstance(current, dict) or current.get("batch_key") != expected_key:
+        _move_current_batch_to_previous(batch_state)
+        current = _new_batch_record(period=period, top_n=top_n, fund_pool_count=fund_pool_count, now=now)
+        batch_state["current"] = current
+        print(
+            f"[HOLDING_CHANGE] 开始新的持仓披露批次: {current['quarter_label']}，基金池 {fund_pool_count} 只",
+            flush=True,
+        )
+    else:
+        current["fund_pool_count"] = int(fund_pool_count)
+        current["updated_at"] = now
+    return current
+
+
+def _next_batch_index(current_batch: dict[str, Any]) -> int:
+    funds = current_batch.get("funds")
+    if not isinstance(funds, dict) or not funds:
+        return 1
+    indexes = []
+    for item in funds.values():
+        if isinstance(item, dict):
+            try:
+                indexes.append(int(item.get("index") or 0))
+            except Exception:
+                continue
+    return max(indexes or [0]) + 1
+
+
+def _batch_output_for_fund(
+    *,
+    batch_state: dict[str, Any],
+    result: HoldingChangeResult,
+    top_n: int,
+    fund_pool_count: int,
+    generated_at: str,
+) -> tuple[Path, int]:
+    current = _current_batch_for_period(
+        batch_state=batch_state,
+        period=result.latest,
+        top_n=top_n,
+        fund_pool_count=fund_pool_count,
+        now=generated_at,
+    )
+    funds = current.setdefault("funds", {})
+    if not isinstance(funds, dict):
+        funds = {}
+        current["funds"] = funds
+
+    existing = funds.get(result.fund_code)
+    if isinstance(existing, dict) and existing.get("index"):
+        index = int(existing["index"])
+    else:
+        index = _next_batch_index(current)
+
+    image_path = HOLDING_CHANGE_LATEST_DIR / f"{index}_{result.fund_code}.png"
+    return image_path, index
+
+
+def _record_batch_image(
+    *,
+    batch_state: dict[str, Any],
+    result: HoldingChangeResult,
+    image_path: Path,
+    index: int,
+    fund_pool_count: int,
+    generated_at: str,
+) -> None:
+    current = batch_state.get("current")
+    if not isinstance(current, dict):
+        return
+    funds = current.setdefault("funds", {})
+    if not isinstance(funds, dict):
+        funds = {}
+        current["funds"] = funds
+    funds[result.fund_code] = {
+        "fund_code": result.fund_code,
+        "fund_name": result.fund_name,
+        "index": int(index),
+        "image": relative_path_str(image_path),
+        "quarter_key": int(result.latest.quarter_key),
+        "quarter_label": str(result.latest.quarter_label),
+        "generated_at": generated_at,
+    }
+    current["fund_pool_count"] = int(fund_pool_count)
+    current["updated_at"] = generated_at
+
+
+def _maybe_cleanup_previous_batch(batch_state: dict[str, Any], *, now: datetime) -> int:
+    current = batch_state.get("current")
+    previous = batch_state.get("previous")
+    if not isinstance(current, dict) or not isinstance(previous, dict):
+        return 0
+
+    funds = current.get("funds")
+    current_count = len(funds) if isinstance(funds, dict) else 0
+    fund_pool_count = int(current.get("fund_pool_count") or 0)
+    first_generated_at = _parse_iso_datetime(current.get("first_generated_at"))
+    if current_count < fund_pool_count or fund_pool_count <= 0 or first_generated_at is None:
+        return 0
+    if (now - first_generated_at).days < BATCH_CLEANUP_GRACE_DAYS:
+        return 0
+
+    deleted = _delete_previous_batch_images(previous)
+    batch_state["last_cleaned_previous"] = {
+        "batch_key": previous.get("batch_key"),
+        "quarter_label": previous.get("quarter_label"),
+        "deleted_images": deleted,
+        "cleaned_at": now.isoformat(timespec="seconds"),
+    }
+    batch_state["previous"] = None
+    print(
+        f"[HOLDING_CHANGE] 当前批次已满 {current_count}/{fund_pool_count} 且超过 {BATCH_CLEANUP_GRACE_DAYS} 天，"
+        f"清理上一轮持仓变化图片 {deleted} 张",
+        flush=True,
+    )
+    return deleted
+
+
+def _manual_output_for_fund(fund_code: str) -> Path:
+    return HOLDING_CHANGE_MANUAL_DIR / f"{fund_code}.png"
 
 
 def _fetch_holdings_by_akshare(fund_code: str, years: list[int]) -> list[pd.DataFrame]:
@@ -1039,7 +1281,7 @@ def _save_csv(result: HoldingChangeResult, csv_path: Path) -> Path:
 
 
 def _default_output_for_fund(fund_code: str) -> Path:
-    return HOLDING_CHANGE_OUTPUT_DIR / f"fund_holding_change_{fund_code}.png"
+    return _manual_output_for_fund(fund_code)
 
 
 def _generate_and_record_change(
@@ -1049,10 +1291,35 @@ def _generate_and_record_change(
     state: dict[str, Any],
     state_key: str,
     force: bool,
+    batch_state: dict[str, Any] | None = None,
+    fund_pool_count: int = 0,
 ) -> Path:
     result = build_holding_change(fund_code=fund_code, top_n=top_n, cache_only=False)
-    image_path = save_holding_change_image(result, _default_output_for_fund(fund_code))
     generated_at = datetime.now().isoformat(timespec="seconds")
+    if force:
+        image_path = save_holding_change_image(result, _manual_output_for_fund(fund_code))
+        print(f"[HOLDING_CHANGE] 手动生成: {fund_code} -> {relative_path_str(image_path)}", flush=True)
+        return image_path
+
+    if batch_state is None:
+        raise RuntimeError("自动批次状态缺失，无法生成披露批次编号图")
+
+    image_path, batch_index = _batch_output_for_fund(
+        batch_state=batch_state,
+        result=result,
+        top_n=top_n,
+        fund_pool_count=fund_pool_count,
+        generated_at=generated_at,
+    )
+    image_path = save_holding_change_image(result, image_path)
+    _record_batch_image(
+        batch_state=batch_state,
+        result=result,
+        image_path=image_path,
+        index=batch_index,
+        fund_pool_count=fund_pool_count,
+        generated_at=generated_at,
+    )
     state[state_key] = _state_entry_from_period(
         fund_code=fund_code,
         top_n=top_n,
@@ -1073,7 +1340,10 @@ def run_auto_holding_change(*, top_n: int, force_fund_code: str = "") -> int:
         raise RuntimeError(f"持仓缓存格式异常: {relative_path_str(FUND_HOLDINGS_CACHE)}")
 
     state = _load_change_state()
-    fund_codes = [force_fund_code] if force_fund_code else [_normalize_fund_code(code) for code in HAIWAI_FUND_CODES]
+    batch_state = {} if force_fund_code else _load_batch_state()
+    pool_fund_codes = [_normalize_fund_code(code) for code in HAIWAI_FUND_CODES]
+    fund_pool_count = len(pool_fund_codes)
+    fund_codes = [force_fund_code] if force_fund_code else pool_fund_codes
     initialized = 0
     unchanged = 0
     generated = 0
@@ -1140,12 +1410,22 @@ def run_auto_holding_change(*, top_n: int, force_fund_code: str = "") -> int:
                 state=state,
                 state_key=state_key,
                 force=False,
+                batch_state=batch_state,
+                fund_pool_count=fund_pool_count,
             )
             generated += 1
         except Exception as exc:
             failures.append(f"{fund_code}: 变动图生成失败: {exc}")
 
     _save_change_state(state)
+    current_count = 0
+    deleted_previous_images = 0
+    if not force_fund_code:
+        current = batch_state.get("current")
+        if isinstance(current, dict) and isinstance(current.get("funds"), dict):
+            current_count = len(current["funds"])
+        deleted_previous_images = _maybe_cleanup_previous_batch(batch_state, now=datetime.now())
+        _save_batch_state(batch_state)
 
     print_key_values(
         "持仓变化图自动检测完成",
@@ -1156,6 +1436,14 @@ def run_auto_holding_change(*, top_n: int, force_fund_code: str = "") -> int:
             ("缺持仓缓存", missing_cache),
             ("失败", len(failures)),
             ("状态缓存", relative_path_str(FUND_HOLDING_CHANGE_STATE_CACHE)),
+        ],
+    )
+    print_key_values(
+        "持仓变化图批次",
+        [
+            ("本轮持仓变化图", f"{current_count}/{fund_pool_count}" if not force_fund_code else "手动模式"),
+            ("批次缓存", relative_path_str(FUND_HOLDING_CHANGE_BATCH_STATE_CACHE)),
+            ("清理上一轮图片", deleted_previous_images),
         ],
     )
     for item in failures:
