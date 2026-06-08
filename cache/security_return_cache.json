@@ -4831,7 +4831,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-08T12:24:26+08:00"
+    "fetched_at": "2026-06-08T16:16:42+08:00"
   },
   "SECURITY:UNKNOWN:BRK_B:2026-05-28": {
     "market": "UNKNOWN",
@@ -4915,7 +4915,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-08T12:24:37+08:00"
+    "fetched_at": "2026-06-08T16:16:55+08:00"
   },
   "SECURITY:UNKNOWN:FR0000073272:2026-05-28": {
     "market": "UNKNOWN",
@@ -4999,7 +4999,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-08T12:24:26+08:00"
+    "fetched_at": "2026-06-08T16:16:43+08:00"
   },
   "SECURITY:UNKNOWN:JP3684400009:2026-05-28": {
     "market": "UNKNOWN",
@@ -5083,7 +5083,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-08T12:24:25+08:00"
+    "fetched_at": "2026-06-08T16:16:42+08:00"
   },
   "SECURITY:UNKNOWN:RR.:2026-05-28": {
     "market": "UNKNOWN",
@@ -5167,7 +5167,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-08T12:24:26+08:00"
+    "fetched_at": "2026-06-08T16:16:42+08:00"
   },
   "SECURITY:US:.INX:2026-05-08": {
     "market": "US",
@@ -10267,7 +10267,7 @@
     "source": "ak_stock_us_daily_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2026-05-06 与 valuation_anchor_date=2026-06-05 不一致",
-    "fetched_at": "2026-06-08T12:24:37+08:00"
+    "fetched_at": "2026-06-08T16:16:55+08:00"
   },
   "SECURITY:US:CVNA:2026-05-14": {
     "market": "US",
@@ -24324,5 +24324,89 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-08T06:47:43+08:00"
+  },
+  "SECURITY:US:SO:2026-06-05": {
+    "market": "US",
+    "ticker": "SO",
+    "valuation_anchor_date": "2026-06-05",
+    "trade_date": "2026-06-05",
+    "return_pct": 1.0696354507749195,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-08T16:16:57+08:00"
+  },
+  "SECURITY:US:AEP:2026-06-05": {
+    "market": "US",
+    "ticker": "AEP",
+    "valuation_anchor_date": "2026-06-05",
+    "trade_date": "2026-06-05",
+    "return_pct": 1.0564206901948259,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-08T16:16:57+08:00"
+  },
+  "SECURITY:US:COST:2026-06-05": {
+    "market": "US",
+    "ticker": "COST",
+    "valuation_anchor_date": "2026-06-05",
+    "trade_date": "2026-06-05",
+    "return_pct": -0.04936494060781005,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-08T16:16:58+08:00"
+  },
+  "SECURITY:US:JNJ:2026-06-05": {
+    "market": "US",
+    "ticker": "JNJ",
+    "valuation_anchor_date": "2026-06-05",
+    "trade_date": "2026-06-05",
+    "return_pct": 2.016040671429198,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-08T16:16:58+08:00"
+  },
+  "SECURITY:US:KO:2026-06-05": {
+    "market": "US",
+    "ticker": "KO",
+    "valuation_anchor_date": "2026-06-05",
+    "trade_date": "2026-06-05",
+    "return_pct": 3.4626399375162764,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-08T16:16:59+08:00"
+  },
+  "SECURITY:US:WMT:2026-06-05": {
+    "market": "US",
+    "ticker": "WMT",
+    "valuation_anchor_date": "2026-06-05",
+    "trade_date": "2026-06-05",
+    "return_pct": 0.9682350942755269,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-08T16:17:00+08:00"
+  },
+  "SECURITY:US:RSG:2026-06-05": {
+    "market": "US",
+    "ticker": "RSG",
+    "valuation_anchor_date": "2026-06-05",
+    "trade_date": "2026-06-05",
+    "return_pct": 1.0244817469097223,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-08T16:17:00+08:00"
   }
 }
