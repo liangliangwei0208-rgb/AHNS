@@ -8,7 +8,6 @@ from datetime import datetime
 from pathlib import Path
 
 from stock_analysis import build_stock_analysis
-from tools.quote_manager import get_daily_quote_text
 from tools.get_top10_holdings import (
     estimate_funds_and_save_table,
     DEFAULT_FUND_PROXY_MAP,
@@ -303,13 +302,6 @@ def main() -> None:
     log(f"当前已有图片数量: {len(image_paths)}")
     log(f"当前图片列表: {image_paths}")
 
-    log("开始获取每日语录")
-    quote_text = get_daily_quote_text(
-        quote_file="investment_quotes.txt",
-        history_file="investment_quote_history.json",
-    )
-    log("每日语录获取完成")
-
     if now.hour < 14:
         time_note = (
             "注：本邮件包含午盘盘中临时行情，RSI 与量化因子并非收盘确认值；"
@@ -402,9 +394,7 @@ def main() -> None:
         cache_file=relative_path_str(FUND_HOLDINGS_CACHE),
     )
     email_text = (
-        quote_text
-        + "\n\n"
-        + time_note
+        time_note
         + "\n\n"
         + holding_status_text
         + "\n\n"

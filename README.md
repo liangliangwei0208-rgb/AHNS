@@ -435,7 +435,7 @@ workflow 文件：`.github/workflows/ahns-daily.yml`。
 
 Actions 运行 `python git_main.py`，使用 GitHub 流程：完整日流程会照常运行，收盘观察图只在 06:00-13:40 生成，命中盘前/盘中/盘后窗口时追加对应实时观察；不运行富途夜盘，也不自动生成 `first_pic.py`。
 
-Actions 运行后如 `cache/` 或 `investment_quote_history.json` 发生变化，会自动提交回仓库，提交信息为：
+Actions 运行后如 `cache/` 运行缓存发生变化，会自动提交回仓库，提交信息为：
 
 ```text
 Update runtime cache [skip ci]

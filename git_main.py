@@ -33,6 +33,7 @@ from tools.paths import OUTPUT_DIR, PROJECT_ROOT, relative_path_str
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 BJ_TZ = ZoneInfo("Asia/Shanghai")
 SCRIPT_OUTPUT_TAIL_LINES = 80
+EMAIL_INLINE_IMAGE_LIMIT = 10
 RISK_NOTE = (
     "个人公开数据建模复盘，不收费、不荐基、不带单、不拉群，不构成任何投资建议。\n"
     "非实时净值，最终以基金公司公告为准。"
@@ -126,6 +127,17 @@ def total_file_size(paths: Iterable[Path]) -> int:
         except OSError:
             continue
     return total
+
+
+def choose_email_image_send_options(image_count: int) -> tuple[bool, bool, str]:
+    """根据图片数量决定邮件图片发送方式。"""
+    if image_count > EMAIL_INLINE_IMAGE_LIMIT:
+        return (
+            False,
+            True,
+            f"图片超过 {EMAIL_INLINE_IMAGE_LIMIT} 张，改为仅附件发送以降低邮件体积",
+        )
+    return True, True, "按正文内嵌 + 附件发送"
 
 
 def snapshot_images(output_dir: Path = OUTPUT_DIR) -> dict[Path, ImageState]:
@@ -624,8 +636,10 @@ def main(
 
     subject_status = "部分失败" if has_failures else "成功"
     subject = f"AHNS 每日市场图自动生成({subject_status}) - {finished_at.strftime('%Y-%m-%d %H:%M')}"
+    embed_images, attach_images, image_send_mode_text = choose_email_image_send_options(len(images))
     if images:
         log(f"开始发送邮件：图片 {len(images)} 张，总大小 {format_file_size(image_total_size)}")
+        log(f"邮件图片发送策略：{image_send_mode_text}")
     else:
         log("检测到失败日志但没有可发送图片，发送纯文本错误日志邮件")
     email_started = time.perf_counter()
@@ -635,14 +649,14 @@ def main(
             text=email_text,
             image_paths=images,
             to_email=args.receiver,
-            embed_images=True,
-            attach_images=True,
+            embed_images=embed_images,
+            attach_images=attach_images,
             timeout=240,
         )
     except Exception as exc:
         log(
             "邮件发送失败：如果 SMTP 登录正常，常见原因是邮件体积较大、网络较慢或服务端中途断开。"
-            "当前仍按“正文内嵌 + 附件”发送，可稍后重试。"
+            f"本次发送策略为“{image_send_mode_text}”，可稍后重试。"
         )
         log(f"邮件发送失败详情: {exc}")
         log("邮件发送失败不影响本轮脚本运行结果，已跳过 traceback。")
