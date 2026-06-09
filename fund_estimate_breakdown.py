@@ -45,6 +45,8 @@ GOOD_STATUSES = {"traded", "closed"}
 BAD_STATUSES = {"pending", "missing", "stale", "failed"}
 OBSERVATION_GOOD_STATUSES = {"traded", "closed"}
 OVERSEAS_VALID_HOLDING_BOOST = 1.15
+TOP10_AVAILABLE_NORMALIZED_METHOD = "top10_available_normalized"
+STOCK_TOPN_AVAILABLE_NORMALIZED_METHOD = "stock_topn_available_normalized"
 
 
 @dataclass(frozen=True)
@@ -118,6 +120,17 @@ def safe_float_or_none(value: Any) -> float | None:
         return out
     except Exception:
         return None
+
+
+def is_top10_available_normalized_method(value: Any) -> bool:
+    """判断缓存记录是否使用“前十大可用持仓归一化到 100%”口径。"""
+    text = str(value or "").strip().lower()
+    if not text:
+        return False
+    return (
+        TOP10_AVAILABLE_NORMALIZED_METHOD in text
+        or text.startswith(STOCK_TOPN_AVAILABLE_NORMALIZED_METHOD)
+    )
 
 
 def normalize_date(value: Any) -> str:
@@ -285,11 +298,11 @@ def build_rows(
     security_cache: dict[str, Any],
     anchor_date: str,
     boost: float,
+    top10_available_normalized: bool = False,
 ) -> tuple[list[dict[str, Any]], float, float, float]:
     rows = []
     raw_sum = 0.0
     valid_raw_sum = 0.0
-    holding_contribution_sum = 0.0
 
     for item in holdings:
         market = str(item.get("市场") or item.get("market") or "").strip().upper()
@@ -305,12 +318,8 @@ def build_rows(
         error = str(sec.get("error") or "").strip()
 
         is_resolved = status in GOOD_STATUSES
-        effective_weight = raw_weight * boost if is_resolved else 0.0
-        contribution = effective_weight * return_pct / 100.0 if is_resolved else 0.0
-
         if is_resolved:
             valid_raw_sum += raw_weight
-        holding_contribution_sum += contribution
 
         rows.append({
             "name": holding_name(item),
@@ -320,11 +329,27 @@ def build_rows(
             "status": status,
             "trade_date": trade_date,
             "return_pct": return_pct if is_resolved else 0.0,
-            "effective_weight": effective_weight,
-            "contribution": contribution,
+            "effective_weight": 0.0,
+            "contribution": 0.0,
             "source": source,
             "error": error,
         })
+
+    holding_contribution_sum = 0.0
+    for row in rows:
+        is_resolved = row["status"] in GOOD_STATUSES
+        if not is_resolved:
+            continue
+
+        if top10_available_normalized:
+            effective_weight = row["raw_weight"] / valid_raw_sum * 100.0 if valid_raw_sum > 0 else 0.0
+        else:
+            effective_weight = row["raw_weight"] * boost
+
+        contribution = effective_weight * row["return_pct"] / 100.0
+        row["effective_weight"] = effective_weight
+        row["contribution"] = contribution
+        holding_contribution_sum += contribution
 
     return rows, raw_sum, valid_raw_sum, holding_contribution_sum
 
@@ -338,6 +363,8 @@ def print_breakdown(fund_code: str, anchor_date: str) -> None:
     holdings = load_holdings(fund_code)
 
     fund_name = record.get("fund_name", "")
+    method = str(record.get("method") or record.get("estimation_method") or "").strip()
+    top10_available_normalized = is_top10_available_normalized_method(method)
     boost = safe_float(record.get("holding_boost"), 1.0)
     residual_weight = safe_float(
         record.get("residual_benchmark_weight_pct", record.get("residual_weight_pct"))
@@ -357,36 +384,57 @@ def print_breakdown(fund_code: str, anchor_date: str) -> None:
         security_cache=security_cache,
         anchor_date=anchor_date,
         boost=boost,
+        top10_available_normalized=top10_available_normalized,
     )
 
     raw_sum = safe_float(record.get("raw_holding_weight_sum_pct"), raw_sum_calc)
     valid_sum = safe_float(record.get("valid_holding_weight_pct"), valid_sum_calc)
     failed_sum = safe_float(record.get("failed_raw_weight_sum_pct"), max(0.0, raw_sum - valid_sum))
-    boosted_valid = safe_float(record.get("boosted_valid_holding_weight_pct"), valid_sum * boost)
-    residual_contribution = residual_weight * residual_return / 100.0 if residual_status in GOOD_STATUSES else 0.0
+    boosted_valid = (
+        sum(safe_float(row.get("effective_weight")) for row in rows if row["status"] in GOOD_STATUSES)
+        if top10_available_normalized
+        else safe_float(record.get("boosted_valid_holding_weight_pct"), valid_sum * boost)
+    )
+    if top10_available_normalized:
+        residual_contribution = 0.0
+    elif residual_status in GOOD_STATUSES:
+        residual_contribution = residual_weight * residual_return / 100.0
+    else:
+        residual_contribution = 0.0
     total_calc = holding_contribution_sum + residual_contribution
     total_cache = safe_float(record.get("estimate_return_pct"))
 
-    print_key_values(
-        "基金估算拆解",
-        [
-            ("基金代码", fund_code),
-            ("基金名称", fund_name),
-            ("估值锚点", anchor_date),
-            ("运行时间", record.get("run_time_bj", "")),
-            ("数据状态", f"{record.get('data_status') or record.get('stage', '')}, is_final={record.get('is_final')}"),
-            ("前十大披露持仓合计", fmt_pct(raw_sum)),
-            ("行情有效持仓", fmt_pct(valid_sum)),
-            ("行情失败持仓", fmt_pct(failed_sum)),
-            ("有效持仓放大系数", f"{boost:.2f}"),
-            ("放大后有效持仓权重", f"{fmt_pct(valid_sum)} * {boost:.2f} = {fmt_pct(boosted_valid)}"),
-            ("补偿仓位", f"100% - {fmt_pct(boosted_valid)} = {fmt_pct(residual_weight)}"),
-            (
-                "补偿基准",
-                f"{residual_label}，交易日 {residual_trade_date or '-'}，状态 {residual_status}，涨幅 {fmt_pct(residual_return, digits=4, signed=True)}",
-            ),
-        ],
-    )
+    info_items = [
+        ("基金代码", fund_code),
+        ("基金名称", fund_name),
+        ("估值锚点", anchor_date),
+        ("运行时间", record.get("run_time_bj", "")),
+        ("数据状态", f"{record.get('data_status') or record.get('stage', '')}, is_final={record.get('is_final')}"),
+        ("估算口径", "前十大可用持仓归一化" if top10_available_normalized else "有效持仓增强 + 补偿基准"),
+        ("前十大披露持仓合计", fmt_pct(raw_sum)),
+        ("行情有效持仓", fmt_pct(valid_sum)),
+        ("行情失败持仓", fmt_pct(failed_sum)),
+    ]
+    if top10_available_normalized:
+        info_items.extend(
+            [
+                ("参与归一化持仓", fmt_pct(valid_sum)),
+                ("归一化后估算权重", fmt_pct(boosted_valid)),
+            ]
+        )
+    else:
+        info_items.extend(
+            [
+                ("有效持仓放大系数", f"{boost:.2f}"),
+                ("放大后有效持仓权重", f"{fmt_pct(valid_sum)} * {boost:.2f} = {fmt_pct(boosted_valid)}"),
+                ("补偿仓位", f"100% - {fmt_pct(boosted_valid)} = {fmt_pct(residual_weight)}"),
+                (
+                    "补偿基准",
+                    f"{residual_label}，交易日 {residual_trade_date or '-'}，状态 {residual_status}，涨幅 {fmt_pct(residual_return, digits=4, signed=True)}",
+                ),
+            ]
+        )
+    print_key_values("基金估算拆解", info_items)
 
     table_rows = []
     for row in rows:
@@ -405,32 +453,34 @@ def print_breakdown(fund_code: str, anchor_date: str) -> None:
             }
         )
 
-    table_rows.append(
-        {
-            "持仓": f"{residual_label}补偿仓位",
-            "市场": residual_market,
-            "代码": residual_ticker,
-            "原始权重": fmt_pct(residual_weight),
-            "状态": residual_status,
-            "行情交易日": residual_trade_date or "-",
-            "股票自身涨跌幅": fmt_pct(residual_return, digits=4, signed=True),
-            "估算权重": fmt_pct(residual_weight, digits=3),
-            "对基金贡献": fmt_pct(residual_contribution, digits=4, signed=True),
-            "数据源": "residual_benchmark",
-        }
-    )
+    if not top10_available_normalized:
+        table_rows.append(
+            {
+                "持仓": f"{residual_label}补偿仓位",
+                "市场": residual_market,
+                "代码": residual_ticker,
+                "原始权重": fmt_pct(residual_weight),
+                "状态": residual_status,
+                "行情交易日": residual_trade_date or "-",
+                "股票自身涨跌幅": fmt_pct(residual_return, digits=4, signed=True),
+                "估算权重": fmt_pct(residual_weight, digits=3),
+                "对基金贡献": fmt_pct(residual_contribution, digits=4, signed=True),
+                "数据源": "residual_benchmark",
+            }
+        )
     print_records_table(table_rows, title="逐项贡献")
 
-    print_key_values(
-        "合计",
+    total_items = [("持仓贡献合计", fmt_pct(holding_contribution_sum, digits=6, signed=True))]
+    if not top10_available_normalized:
+        total_items.append(("补偿仓位贡献", fmt_pct(residual_contribution, digits=6, signed=True)))
+    total_items.extend(
         [
-            ("持仓贡献合计", fmt_pct(holding_contribution_sum, digits=6, signed=True)),
-            ("补偿仓位贡献", fmt_pct(residual_contribution, digits=6, signed=True)),
             ("复算合计", fmt_pct(total_calc, digits=6, signed=True)),
             ("缓存估算值", fmt_pct(total_cache, digits=6, signed=True)),
             ("表格显示", fmt_pct(total_cache, digits=2, signed=True)),
-        ],
+        ]
     )
+    print_key_values("合计", total_items)
 
     failed_rows = [row for row in rows if row["status"] in BAD_STATUSES]
     if failed_rows:
