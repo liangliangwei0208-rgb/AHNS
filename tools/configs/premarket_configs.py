@@ -176,6 +176,7 @@ PREMARKET_FUND_ESTIMATION_METHOD_MAP = {
     "017654": "top10_available_normalized",
     "019231": "top10_available_normalized",
     "164212": "top10_available_normalized",
+    "118001": "top10_available_normalized",
 }
 
 
