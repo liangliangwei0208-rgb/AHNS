@@ -68,7 +68,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add cache investment_quote_history.json
+          git add -A cache
 
           if git diff --cached --quiet; then
             echo "No runtime cache changes to commit."
