@@ -4749,18 +4749,6 @@
     "error": "",
     "fetched_at": "2026-06-07T13:35:38+08:00"
   },
-  "SECURITY:UNKNOWN:285AJP:2026-05-29": {
-    "market": "UNKNOWN",
-    "ticker": "285AJP",
-    "valuation_anchor_date": "2026-05-29",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-01T06:11:29+08:00"
-  },
   "SECURITY:UNKNOWN:285AJP:2026-06-01": {
     "market": "UNKNOWN",
     "ticker": "285AJP",
@@ -4820,18 +4808,6 @@
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
     "fetched_at": "2026-06-08T16:16:42+08:00"
-  },
-  "SECURITY:UNKNOWN:BRK_B:2026-05-29": {
-    "market": "UNKNOWN",
-    "ticker": "BRK_B",
-    "valuation_anchor_date": "2026-05-29",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-01T06:11:36+08:00"
   },
   "SECURITY:UNKNOWN:BRK_B:2026-06-01": {
     "market": "UNKNOWN",
@@ -4893,18 +4869,6 @@
     "error": "未配置交易日历: market=UNKNOWN",
     "fetched_at": "2026-06-08T16:16:55+08:00"
   },
-  "SECURITY:UNKNOWN:FR0000073272:2026-05-29": {
-    "market": "UNKNOWN",
-    "ticker": "FR0000073272",
-    "valuation_anchor_date": "2026-05-29",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-01T06:11:29+08:00"
-  },
   "SECURITY:UNKNOWN:FR0000073272:2026-06-01": {
     "market": "UNKNOWN",
     "ticker": "FR0000073272",
@@ -4965,18 +4929,6 @@
     "error": "未配置交易日历: market=UNKNOWN",
     "fetched_at": "2026-06-08T16:16:43+08:00"
   },
-  "SECURITY:UNKNOWN:JP3684400009:2026-05-29": {
-    "market": "UNKNOWN",
-    "ticker": "JP3684400009",
-    "valuation_anchor_date": "2026-05-29",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-01T06:11:28+08:00"
-  },
   "SECURITY:UNKNOWN:JP3684400009:2026-06-01": {
     "market": "UNKNOWN",
     "ticker": "JP3684400009",
@@ -5036,18 +4988,6 @@
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
     "fetched_at": "2026-06-08T16:16:42+08:00"
-  },
-  "SECURITY:UNKNOWN:RR.:2026-05-29": {
-    "market": "UNKNOWN",
-    "ticker": "RR.",
-    "valuation_anchor_date": "2026-05-29",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-01T06:11:29+08:00"
   },
   "SECURITY:UNKNOWN:RR.:2026-06-01": {
     "market": "UNKNOWN",
@@ -10124,18 +10064,6 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-07T13:37:26+08:00"
-  },
-  "SECURITY:US:CTRA:2026-05-29": {
-    "market": "US",
-    "ticker": "CTRA",
-    "valuation_anchor_date": "2026-05-29",
-    "trade_date": "2026-05-07",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "yahoo_chart_adjclose_daily_us_fallback_trade_date_older_than_anchor",
-    "calendar_is_open": true,
-    "error": "trade_date=2026-05-07 与 valuation_anchor_date=2026-05-29 不一致",
-    "fetched_at": "2026-06-01T06:11:36+08:00"
   },
   "SECURITY:US:CTRA:2026-06-01": {
     "market": "US",
@@ -28652,7 +28580,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-13T13:42:48+08:00"
+    "fetched_at": "2026-06-14T07:43:02+08:00"
   },
   "SECURITY:US:WDC:2026-06-12": {
     "market": "US",
@@ -28724,7 +28652,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-13T13:42:53+08:00"
+    "fetched_at": "2026-06-14T07:43:03+08:00"
   },
   "SECURITY:US:ONTO:2026-06-12": {
     "market": "US",
@@ -28760,7 +28688,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-13T13:42:55+08:00"
+    "fetched_at": "2026-06-14T07:43:03+08:00"
   },
   "SECURITY:HK:00981:2026-06-12": {
     "market": "HK",
@@ -29168,7 +29096,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-13T13:43:46+08:00"
+    "fetched_at": "2026-06-14T07:43:04+08:00"
   },
   "SECURITY:US:JBL:2026-06-12": {
     "market": "US",
@@ -29360,7 +29288,7 @@
     "source": "ak_stock_us_daily_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2026-05-06 与 valuation_anchor_date=2026-06-12 不一致",
-    "fetched_at": "2026-06-13T13:44:17+08:00"
+    "fetched_at": "2026-06-14T07:43:21+08:00"
   },
   "SECURITY:US:PSX:2026-06-12": {
     "market": "US",
@@ -29516,7 +29444,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-13T13:44:29+08:00"
+    "fetched_at": "2026-06-14T07:43:21+08:00"
   },
   "SECURITY:US:CAT:2026-06-12": {
     "market": "US",
