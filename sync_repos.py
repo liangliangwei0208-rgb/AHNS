@@ -31,6 +31,7 @@ CACHE_CONFLICT_EXACT_PATHS = {
     "cache/a_share_trade_calendar_cache.json",
     "cache/afterhours_quote_cache.json",
     "cache/fund_estimate_return_cache.json",
+    "cache/fund_holding_change_state.json",
     "cache/intraday_quote_cache.json",
     "cache/security_return_cache.json",
 }
@@ -290,6 +291,8 @@ def latest_datetime_from_record(record: dict[str, Any]) -> datetime | None:
         record.get("fetched_at_bj"),
         record.get("fetched_at"),
         record.get("generated_at_bj"),
+        record.get("last_checked_at"),
+        record.get("last_generated_at"),
         record.get("trade_date"),
         record.get("valuation_anchor_date"),
         record.get("valuation_date"),
@@ -499,6 +502,76 @@ def merge_security_return_cache(ours_text: str, theirs_text: str) -> str:
     return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
 
 
+def _latest_holding_state_time(record: dict[str, Any]) -> datetime | None:
+    values = [
+        record.get("last_checked_at"),
+        record.get("last_generated_at"),
+        record.get("updated_at"),
+        record.get("generated_at_bj"),
+    ]
+    parsed = [dt for value in values if (dt := parse_datetime_like(value))]
+    return max(parsed) if parsed else None
+
+
+def choose_holding_change_state_record(ours: Any, theirs: Any) -> Any:
+    if not isinstance(ours, dict):
+        return theirs
+    if not isinstance(theirs, dict):
+        return ours
+
+    def quarter_value(record: dict[str, Any]) -> int:
+        value = record.get("latest_quarter_key")
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return -1
+
+    ours_quarter = quarter_value(ours)
+    theirs_quarter = quarter_value(theirs)
+    if theirs_quarter != ours_quarter:
+        chosen = theirs if theirs_quarter > ours_quarter else ours
+        other = ours if chosen is theirs else theirs
+    else:
+        ours_time = _latest_holding_state_time(ours)
+        theirs_time = _latest_holding_state_time(theirs)
+        if ours_time and theirs_time and theirs_time != ours_time:
+            chosen = theirs if theirs_time > ours_time else ours
+            other = ours if chosen is theirs else theirs
+        elif theirs_time and not ours_time:
+            chosen, other = theirs, ours
+        else:
+            chosen, other = ours, theirs
+
+    merged = dict(chosen)
+    for key, value in other.items():
+        merged.setdefault(key, value)
+
+    # 时间字段保留较新的值，避免早晚两次运行互相覆盖检查状态。
+    for field in ("last_checked_at", "last_generated_at", "updated_at", "generated_at_bj"):
+        values = [value for value in (ours.get(field), theirs.get(field)) if value]
+        if values:
+            merged[field] = max(values, key=lambda value: parse_datetime_like(value) or datetime.min)
+
+    return merged
+
+
+def merge_fund_holding_change_state_cache(ours_text: str, theirs_text: str) -> str:
+    ours = json.loads(ours_text)
+    theirs = json.loads(theirs_text)
+    if not isinstance(ours, dict) or not isinstance(theirs, dict):
+        raise SyncError("持仓变化状态缓存不是 JSON object，无法自动合并。")
+
+    merged: dict[str, Any] = {}
+    for key in sorted(set(ours) | set(theirs)):
+        if key in ours and key in theirs:
+            merged[key] = choose_holding_change_state_record(ours[key], theirs[key])
+        elif key in theirs:
+            merged[key] = theirs[key]
+        else:
+            merged[key] = ours[key]
+    return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
+
+
 def merge_a_share_trade_calendar_cache(ours_text: str, theirs_text: str) -> str:
     ours = json.loads(ours_text)
     theirs = json.loads(theirs_text)
@@ -538,6 +611,8 @@ def merge_cache_conflict_file(repo: Path, path: str) -> None:
         merged_text = merge_security_return_cache(ours_text, theirs_text)
     elif path == "cache/fund_estimate_return_cache.json":
         merged_text = merge_fund_estimate_cache(ours_text, theirs_text)
+    elif path == "cache/fund_holding_change_state.json":
+        merged_text = merge_fund_holding_change_state_cache(ours_text, theirs_text)
     elif path == "cache/security_return_cache.json":
         merged_text = merge_security_return_cache(ours_text, theirs_text)
     else:
