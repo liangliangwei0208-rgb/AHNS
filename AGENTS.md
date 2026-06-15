@@ -78,9 +78,9 @@ Get-CimInstance Win32_Process |
 & F:\anaconda\envs\py310\python.exe .\git_main.py --no-send
 ```
 
-`git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、必要性标记、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。无时间窗步骤属于完整日流程，始终运行；带 `run_window_bj` 的步骤只在命中北京时间窗口时运行。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。邮件成功发出后，即使有子脚本失败，总入口也按退出码 0 结束；`--no-send` 预演仍保留非 0 退出码方便调试。
+`git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、必要性标记、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。命中盘前、盘中、盘后或富途夜盘实时窗口时，总入口只运行对应实时观察步骤；未命中实时窗口时，才运行完整日流程中符合 `run_window_bj` 的步骤。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。邮件成功发出后，即使有子脚本失败，总入口也按退出码 0 结束；`--no-send` 预演仍保留非 0 退出码方便调试。
 
-GitHub / 主机 `git_main.py` 当前完整日流程和限时步骤：
+GitHub / 主机 `git_main.py` 当前非实时窗口完整日流程和限时步骤：
 
 1. `main.py`
 2. `fund_holding_change.py --auto`，检测基金库持仓缓存变动；首次只初始化状态，有变动或手动指定基金时生成持仓变化图并纳入邮件
@@ -98,7 +98,7 @@ GitHub / 主机 `git_main.py` 当前完整日流程和限时步骤：
 - 17:30-21:00：`premarket_fund.py --force`
 - 22:40-次日 01:30：`intraday_fund.py --force`
 
-GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py` 使用 Service 流程，额外在 11:30-16:30 追加 `futu_night_fund.py --force`。
+GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py` 使用 Service 流程，额外在 11:30-16:30 运行 `futu_night_fund.py --force`。命中富途夜盘窗口时，Service 总入口只运行夜盘观察，不再同时跑完整日流程。
 
 `git_main.py` 会扫描 `output/` 中本次新生成或更新的图片，并通过 `tools/email_send.py` 发送邮件。邮件发送保留“正文内嵌图片 + 附件图片”的方式；发送前会打印图片数量、单张大小和总大小。
 
@@ -106,7 +106,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 
 `check_project.py` 是只读体检工具：检查 Python 环境、关键目录、`cache/mark.jpg`、核心缓存、邮箱配置、依赖导入、Git 状态和总入口配置。它不联网、不拉行情、不出图、不写缓存、不发邮件、不删除文件、不提交 Git。
 
-`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py` 是独立实时观察入口；在总入口命中对应窗口时追加运行，也可手动用 `--force` 调试。它们不写 `cache/fund_estimate_return_cache.json`。
+`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py` 是独立实时观察入口；在总入口命中对应窗口时优先单独运行，也可手动用 `--force` 调试。它们不写 `cache/fund_estimate_return_cache.json`。
 
 ## 关键文件
 
@@ -128,7 +128,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `futu_night_fund.py`：富途夜盘观察图手动入口；生成 `output/safe_haiwai_night.png` 和夜盘失败报告，不写正式基金估算缓存。
 - `fund_estimate_breakdown.py`：只读缓存的估算拆解工具；运行后可手工输入基金代码、正式估值日期或实时观察类型，打印完整持仓贡献表；支持 `--latest`、`--save-txt` 和 `--observation 盘中`。
 - `fund_holding_change.py`：基金前十大持仓变化解读图入口；手动默认分析 `012922`，总入口用 `--auto` 检测基金库持仓缓存变动。自动变动图按披露批次生成到 `output/fund_holding_change/latest/1_<基金代码>.png` 这类编号文件；手动指定基金生成到 `output/fund_holding_change/manual/<基金代码>.png`，两者都会纳入邮件候选。
-- `safe_fund.py`：只读基金估算缓存，生成安全版海外/全球收盘观察图；自动总入口只在北京时间 06:00-13:40 运行它，晚上盘前窗口不会再输出收盘观察图。
+- `safe_fund.py`：只读基金估算缓存，生成安全版海外/全球收盘观察图；自动总入口只在北京时间 06:00-13:40 且未命中实时观察窗口时运行它，盘前/盘中/盘后/夜盘窗口不会再输出收盘观察图。
 - `safe_holidays.py`：只读缓存，生成安全版海外节假日累计观察图。
 - `holidays.py`：只读缓存，生成详细版海外节假日累计观察图。
 - `sum_holidays.py`：只读缓存，生成节后第 1 / 第 2 个 A 股交易日的海外基金补更新观察图。

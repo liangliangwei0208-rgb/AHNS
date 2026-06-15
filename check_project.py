@@ -309,8 +309,7 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
         else:
             items.append(make_item("ERROR", f"{label} workflow 富途夜盘", f"GitHub 流程不应包含 futu_night_fund.py，实际 {all_scripts}"))
 
-        def expected_scripts_at(*, include_safe_fund: bool, extra_scripts: tuple[str, ...] = ()) -> tuple[str, ...]:
-            extra_set = set(extra_scripts)
+        def expected_daily_scripts_at(*, include_safe_fund: bool) -> tuple[str, ...]:
             selected: list[str] = []
             for step in steps:
                 script = step.script_path.name
@@ -318,59 +317,69 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
                     selected.append(script)
                 elif script == "safe_fund.py" and include_safe_fund:
                     selected.append(script)
-                elif script in extra_set:
-                    selected.append(script)
             return tuple(selected)
+
+        def expected_realtime_script(script: str) -> tuple[str, ...]:
+            if script == "futu_night_fund.py" and not include_futu_night:
+                return expected_daily_scripts_at(include_safe_fund=False)
+            return (script,)
 
         workflow_cases = [
             (
                 "2026-05-14T07:30:00+08:00",
-                expected_scripts_at(include_safe_fund=True),
+                expected_daily_scripts_at(include_safe_fund=True),
                 "07:30 收盘观察",
             ),
             (
                 "2026-05-14T13:40:00+08:00",
-                expected_scripts_at(
-                    include_safe_fund=True,
-                    extra_scripts=(("futu_night_fund.py",) if include_futu_night else ()),
-                ),
-                "13:40 收盘观察截止",
+                expected_realtime_script("futu_night_fund.py")
+                if include_futu_night
+                else expected_daily_scripts_at(include_safe_fund=True),
+                "13:40 收盘观察截止/Service 夜盘优先",
             ),
             (
                 "2026-05-14T13:41:00+08:00",
-                expected_scripts_at(
-                    include_safe_fund=False,
-                    extra_scripts=(("futu_night_fund.py",) if include_futu_night else ()),
-                ),
-                "13:41 收盘观察跳过",
+                expected_realtime_script("futu_night_fund.py")
+                if include_futu_night
+                else expected_daily_scripts_at(include_safe_fund=False),
+                "13:41 收盘观察跳过/Service 夜盘优先",
             ),
             (
                 "2026-05-14T09:00:00+08:00",
-                expected_scripts_at(include_safe_fund=True, extra_scripts=("afterhours_fund.py",)),
+                expected_realtime_script("afterhours_fund.py"),
                 "09:00 盘后",
             ),
             (
                 "2026-05-14T11:45:00+08:00",
-                expected_scripts_at(
-                    include_safe_fund=True,
-                    extra_scripts=(("futu_night_fund.py",) if include_futu_night else ()),
-                ),
+                expected_realtime_script("futu_night_fund.py")
+                if include_futu_night
+                else expected_daily_scripts_at(include_safe_fund=True),
                 "11:45 富途夜盘",
             ),
             (
                 "2026-05-14T18:00:00+08:00",
-                expected_scripts_at(include_safe_fund=False, extra_scripts=("premarket_fund.py",)),
+                expected_realtime_script("premarket_fund.py"),
                 "18:00 盘前",
             ),
             (
+                "2026-05-14T22:40:00+08:00",
+                expected_realtime_script("intraday_fund.py"),
+                "22:40 盘中开始",
+            ),
+            (
                 "2026-05-14T23:30:00+08:00",
-                expected_scripts_at(include_safe_fund=False, extra_scripts=("intraday_fund.py",)),
+                expected_realtime_script("intraday_fund.py"),
                 "23:30 盘中",
             ),
             (
-                "2026-05-15T01:00:00+08:00",
-                expected_scripts_at(include_safe_fund=False, extra_scripts=("intraday_fund.py",)),
-                "次日 01:00 盘中",
+                "2026-05-15T01:30:00+08:00",
+                expected_realtime_script("intraday_fund.py"),
+                "次日 01:30 盘中截止",
+            ),
+            (
+                "2026-05-15T01:31:00+08:00",
+                expected_daily_scripts_at(include_safe_fund=False),
+                "次日 01:31 回到日常流程",
             ),
         ]
         for text, expected_scripts, title in workflow_cases:
@@ -389,10 +398,11 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
 
         daily_dt = datetime.fromisoformat("2026-05-15T02:01:00+08:00").astimezone(bj_tz)
         daily_selected = tuple(step.script_path.name for step in select_workflow_steps_for_time(steps, daily_dt))
-        if daily_selected and daily_selected == daily_scripts:
+        expected_late_daily_scripts = expected_daily_scripts_at(include_safe_fund=False)
+        if daily_selected and daily_selected == expected_late_daily_scripts:
             items.append(make_item("OK", f"{label} workflow 02:01 每日流程", "未命中实时观察入口"))
         else:
-            items.append(make_item("ERROR", f"{label} workflow 02:01 每日流程", f"期望 {daily_scripts}，实际 {daily_selected}"))
+            items.append(make_item("ERROR", f"{label} workflow 02:01 每日流程", f"期望 {expected_late_daily_scripts}，实际 {daily_selected}"))
 
     check_workflow_cases("GitHub", github_steps, include_futu_night=False)
     check_workflow_cases("Service", service_steps, include_futu_night=True)
