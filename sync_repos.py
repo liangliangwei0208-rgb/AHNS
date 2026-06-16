@@ -624,12 +624,45 @@ def merge_cache_conflict_file(repo: Path, path: str) -> None:
     log(f"已自动合并缓存冲突: {path}")
 
 
-def merge_head_exists(repo: Path) -> bool:
+def git_dir_path(repo: Path) -> Path:
     git_dir_text = git_output(repo, ["rev-parse", "--git-dir"])
     git_dir = Path(git_dir_text)
     if not git_dir.is_absolute():
         git_dir = repo / git_dir
+    return git_dir
+
+
+def merge_head_exists(repo: Path) -> bool:
+    git_dir = git_dir_path(repo)
     return (git_dir / "MERGE_HEAD").exists()
+
+
+def rebase_in_progress(repo: Path) -> bool:
+    git_dir = git_dir_path(repo)
+    return (git_dir / "rebase-merge").exists() or (git_dir / "rebase-apply").exists()
+
+
+def continue_rebase_after_cache_resolution(repo: Path) -> None:
+    result = run_git(
+        repo,
+        ["-c", "core.editor=true", "rebase", "--continue"],
+        check=False,
+    )
+    if result.returncode == 0:
+        return
+
+    output = f"{result.stdout}\n{result.stderr}".lower()
+    empty_commit_markers = (
+        "no changes",
+        "previous cherry-pick is now empty",
+        "patch contents already upstream",
+    )
+    if not unmerged_paths(repo) and any(marker in output for marker in empty_commit_markers):
+        log("已解决的 rebase 提交变为空提交，跳过该缓存提交。")
+        run_git(repo, ["rebase", "--skip"])
+        return
+
+    raise SyncError("git rebase --continue failed with exit code " + str(result.returncode))
 
 
 def resolve_cache_conflicts(repo: Path, *, commit_merge: bool) -> bool:
@@ -654,7 +687,10 @@ def resolve_cache_conflicts(repo: Path, *, commit_merge: bool) -> bool:
     if remaining:
         raise SyncError("缓存自动合并后仍有未解决冲突: " + ", ".join(remaining))
 
-    if commit_merge and merge_head_exists(repo):
+    if commit_merge and rebase_in_progress(repo):
+        step("继续已解决的 rebase")
+        continue_rebase_after_cache_resolution(repo)
+    elif commit_merge and merge_head_exists(repo):
         step("提交已解决的 merge")
         run_git(repo, ["commit", "--no-edit"])
     return True
