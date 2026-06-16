@@ -34,6 +34,12 @@ IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 BJ_TZ = ZoneInfo("Asia/Shanghai")
 SCRIPT_OUTPUT_TAIL_LINES = 80
 EMAIL_INLINE_IMAGE_LIMIT = 10
+REALTIME_OBSERVATION_SCRIPTS = {
+    "premarket_fund.py",
+    "intraday_fund.py",
+    "afterhours_fund.py",
+    "futu_night_fund.py",
+}
 RISK_NOTE = (
     "个人公开数据建模复盘，不收费、不荐基、不带单、不拉群，不构成任何投资建议。\n"
     "非实时净值，最终以基金公司公告为准。"
@@ -269,10 +275,12 @@ def select_workflow_steps_for_time(
     steps: list[WorkflowStep],
     current_time: datetime | None = None,
 ) -> list[WorkflowStep]:
-    """按配置中的北京时间窗口选择限时/实时步骤。
+    """按配置中的北京时间窗口选择步骤。
 
-    无运行窗口的步骤属于日常完整流程，始终运行；带窗口的步骤只在命中
-    对应北京时间窗口时运行。
+    实时观察窗口优先：命中盘前/盘中/盘后/富途夜盘时，只运行对应
+    实时观察脚本。未命中实时观察窗口时，才运行日常流程中符合窗口
+    限制的步骤。这样 safe_fund.py 也会严格遵守 workflow_configs.py
+    里的 run_window_bj，不会在夜间盘中窗口误生成收盘观察图。
     """
     now_bj = coerce_beijing_datetime(current_time or datetime.now(BJ_TZ))
     current = now_bj.time().replace(microsecond=0)
@@ -284,6 +292,14 @@ def select_workflow_steps_for_time(
         and step.run_window_end_bj is not None
         and time_in_closed_window(current, step.run_window_start_bj, step.run_window_end_bj)
     ]
+    matching_realtime_steps = [
+        step
+        for step in matching_window_steps
+        if step.script_path.name in REALTIME_OBSERVATION_SCRIPTS
+    ]
+    if matching_realtime_steps:
+        return matching_realtime_steps
+
     return [step for step in steps if not step.has_run_window or step in matching_window_steps]
 
 
@@ -585,15 +601,42 @@ def main(
         log("配置化限时/实时窗口: " + "；".join(configured_windows))
     daily_steps = [step for step in steps if not step.has_run_window]
     window_steps = [step for step in steps if step.has_run_window]
-    if window_steps:
+    realtime_steps = [
+        step
+        for step in window_steps
+        if step.script_path.name in REALTIME_OBSERVATION_SCRIPTS
+    ]
+    if realtime_steps:
         log(
-            "当前命中限时/实时窗口，完整日流程照常运行，并运行窗口步骤: "
+            "当前命中实时观察窗口，仅运行实时观察步骤: "
+            + " -> ".join(step.name for step in realtime_steps)
+        )
+    elif window_steps:
+        log(
+            "当前命中非实时限时窗口，运行完整日流程中符合时间窗的步骤: "
             + " -> ".join(step.name for step in window_steps)
         )
     else:
-        log("当前未命中限时/实时窗口，仅运行完整日流程/非窗口步骤")
+        log("当前未命中实时观察窗口，运行完整日流程中符合时间窗的步骤")
     if daily_steps:
         log("完整日流程步骤: " + " -> ".join(step.name for step in daily_steps))
+    selected_step_ids = {id(step) for step in steps}
+    current_bj_time = now_bj.time().replace(microsecond=0)
+    for step in all_steps:
+        if not step.has_run_window or id(step) in selected_step_ids:
+            continue
+        assert step.run_window_start_bj is not None
+        assert step.run_window_end_bj is not None
+        in_window = time_in_closed_window(
+            current_bj_time,
+            step.run_window_start_bj,
+            step.run_window_end_bj,
+        )
+        if in_window and realtime_steps:
+            reason = "当前命中实时观察窗口，实时窗口优先"
+        else:
+            reason = f"不在 {step.run_window_text}"
+        log(f"{relative_text(step.script_path)} 跳过：{reason}")
     log("实际运行顺序: " + " -> ".join(step.name for step in steps))
 
     results: list[ScriptResult] = []
