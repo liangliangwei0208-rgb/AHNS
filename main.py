@@ -3,6 +3,7 @@ AHNS 日常主入口。单独可运行，也可被 git_main.py 调用。
 生成市场 RSI/趋势图、海外与国内基金模型估算图，并把基金级估算结果写入缓存。
 邮件发送由 git_main.py 统一编排，本文件默认只负责生成正文、图片和缓存。
 """
+import argparse
 import json
 from datetime import datetime
 from pathlib import Path
@@ -277,7 +278,18 @@ def resolve_haiwai_valuation_date(benchmark_items):
     return datetime.now().strftime("%Y-%m-%d")
 
 
-def main() -> None:
+def parse_args(argv=None):
+    """解析 main.py 手动参数。默认行为保持生成 RSI。"""
+    parser = argparse.ArgumentParser(description="生成 AHNS 正式市场与基金估算缓存")
+    parser.add_argument(
+        "--skip-rsi",
+        action="store_true",
+        help="跳过 RSI/市场分析图；总入口已单独运行 stock_analysis.py 时使用。",
+    )
+    return parser.parse_args(argv)
+
+
+def main(skip_rsi: bool = False) -> None:
     """生成每日市场图、基金估算图和基金级估算缓存。"""
     ensure_runtime_dirs()
 
@@ -292,13 +304,19 @@ def main() -> None:
     log(f"前十大持仓估算基金数量: {len(stock_holding_fund_codes)}")
     log(f"代理估算基金数量: {len(all_fund_codes) - len(stock_holding_fund_codes)}")
 
-    log("开始生成 RSI 和市场分析图片")
-    stock_text, image_paths, results = build_stock_analysis(
-        return_raw=True,
-        include_factors=True,
-        include_realtime=True,
-    )
-    log("RSI 和市场分析图片生成完成")
+    if skip_rsi:
+        # 总入口已经把 RSI 拆成全天固定步骤，这里跳过以避免同一轮重复请求行情。
+        log("已指定 --skip-rsi，跳过 RSI 和市场分析图片生成")
+        stock_text = "【RSI 与市场分析】\n总入口已单独运行 stock_analysis.py，本步骤跳过 RSI，避免重复请求。"
+        image_paths = []
+    else:
+        log("开始生成 RSI 和市场分析图片")
+        stock_text, image_paths, results = build_stock_analysis(
+            return_raw=True,
+            include_factors=True,
+            include_realtime=True,
+        )
+        log("RSI 和市场分析图片生成完成")
     log(f"当前已有图片数量: {len(image_paths)}")
     log(f"当前图片列表: {image_paths}")
 
@@ -409,4 +427,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    cli_args = parse_args()
+    main(skip_rsi=cli_args.skip_rsi)

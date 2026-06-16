@@ -10,6 +10,7 @@
 - 想临时不把某个脚本生成的图片发邮件：把 `collect_images` 改成 False。
 - 脚本失败不会中断总流程；`required` 仅用于日志里标记必要性，最后统一汇总失败日志。
 - 想控制某个脚本只在固定北京时间运行：配置 `run_window_bj=("HH:MM", "HH:MM")`。
+- 想让某个脚本无论是否命中实时窗口都运行：配置 `always_run=True`。
 
 注意：
 - `script` 一律写相对项目根目录的路径，例如 `safe_fund.py` 或
@@ -28,15 +29,24 @@ from __future__ import annotations
 # - script: 脚本路径。必须是相对项目根目录的路径，不要写绝对路径。
 # - required: True 表示日志中标为必要步骤；失败也会继续运行后续步骤，并在最后汇总。
 # - collect_images: True 表示收集这一步本次新生成/更新的图片用于邮件发送。
+# - always_run: True 表示全天固定步骤；命中实时观察窗口时也会保留。
 # - run_window_bj: 可选，北京时间闭区间；支持跨午夜窗口，例如 ("22:40", "02:00")。
-#   命中窗口时才运行该步骤；实时观察脚本仍会和日常完整流程同轮运行。
+#   命中窗口时才运行该步骤；实时观察窗口命中时会优先只运行实时步骤和全天固定步骤。
 # - args: 可选，运行脚本时追加的参数；实时观察由总入口控制窗口，因此这里传 --force。
 COMMON_WORKFLOW_STEPS = [
     {
-        "name": "主行情与基金估算",
+        "name": "RSI与市场分析",
+        "script": "stock_analysis.py",
+        "required": True,
+        "collect_images": True,
+        "always_run": True,
+    },
+    {
+        "name": "海外基金正式估算",
         "script": "main.py",
         "required": True,
         "collect_images": True,
+        "args": ["--skip-rsi"],
     },
     {
         "name": "基金持仓变化图",

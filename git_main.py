@@ -66,6 +66,7 @@ class WorkflowStep:
     required: bool
     collect_images: bool
     args: tuple[str, ...]
+    always_run: bool = False
     run_window_start_bj: datetime_time | None = None
     run_window_end_bj: datetime_time | None = None
 
@@ -230,6 +231,7 @@ def resolve_workflow_steps(
         resolved_script = PROJECT_ROOT / script_path
         required = bool(item.get("required", True))
         collect_images = bool(item.get("collect_images", True))
+        always_run = bool(item.get("always_run", False))
         args_raw = item.get("args") or []
         if isinstance(args_raw, str):
             args = (args_raw,)
@@ -248,6 +250,7 @@ def resolve_workflow_steps(
                 required=required,
                 collect_images=collect_images,
                 args=args,
+                always_run=always_run,
                 run_window_start_bj=run_window_start_bj,
                 run_window_end_bj=run_window_end_bj,
             )
@@ -277,10 +280,10 @@ def select_workflow_steps_for_time(
 ) -> list[WorkflowStep]:
     """按配置中的北京时间窗口选择步骤。
 
-    实时观察窗口优先：命中盘前/盘中/盘后/富途夜盘时，只运行对应
-    实时观察脚本。未命中实时观察窗口时，才运行日常流程中符合窗口
-    限制的步骤。这样 safe_fund.py 也会严格遵守 workflow_configs.py
-    里的 run_window_bj，不会在夜间盘中窗口误生成收盘观察图。
+    实时观察窗口优先：命中盘前/盘中/盘后/富途夜盘时，只运行全天
+    固定步骤和对应实时观察脚本。未命中实时观察窗口时，才运行日常
+    流程中符合窗口限制的步骤。这样 RSI 可以全天运行，safe_fund.py
+    也会严格遵守 workflow_configs.py 里的 run_window_bj。
     """
     now_bj = coerce_beijing_datetime(current_time or datetime.now(BJ_TZ))
     current = now_bj.time().replace(microsecond=0)
@@ -298,9 +301,17 @@ def select_workflow_steps_for_time(
         if step.script_path.name in REALTIME_OBSERVATION_SCRIPTS
     ]
     if matching_realtime_steps:
-        return matching_realtime_steps
+        return [
+            step
+            for step in steps
+            if step.always_run or step in matching_realtime_steps
+        ]
 
-    return [step for step in steps if not step.has_run_window or step in matching_window_steps]
+    return [
+        step
+        for step in steps
+        if step.always_run or not step.has_run_window or step in matching_window_steps
+    ]
 
 
 def stream_script_output(script_path: Path, args: tuple[str, ...] = ()) -> tuple[int, list[str]]:
@@ -599,7 +610,8 @@ def main(
     ]
     if configured_windows:
         log("配置化限时/实时窗口: " + "；".join(configured_windows))
-    daily_steps = [step for step in steps if not step.has_run_window]
+    always_steps = [step for step in steps if step.always_run]
+    daily_steps = [step for step in steps if not step.has_run_window and not step.always_run]
     window_steps = [step for step in steps if step.has_run_window]
     realtime_steps = [
         step
@@ -618,6 +630,8 @@ def main(
         )
     else:
         log("当前未命中实时观察窗口，运行完整日流程中符合时间窗的步骤")
+    if always_steps:
+        log("全天固定步骤: " + " -> ".join(step.name for step in always_steps))
     if daily_steps:
         log("完整日流程步骤: " + " -> ".join(step.name for step in daily_steps))
     selected_step_ids = {id(step) for step in steps}

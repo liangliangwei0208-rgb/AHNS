@@ -293,7 +293,12 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
 
     def check_workflow_cases(label: str, steps, include_futu_night: bool) -> None:
         all_scripts = tuple(step.script_path.name for step in steps)
+        always_scripts = tuple(step.script_path.name for step in steps if getattr(step, "always_run", False))
         daily_scripts = tuple(step.script_path.name for step in steps if not step.has_run_window)
+        if "stock_analysis.py" in always_scripts:
+            items.append(make_item("OK", f"{label} workflow RSI", "RSI 已配置为全天固定步骤"))
+        else:
+            items.append(make_item("ERROR", f"{label} workflow RSI", f"期望 stock_analysis.py 全天运行，实际 {all_scripts}"))
         if "first_pic.py" not in all_scripts:
             items.append(make_item("OK", f"{label} workflow 科普首图", "未纳入总入口自动运行"))
         else:
@@ -313,7 +318,9 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
             selected: list[str] = []
             for step in steps:
                 script = step.script_path.name
-                if not step.has_run_window:
+                if getattr(step, "always_run", False):
+                    selected.append(script)
+                elif not step.has_run_window:
                     selected.append(script)
                 elif script == "safe_fund.py" and include_safe_fund:
                     selected.append(script)
@@ -322,7 +329,7 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
         def expected_realtime_script(script: str) -> tuple[str, ...]:
             if script == "futu_night_fund.py" and not include_futu_night:
                 return expected_daily_scripts_at(include_safe_fund=False)
-            return (script,)
+            return (*always_scripts, script)
 
         workflow_cases = [
             (
