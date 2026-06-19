@@ -1250,7 +1250,7 @@
     "source": "vix_latest_close_fallback:CBOE",
     "trade_date": "2026-06-18",
     "quote_time_bj": "",
-    "fetched_at_bj": "2026-06-19T10:06:24+08:00",
+    "fetched_at_bj": "2026-06-19T10:23:43+08:00",
     "error": "realtime fallback: yahoo query1 1d_1m: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true') | yahoo query2 1d_1m: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true') | yahoo query1 1d_5m: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=5m&includePrePost=true') | yahoo query2 1d_5m: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=5m&includePrePost=true') | yahoo query1 5d_5m: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=5d&interval=5m&includePrePost=true') | yahoo query2 5d_5m: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=5d&interval=5m&includePrePost=true') | yfinance: RuntimeError(\"yfinance 1d/1m: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.') | yfinance 5d/5m: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.') | yfinance 10d/1d: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')\")"
   }
 }

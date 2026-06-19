@@ -326,10 +326,41 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
                     selected.append(script)
             return tuple(selected)
 
+        close_group_scripts = tuple(
+            step.script_path.name
+            for step in steps
+            if getattr(step, "close_observation_group", False)
+            and (not step.has_run_window or step.script_path.name == "safe_fund.py")
+        )
+        expected_close_group_scripts = (
+            *always_scripts,
+            *close_group_scripts,
+        )
+        missing_close_group_scripts = {
+            "main.py",
+            "fund_holding_change.py",
+            "safe_fund.py",
+        } - set(close_group_scripts)
+        if missing_close_group_scripts:
+            items.append(
+                make_item(
+                    "ERROR",
+                    f"{label} workflow 收盘必要步骤",
+                    "缺少 " + ", ".join(sorted(missing_close_group_scripts)),
+                )
+            )
+        else:
+            items.append(make_item("OK", f"{label} workflow 收盘必要步骤", "已配置 close_observation_group"))
+
         def expected_realtime_script(script: str) -> tuple[str, ...]:
             if script == "futu_night_fund.py" and not include_futu_night:
                 return expected_daily_scripts_at(include_safe_fund=False)
             return (*always_scripts, script)
+
+        def expected_close_overlap_realtime_script(script: str) -> tuple[str, ...]:
+            if script == "futu_night_fund.py" and not include_futu_night:
+                return expected_daily_scripts_at(include_safe_fund=True)
+            return (*expected_close_group_scripts, script)
 
         workflow_cases = [
             (
@@ -339,7 +370,7 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
             ),
             (
                 "2026-05-14T13:40:00+08:00",
-                expected_realtime_script("futu_night_fund.py")
+                expected_close_overlap_realtime_script("futu_night_fund.py")
                 if include_futu_night
                 else expected_daily_scripts_at(include_safe_fund=True),
                 "13:40 收盘观察截止/Service 夜盘优先",
@@ -353,12 +384,17 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
             ),
             (
                 "2026-05-14T09:00:00+08:00",
-                expected_realtime_script("afterhours_fund.py"),
-                "09:00 盘后",
+                expected_close_overlap_realtime_script("afterhours_fund.py"),
+                "09:00 收盘观察+盘后",
+            ),
+            (
+                "2026-05-14T10:07:00+08:00",
+                expected_close_overlap_realtime_script("afterhours_fund.py"),
+                "10:07 收盘观察+盘后",
             ),
             (
                 "2026-05-14T11:45:00+08:00",
-                expected_realtime_script("futu_night_fund.py")
+                expected_close_overlap_realtime_script("futu_night_fund.py")
                 if include_futu_night
                 else expected_daily_scripts_at(include_safe_fund=True),
                 "11:45 富途夜盘",

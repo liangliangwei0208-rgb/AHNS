@@ -30,6 +30,8 @@ from __future__ import annotations
 # - required: True 表示日志中标为必要步骤；失败也会继续运行后续步骤，并在最后汇总。
 # - collect_images: True 表示收集这一步本次新生成/更新的图片用于邮件发送。
 # - always_run: True 表示全天固定步骤；命中实时观察窗口时也会保留。
+# - close_observation_group: True 表示收盘观察必要步骤。早间盘后/富途夜盘窗口与
+#   safe_fund.py 的 06:00-13:40 收盘窗口重叠时，会和实时观察一起运行。
 # - run_window_bj: 可选，北京时间闭区间；支持跨午夜窗口，例如 ("22:40", "02:00")。
 #   命中窗口时才运行该步骤；实时观察窗口命中时会优先只运行实时步骤和全天固定步骤。
 # - args: 可选，运行脚本时追加的参数；实时观察由总入口控制窗口，因此这里传 --force。
@@ -47,6 +49,7 @@ COMMON_WORKFLOW_STEPS = [
         "required": True,
         "collect_images": True,
         "args": ["--skip-rsi"],
+        "close_observation_group": True,
     },
     {
         "name": "基金持仓变化图",
@@ -54,6 +57,7 @@ COMMON_WORKFLOW_STEPS = [
         "required": False,
         "collect_images": True,
         "args": ["--auto"],
+        "close_observation_group": True,
     },
     {
         "name": "安全版海外基金图",
@@ -61,6 +65,7 @@ COMMON_WORKFLOW_STEPS = [
         "required": True,
         "collect_images": True,
         "run_window_bj": ("06:00", "13:40"),
+        "close_observation_group": True,
     },
     {
         "name": "安全版海外节假日图",

@@ -67,6 +67,7 @@ class WorkflowStep:
     collect_images: bool
     args: tuple[str, ...]
     always_run: bool = False
+    close_observation_group: bool = False
     run_window_start_bj: datetime_time | None = None
     run_window_end_bj: datetime_time | None = None
 
@@ -232,6 +233,7 @@ def resolve_workflow_steps(
         required = bool(item.get("required", True))
         collect_images = bool(item.get("collect_images", True))
         always_run = bool(item.get("always_run", False))
+        close_observation_group = bool(item.get("close_observation_group", False))
         args_raw = item.get("args") or []
         if isinstance(args_raw, str):
             args = (args_raw,)
@@ -251,6 +253,7 @@ def resolve_workflow_steps(
                 collect_images=collect_images,
                 args=args,
                 always_run=always_run,
+                close_observation_group=close_observation_group,
                 run_window_start_bj=run_window_start_bj,
                 run_window_end_bj=run_window_end_bj,
             )
@@ -280,10 +283,10 @@ def select_workflow_steps_for_time(
 ) -> list[WorkflowStep]:
     """按配置中的北京时间窗口选择步骤。
 
-    实时观察窗口优先：命中盘前/盘中/盘后/富途夜盘时，只运行全天
-    固定步骤和对应实时观察脚本。未命中实时观察窗口时，才运行日常
-    流程中符合窗口限制的步骤。这样 RSI 可以全天运行，safe_fund.py
-    也会严格遵守 workflow_configs.py 里的 run_window_bj。
+    实时观察窗口优先：命中盘前/盘中/盘后/富途夜盘时，默认只运行全天
+    固定步骤和对应实时观察脚本。若早间实时窗口同时命中 safe_fund.py 的
+    收盘观察窗口，则补充配置为 close_observation_group 的收盘必要步骤。
+    未命中实时观察窗口时，才运行日常流程中符合窗口限制的步骤。
     """
     now_bj = coerce_beijing_datetime(current_time or datetime.now(BJ_TZ))
     current = now_bj.time().replace(microsecond=0)
@@ -300,11 +303,21 @@ def select_workflow_steps_for_time(
         for step in matching_window_steps
         if step.script_path.name in REALTIME_OBSERVATION_SCRIPTS
     ]
+    close_window_active = any(
+        step.script_path.name == "safe_fund.py"
+        for step in matching_window_steps
+    )
     if matching_realtime_steps:
         return [
             step
             for step in steps
-            if step.always_run or step in matching_realtime_steps
+            if step.always_run
+            or step in matching_realtime_steps
+            or (
+                close_window_active
+                and step.close_observation_group
+                and (not step.has_run_window or step in matching_window_steps)
+            )
         ]
 
     return [
@@ -613,16 +626,27 @@ def main(
     always_steps = [step for step in steps if step.always_run]
     daily_steps = [step for step in steps if not step.has_run_window and not step.always_run]
     window_steps = [step for step in steps if step.has_run_window]
+    close_group_steps = [
+        step
+        for step in steps
+        if step.close_observation_group
+    ]
     realtime_steps = [
         step
         for step in window_steps
         if step.script_path.name in REALTIME_OBSERVATION_SCRIPTS
     ]
     if realtime_steps:
-        log(
-            "当前命中实时观察窗口，仅运行实时观察步骤: "
-            + " -> ".join(step.name for step in realtime_steps)
-        )
+        if close_group_steps:
+            log(
+                "当前命中实时观察窗口，同时处于收盘观察窗口，运行收盘必要步骤和实时观察步骤: "
+                + " -> ".join(step.name for step in [*close_group_steps, *realtime_steps])
+            )
+        else:
+            log(
+                "当前命中实时观察窗口，仅运行实时观察步骤: "
+                + " -> ".join(step.name for step in realtime_steps)
+            )
     elif window_steps:
         log(
             "当前命中非实时限时窗口，运行完整日流程中符合时间窗的步骤: "
@@ -647,7 +671,7 @@ def main(
             step.run_window_end_bj,
         )
         if in_window and realtime_steps:
-            reason = "当前命中实时观察窗口，实时窗口优先"
+            reason = "当前命中实时观察窗口，跳过非收盘必要步骤"
         else:
             reason = f"不在 {step.run_window_text}"
         log(f"{relative_text(step.script_path)} 跳过：{reason}")
