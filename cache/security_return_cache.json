@@ -36813,7 +36813,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-21T07:47:33+08:00"
+    "fetched_at": "2026-06-22T07:53:58+08:00"
   },
   "SECURITY:US:WDC:2026-06-19": {
     "market": "US",
@@ -36885,7 +36885,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-21T07:47:33+08:00"
+    "fetched_at": "2026-06-22T07:53:59+08:00"
   },
   "SECURITY:US:ONTO:2026-06-19": {
     "market": "US",
@@ -36921,7 +36921,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-21T07:47:33+08:00"
+    "fetched_at": "2026-06-22T07:53:59+08:00"
   },
   "SECURITY:HK:00981:2026-06-19": {
     "market": "HK",
@@ -37329,7 +37329,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-21T07:47:34+08:00"
+    "fetched_at": "2026-06-22T07:54:00+08:00"
   },
   "SECURITY:US:JBL:2026-06-19": {
     "market": "US",
@@ -37677,7 +37677,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-06-21T07:47:35+08:00"
+    "fetched_at": "2026-06-22T07:54:00+08:00"
   },
   "SECURITY:US:CAT:2026-06-19": {
     "market": "US",
