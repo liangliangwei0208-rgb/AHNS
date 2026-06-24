@@ -73,6 +73,7 @@ FUND_ESTIMATION_METHOD_MAP = {
     #"164212": "top10_available_normalized",
     "118001": "top10_available_normalized",
     "017072": "top10_available_normalized",
+    "160140": "top10_available_normalized",
 }
 
 
