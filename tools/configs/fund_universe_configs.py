@@ -53,6 +53,7 @@ HAIWAI_FUND_CODES = [
     "019231",
     "164212",
     "017072",
+    "160140",
 ]
 
 GUONEI_FUND_CODES = [
