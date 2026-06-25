@@ -43459,5 +43459,17 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-06-25T10:47:04+08:00"
+  },
+  "SECURITY:KR:005930:2026-06-25": {
+    "market": "KR",
+    "ticker": "005930",
+    "valuation_anchor_date": "2026-06-25",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-06-25T13:44:24+08:00"
   }
 }
