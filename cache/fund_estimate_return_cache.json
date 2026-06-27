@@ -58871,7 +58871,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -58919,7 +58919,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 42.83%，其中行情有效 42.83%，行情失败 0.00%，未披露仓位 57.17%；有效持仓放大系数 1.15，实际有效估算权重 49.25%，从基准补偿仓位转移 6.42% 给有效持仓；补偿仓位 50.75% 使用 生物科技(2026-06-26) +2.0090% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:001092:2026-06-26"
     },
@@ -58930,12 +58930,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 76.843,
-      "is_final": false,
-      "estimate_return_pct": 1.270302925191903,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 1.016959938250487,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -58949,9 +58949,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 23.156999999999996,
       "residual_benchmark_weight_pct": 23.156999999999996,
       "boosted_valid_holding_weight_pct": 76.843,
@@ -58968,18 +58968,17 @@
         }
       },
       "market_status": {
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "US": "2026-06-26"
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 66.82%，其中行情有效 66.82%，行情失败 0.00%，未披露仓位 33.18%；有效持仓放大系数 1.15，实际有效估算权重 76.84%，从基准补偿仓位转移 10.02% 给有效持仓；补偿仓位 23.16% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 66.82%，其中行情有效 66.82%，行情失败 0.00%，未披露仓位 33.18%；有效持仓放大系数 1.15，实际有效估算权重 76.84%，从基准补偿仓位转移 10.02% 给有效持仓；补偿仓位 23.16% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:009975:2026-06-26"
     },
@@ -58990,7 +58989,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -59036,7 +59035,7 @@
       "source": "anchor_daily",
       "warnings": [],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:019231:2026-06-26"
     },
@@ -59047,7 +59046,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -59093,7 +59092,7 @@
       "source": "anchor_daily",
       "warnings": [],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:160140:2026-06-26"
     },
@@ -59104,12 +59103,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 83.38649999999998,
-      "is_final": false,
-      "estimate_return_pct": 0.6342201550461718,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 0.45246458595038136,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -59123,9 +59122,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 16.613500000000016,
       "residual_benchmark_weight_pct": 16.613500000000016,
       "boosted_valid_holding_weight_pct": 83.38649999999998,
@@ -59142,18 +59141,17 @@
         }
       },
       "market_status": {
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "US": "2026-06-26"
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 72.51%，其中行情有效 72.51%，行情失败 0.00%，未披露仓位 27.49%；有效持仓放大系数 1.15，实际有效估算权重 83.39%，从基准补偿仓位转移 10.88% 给有效持仓；补偿仓位 16.61% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 72.51%，其中行情有效 72.51%，行情失败 0.00%，未披露仓位 27.49%；有效持仓放大系数 1.15，实际有效估算权重 83.39%，从基准补偿仓位转移 10.88% 给有效持仓；补偿仓位 16.61% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017437:2026-06-26"
     },
@@ -59164,12 +59162,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 59.9955,
-      "is_final": false,
-      "estimate_return_pct": 0.5561773752192746,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 0.11851880454527203,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -59183,9 +59181,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 40.0045,
       "residual_benchmark_weight_pct": 40.0045,
       "boosted_valid_holding_weight_pct": 59.9955,
@@ -59202,18 +59200,17 @@
         }
       },
       "market_status": {
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "US": "2026-06-26"
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 52.17%，其中行情有效 52.17%，行情失败 0.00%，未披露仓位 47.83%；有效持仓放大系数 1.15，实际有效估算权重 60.00%，从基准补偿仓位转移 7.83% 给有效持仓；补偿仓位 40.00% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 52.17%，其中行情有效 52.17%，行情失败 0.00%，未披露仓位 47.83%；有效持仓放大系数 1.15，实际有效估算权重 60.00%，从基准补偿仓位转移 7.83% 给有效持仓；补偿仓位 40.00% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:000043:2026-06-26"
     },
@@ -59224,7 +59221,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -59272,7 +59269,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 66.95%，其中行情有效 66.95%，行情失败 0.00%，未披露仓位 33.05%；有效持仓放大系数 1.15，实际有效估算权重 76.99%，从基准补偿仓位转移 10.04% 给有效持仓；补偿仓位 23.01% 使用 标普500(2026-06-26) -0.0472% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:012868:2026-06-26"
     },
@@ -59283,12 +59280,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 36.19050000000001,
-      "is_final": false,
-      "estimate_return_pct": 0.30765235720043155,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.39043847171688434,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -59302,9 +59299,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 63.80949999999999,
       "residual_benchmark_weight_pct": 63.80949999999999,
       "boosted_valid_holding_weight_pct": 36.19050000000001,
@@ -59327,7 +59324,7 @@
       },
       "market_status": {
         "HK": "traded",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "HK": "2026-06-26",
@@ -59335,11 +59332,10 @@
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 31.47%，其中行情有效 31.47%，行情失败 0.00%，未披露仓位 68.53%；有效持仓放大系数 1.15，实际有效估算权重 36.19%，从基准补偿仓位转移 4.72% 给有效持仓；补偿仓位 63.81% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 31.47%，其中行情有效 31.47%，行情失败 0.00%，未披露仓位 68.53%；有效持仓放大系数 1.15，实际有效估算权重 36.19%，从基准补偿仓位转移 4.72% 给有效持仓；补偿仓位 63.81% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:519696:2026-06-26"
     },
@@ -59350,12 +59346,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 53.6705,
-      "is_final": false,
-      "estimate_return_pct": 0.09544271976857793,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.41141282773335813,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -59369,9 +59365,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 46.3295,
       "residual_benchmark_weight_pct": 46.3295,
       "boosted_valid_holding_weight_pct": 53.6705,
@@ -59388,18 +59384,17 @@
         }
       },
       "market_status": {
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "US": "2026-06-26"
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 46.67%，其中行情有效 46.67%，行情失败 0.00%，未披露仓位 53.33%；有效持仓放大系数 1.15，实际有效估算权重 53.67%，从基准补偿仓位转移 7.00% 给有效持仓；补偿仓位 46.33% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 46.67%，其中行情有效 46.67%，行情失败 0.00%，未披露仓位 53.33%；有效持仓放大系数 1.15，实际有效估算权重 53.67%，从基准补偿仓位转移 7.00% 给有效持仓；补偿仓位 46.33% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:015202:2026-06-26"
     },
@@ -59410,12 +59405,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 23.106999999999985,
+      "data_status": "partial",
+      "completeness_score": 98.52,
       "is_final": false,
-      "estimate_return_pct": 0.01605531798044975,
+      "estimate_return_pct": -0.8089805102448389,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -59429,9 +59424,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 75.41300000000001,
       "residual_benchmark_weight_pct": 75.41300000000001,
       "boosted_valid_holding_weight_pct": 24.586999999999993,
@@ -59454,7 +59449,7 @@
       },
       "market_status": {
         "UNKNOWN": "missing",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "UNKNOWN": null,
@@ -59463,11 +59458,10 @@
       "source": "anchor_daily",
       "warnings": [
         "赛峰股份有限公司(FR0000073272) 所属市场 UNKNOWN 在估值锚点 2026-06-26 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 22.86%，其中行情有效 21.38%，行情失败 1.48%，未披露仓位 77.14%；有效持仓放大系数 1.15，实际有效估算权重 24.59%，从基准补偿仓位转移 3.21% 给有效持仓；补偿仓位 75.41% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 22.86%，其中行情有效 21.38%，行情失败 1.48%，未披露仓位 77.14%；有效持仓放大系数 1.15，实际有效估算权重 24.59%，从基准补偿仓位转移 3.21% 给有效持仓；补偿仓位 75.41% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:486002:2026-06-26"
     },
@@ -59478,7 +59472,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "partial",
       "data_status": "stale",
       "completeness_score": 96.29,
@@ -59527,7 +59521,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 65.15%，其中行情有效 61.44%，行情失败 3.71%，未披露仓位 34.85%；有效持仓放大系数 1.15，实际有效估算权重 70.66%，从基准补偿仓位转移 9.22% 给有效持仓；补偿仓位 29.34% 使用 美国油气开采(XOP)(2026-06-26) -0.0388% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:006679:2026-06-26"
     },
@@ -59538,7 +59532,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -59586,7 +59580,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 2.19%，其中行情有效 2.19%，行情失败 0.00%，未披露仓位 97.81%；有效持仓放大系数 1.15，实际有效估算权重 2.52%，从基准补偿仓位转移 0.33% 给有效持仓；补偿仓位 97.48% 使用 标普500(2026-06-26) -0.0472% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:008401:2026-06-26"
     },
@@ -59597,7 +59591,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -59645,7 +59639,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 9.01%，其中行情有效 9.01%，行情失败 0.00%，未披露仓位 90.99%；有效持仓放大系数 1.15，实际有效估算权重 10.36%，从基准补偿仓位转移 1.35% 给有效持仓；补偿仓位 89.64% 使用 标普500(2026-06-26) -0.0472% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:519981:2026-06-26"
     },
@@ -59656,12 +59650,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 2.1750000000000114,
+      "data_status": "partial",
+      "completeness_score": 98.15,
       "is_final": false,
-      "estimate_return_pct": -0.117317616177668,
+      "estimate_return_pct": -1.1673065254363113,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -59675,9 +59669,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 95.975,
       "residual_benchmark_weight_pct": 95.975,
       "boosted_valid_holding_weight_pct": 4.0249999999999995,
@@ -59700,7 +59694,7 @@
       },
       "market_status": {
         "UNKNOWN": "missing",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "UNKNOWN": null,
@@ -59709,11 +59703,10 @@
       "source": "anchor_daily",
       "warnings": [
         "伯克希尔哈撒韦-B(BRK_B) 所属市场 UNKNOWN 在估值锚点 2026-06-26 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 5.35%，其中行情有效 3.50%，行情失败 1.85%，未披露仓位 94.65%；有效持仓放大系数 1.15，实际有效估算权重 4.02%，从基准补偿仓位转移 0.52% 给有效持仓；补偿仓位 95.97% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 5.35%，其中行情有效 3.50%，行情失败 1.85%，未披露仓位 94.65%；有效持仓放大系数 1.15，实际有效估算权重 4.02%，从基准补偿仓位转移 0.52% 给有效持仓；补偿仓位 95.97% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:163813:2026-06-26"
     },
@@ -59724,7 +59717,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "partial",
       "data_status": "stale",
       "completeness_score": 97.83,
@@ -59773,7 +59766,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 22.89%，其中行情有效 20.72%，行情失败 2.17%，未披露仓位 77.11%；有效持仓放大系数 1.15，实际有效估算权重 23.83%，从基准补偿仓位转移 3.11% 给有效持仓；补偿仓位 76.17% 使用 美国油气开采(XOP)(2026-06-26) -0.0388% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:018852:2026-06-26"
     },
@@ -59784,7 +59777,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "partial",
       "data_status": "stale",
       "completeness_score": 97.57,
@@ -59833,7 +59826,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 25.59%，其中行情有效 23.16%，行情失败 2.43%，未披露仓位 74.41%；有效持仓放大系数 1.15，实际有效估算权重 26.63%，从基准补偿仓位转移 3.47% 给有效持仓；补偿仓位 73.37% 使用 美国油气开采(XOP)(2026-06-26) -0.0388% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:007844:2026-06-26"
     },
@@ -59844,12 +59837,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 61.87,
-      "is_final": false,
-      "estimate_return_pct": -0.26397497041259255,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.6811260734084985,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -59863,9 +59856,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 38.13,
       "residual_benchmark_weight_pct": 38.13,
       "boosted_valid_holding_weight_pct": 61.87,
@@ -59882,18 +59875,17 @@
         }
       },
       "market_status": {
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "US": "2026-06-26"
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 53.80%，其中行情有效 53.80%，行情失败 0.00%，未披露仓位 46.20%；有效持仓放大系数 1.15，实际有效估算权重 61.87%，从基准补偿仓位转移 8.07% 给有效持仓；补偿仓位 38.13% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 53.80%，其中行情有效 53.80%，行情失败 0.00%，未披露仓位 46.20%；有效持仓放大系数 1.15，实际有效估算权重 61.87%，从基准补偿仓位转移 8.07% 给有效持仓；补偿仓位 38.13% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:016702:2026-06-26"
     },
@@ -59904,12 +59896,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 20.703500000000005,
+      "data_status": "partial",
+      "completeness_score": 98.98,
       "is_final": false,
-      "estimate_return_pct": -0.28169715243521437,
+      "estimate_return_pct": -1.1380603392607855,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -59923,9 +59915,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 78.2765,
       "residual_benchmark_weight_pct": 78.2765,
       "boosted_valid_holding_weight_pct": 21.723499999999998,
@@ -59948,7 +59940,7 @@
       },
       "market_status": {
         "UNKNOWN": "missing",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "UNKNOWN": null,
@@ -59957,11 +59949,10 @@
       "source": "anchor_daily",
       "warnings": [
         "劳斯莱斯(RR.) 所属市场 UNKNOWN 在估值锚点 2026-06-26 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 19.91%，其中行情有效 18.89%，行情失败 1.02%，未披露仓位 80.09%；有效持仓放大系数 1.15，实际有效估算权重 21.72%，从基准补偿仓位转移 2.83% 给有效持仓；补偿仓位 78.28% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 19.91%，其中行情有效 18.89%，行情失败 1.02%，未披露仓位 80.09%；有效持仓放大系数 1.15，实际有效估算权重 21.72%，从基准补偿仓位转移 2.83% 给有效持仓；补偿仓位 78.28% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:013328:2026-06-26"
     },
@@ -59972,12 +59963,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 98.5205,
-      "is_final": false,
-      "estimate_return_pct": -0.42648175088734785,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.4426678263366645,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -59991,9 +59982,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 1.4795000000000016,
       "residual_benchmark_weight_pct": 1.4795000000000016,
       "boosted_valid_holding_weight_pct": 98.5205,
@@ -60016,7 +60007,7 @@
       },
       "market_status": {
         "HK": "traded",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "HK": "2026-06-26",
@@ -60024,11 +60015,10 @@
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 85.67%，其中行情有效 85.67%，行情失败 0.00%，未披露仓位 14.33%；有效持仓放大系数 1.15，实际有效估算权重 98.52%，从基准补偿仓位转移 12.85% 给有效持仓；补偿仓位 1.48% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 85.67%，其中行情有效 85.67%，行情失败 0.00%，未披露仓位 14.33%；有效持仓放大系数 1.15，实际有效估算权重 98.52%，从基准补偿仓位转移 12.85% 给有效持仓；补偿仓位 1.48% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017145:2026-06-26"
     },
@@ -60039,12 +60029,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 25.663499999999985,
+      "data_status": "partial",
+      "completeness_score": 97.96,
       "is_final": false,
-      "estimate_return_pct": -1.3413489487784664,
+      "estimate_return_pct": -2.132289539330355,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60058,9 +60048,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 72.29650000000001,
       "residual_benchmark_weight_pct": 72.29650000000001,
       "boosted_valid_holding_weight_pct": 27.7035,
@@ -60089,7 +60079,7 @@
       "market_status": {
         "CN": "traded",
         "UNKNOWN": "missing",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "CN": "2026-06-26",
@@ -60099,11 +60089,10 @@
       "source": "anchor_daily",
       "warnings": [
         "Nitto Boseki Co Ltd(JP3684400009) 所属市场 UNKNOWN 在估值锚点 2026-06-26 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 26.13%，其中行情有效 24.09%，行情失败 2.04%，未披露仓位 73.87%；有效持仓放大系数 1.15，实际有效估算权重 27.70%，从基准补偿仓位转移 3.61% 给有效持仓；补偿仓位 72.30% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 26.13%，其中行情有效 24.09%，行情失败 2.04%，未披露仓位 73.87%；有效持仓放大系数 1.15，实际有效估算权重 27.70%，从基准补偿仓位转移 3.61% 给有效持仓；补偿仓位 72.30% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:016665:2026-06-26"
     },
@@ -60114,12 +60103,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 43.182500000000005,
-      "is_final": false,
-      "estimate_return_pct": -1.4963710648655282,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -2.1179677812166924,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60133,9 +60122,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 56.817499999999995,
       "residual_benchmark_weight_pct": 56.817499999999995,
       "boosted_valid_holding_weight_pct": 43.182500000000005,
@@ -60152,18 +60141,17 @@
         }
       },
       "market_status": {
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "US": "2026-06-26"
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 37.55%，其中行情有效 37.55%，行情失败 0.00%，未披露仓位 62.45%；有效持仓放大系数 1.15，实际有效估算权重 43.18%，从基准补偿仓位转移 5.63% 给有效持仓；补偿仓位 56.82% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 37.55%，其中行情有效 37.55%，行情失败 0.00%，未披露仓位 62.45%；有效持仓放大系数 1.15，实际有效估算权重 43.18%，从基准补偿仓位转移 5.63% 给有效持仓；补偿仓位 56.82% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:164212:2026-06-26"
     },
@@ -60174,12 +60162,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 46.17249999999999,
-      "is_final": false,
-      "estimate_return_pct": -1.6828199161295376,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -2.2717053343438605,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60193,9 +60181,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 53.82750000000001,
       "residual_benchmark_weight_pct": 53.82750000000001,
       "boosted_valid_holding_weight_pct": 46.17249999999999,
@@ -60218,7 +60206,7 @@
       },
       "market_status": {
         "CN": "traded",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "CN": "2026-06-26",
@@ -60226,11 +60214,10 @@
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 40.15%，其中行情有效 40.15%，行情失败 0.00%，未披露仓位 59.85%；有效持仓放大系数 1.15，实际有效估算权重 46.17%，从基准补偿仓位转移 6.02% 给有效持仓；补偿仓位 53.83% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 40.15%，其中行情有效 40.15%，行情失败 0.00%，未披露仓位 59.85%；有效持仓放大系数 1.15，实际有效估算权重 46.17%，从基准补偿仓位转移 6.02% 给有效持仓；补偿仓位 53.83% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017731:2026-06-26"
     },
@@ -60241,7 +60228,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -60301,7 +60288,7 @@
       "source": "anchor_daily",
       "warnings": [],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:015205:2026-06-26"
     },
@@ -60312,12 +60299,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 74.70400000000001,
-      "is_final": false,
-      "estimate_return_pct": -1.910820616269912,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -2.1875647626476837,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60331,9 +60318,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 25.295999999999992,
       "residual_benchmark_weight_pct": 25.295999999999992,
       "boosted_valid_holding_weight_pct": 74.70400000000001,
@@ -60362,7 +60349,7 @@
       "market_status": {
         "HK": "traded",
         "KR": "traded",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "HK": "2026-06-26",
@@ -60371,11 +60358,10 @@
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 64.96%，其中行情有效 64.96%，行情失败 0.00%，未披露仓位 35.04%；有效持仓放大系数 1.15，实际有效估算权重 74.70%，从基准补偿仓位转移 9.74% 给有效持仓；补偿仓位 25.30% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 64.96%，其中行情有效 64.96%，行情失败 0.00%，未披露仓位 35.04%；有效持仓放大系数 1.15，实际有效估算权重 74.70%，从基准补偿仓位转移 9.74% 给有效持仓；补偿仓位 25.30% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:022184:2026-06-26"
     },
@@ -60386,12 +60372,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 48.1735,
-      "is_final": false,
-      "estimate_return_pct": -1.931965629840847,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -2.498959640840514,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60405,9 +60391,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 51.8265,
       "residual_benchmark_weight_pct": 51.8265,
       "boosted_valid_holding_weight_pct": 48.1735,
@@ -60430,7 +60416,7 @@
       },
       "market_status": {
         "HK": "traded",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "HK": "2026-06-26",
@@ -60438,11 +60424,10 @@
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 41.89%，其中行情有效 41.89%，行情失败 0.00%，未披露仓位 58.11%；有效持仓放大系数 1.15，实际有效估算权重 48.17%，从基准补偿仓位转移 6.28% 给有效持仓；补偿仓位 51.83% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 41.89%，其中行情有效 41.89%，行情失败 0.00%，未披露仓位 58.11%；有效持仓放大系数 1.15，实际有效估算权重 48.17%，从基准补偿仓位转移 6.28% 给有效持仓；补偿仓位 51.83% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:021277:2026-06-26"
     },
@@ -60453,12 +60438,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 42.11299999999999,
-      "is_final": false,
-      "estimate_return_pct": -1.9377068986496646,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -2.5710041947190065,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60472,9 +60457,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 57.88700000000001,
       "residual_benchmark_weight_pct": 57.88700000000001,
       "boosted_valid_holding_weight_pct": 42.11299999999999,
@@ -60491,18 +60476,17 @@
         }
       },
       "market_status": {
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "US": "2026-06-26"
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 36.62%，其中行情有效 36.62%，行情失败 0.00%，未披露仓位 63.38%；有效持仓放大系数 1.15，实际有效估算权重 42.11%，从基准补偿仓位转移 5.49% 给有效持仓；补偿仓位 57.89% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 36.62%，其中行情有效 36.62%，行情失败 0.00%，未披露仓位 63.38%；有效持仓放大系数 1.15，实际有效估算权重 42.11%，从基准补偿仓位转移 5.49% 给有效持仓；补偿仓位 57.89% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:024239:2026-06-26"
     },
@@ -60513,12 +60497,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 48.0355,
-      "is_final": false,
-      "estimate_return_pct": -1.9538883124488122,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -2.52239207567018,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60532,9 +60516,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 51.9645,
       "residual_benchmark_weight_pct": 51.9645,
       "boosted_valid_holding_weight_pct": 48.0355,
@@ -60563,7 +60547,7 @@
       "market_status": {
         "CN": "traded",
         "HK": "traded",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "CN": "2026-06-26",
@@ -60572,11 +60556,10 @@
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 41.77%，其中行情有效 41.77%，行情失败 0.00%，未披露仓位 58.23%；有效持仓放大系数 1.15，实际有效估算权重 48.04%，从基准补偿仓位转移 6.27% 给有效持仓；补偿仓位 51.96% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 41.77%，其中行情有效 41.77%，行情失败 0.00%，未披露仓位 58.23%；有效持仓放大系数 1.15，实际有效估算权重 48.04%，从基准补偿仓位转移 6.27% 给有效持仓；补偿仓位 51.96% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:018229:2026-06-26"
     },
@@ -60587,12 +60570,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 66.05600000000001,
-      "is_final": false,
-      "estimate_return_pct": -2.057229197573158,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -2.428584483177486,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60606,9 +60589,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 33.94399999999999,
       "residual_benchmark_weight_pct": 33.94399999999999,
       "boosted_valid_holding_weight_pct": 66.05600000000001,
@@ -60625,18 +60608,17 @@
         }
       },
       "market_status": {
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "US": "2026-06-26"
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 57.44%，其中行情有效 57.44%，行情失败 0.00%，未披露仓位 42.56%；有效持仓放大系数 1.15，实际有效估算权重 66.06%，从基准补偿仓位转移 8.62% 给有效持仓；补偿仓位 33.94% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 57.44%，其中行情有效 57.44%，行情失败 0.00%，未披露仓位 42.56%；有效持仓放大系数 1.15，实际有效估算权重 66.06%，从基准补偿仓位转移 8.62% 给有效持仓；补偿仓位 33.94% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:018036:2026-06-26"
     },
@@ -60647,12 +60629,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 51.566,
-      "is_final": false,
-      "estimate_return_pct": -2.2530337355893892,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -2.782913004472256,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60666,9 +60648,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 48.434,
       "residual_benchmark_weight_pct": 48.434,
       "boosted_valid_holding_weight_pct": 51.566,
@@ -60685,18 +60667,17 @@
         }
       },
       "market_status": {
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "US": "2026-06-26"
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 44.84%，其中行情有效 44.84%，行情失败 0.00%，未披露仓位 55.16%；有效持仓放大系数 1.15，实际有效估算权重 51.57%，从基准补偿仓位转移 6.73% 给有效持仓；补偿仓位 48.43% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 44.84%，其中行情有效 44.84%，行情失败 0.00%，未披露仓位 55.16%；有效持仓放大系数 1.15，实际有效估算权重 51.57%，从基准补偿仓位转移 6.73% 给有效持仓；补偿仓位 48.43% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:008254:2026-06-26"
     },
@@ -60707,12 +60688,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 59.604499999999994,
-      "is_final": false,
-      "estimate_return_pct": -2.2788211197421475,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -2.720757321710968,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60726,9 +60707,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 40.395500000000006,
       "residual_benchmark_weight_pct": 40.395500000000006,
       "boosted_valid_holding_weight_pct": 59.604499999999994,
@@ -60751,7 +60732,7 @@
       },
       "market_status": {
         "CN": "traded",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "CN": "2026-06-26",
@@ -60759,11 +60740,10 @@
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 51.83%，其中行情有效 51.83%，行情失败 0.00%，未披露仓位 48.17%；有效持仓放大系数 1.15，实际有效估算权重 59.60%，从基准补偿仓位转移 7.77% 给有效持仓；补偿仓位 40.40% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 51.83%，其中行情有效 51.83%，行情失败 0.00%，未披露仓位 48.17%；有效持仓放大系数 1.15，实际有效估算权重 59.60%，从基准补偿仓位转移 7.77% 给有效持仓；补偿仓位 40.40% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:012922:2026-06-26"
     },
@@ -60774,12 +60754,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 50.67350000000001,
+      "data_status": "partial",
+      "completeness_score": 96.29,
       "is_final": false,
-      "estimate_return_pct": -2.365238289371434,
+      "estimate_return_pct": -2.8642934503945847,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60793,9 +60773,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 45.616499999999995,
       "residual_benchmark_weight_pct": 45.616499999999995,
       "boosted_valid_holding_weight_pct": 54.383500000000005,
@@ -60818,7 +60798,7 @@
       },
       "market_status": {
         "UNKNOWN": "missing",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "UNKNOWN": null,
@@ -60827,11 +60807,10 @@
       "source": "anchor_daily",
       "warnings": [
         "铠侠控股株式会社(285AJP) 所属市场 UNKNOWN 在估值锚点 2026-06-26 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 51.00%，其中行情有效 47.29%，行情失败 3.71%，未披露仓位 49.00%；有效持仓放大系数 1.15，实际有效估算权重 54.38%，从基准补偿仓位转移 7.09% 给有效持仓；补偿仓位 45.62% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 51.00%，其中行情有效 47.29%，行情失败 3.71%，未披露仓位 49.00%；有效持仓放大系数 1.15，实际有效估算权重 54.38%，从基准补偿仓位转移 7.09% 给有效持仓；补偿仓位 45.62% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:006555:2026-06-26"
     },
@@ -60842,7 +60821,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -60902,7 +60881,7 @@
       "source": "anchor_daily",
       "warnings": [],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:118001:2026-06-26"
     },
@@ -60913,12 +60892,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 66.94149999999999,
-      "is_final": false,
-      "estimate_return_pct": -2.9123708865668574,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -3.274038595415275,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60932,9 +60911,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 33.05850000000001,
       "residual_benchmark_weight_pct": 33.05850000000001,
       "boosted_valid_holding_weight_pct": 66.94149999999999,
@@ -60951,18 +60930,17 @@
         }
       },
       "market_status": {
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "US": "2026-06-26"
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 58.21%，其中行情有效 58.21%，行情失败 0.00%，未披露仓位 41.79%；有效持仓放大系数 1.15，实际有效估算权重 66.94%，从基准补偿仓位转移 8.73% 给有效持仓；补偿仓位 33.06% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 58.21%，其中行情有效 58.21%，行情失败 0.00%，未披露仓位 41.79%；有效持仓放大系数 1.15，实际有效估算权重 66.94%，从基准补偿仓位转移 8.73% 给有效持仓；补偿仓位 33.06% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:021842:2026-06-26"
     },
@@ -60973,12 +60951,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 61.352500000000006,
-      "is_final": false,
-      "estimate_return_pct": -3.242471075627834,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -3.6652837494551163,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -60992,9 +60970,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 38.647499999999994,
       "residual_benchmark_weight_pct": 38.647499999999994,
       "boosted_valid_holding_weight_pct": 61.352500000000006,
@@ -61011,18 +60989,17 @@
         }
       },
       "market_status": {
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "US": "2026-06-26"
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 53.35%，其中行情有效 53.35%，行情失败 0.00%，未披露仓位 46.65%；有效持仓放大系数 1.15，实际有效估算权重 61.35%，从基准补偿仓位转移 8.00% 给有效持仓；补偿仓位 38.65% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 53.35%，其中行情有效 53.35%，行情失败 0.00%，未披露仓位 46.65%；有效持仓放大系数 1.15，实际有效估算权重 61.35%，从基准补偿仓位转移 8.00% 给有效持仓；补偿仓位 38.65% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:002891:2026-06-26"
     },
@@ -61033,12 +61010,12 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "completeness_score": 73.97949999999999,
-      "is_final": false,
-      "estimate_return_pct": -3.7359612877806008,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -4.020631633322299,
       "method": "stock_boosted_raw_plus_residual_benchmark",
       "valuation_mode": "last_close",
       "effective_valuation_mode": "last_close",
@@ -61052,9 +61029,9 @@
       "residual_benchmark_key": "nasdaq100",
       "residual_benchmark_market": "US",
       "residual_benchmark_ticker": ".NDX",
-      "residual_benchmark_return_pct": 0.0,
-      "residual_benchmark_trade_date": "2026-06-25",
-      "residual_benchmark_status": "stale",
+      "residual_benchmark_return_pct": -1.0940233490582374,
+      "residual_benchmark_trade_date": "2026-06-26",
+      "residual_benchmark_status": "traded",
       "residual_weight_pct": 26.020500000000013,
       "residual_benchmark_weight_pct": 26.020500000000013,
       "boosted_valid_holding_weight_pct": 73.97949999999999,
@@ -61077,7 +61054,7 @@
       },
       "market_status": {
         "KR": "traded",
-        "US": "stale"
+        "US": "traded"
       },
       "market_trade_dates": {
         "KR": "2026-06-26",
@@ -61085,11 +61062,10 @@
       },
       "source": "anchor_daily",
       "warnings": [
-        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 64.33%，其中行情有效 64.33%，行情失败 0.00%，未披露仓位 35.67%；有效持仓放大系数 1.15，实际有效估算权重 73.98%，从基准补偿仓位转移 9.65% 给有效持仓；补偿仓位 26.02% 使用 纳斯达克100(2026-06-26) +0.0000% 估算。",
-        "补偿基准 纳斯达克100(2026-06-26) 在估值锚点 2026-06-26 状态为 stale，补偿仓位贡献暂按 0% 计入。"
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 64.33%，其中行情有效 64.33%，行情失败 0.00%，未披露仓位 35.67%；有效持仓放大系数 1.15，实际有效估算权重 73.98%，从基准补偿仓位转移 9.65% 给有效持仓；补偿仓位 26.02% 使用 纳斯达克100(2026-06-26) -1.0940% 估算。"
       ],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:539002:2026-06-26"
     },
@@ -61100,7 +61076,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -61153,7 +61129,7 @@
       "source": "anchor_daily",
       "warnings": [],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017654:2026-06-26"
     },
@@ -61164,7 +61140,7 @@
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -61217,12 +61193,12 @@
       "source": "anchor_daily",
       "warnings": [],
       "holding_quarter": "2026年1季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017072:2026-06-26"
     }
   },
-  "updated_at": "2026-06-27T07:49:36",
+  "updated_at": "2026-06-27T09:28:39",
   "benchmark_records": {
     "benchmark:.INX:2026-05-08": {
       "market_group": "overseas",
@@ -66134,20 +66110,20 @@
       "order": 1,
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
-      "trade_date": "2026-06-25",
+      "trade_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "failed",
-      "is_final": false,
-      "return_pct": null,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "is_final": true,
+      "return_pct": -1.0940233490582374,
       "value": null,
       "display_value": "",
       "value_type": "return_pct",
-      "status": "stale",
-      "source": "rsi_module_index_daily_trade_date_older_than_anchor",
+      "status": "traded",
+      "source": "rsi_module_index_daily",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -66165,7 +66141,7 @@
       "valuation_anchor_date": "2026-06-26",
       "trade_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -66176,7 +66152,7 @@
       "status": "traded",
       "source": "rsi_module_index_daily",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -66194,7 +66170,7 @@
       "valuation_anchor_date": "2026-06-26",
       "trade_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -66205,7 +66181,7 @@
       "status": "traded",
       "source": "ak_stock_us_daily",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -66221,20 +66197,20 @@
       "order": 5,
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
-      "trade_date": "2026-06-25",
+      "trade_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "failed",
-      "is_final": false,
-      "return_pct": null,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "is_final": true,
+      "return_pct": -5.288771753206434,
       "value": null,
       "display_value": "",
       "value_type": "return_pct",
-      "status": "stale",
-      "source": "rsi_module_index_daily_trade_date_older_than_anchor",
+      "status": "traded",
+      "source": "rsi_module_index_daily",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -66252,7 +66228,7 @@
       "valuation_anchor_date": "2026-06-26",
       "trade_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
+      "run_time_bj": "2026-06-27T09:28:39",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -66263,7 +66239,7 @@
       "status": "traded",
       "source": "ak_futures_foreign_hist_sina",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -66279,20 +66255,20 @@
       "order": 7,
       "valuation_date": "2026-06-26",
       "valuation_anchor_date": "2026-06-26",
-      "trade_date": "2026-06-25",
+      "trade_date": "2026-06-26",
       "run_date_bj": "2026-06-27",
-      "run_time_bj": "2026-06-27T07:49:36",
-      "stage": "partial",
-      "data_status": "stale",
-      "is_final": false,
+      "run_time_bj": "2026-06-27T09:28:39",
+      "stage": "final",
+      "data_status": "complete",
+      "is_final": true,
       "return_pct": null,
-      "value": 18.89,
-      "display_value": "18.89",
+      "value": 18.41,
+      "display_value": "18.41",
       "value_type": "level",
-      "status": "stale",
+      "status": "traded",
       "source": "CBOE",
-      "error": "VIX trade_date=2026-06-25 与 valuation_anchor_date=2026-06-26 不一致",
-      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 07:45:22",
+      "error": "",
+      "table_title": "海外市场收益率预估 估值日：2026-06-26 生成：2026-06-27 09:28:12",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": false,
