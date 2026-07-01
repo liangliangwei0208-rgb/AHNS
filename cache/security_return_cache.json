@@ -49041,15 +49041,15 @@
     "market": "VIX_LEVEL",
     "ticker": "VIX",
     "valuation_anchor_date": "2026-06-30",
-    "trade_date": "2026-06-29",
+    "trade_date": "2026-06-30",
     "return_pct": null,
-    "status": "stale",
+    "status": "traded",
     "source": "CBOE",
     "calendar_is_open": null,
-    "error": "VIX trade_date=2026-06-29 与 valuation_anchor_date=2026-06-30 不一致",
-    "fetched_at": "2026-07-01T07:46:47+08:00",
-    "value": 17.65,
-    "display_value": "17.65",
+    "error": "",
+    "fetched_at": "2026-07-01T10:01:26+08:00",
+    "value": 16.45,
+    "display_value": "16.45",
     "value_type": "level"
   },
   "SECURITY:US:NFLX:2026-06-30": {
@@ -49542,7 +49542,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-01T07:47:52+08:00"
+    "fetched_at": "2026-07-01T10:01:37+08:00"
   },
   "SECURITY:US:WDC:2026-06-30": {
     "market": "US",
@@ -49614,7 +49614,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-01T07:48:01+08:00"
+    "fetched_at": "2026-07-01T10:01:37+08:00"
   },
   "SECURITY:US:ONTO:2026-06-30": {
     "market": "US",
@@ -49650,7 +49650,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-01T07:48:03+08:00"
+    "fetched_at": "2026-07-01T10:01:37+08:00"
   },
   "SECURITY:HK:00981:2026-06-30": {
     "market": "HK",
@@ -50058,7 +50058,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-01T07:48:43+08:00"
+    "fetched_at": "2026-07-01T10:01:38+08:00"
   },
   "SECURITY:US:JBL:2026-06-30": {
     "market": "US",
@@ -50250,7 +50250,7 @@
     "source": "ak_stock_us_daily_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2026-05-06 与 valuation_anchor_date=2026-06-30 不一致",
-    "fetched_at": "2026-07-01T07:49:24+08:00"
+    "fetched_at": "2026-07-01T10:01:53+08:00"
   },
   "SECURITY:US:PSX:2026-06-30": {
     "market": "US",
@@ -50406,7 +50406,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-01T07:49:37+08:00"
+    "fetched_at": "2026-07-01T10:01:53+08:00"
   },
   "SECURITY:US:CAT:2026-06-30": {
     "market": "US",
