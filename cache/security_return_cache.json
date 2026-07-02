@@ -10629,7 +10629,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-02T09:51:50+08:00"
+    "fetched_at": "2026-07-02T13:29:05+08:00"
   },
   "SECURITY:UNKNOWN:BRK_B:2026-06-17": {
     "market": "UNKNOWN",
@@ -10761,7 +10761,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-02T09:52:43+08:00"
+    "fetched_at": "2026-07-02T13:29:19+08:00"
   },
   "SECURITY:UNKNOWN:FR0000073272:2026-06-17": {
     "market": "UNKNOWN",
@@ -10893,7 +10893,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-02T09:52:13+08:00"
+    "fetched_at": "2026-07-02T13:29:06+08:00"
   },
   "SECURITY:UNKNOWN:JP3684400009:2026-06-17": {
     "market": "UNKNOWN",
@@ -11025,7 +11025,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-02T09:51:44+08:00"
+    "fetched_at": "2026-07-02T13:29:05+08:00"
   },
   "SECURITY:UNKNOWN:RR.:2026-06-17": {
     "market": "UNKNOWN",
@@ -11157,7 +11157,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-02T09:51:48+08:00"
+    "fetched_at": "2026-07-02T13:29:05+08:00"
   },
   "SECURITY:US:.INX:2026-05-08": {
     "market": "US",
@@ -21969,7 +21969,7 @@
     "source": "ak_stock_us_daily_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2026-05-06 与 valuation_anchor_date=2026-07-01 不一致",
-    "fetched_at": "2026-07-02T09:52:41+08:00"
+    "fetched_at": "2026-07-02T13:29:18+08:00"
   },
   "SECURITY:US:CVNA:2026-05-14": {
     "market": "US",
