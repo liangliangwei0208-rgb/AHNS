@@ -37,6 +37,7 @@
 - 监听入口是 `service_command_watcher.py --interval-seconds 60 --primary-remote gitee`，计划任务实际调用 `start_ahns_command_watcher.ps1`。
 - `service_runner.py` 默认 `DEFAULT_PRIMARY_REMOTE=gitee`，`DEFAULT_FALLBACK_REMOTE=None`；如需临时兜底 GitHub，必须显式传 `--fallback-remote origin` 或设置环境变量。
 - 手机端触发小电脑运行优先用 GitHub Actions workflow `Trigger Service Command`。它只把 Gitee `service_command.json` 写成 `run_flag=1` 并推回 Gitee；小电脑仍只监听 `gitee/main`，下一轮轮询后运行服务流程。该 workflow 会打印触发摘要、Gitee fetch、指令提交和每次送达尝试，并按多种 Git/HTTP 参数重试 Gitee 推送；Git push 全部失败时，会用 Gitee API 兜底更新指令文件。`holding_fund_code` 留空表示按基金库自动检测持仓变化，填写 6 位基金代码会让小电脑本轮强制生成该基金持仓变化图。
+- 坐在小电脑服务器前需要手动运行时，可打开 `service_gui.py` 或双击 `start_service_gui.ps1`。GUI 按钮会直接调用 `service_runner.py`，不修改 `service_command.json`，不需要 `run_flag=1`。
 - `Trigger Service Command` 需要 GitHub Actions Secret `GITEE_PRIVATE_CODE`。该值必须放在 Secrets，不要放普通 Variables，不要写入 README、AGENTS、workflow 明文或本地 Git config。
 - 小电脑监听运行时间是北京时间 06:00-24:00。`AHNS Command Watcher` 每日 06:00 和登录后启动；`start_ahns_command_watcher.ps1` 在 06:00 前直接退出；`AHNS Command Watcher Stop` 每日 00:00 停止监听。
 - `Futu OpenD Autostart` 登录后启动 `C:\Users\Administrator\AppData\Roaming\Futu_OpenD\Futu_OpenD.exe`。富途夜盘依赖 Futu OpenD 已登录并在线；自动启动只能打开程序，不能替代扫码或登录。
@@ -115,6 +116,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `check_project.py`：运行前自检入口，只检查不修改，用于确认环境、缓存、依赖、邮箱配置和流程配置是否基本正常。
 - `service_command_watcher.py`：小电脑服务器长期监听入口，默认监听 `gitee/main` 的 `service_command.json`，根据 `run_flag` 触发服务流程。
 - `service_runner.py`：小电脑服务器单次运行流程，负责 pull、运行 `service_main.py`、提交允许范围内的变化、push。
+- `service_gui.py`：小电脑服务器一键运行图形界面，按钮触发 `service_runner.py`，用于坐在服务器前手动立即运行。
 - `service_main.py`：小电脑服务触发后的业务入口，复用 `git_main.py` 总控逻辑，但使用包含富途夜盘窗口的 Service 流程。
 - `.github/workflows/trigger-service-command.yml`：GitHub App 手动触发小电脑运行的入口，只编译并调用 `tools/trigger_service_command.py`，不直接内嵌复杂业务逻辑，不运行主业务流程。
 - `tools/trigger_service_command.py`：GitHub Actions 触发小电脑运行的 helper，负责基于 Gitee 最新 `main` 更新 `service_command.json`、提交、Git push 多轮重试，以及 Gitee API 兜底。
@@ -154,7 +156,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 
 - 日常总入口：`git_main.py`、`service_main.py`、`main.py`、`safe_fund.py`、`safe_holidays.py`、`sum_holidays.py`。
 - 实时观察入口：`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py`。
-- 小电脑与同步入口：`service_command_watcher.py`、`service_runner.py`、`start_ahns_command_watcher.ps1`、`tail_ahns_log.ps1`、`sync_repos.py`、`github_gitee_sync.py`、`service_command.json`。
+- 小电脑与同步入口：`service_command_watcher.py`、`service_runner.py`、`service_gui.py`、`start_ahns_command_watcher.ps1`、`start_service_gui.ps1`、`tail_ahns_log.ps1`、`sync_repos.py`、`github_gitee_sync.py`、`service_command.json`。
 - 诊断和手动工具：`check_project.py`、`fund_estimate_breakdown.py`、`fund_holding_change.py`、`stock_analysis.py`、`refresh_fund_limit_cache.py`。
 - 内部实现模块：优先看 `tools/`；经常维护的常量和配置优先看 `tools/configs/`；科普图脚本放在 `kepu/`。
 
@@ -408,13 +410,13 @@ safe 公开图的视觉样式已集中到 `tools/configs/safe_image_style_config
 全项目编译：
 
 ```powershell
-$files = @('.\git_main.py','.\service_main.py','.\service_runner.py','.\service_command_watcher.py','.\sync_repos.py','.\github_gitee_sync.py','.\check_project.py','.\main.py','.\premarket_fund.py','.\intraday_fund.py','.\afterhours_fund.py','.\futu_night_fund.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
+$files = @('.\git_main.py','.\service_main.py','.\service_runner.py','.\service_gui.py','.\service_command_watcher.py','.\sync_repos.py','.\github_gitee_sync.py','.\check_project.py','.\main.py','.\premarket_fund.py','.\intraday_fund.py','.\afterhours_fund.py','.\futu_night_fund.py','.\fund_estimate_breakdown.py','.\safe_fund.py','.\safe_holidays.py','.\holidays.py','.\sum_holidays.py','.\stock_analysis.py','.\kepu\first_pic.py','.\kepu\kepu_sum_holidays.py','.\kepu\kepu_xiane.py') + (Get-ChildItem .\tools -File -Filter *.py | ForEach-Object { $_.FullName }) + (Get-ChildItem .\tools\configs -File -Filter *.py | ForEach-Object { $_.FullName }); & F:\anaconda\envs\py310\python.exe -m py_compile @files
 ```
 
 小电脑服务端脚本编译检查：
 
 ```powershell
-& D:\anaconda\envs\py310\python.exe -m py_compile .\service_main.py .\service_runner.py .\service_command_watcher.py .\sync_repos.py .\github_gitee_sync.py
+& D:\anaconda\envs\py310\python.exe -m py_compile .\service_main.py .\service_runner.py .\service_gui.py .\service_command_watcher.py .\sync_repos.py .\github_gitee_sync.py
 ```
 
 同步脚本预演：
