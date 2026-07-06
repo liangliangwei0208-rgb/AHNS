@@ -38,6 +38,7 @@
 - `service_runner.py` 默认 `DEFAULT_PRIMARY_REMOTE=gitee`，`DEFAULT_FALLBACK_REMOTE=None`；如需临时兜底 GitHub，必须显式传 `--fallback-remote origin` 或设置环境变量。
 - 手机端触发小电脑运行优先用 GitHub Actions workflow `Trigger Service Command`。它只把 Gitee `service_command.json` 写成 `run_flag=1` 并推回 Gitee；小电脑仍只监听 `gitee/main`，下一轮轮询后运行服务流程。该 workflow 会打印触发摘要、Gitee fetch、指令提交和每次送达尝试，并按多种 Git/HTTP 参数重试 Gitee 推送；Git push 全部失败时，会用 Gitee API 兜底更新指令文件。`holding_fund_code` 留空表示按基金库自动检测持仓变化，填写 6 位基金代码会让小电脑本轮强制生成该基金持仓变化图。
 - 坐在小电脑服务器前需要手动运行时，可打开 `service_gui.py` 或双击 `start_service_gui.ps1`。GUI 按钮会直接调用 `service_runner.py`，不修改 `service_command.json`，不需要 `run_flag=1`。
+- `AHNS Service GUI` 计划任务会在 `Administrator` 登录桌面后自动打开 GUI；GUI 依赖交互桌面，不能在无人登录前显示窗口。
 - `Trigger Service Command` 需要 GitHub Actions Secret `GITEE_PRIVATE_CODE`。该值必须放在 Secrets，不要放普通 Variables，不要写入 README、AGENTS、workflow 明文或本地 Git config。
 - 小电脑监听运行时间是北京时间 06:00-24:00。`AHNS Command Watcher` 每日 06:00 和登录后启动；`start_ahns_command_watcher.ps1` 在 06:00 前直接退出；`AHNS Command Watcher Stop` 每日 00:00 停止监听。
 - `Futu OpenD Autostart` 登录后启动 `C:\Users\Administrator\AppData\Roaming\Futu_OpenD\Futu_OpenD.exe`。富途夜盘依赖 Futu OpenD 已登录并在线；自动启动只能打开程序，不能替代扫码或登录。
@@ -49,6 +50,7 @@
 
 ```powershell
 schtasks /Query /TN "Futu OpenD Autostart"
+schtasks /Query /TN "AHNS Service GUI" /V /FO LIST
 schtasks /Query /TN "AHNS Command Watcher"
 schtasks /Query /TN "AHNS Command Watcher Stop"
 
@@ -56,7 +58,12 @@ Get-CimInstance Win32_Process |
   Where-Object { $_.CommandLine -match "Futu_OpenD|service_command_watcher.py" } |
   Select-Object ProcessId, Name, CommandLine
 
+Get-CimInstance Win32_Process |
+  Where-Object { $_.Name -match "python" -and $_.CommandLine -match "service_gui.py" } |
+  Select-Object ProcessId, Name, CreationDate, CommandLine
+
 & "C:\Users\Administrator\Desktop\AHNS\tail_ahns_log.ps1"
+Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_gui.log" -Tail 80
 ```
 
 ## 当前工作流

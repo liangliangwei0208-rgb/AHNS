@@ -9,19 +9,61 @@ service_runner.py 处理，避免 GUI 里再维护一套业务逻辑。
 from __future__ import annotations
 
 import argparse
+import traceback
 import queue
 import subprocess
 import sys
 import threading
 import tkinter as tk
+from datetime import datetime
 from pathlib import Path
 from tkinter import messagebox, scrolledtext, ttk
+from typing import TextIO
 
 import service_runner
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 DEFAULT_WINDOW_TITLE = "AHNS 小电脑一键运行"
+LOG_DIR = PROJECT_ROOT / "logs"
+GUI_LOG_PATH = LOG_DIR / "service_gui.log"
+GUI_LOCK_PATH = LOG_DIR / "service_gui.lock"
+
+
+def timestamp() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def write_gui_log(message: str) -> None:
+    """把 GUI 自身异常写入本地日志，避免无声退出。"""
+    try:
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        with GUI_LOG_PATH.open("a", encoding="utf-8") as f:
+            f.write(f"[{timestamp()}] {message.rstrip()}\n")
+    except Exception:
+        print(message, file=sys.stderr, flush=True)
+
+
+def acquire_single_instance_lock() -> TextIO | None:
+    """用 Windows 文件锁避免登录自启动和手动双击打开多个 GUI。"""
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    lock_file = GUI_LOCK_PATH.open("a+", encoding="utf-8")
+    lock_file.seek(0, 2)
+    if lock_file.tell() == 0:
+        lock_file.write("1")
+        lock_file.flush()
+    lock_file.seek(0)
+
+    try:
+        import msvcrt
+
+        msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+    except OSError:
+        lock_file.close()
+        return None
+    except Exception as exc:
+        write_gui_log(f"单实例锁初始化失败，继续启动 GUI：{exc}")
+    return lock_file
 
 
 class ServiceGuiApp:
@@ -38,6 +80,7 @@ class ServiceGuiApp:
         self.command_var = tk.StringVar(value=self._format_runner_command())
 
         self._build_ui()
+        self.root.report_callback_exception = self._handle_tk_exception
         self.root.after(120, self._drain_output_queue)
 
     def _build_ui(self) -> None:
@@ -123,32 +166,42 @@ class ServiceGuiApp:
         return " ".join(f'"{part}"' if " " in str(part) else str(part) for part in self._runner_command())
 
     def _append_log(self, text: str) -> None:
-        self.log_text.configure(state=tk.NORMAL)
-        self.log_text.insert(tk.END, text)
-        self.log_text.see(tk.END)
-        self.log_text.configure(state=tk.DISABLED)
+        try:
+            self.log_text.configure(state=tk.NORMAL)
+            self.log_text.insert(tk.END, text)
+            self.log_text.see(tk.END)
+            self.log_text.configure(state=tk.DISABLED)
+        except Exception as exc:
+            write_gui_log(f"写入界面日志失败：{exc}")
 
     def _set_running_state(self, running: bool) -> None:
-        self.running = running
-        self.run_button.configure(state=tk.DISABLED if running else tk.NORMAL)
-        self.exit_button.configure(text="运行中不可退出" if running else "退出")
-        self.exit_button.configure(state=tk.DISABLED if running else tk.NORMAL)
+        try:
+            self.running = running
+            self.run_button.configure(state=tk.DISABLED if running else tk.NORMAL)
+            self.exit_button.configure(text="运行中不可退出" if running else "退出")
+            self.exit_button.configure(state=tk.DISABLED if running else tk.NORMAL)
+        except Exception as exc:
+            write_gui_log(f"更新按钮状态失败：{exc}")
 
     def start_service_run(self) -> None:
-        if self.running:
-            return
-        self._set_running_state(True)
-        self.status_var.set("运行中")
-        self._append_log("\n========== 开始运行 ==========\n")
-        self._append_log(self._format_runner_command() + "\n\n")
+        try:
+            if self.running:
+                return
+            self._set_running_state(True)
+            self.status_var.set("运行中")
+            self._append_log("\n========== 开始运行 ==========\n")
+            self._append_log(self._format_runner_command() + "\n\n")
 
-        self.worker = threading.Thread(target=self._run_worker, daemon=True)
-        self.worker.start()
+            self.worker = threading.Thread(target=self._run_worker, daemon=True)
+            self.worker.start()
+        except Exception as exc:
+            self._handle_gui_error("启动后台运行线程失败", exc)
+            self._finish_run(1)
 
     def _run_worker(self) -> None:
-        command = self._runner_command()
-        creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
         try:
+            command = self._runner_command()
+            creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
             process = subprocess.Popen(
                 command,
                 cwd=str(PROJECT_ROOT),
@@ -165,11 +218,15 @@ class ServiceGuiApp:
             self.output_queue.put(("done", 1))
             return
 
-        assert process.stdout is not None
-        for line in process.stdout:
-            self.output_queue.put(("line", line))
-        exit_code = process.wait()
-        self.output_queue.put(("done", int(exit_code)))
+        try:
+            assert process.stdout is not None
+            for line in process.stdout:
+                self.output_queue.put(("line", line))
+            exit_code = process.wait()
+            self.output_queue.put(("done", int(exit_code)))
+        except Exception as exc:
+            self.output_queue.put(("error", f"读取运行日志失败：{exc}\n"))
+            self.output_queue.put(("done", 1))
 
     def _drain_output_queue(self) -> None:
         try:
@@ -181,22 +238,49 @@ class ServiceGuiApp:
                     self._finish_run(int(payload))
         except queue.Empty:
             pass
-        self.root.after(120, self._drain_output_queue)
+        except Exception as exc:
+            self._handle_gui_error("刷新运行日志失败", exc)
+        finally:
+            try:
+                self.root.after(120, self._drain_output_queue)
+            except Exception as exc:
+                write_gui_log(f"重新安排日志刷新失败：{exc}")
 
     def _finish_run(self, exit_code: int) -> None:
-        self._set_running_state(False)
-        if exit_code == 0:
-            self.status_var.set("成功")
-            self._append_log("\n========== 运行成功 ==========\n")
-        else:
-            self.status_var.set(f"失败，退出码 {exit_code}")
-            self._append_log(f"\n========== 运行失败，退出码 {exit_code} ==========\n")
+        try:
+            self._set_running_state(False)
+            if exit_code == 0:
+                self.status_var.set("成功")
+                self._append_log("\n========== 运行成功 ==========\n")
+            else:
+                self.status_var.set(f"失败，退出码 {exit_code}")
+                self._append_log(f"\n========== 运行失败，退出码 {exit_code} ==========\n")
+        except Exception as exc:
+            self._handle_gui_error("更新运行结果失败", exc)
 
     def on_close(self) -> None:
-        if self.running:
-            messagebox.showinfo("正在运行", "service_main.py 仍在运行，请等待结束后再关闭。")
-            return
-        self.root.destroy()
+        try:
+            if self.running:
+                messagebox.showinfo("正在运行", "service_main.py 仍在运行，请等待结束后再关闭。")
+                return
+            self.root.destroy()
+        except Exception as exc:
+            self._handle_gui_error("关闭窗口失败", exc)
+
+    def _handle_gui_error(self, title: str, exc: BaseException) -> None:
+        detail = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+        write_gui_log(f"{title}：{detail}")
+        self._append_log(f"\n[GUI-ERROR] {title}：{exc}\n")
+
+    def _handle_tk_exception(
+        self,
+        exc_type: type[BaseException],
+        exc: BaseException,
+        tb: object,
+    ) -> None:
+        detail = "".join(traceback.format_exception(exc_type, exc, tb))
+        write_gui_log(f"Tk 回调异常：{detail}")
+        self._append_log(f"\n[GUI-ERROR] 界面回调异常：{exc}\n")
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -225,11 +309,29 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = parse_args(argv)
-    root = tk.Tk()
-    ServiceGuiApp(root, args)
-    root.mainloop()
-    return 0
+    lock_file = acquire_single_instance_lock()
+    if lock_file is None:
+        write_gui_log("已有 AHNS Service GUI 正在运行，本次启动跳过。")
+        return 0
+
+    try:
+        args = parse_args(argv)
+        write_gui_log("AHNS Service GUI 启动。")
+        root = tk.Tk()
+        ServiceGuiApp(root, args)
+        root.mainloop()
+        write_gui_log("AHNS Service GUI 正常退出。")
+        return 0
+    except Exception as exc:
+        detail = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+        write_gui_log(f"AHNS Service GUI 异常退出：{detail}")
+        try:
+            messagebox.showerror("AHNS Service GUI 异常", str(exc))
+        except Exception:
+            pass
+        return 1
+    finally:
+        lock_file.close()
 
 
 if __name__ == "__main__":

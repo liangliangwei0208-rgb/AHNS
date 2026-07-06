@@ -182,6 +182,7 @@ Set-Location "C:\Users\Administrator\Desktop\AHNS"
 计划任务约定：
 
 - `Futu OpenD Autostart`：登录 `Administrator` 后启动 `C:\Users\Administrator\AppData\Roaming\Futu_OpenD\Futu_OpenD.exe`。
+- `AHNS Service GUI`：登录 `Administrator` 后打开 `service_gui.py` 图形界面；GUI 必须依附桌面会话，所以不是无人登录前后台启动。
 - `AHNS Command Watcher`：每日 06:00 启动，登录后也会启动；实际执行 `start_ahns_command_watcher.ps1`，脚本在 06:00 前会直接退出。
 - `AHNS Command Watcher Stop`：每日 00:00 停止监听任务，并结束仍在运行的 `service_command_watcher.py`。
 
@@ -197,6 +198,7 @@ C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log
 
 ```powershell
 schtasks /Query /TN "Futu OpenD Autostart"
+schtasks /Query /TN "AHNS Service GUI" /V /FO LIST
 schtasks /Query /TN "AHNS Command Watcher"
 schtasks /Query /TN "AHNS Command Watcher Stop"
 
@@ -204,7 +206,12 @@ Get-CimInstance Win32_Process |
   Where-Object { $_.CommandLine -match "Futu_OpenD|service_command_watcher.py" } |
   Select-Object ProcessId, Name, CommandLine
 
+Get-CimInstance Win32_Process |
+  Where-Object { $_.Name -match "python" -and $_.CommandLine -match "service_gui.py" } |
+  Select-Object ProcessId, Name, CreationDate, CommandLine
+
 & "C:\Users\Administrator\Desktop\AHNS\tail_ahns_log.ps1"
+Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_gui.log" -Tail 80
 ```
 
 如果手动在 PowerShell 里直接运行 Python 脚本，先执行下面几行，避免中文日志乱码：
