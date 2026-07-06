@@ -4,9 +4,9 @@
   "receiver": "",
   "holding_change_fund_code": "",
   "status": "requested",
-  "requested_at_bj": "2026-07-06T13:29:10+08:00",
+  "requested_at_bj": "2026-07-06T14:06:18+08:00",
   "last_started_at_bj": "2026-07-03T13:33:11+08:00",
   "last_finished_at_bj": "2026-07-03T13:34:38+08:00",
   "last_exit_code": 0,
-  "last_message": "requested from GitHub Actions by liangliangwei0208-rgb, run_id=28769940401"
+  "last_message": "requested from GitHub Actions by liangliangwei0208-rgb, run_id=28771362937"
 }
