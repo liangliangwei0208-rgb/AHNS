@@ -32,6 +32,7 @@ CACHE_CONFLICT_EXACT_PATHS = {
     "cache/afterhours_quote_cache.json",
     "cache/fund_estimate_return_cache.json",
     "cache/fund_holding_change_state.json",
+    "cache/fund_purchase_limit_cache.json",
     "cache/intraday_quote_cache.json",
     "cache/security_return_cache.json",
 }
@@ -572,6 +573,61 @@ def merge_fund_holding_change_state_cache(ours_text: str, theirs_text: str) -> s
     return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
 
 
+def purchase_limit_record_completeness(record: dict[str, Any]) -> int:
+    return sum(1 for value in record.values() if value not in (None, "", [], {}))
+
+
+def choose_purchase_limit_record(ours: Any, theirs: Any) -> Any:
+    if not isinstance(ours, dict):
+        return theirs
+    if not isinstance(theirs, dict):
+        return ours
+
+    ours_time = parse_datetime_like(ours.get("fetched_at"))
+    theirs_time = parse_datetime_like(theirs.get("fetched_at"))
+    if ours_time and theirs_time and theirs_time != ours_time:
+        chosen = theirs if theirs_time > ours_time else ours
+        other = ours if chosen is theirs else theirs
+    elif theirs_time and not ours_time:
+        chosen, other = theirs, ours
+    elif ours_time and not theirs_time:
+        chosen, other = ours, theirs
+    else:
+        ours_score = purchase_limit_record_completeness(ours)
+        theirs_score = purchase_limit_record_completeness(theirs)
+        chosen = theirs if theirs_score >= ours_score else ours
+        other = ours if chosen is theirs else theirs
+
+    merged = dict(chosen)
+    for key, value in other.items():
+        merged.setdefault(key, value)
+
+    fetched_values = [value for value in (ours.get("fetched_at"), theirs.get("fetched_at")) if value]
+    if fetched_values:
+        merged["fetched_at"] = max(
+            fetched_values,
+            key=lambda value: parse_datetime_like(value) or datetime.min,
+        )
+    return merged
+
+
+def merge_fund_purchase_limit_cache(ours_text: str, theirs_text: str) -> str:
+    ours = json.loads(ours_text)
+    theirs = json.loads(theirs_text)
+    if not isinstance(ours, dict) or not isinstance(theirs, dict):
+        raise SyncError("基金限购缓存不是 JSON object，无法自动合并。")
+
+    merged: dict[str, Any] = {}
+    for key in sorted(set(ours) | set(theirs)):
+        if key in ours and key in theirs:
+            merged[key] = choose_purchase_limit_record(ours[key], theirs[key])
+        elif key in theirs:
+            merged[key] = theirs[key]
+        else:
+            merged[key] = ours[key]
+    return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
+
+
 def merge_a_share_trade_calendar_cache(ours_text: str, theirs_text: str) -> str:
     ours = json.loads(ours_text)
     theirs = json.loads(theirs_text)
@@ -613,6 +669,8 @@ def merge_cache_conflict_file(repo: Path, path: str) -> None:
         merged_text = merge_fund_estimate_cache(ours_text, theirs_text)
     elif path == "cache/fund_holding_change_state.json":
         merged_text = merge_fund_holding_change_state_cache(ours_text, theirs_text)
+    elif path == "cache/fund_purchase_limit_cache.json":
+        merged_text = merge_fund_purchase_limit_cache(ours_text, theirs_text)
     elif path == "cache/security_return_cache.json":
         merged_text = merge_security_return_cache(ours_text, theirs_text)
     else:
@@ -711,6 +769,10 @@ def sync_repositories(
     log(f"Gitee 远程名: {gitee_remote}")
 
     step("检查当前分支和工作区状态")
+    pending_unmerged = unmerged_paths(repo)
+    if pending_unmerged:
+        log("检测到未完成的 merge/rebase 冲突，先尝试自动合并运行缓存。")
+        resolve_cache_conflicts(repo, commit_merge=True)
     ensure_current_branch(repo, branch)
     ensure_clean_worktree(repo)
     step("检查 GitHub/Gitee 远程地址")
