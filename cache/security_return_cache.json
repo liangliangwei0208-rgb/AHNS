@@ -67390,5 +67390,17 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-07-14T08:17:00+08:00"
+  },
+  "SECURITY:KR:000660:2026-07-14": {
+    "market": "KR",
+    "ticker": "000660",
+    "valuation_anchor_date": "2026-07-14",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-07-14T14:13:03+08:00"
   }
 }
