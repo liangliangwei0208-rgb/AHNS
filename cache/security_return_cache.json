@@ -72918,7 +72918,7 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-07-17T12:48:07+08:00"
+    "fetched_at": "2026-07-17T13:53:48+08:00"
   },
   "SECURITY:KR:005930:2026-07-17": {
     "market": "KR",
@@ -72930,6 +72930,6 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-07-17T12:48:07+08:00"
+    "fetched_at": "2026-07-17T13:53:47+08:00"
   }
 }
