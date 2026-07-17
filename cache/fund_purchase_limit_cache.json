@@ -1,150 +1,298 @@
 {
   "000043": {
-    "fetched_at": "2026-07-14T22:21:00+08:00",
-    "value": "100元"
+    "fetched_at": "2026-07-17T12:39:33+08:00",
+    "value": "100元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100.0"
   },
   "001092": {
-    "fetched_at": "2026-07-14T22:21:14+08:00",
-    "value": "10元"
+    "fetched_at": "2026-07-17T12:39:39+08:00",
+    "value": "10元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "10.0"
   },
   "002891": {
-    "fetched_at": "2026-07-14T22:21:05+08:00",
-    "value": "100元"
+    "fetched_at": "2026-07-17T12:39:35+08:00",
+    "value": "100元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100.0"
   },
   "006555": {
-    "fetched_at": "2026-07-14T22:21:07+08:00",
-    "value": "100元"
+    "fetched_at": "2026-07-17T12:39:37+08:00",
+    "value": "100元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "暂停申购",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100.0"
   },
   "006679": {
-    "fetched_at": "2026-07-14T22:21:23+08:00",
-    "value": "暂停申购"
+    "fetched_at": "2026-07-17T12:39:44+08:00",
+    "value": "暂停申购",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "暂停申购",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "0"
   },
   "007844": {
-    "fetched_at": "2026-07-14T22:21:22+08:00",
-    "value": "10元"
+    "fetched_at": "2026-07-17T12:39:43+08:00",
+    "value": "10元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "暂停申购",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "10.0"
   },
   "008254": {
-    "fetched_at": "2026-07-14T22:21:06+08:00",
-    "value": "200元"
+    "fetched_at": "2026-07-17T12:39:36+08:00",
+    "value": "200元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "200.0"
   },
   "008401": {
-    "fetched_at": "2026-07-14T22:21:20+08:00",
-    "value": "10元"
+    "fetched_at": "2026-07-17T12:39:42+08:00",
+    "value": "10元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "10.0"
   },
   "009975": {
-    "fetched_at": "2026-07-14T22:21:31+08:00",
-    "value": "1000元"
+    "fetched_at": "2026-07-17T12:39:47+08:00",
+    "value": "1000元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "1000.0"
   },
   "012868": {
-    "fetched_at": "2026-07-14T22:21:32+08:00",
-    "value": "10元"
+    "fetched_at": "2026-07-17T12:39:48+08:00",
+    "value": "10元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "暂停申购",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "10.0"
   },
   "012922": {
-    "fetched_at": "2026-07-14T22:20:49+08:00",
-    "value": "10元"
+    "fetched_at": "2026-07-17T12:39:28+08:00",
+    "value": "10元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "暂停申购",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "10.0"
   },
   "013328": {
-    "fetched_at": "2026-07-14T22:21:02+08:00",
-    "value": "100元"
+    "fetched_at": "2026-07-17T12:39:34+08:00",
+    "value": "100元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100.0"
   },
   "015202": {
-    "fetched_at": "2026-07-14T22:21:10+08:00",
-    "value": "700元"
+    "fetched_at": "2026-07-17T12:39:38+08:00",
+    "value": "700元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "700.0"
   },
   "015205": {
-    "fetched_at": "2026-07-14T22:21:11+08:00",
-    "value": "不限购/开放申购"
+    "fetched_at": "2026-07-17T12:39:38+08:00",
+    "value": "不限购/开放申购",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "开放申购",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100000000000"
   },
   "016665": {
-    "fetched_at": "2026-07-14T22:20:58+08:00",
-    "value": "100元"
+    "fetched_at": "2026-07-17T12:39:32+08:00",
+    "value": "100元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100.0"
   },
   "016702": {
-    "fetched_at": "2026-07-14T22:20:50+08:00",
-    "value": "1000元"
+    "fetched_at": "2026-07-17T12:39:29+08:00",
+    "value": "1000元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "1000.0"
   },
   "017072": {
-    "fetched_at": "2026-07-14T22:21:36+08:00",
-    "value": "不限购/开放申购"
+    "fetched_at": "2026-07-17T12:39:50+08:00",
+    "value": "不限购/开放申购",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "开放申购",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100000000000"
   },
   "017145": {
-    "fetched_at": "2026-07-14T22:21:30+08:00",
-    "value": "1.00万元"
+    "fetched_at": "2026-07-17T12:39:47+08:00",
+    "value": "1.00万元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "10000.0"
   },
   "017437": {
-    "fetched_at": "2026-07-14T22:20:48+08:00",
-    "value": "1000元"
+    "fetched_at": "2026-07-17T12:39:27+08:00",
+    "value": "1000元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "1000.0"
   },
   "017654": {
-    "fetched_at": "2026-07-14T22:21:09+08:00",
-    "value": "500元"
+    "fetched_at": "2026-07-17T12:39:37+08:00",
+    "value": "500元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "500.0"
   },
   "017731": {
-    "fetched_at": "2026-07-14T22:21:12+08:00",
-    "value": "100元"
+    "fetched_at": "2026-07-17T12:39:39+08:00",
+    "value": "100元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100.0"
   },
   "018036": {
-    "fetched_at": "2026-07-14T22:20:55+08:00",
-    "value": "1000元"
+    "fetched_at": "2026-07-17T12:39:31+08:00",
+    "value": "1000元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "1000.0"
   },
   "018229": {
-    "fetched_at": "2026-07-14T22:21:27+08:00",
-    "value": "1000元"
+    "fetched_at": "2026-07-17T12:39:46+08:00",
+    "value": "1000元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "1000.0"
   },
   "018852": {
-    "fetched_at": "2026-07-14T22:21:25+08:00",
-    "value": "未知"
+    "fetched_at": "2026-07-17T12:39:44+08:00",
+    "value": "限购(未识别金额)",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "0"
   },
   "019231": {
-    "fetched_at": "2026-07-14T22:21:34+08:00",
-    "value": "60.00万元"
+    "fetched_at": "2026-07-17T12:39:49+08:00",
+    "value": "60.00万元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "600000.0"
   },
   "021277": {
-    "fetched_at": "2026-07-14T22:20:53+08:00",
-    "value": "200元"
+    "fetched_at": "2026-07-17T12:39:31+08:00",
+    "value": "200元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "200.0"
   },
   "021842": {
-    "fetched_at": "2026-07-14T22:20:52+08:00",
-    "value": "10元"
+    "fetched_at": "2026-07-17T12:39:30+08:00",
+    "value": "10元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "10.0"
   },
   "022184": {
-    "fetched_at": "2026-07-14T22:20:57+08:00",
-    "value": "1000元"
+    "fetched_at": "2026-07-17T12:39:32+08:00",
+    "value": "1000元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "1000.0"
   },
   "024239": {
-    "fetched_at": "2026-07-14T22:20:51+08:00",
-    "value": "2000元"
+    "fetched_at": "2026-07-17T12:39:29+08:00",
+    "value": "2000元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "2000.0"
   },
   "118001": {
-    "fetched_at": "2026-07-14T22:21:26+08:00",
-    "value": "500.00万元"
+    "fetched_at": "2026-07-17T12:39:45+08:00",
+    "value": "500.00万元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "暂停申购",
+    "raw_redeem_status": "暂停赎回",
+    "raw_daily_limit_amount": "5000000.0"
   },
   "160140": {
-    "fetched_at": "2026-07-14T22:21:37+08:00",
-    "value": "不限购/开放申购"
+    "fetched_at": "2026-07-17T12:39:50+08:00",
+    "value": "不限购/开放申购",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "开放申购",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100000000000"
   },
   "163813": {
-    "fetched_at": "2026-07-14T22:21:29+08:00",
-    "value": "500.00万元"
+    "fetched_at": "2026-07-17T12:39:46+08:00",
+    "value": "500.00万元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "5000000.0"
   },
   "164212": {
-    "fetched_at": "2026-07-14T22:21:35+08:00",
-    "value": "100元"
+    "fetched_at": "2026-07-17T12:39:49+08:00",
+    "value": "100元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100.0"
   },
   "486002": {
-    "fetched_at": "2026-07-14T22:21:18+08:00",
-    "value": "100元"
+    "fetched_at": "2026-07-17T12:39:42+08:00",
+    "value": "100元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100.0"
   },
   "519696": {
-    "fetched_at": "2026-07-14T22:21:15+08:00",
-    "value": "不限购/开放申购"
+    "fetched_at": "2026-07-17T12:39:40+08:00",
+    "value": "不限购/开放申购",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "开放申购",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100000000000"
   },
   "519981": {
-    "fetched_at": "2026-07-14T22:21:17+08:00",
-    "value": "1.00万元"
+    "fetched_at": "2026-07-17T12:39:41+08:00",
+    "value": "1.00万元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "10000.0"
   },
   "539002": {
-    "fetched_at": "2026-07-14T22:20:59+08:00",
-    "value": "100元"
+    "fetched_at": "2026-07-17T12:39:33+08:00",
+    "value": "100元",
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100.0"
   }
 }

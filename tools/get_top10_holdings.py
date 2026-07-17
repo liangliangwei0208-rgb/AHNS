@@ -69,6 +69,7 @@ import re
 import json
 import time
 import os
+import html
 import warnings
 import contextlib
 import requests
@@ -129,6 +130,7 @@ FUND_ESTIMATE_RETURN_CACHE_FILE = "fund_estimate_return_cache.json"
 
 _SECURITY_RETURN_RUNTIME_CACHE = {}
 _MARKET_SCHEDULE_RUNTIME_CACHE = {}
+_FUND_PURCHASE_LIMIT_BULK_CACHE = None
 _CORRUPT_JSON_CACHE_FILES = set()
 ANCHOR_MARKET_STATUSES = {"traded", "closed", "pending", "missing", "stale"}
 ANCHOR_COMPLETE_STATUSES = {"traded", "closed"}
@@ -1630,7 +1632,143 @@ def _normalize_html_text(text):
     return text
 
 
-def get_fund_purchase_limit_uncached(fund_code: str, timeout=8) -> str:
+def _format_purchase_limit_amount(value) -> str | None:
+    """
+    把东方财富“日累计限定金额”统一成图里使用的限购文案。
+    """
+    if value is None:
+        return None
+
+    text = str(value).strip()
+    if not text or text in {"-", "--", "---", "nan", "None"}:
+        return None
+
+    try:
+        amount = float(text.replace(",", ""))
+    except Exception:
+        return None
+
+    if amount <= 0:
+        return None
+
+    # 天天基金用特别大的数表示基本不限额。
+    if amount >= 1_000_000_000:
+        return None
+
+    if amount >= 10_000:
+        formatted = f"{amount / 10_000:.2f}".rstrip("0").rstrip(".")
+        if "." not in formatted and amount % 10_000 == 0:
+            formatted = f"{amount / 10_000:.2f}"
+        return f"{formatted}万元"
+
+    if amount.is_integer():
+        return f"{int(amount)}元"
+
+    return f"{amount:.2f}".rstrip("0").rstrip(".") + "元"
+
+
+def _format_purchase_limit_from_status(purchase_status, daily_limit_amount) -> str:
+    status = str(purchase_status or "").strip()
+    amount_text = _format_purchase_limit_amount(daily_limit_amount)
+
+    if amount_text:
+        return amount_text
+
+    if (
+        "限制" in status
+        or "限购" in status
+        or "限大额" in status
+        or "大额申购" in status
+        or "暂停大额" in status
+    ):
+        return "限购(未识别金额)"
+
+    if "暂停" in status and "开放申购" not in status:
+        return "暂停申购"
+
+    if "开放申购" in status or "开放" in status:
+        return "不限购/开放申购"
+
+    return "未知"
+
+
+def _extract_eastmoney_redata_datas(text: str) -> list:
+    """
+    解析东方财富 Fund_JJJZ_Data.aspx 返回的 var reData={datas:[...]}。
+    """
+    match = re.search(r"datas\s*:\s*(\[.*?\])\s*,\s*record\s*:", text, flags=re.S)
+    if not match:
+        raise RuntimeError("东方财富申购状态接口返回中未找到 datas 字段")
+
+    try:
+        return json.loads(match.group(1))
+    except Exception as exc:
+        raise RuntimeError(f"东方财富申购状态 datas 解析失败: {exc}") from exc
+
+
+def fetch_fund_purchase_limit_bulk_map(timeout=15, force_refresh=False) -> dict[str, dict[str, str]]:
+    """
+    批量获取天天基金“基金申购状态”表。
+
+    这里直接调用 AkShare fund_purchase_em() 底层接口，避免 AkShare 在部分网络
+    环境下一次性 DataFrame 转换时间过长。返回按基金代码索引的 detail dict。
+    """
+    global _FUND_PURCHASE_LIMIT_BULK_CACHE
+
+    if _FUND_PURCHASE_LIMIT_BULK_CACHE is not None and not force_refresh:
+        return _FUND_PURCHASE_LIMIT_BULK_CACHE
+
+    url = "https://fund.eastmoney.com/Data/Fund_JJJZ_Data.aspx"
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/128.0.0.0 Safari/537.36"
+        ),
+        "Referer": "https://fund.eastmoney.com/Fund_sgzt_bzdm.html",
+    }
+    params = {
+        "t": "8",
+        "page": "1,50000",
+        "js": "reData",
+        "sort": "fcode,asc",
+    }
+
+    try:
+        resp = requests.get(url, params=params, headers=headers, timeout=timeout)
+        resp.raise_for_status()
+    except Exception as exc:
+        raise RuntimeError(f"东方财富申购状态批量接口请求失败: {exc}") from exc
+
+    rows = _extract_eastmoney_redata_datas(resp.text)
+    result: dict[str, dict[str, str]] = {}
+    for row in rows:
+        if not isinstance(row, list) or len(row) < 10:
+            continue
+        code = str(row[0]).strip().zfill(6)
+        if not re.fullmatch(r"\d{6}", code):
+            continue
+
+        purchase_status = str(row[5] or "").strip() if len(row) > 5 else ""
+        redeem_status = str(row[6] or "").strip() if len(row) > 6 else ""
+        daily_limit_amount = str(row[9] or "").strip() if len(row) > 9 else ""
+        value = _format_purchase_limit_from_status(purchase_status, daily_limit_amount)
+        result[code] = {
+            "value": value,
+            "source": "eastmoney_purchase_status_bulk",
+            "raw_purchase_status": purchase_status,
+            "raw_redeem_status": redeem_status,
+            "raw_daily_limit_amount": daily_limit_amount,
+        }
+
+    if not result:
+        raise RuntimeError("东方财富申购状态批量接口未解析到任何基金记录")
+
+    _FUND_PURCHASE_LIMIT_BULK_CACHE = result
+    return result
+
+
+def get_fund_purchase_limit_uncached_detail(fund_code: str, timeout=8) -> dict[str, str]:
     """
     尝试获取基金当前限购金额。
 
@@ -1662,7 +1800,10 @@ def get_fund_purchase_limit_uncached(fund_code: str, timeout=8) -> str:
     fund_code = str(fund_code).zfill(6)
 
     if fund_code in _FUND_LIMIT_CACHE:
-        return _FUND_LIMIT_CACHE[fund_code]
+        return {
+            "value": _FUND_LIMIT_CACHE[fund_code],
+            "source": "runtime_cache",
+        }
 
     headers = {
         "User-Agent": (
@@ -1691,6 +1832,8 @@ def get_fund_purchase_limit_uncached(fund_code: str, timeout=8) -> str:
     ]
 
     result = "未知"
+    source = "eastmoney_html_pages"
+    errors = []
 
     for url in urls:
         try:
@@ -1711,25 +1854,60 @@ def get_fund_purchase_limit_uncached(fund_code: str, timeout=8) -> str:
 
             if found_amount:
                 result = found_amount
+                source = f"eastmoney_html:{url}"
                 break
 
             if "暂停申购" in clean_text and "开放申购" not in clean_text:
                 result = "暂停申购"
+                source = f"eastmoney_html:{url}"
                 break
 
             if "暂停大额申购" in clean_text or "限制大额申购" in clean_text:
                 result = "限购(未识别金额)"
+                source = f"eastmoney_html:{url}"
                 break
 
             if "开放申购" in clean_text:
                 result = "不限购/开放申购"
+                source = f"eastmoney_html:{url}"
                 break
 
-        except Exception:
+        except Exception as exc:
+            errors.append(f"{url}: {exc.__class__.__name__}({exc})")
             continue
 
     _FUND_LIMIT_CACHE[fund_code] = result
-    return result
+    detail = {
+        "value": result,
+        "source": source,
+    }
+    if result == "未知":
+        if errors:
+            detail["error"] = " | ".join(errors[-3:])
+        else:
+            detail["error"] = "页面可访问但未解析到限购字段"
+    return detail
+
+
+def get_fund_purchase_limit_uncached(fund_code: str, timeout=8) -> str:
+    detail = get_fund_purchase_limit_uncached_detail(fund_code=fund_code, timeout=timeout)
+    return detail.get("value", "未知")
+
+
+def _purchase_limit_return(detail: dict, return_detail: bool):
+    return detail if return_detail else detail.get("value", "未知")
+
+
+def _purchase_limit_cache_record(detail: dict) -> dict:
+    record = {
+        "fetched_at": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
+        "value": detail.get("value", "未知"),
+    }
+    for key in ("source", "raw_purchase_status", "raw_redeem_status", "raw_daily_limit_amount", "error"):
+        value = detail.get(key)
+        if value not in (None, ""):
+            record[key] = value
+    return record
 
 
 def get_fund_purchase_limit(
@@ -1738,7 +1916,9 @@ def get_fund_purchase_limit(
     cache_days=FUND_PURCHASE_LIMIT_CACHE_DAYS,
     cache_enabled=True,
     force_refresh=False,
-) -> str:
+    bulk_limit_map: dict[str, dict[str, str]] | None = None,
+    return_detail: bool = False,
+):
     """
     获取基金限购金额，带文件缓存。
 
@@ -1751,7 +1931,8 @@ def get_fund_purchase_limit(
     fund_code = str(fund_code).zfill(6)
 
     if not cache_enabled:
-        return get_fund_purchase_limit_uncached(fund_code=fund_code, timeout=timeout)
+        detail = get_fund_purchase_limit_uncached_detail(fund_code=fund_code, timeout=timeout)
+        return _purchase_limit_return(detail, return_detail)
 
     cache = _load_json_cache(FUND_PURCHASE_LIMIT_CACHE_FILE, default={})
     item = cache.get(fund_code)
@@ -1760,7 +1941,14 @@ def get_fund_purchase_limit(
         value = item.get("value", "未知")
         _FUND_LIMIT_CACHE[fund_code] = value
         _cache_log(f"使用限购缓存: {fund_code} -> {value}")
-        return value
+        detail = {
+            "value": value,
+            "source": item.get("source") or "file_cache",
+        }
+        for key in ("raw_purchase_status", "raw_redeem_status", "raw_daily_limit_amount", "error"):
+            if isinstance(item, dict) and item.get(key) not in (None, ""):
+                detail[key] = item.get(key)
+        return _purchase_limit_return(detail, return_detail)
 
     old_value = item.get("value") if isinstance(item, dict) else None
 
@@ -1770,34 +1958,68 @@ def get_fund_purchase_limit(
             _cache_log(f"手动刷新限购信息: {fund_code}")
         else:
             _cache_log(f"重新获取限购信息: {fund_code}")
-        value = get_fund_purchase_limit_uncached(
-            fund_code=fund_code,
-            timeout=timeout,
-        )
+
+        candidate_errors = []
+        detail = None
+        if bulk_limit_map is not None:
+            bulk_detail = bulk_limit_map.get(fund_code)
+            if bulk_detail:
+                bulk_value = bulk_detail.get("value", "未知")
+                if bulk_value and bulk_value != "未知":
+                    detail = dict(bulk_detail)
+                else:
+                    candidate_errors.append("批量申购状态接口返回未知")
+            else:
+                candidate_errors.append("批量申购状态接口未包含该基金")
+
+        if detail is None:
+            detail = get_fund_purchase_limit_uncached_detail(
+                fund_code=fund_code,
+                timeout=timeout,
+            )
+            if candidate_errors:
+                old_error = detail.get("error", "")
+                joined = " | ".join(candidate_errors)
+                detail["error"] = f"{joined} | {old_error}" if old_error else joined
+
+        value = detail.get("value", "未知")
 
         # 如果本次只得到“未知”，但旧缓存有明确值，则保留旧值，避免网络异常污染缓存。
         if value == "未知" and old_value and old_value != "未知":
             print(f"[WARN] 限购新结果为未知，继续沿用旧缓存: {fund_code} -> {old_value}", flush=True)
             _FUND_LIMIT_CACHE[fund_code] = old_value
-            return old_value
+            fallback_detail = {
+                "value": old_value,
+                "source": "old_cache_after_unknown",
+            }
+            if detail.get("error"):
+                fallback_detail["error"] = detail.get("error")
+            return _purchase_limit_return(fallback_detail, return_detail)
 
-        cache[fund_code] = {
-            "fetched_at": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
-            "value": value,
-        }
+        cache[fund_code] = _purchase_limit_cache_record(detail)
         _save_json_cache(FUND_PURCHASE_LIMIT_CACHE_FILE, cache)
 
         _FUND_LIMIT_CACHE[fund_code] = value
-        return value
+        return _purchase_limit_return(detail, return_detail)
 
     except Exception as e:
         if old_value:
             _FUND_LIMIT_CACHE[fund_code] = old_value
             print(f"[WARN] 限购更新失败，使用旧缓存: {fund_code}, 原因: {e}", flush=True)
-            return old_value
+            detail = {
+                "value": old_value,
+                "source": "old_cache_after_error",
+                "error": str(e),
+            }
+            return _purchase_limit_return(detail, return_detail)
 
         print(f"[WARN] 限购获取失败且无缓存: {fund_code}, 原因: {e}", flush=True)
-        return "未知"
+        detail = {
+            "value": "未知",
+            "source": "failed",
+            "error": str(e),
+        }
+        return _purchase_limit_return(detail, return_detail)
 
 
 def get_purchase_limit_cache_refresh_summary(
@@ -4711,32 +4933,180 @@ def get_proxy_return_pct(
 
 # 股票持仓估算。
 
+EASTMONEY_HOLDING_URL = "http://fundf10.eastmoney.com/FundArchivesDatas.aspx"
+EASTMONEY_HOLDING_REFERER = "http://fundf10.eastmoney.com/ccmx_{fund_code}.html"
+
+
+def _parse_holding_number(value):
+    """
+    解析持仓表里的百分比/数字字段。东方财富 HTTP 源常返回 "8.88%"。
+    """
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except Exception:
+        pass
+
+    text = str(value).strip().replace("%", "").replace(",", "")
+    if text in {"", "-", "--", "---", "nan", "None"}:
+        return None
+
+    try:
+        return float(text)
+    except Exception:
+        return None
+
+
+def _fetch_stock_holdings_by_akshare(fund_code: str, years: list[int | str]) -> list[pd.DataFrame]:
+    frames: list[pd.DataFrame] = []
+    errors: list[str] = []
+
+    for year in years:
+        year_text = str(year)
+        try:
+            df = ak.fund_portfolio_hold_em(
+                symbol=str(fund_code).zfill(6),
+                date=year_text,
+            )
+            if df is not None and not df.empty:
+                df = df.copy()
+                df["查询年份"] = year_text
+                frames.append(df)
+        except Exception as exc:
+            errors.append(f"{year_text}: {exc}")
+            print(f"[WARN] {str(fund_code).zfill(6)} {year_text} 股票持仓 AkShare 获取失败: {exc}", flush=True)
+
+    if frames:
+        return frames
+
+    raise RuntimeError("AkShare 持仓接口失败: " + " | ".join(errors[-3:]))
+
+
+def _extract_eastmoney_holding_content(text: str) -> str:
+    start = text.find('content:"')
+    end = text.find('",arryear', start)
+    if start < 0 or end <= start:
+        raise RuntimeError("东方财富 HTTP 返回内容格式异常，未找到 content 字段")
+    content = text[start + len('content:"') : end]
+    return html.unescape(content.replace("\\/", "/").replace('\\"', '"'))
+
+
+def _fetch_stock_holdings_by_eastmoney_http(
+    fund_code: str,
+    years: list[int | str],
+    *,
+    timeout: int | float = 20,
+) -> list[pd.DataFrame]:
+    frames: list[pd.DataFrame] = []
+    errors: list[str] = []
+    fund_code = str(fund_code).zfill(6)
+    session = requests.Session()
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Referer": EASTMONEY_HOLDING_REFERER.format(fund_code=fund_code),
+    }
+
+    for year in years:
+        year_text = str(year)
+        last_error = ""
+        year_success = False
+        for attempt in range(1, 7):
+            try:
+                resp = session.get(
+                    EASTMONEY_HOLDING_URL,
+                    params={
+                        "type": "jjcc",
+                        "code": fund_code,
+                        "topline": "10000",
+                        "year": year_text,
+                        "month": "",
+                        "rt": f"{time.time():.12f}",
+                    },
+                    headers=headers,
+                    timeout=timeout,
+                )
+                if resp.status_code != 200 or not resp.text:
+                    raise RuntimeError(f"HTTP {resp.status_code}, len={len(resp.text)}")
+
+                content = _extract_eastmoney_holding_content(resp.text)
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", FutureWarning)
+                    tables = pd.read_html(StringIO(content))
+
+                year_frames: list[pd.DataFrame] = []
+                quarter_labels = re.findall(r"(\d{4}年[1-4]季度股票投资明细)", content)
+                for index, table in enumerate(tables):
+                    table = table.copy()
+                    if "股票代码" not in table.columns or "占净值比例" not in table.columns:
+                        continue
+                    if "季度" not in table.columns:
+                        label = quarter_labels[index] if index < len(quarter_labels) else ""
+                        table["季度"] = label or f"{year_text}年0季度股票投资明细"
+                    table["查询年份"] = year_text
+                    year_frames.append(table)
+
+                if year_frames:
+                    frames.extend(year_frames)
+                    year_success = True
+                    break
+
+                raise RuntimeError("未解析到股票持仓表")
+            except Exception as exc:
+                last_error = str(exc)
+                time.sleep(0.8 * attempt)
+
+        if last_error and not year_success:
+            errors.append(f"{year_text}: {last_error}")
+
+    if frames:
+        return frames
+
+    raise RuntimeError("东方财富 HTTP 持仓接口失败: " + " | ".join(errors[-3:]))
+
+
+def fetch_fund_stock_holdings_frames(
+    fund_code: str,
+    years: list[int | str],
+    *,
+    timeout: int | float = 20,
+) -> tuple[list[pd.DataFrame], str]:
+    """
+    获取基金股票持仓原始表。先走 AkShare；AkShare 解析失败时用东方财富 HTTP 源兜底。
+    """
+    errors: list[str] = []
+    fetchers = [
+        ("akshare", lambda: _fetch_stock_holdings_by_akshare(fund_code, years)),
+        (
+            "eastmoney_http",
+            lambda: _fetch_stock_holdings_by_eastmoney_http(fund_code, years, timeout=timeout),
+        ),
+    ]
+
+    for source, fetcher in fetchers:
+        try:
+            frames = fetcher()
+            if frames:
+                if source != "akshare":
+                    print(
+                        f"[INFO] {str(fund_code).zfill(6)} 股票持仓使用备用源: {source}",
+                        flush=True,
+                    )
+                return frames, source
+        except Exception as exc:
+            errors.append(f"{source}: {exc}")
+
+    raise RuntimeError("未获取到基金股票持仓数据；" + "；".join(errors))
+
+
 def get_latest_stock_holdings_df_uncached(fund_code="017437", top_n=10):
     """
     获取基金最新披露季度前 N 大股票持仓。
     """
     current_year = datetime.now().year
-    years = [str(current_year), str(current_year - 1)]
-
-    frames = []
-
-    for year in years:
-        try:
-            df = ak.fund_portfolio_hold_em(
-                symbol=str(fund_code),
-                date=year,
-            )
-
-            if df is not None and not df.empty:
-                df = df.copy()
-                df["查询年份"] = year
-                frames.append(df)
-
-        except Exception as e:
-            print(f"[WARN] {fund_code} {year} 股票持仓获取失败: {e}")
-
-    if not frames:
-        raise RuntimeError(f"未获取到基金 {fund_code} 的股票持仓数据。")
+    years = [current_year, current_year - 1]
+    frames, source = fetch_fund_stock_holdings_frames(fund_code=str(fund_code).zfill(6), years=years)
 
     data = pd.concat(frames, ignore_index=True)
 
@@ -4744,9 +5114,9 @@ def get_latest_stock_holdings_df_uncached(fund_code="017437", top_n=10):
     missing = [c for c in required_cols if c not in data.columns]
 
     if missing:
-        raise RuntimeError(f"股票持仓缺少必要字段: {missing}; 当前字段: {list(data.columns)}")
+        raise RuntimeError(f"股票持仓缺少必要字段: {missing}; 当前字段: {list(data.columns)}; source={source}")
 
-    data["占净值比例"] = pd.to_numeric(data["占净值比例"], errors="coerce")
+    data["占净值比例"] = data["占净值比例"].map(_parse_holding_number)
     data["_quarter_key"] = data["季度"].apply(quarter_key)
 
     data = data.dropna(subset=["占净值比例"])

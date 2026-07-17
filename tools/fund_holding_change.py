@@ -9,27 +9,21 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import html
 import json
 import math
 import os
 import re
-import time
-import warnings
 from dataclasses import dataclass
 from datetime import datetime
-from io import StringIO
 from pathlib import Path
 from typing import Any
 
-import akshare as ak
 import pandas as pd
-import requests
 from PIL import Image, ImageDraw, ImageFont
 
 from tools.console_display import print_key_values, print_records_table, print_stage
 from tools.configs.fund_universe_configs import HAIWAI_FUND_CODES
-from tools.get_top10_holdings import detect_market_and_ticker, quarter_key
+from tools.get_top10_holdings import detect_market_and_ticker, fetch_fund_stock_holdings_frames, quarter_key
 from tools.paths import (
     FUND_ESTIMATE_CACHE,
     FUND_HOLDING_CHANGE_BATCH_STATE_CACHE,
@@ -50,8 +44,6 @@ HOLDING_CHANGE_PREVIOUS_DIR = HOLDING_CHANGE_OUTPUT_DIR / "previous"
 HOLDING_CHANGE_MANUAL_DIR = HOLDING_CHANGE_OUTPUT_DIR / "manual"
 DEFAULT_OUTPUT = HOLDING_CHANGE_MANUAL_DIR / f"{DEFAULT_FUND_CODE}.png"
 BATCH_CLEANUP_GRACE_DAYS = 3
-EASTMONEY_HOLDING_URL = "http://fundf10.eastmoney.com/FundArchivesDatas.aspx"
-EASTMONEY_REFERER = "http://fundf10.eastmoney.com/ccmx_{fund_code}.html"
 
 FUND_NAME_FALLBACKS = {
     "012922": "易方达全球成长精选混合(QDII)人民币C",
@@ -573,118 +565,18 @@ def _manual_output_for_fund(fund_code: str) -> Path:
     return HOLDING_CHANGE_MANUAL_DIR / f"{fund_code}.png"
 
 
-def _fetch_holdings_by_akshare(fund_code: str, years: list[int]) -> list[pd.DataFrame]:
-    frames: list[pd.DataFrame] = []
-    errors: list[str] = []
-    for year in years:
-        try:
-            df = ak.fund_portfolio_hold_em(symbol=fund_code, date=str(year))
-            if df is not None and not df.empty:
-                df = df.copy()
-                df["查询年份"] = str(year)
-                frames.append(df)
-        except Exception as exc:
-            errors.append(f"{year}: {exc}")
-    if frames:
-        return frames
-    raise RuntimeError("AkShare 持仓接口失败: " + " | ".join(errors[-3:]))
-
-
-def _extract_eastmoney_content(text: str) -> str:
-    start = text.find('content:"')
-    end = text.find('",arryear', start)
-    if start < 0 or end <= start:
-        raise RuntimeError("东方财富 HTTP 返回内容格式异常，未找到 content 字段")
-    content = text[start + len('content:"') : end]
-    return html.unescape(content.replace("\\/", "/").replace('\\"', '"'))
-
-
-def _fetch_holdings_by_eastmoney_http(fund_code: str, years: list[int]) -> list[pd.DataFrame]:
-    frames: list[pd.DataFrame] = []
-    errors: list[str] = []
-    session = requests.Session()
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Referer": EASTMONEY_REFERER.format(fund_code=fund_code),
-    }
-
-    for year in years:
-        last_error = ""
-        year_success = False
-        for attempt in range(1, 7):
-            try:
-                resp = session.get(
-                    EASTMONEY_HOLDING_URL,
-                    params={
-                        "type": "jjcc",
-                        "code": fund_code,
-                        "topline": "10000",
-                        "year": str(year),
-                        "month": "",
-                        "rt": f"{time.time():.12f}",
-                    },
-                    headers=headers,
-                    timeout=20,
-                )
-                if resp.status_code != 200 or not resp.text:
-                    raise RuntimeError(f"HTTP {resp.status_code}, len={len(resp.text)}")
-                content = _extract_eastmoney_content(resp.text)
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore", FutureWarning)
-                    tables = pd.read_html(StringIO(content))
-                year_frames = []
-                quarter_labels = re.findall(r"(\d{4}年[1-4]季度股票投资明细)", content)
-                for index, table in enumerate(tables):
-                    table = table.copy()
-                    if "股票代码" not in table.columns or "占净值比例" not in table.columns:
-                        continue
-                    if "季度" not in table.columns:
-                        label = quarter_labels[index] if index < len(quarter_labels) else ""
-                        table["季度"] = label or _quarter_label_from_key(year * 10)
-                    table["查询年份"] = str(year)
-                    year_frames.append(table)
-                if year_frames:
-                    frames.extend(year_frames)
-                    year_success = True
-                    break
-                raise RuntimeError("未解析到股票持仓表")
-            except Exception as exc:
-                last_error = str(exc)
-                time.sleep(0.8 * attempt)
-        if last_error and not year_success:
-            errors.append(f"{year}: {last_error}")
-
-    if frames:
-        return frames
-    raise RuntimeError("东方财富 HTTP 持仓接口失败: " + " | ".join(errors[-3:]))
-
-
 def _fetch_recent_holdings(fund_code: str, top_n: int, years_back: int = 2) -> pd.DataFrame:
     current_year = datetime.now().year
     years = [current_year - offset for offset in range(0, max(2, years_back) + 1)]
-    errors: list[str] = []
-
-    for fetcher in (_fetch_holdings_by_akshare, _fetch_holdings_by_eastmoney_http):
-        try:
-            frames = fetcher(fund_code, years)
-            raw = pd.concat(frames, ignore_index=True)
-            return _normalize_holdings_df(raw, fund_code=fund_code, top_n=top_n, source=fetcher.__name__)
-        except Exception as exc:
-            errors.append(str(exc))
-
-    raise RuntimeError("无法联网获取最近两年持仓数据；" + "；".join(errors))
+    frames, source = fetch_fund_stock_holdings_frames(fund_code, years)
+    raw = pd.concat(frames, ignore_index=True)
+    return _normalize_holdings_df(raw, fund_code=fund_code, top_n=top_n, source=source)
 
 
 def _fetch_specific_year_holdings(fund_code: str, top_n: int, year: int) -> pd.DataFrame:
-    errors: list[str] = []
-    for fetcher in (_fetch_holdings_by_akshare, _fetch_holdings_by_eastmoney_http):
-        try:
-            frames = fetcher(fund_code, [int(year)])
-            raw = pd.concat(frames, ignore_index=True)
-            return _normalize_holdings_df(raw, fund_code=fund_code, top_n=top_n, source=f"{fetcher.__name__}:targeted")
-        except Exception as exc:
-            errors.append(str(exc))
-    raise RuntimeError("无法定向获取上一期年份持仓；" + "；".join(errors))
+    frames, source = fetch_fund_stock_holdings_frames(fund_code, [int(year)])
+    raw = pd.concat(frames, ignore_index=True)
+    return _normalize_holdings_df(raw, fund_code=fund_code, top_n=top_n, source=f"{source}:targeted")
 
 
 def _pick_periods(
