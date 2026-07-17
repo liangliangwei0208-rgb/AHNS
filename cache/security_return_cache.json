@@ -14457,7 +14457,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-17T08:36:59+08:00"
+    "fetched_at": "2026-07-17T12:46:23+08:00"
   },
   "SECURITY:UNKNOWN:BRK_B:2026-07-02": {
     "market": "UNKNOWN",
@@ -14589,7 +14589,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-17T08:38:11+08:00"
+    "fetched_at": "2026-07-17T12:46:39+08:00"
   },
   "SECURITY:UNKNOWN:FR0000073272:2026-07-02": {
     "market": "UNKNOWN",
@@ -14721,7 +14721,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-17T08:37:33+08:00"
+    "fetched_at": "2026-07-17T12:46:24+08:00"
   },
   "SECURITY:UNKNOWN:JP3684400009:2026-07-02": {
     "market": "UNKNOWN",
@@ -14853,7 +14853,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-17T08:36:51+08:00"
+    "fetched_at": "2026-07-17T12:46:23+08:00"
   },
   "SECURITY:UNKNOWN:RR.:2026-07-02": {
     "market": "UNKNOWN",
@@ -14985,7 +14985,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-17T08:36:56+08:00"
+    "fetched_at": "2026-07-17T12:46:23+08:00"
   },
   "SECURITY:US:.INX:2026-05-08": {
     "market": "US",
@@ -29769,7 +29769,7 @@
     "source": "ak_stock_us_daily_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2026-05-06 与 valuation_anchor_date=2026-07-16 不一致",
-    "fetched_at": "2026-07-17T08:38:03+08:00"
+    "fetched_at": "2026-07-17T12:46:39+08:00"
   },
   "SECURITY:US:CVNA:2026-05-14": {
     "market": "US",
@@ -72907,5 +72907,29 @@
     "value": 16.73,
     "display_value": "16.73",
     "value_type": "level"
+  },
+  "SECURITY:KR:000660:2026-07-17": {
+    "market": "KR",
+    "ticker": "000660",
+    "valuation_anchor_date": "2026-07-17",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-07-17T12:48:07+08:00"
+  },
+  "SECURITY:KR:005930:2026-07-17": {
+    "market": "KR",
+    "ticker": "005930",
+    "valuation_anchor_date": "2026-07-17",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-07-17T12:48:07+08:00"
   }
 }
