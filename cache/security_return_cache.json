@@ -72786,7 +72786,7 @@
     "source": "pykrx_ohlcv_pct_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2026-07-16 与 valuation_anchor_date=2026-07-17 不一致",
-    "fetched_at": "2026-07-19T07:30:46+08:00"
+    "fetched_at": "2026-07-20T11:09:20+08:00"
   },
   "SECURITY:KR:005930:2026-07-17": {
     "market": "KR",
@@ -72798,7 +72798,7 @@
     "source": "pykrx_ohlcv_pct_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2026-07-16 与 valuation_anchor_date=2026-07-17 不一致",
-    "fetched_at": "2026-07-19T07:30:46+08:00"
+    "fetched_at": "2026-07-20T11:09:00+08:00"
   },
   "SECURITY:US:.NDX:2026-07-17": {
     "market": "US",
@@ -73341,7 +73341,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-19T07:30:30+08:00"
+    "fetched_at": "2026-07-20T11:03:14+08:00"
   },
   "SECURITY:US:WDC:2026-07-17": {
     "market": "US",
@@ -73413,7 +73413,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-19T07:30:31+08:00"
+    "fetched_at": "2026-07-20T11:07:54+08:00"
   },
   "SECURITY:US:ONTO:2026-07-17": {
     "market": "US",
@@ -73449,7 +73449,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-19T07:30:32+08:00"
+    "fetched_at": "2026-07-20T11:08:02+08:00"
   },
   "SECURITY:HK:00981:2026-07-17": {
     "market": "HK",
@@ -73857,7 +73857,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-19T07:30:33+08:00"
+    "fetched_at": "2026-07-20T11:08:32+08:00"
   },
   "SECURITY:US:JBL:2026-07-17": {
     "market": "US",
@@ -74049,7 +74049,7 @@
     "source": "ak_stock_us_daily_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2026-05-06 与 valuation_anchor_date=2026-07-17 不一致",
-    "fetched_at": "2026-07-19T07:30:45+08:00"
+    "fetched_at": "2026-07-20T11:08:56+08:00"
   },
   "SECURITY:US:PSX:2026-07-17": {
     "market": "US",
@@ -74205,7 +74205,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-07-19T07:30:47+08:00"
+    "fetched_at": "2026-07-20T11:09:06+08:00"
   },
   "SECURITY:US:CAT:2026-07-17": {
     "market": "US",
@@ -74686,5 +74686,113 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-07-18T07:35:01+08:00"
+  },
+  "SECURITY:CN:300408:2026-07-17": {
+    "market": "CN",
+    "ticker": "300408",
+    "valuation_anchor_date": "2026-07-17",
+    "trade_date": "2026-07-17",
+    "return_pct": -7.35,
+    "status": "traded",
+    "source": "ak_stock_zh_a_hist_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-07-20T11:03:02+08:00"
+  },
+  "SECURITY:HK:01211:2026-07-17": {
+    "market": "HK",
+    "ticker": "01211",
+    "valuation_anchor_date": "2026-07-17",
+    "trade_date": "2026-07-17",
+    "return_pct": -2.47,
+    "status": "traded",
+    "source": "ak_stock_hk_hist_em_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-07-20T11:08:12+08:00"
+  },
+  "SECURITY:US:RVMD:2026-07-17": {
+    "market": "US",
+    "ticker": "RVMD",
+    "valuation_anchor_date": "2026-07-17",
+    "trade_date": "2026-07-17",
+    "return_pct": 3.895524054023891,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-07-20T11:08:21+08:00"
+  },
+  "SECURITY:US:MRNA:2026-07-17": {
+    "market": "US",
+    "ticker": "MRNA",
+    "valuation_anchor_date": "2026-07-17",
+    "trade_date": "2026-07-17",
+    "return_pct": -2.106096595407758,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-07-20T11:08:23+08:00"
+  },
+  "SECURITY:US:EXE:2026-07-17": {
+    "market": "US",
+    "ticker": "EXE",
+    "valuation_anchor_date": "2026-07-17",
+    "trade_date": "2026-07-17",
+    "return_pct": -0.056702200045377626,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-07-20T11:08:50+08:00"
+  },
+  "SECURITY:HK:09630:2026-07-17": {
+    "market": "HK",
+    "ticker": "09630",
+    "valuation_anchor_date": "2026-07-17",
+    "trade_date": "2026-07-17",
+    "return_pct": -14.8,
+    "status": "traded",
+    "source": "ak_stock_hk_hist_em_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-07-20T11:09:20+08:00"
+  },
+  "SECURITY:HK:00939:2026-07-17": {
+    "market": "HK",
+    "ticker": "00939",
+    "valuation_anchor_date": "2026-07-17",
+    "trade_date": "2026-07-17",
+    "return_pct": 1.22,
+    "status": "traded",
+    "source": "ak_stock_hk_hist_em_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-07-20T11:09:22+08:00"
+  },
+  "SECURITY:HK:06976:2026-07-17": {
+    "market": "HK",
+    "ticker": "06976",
+    "valuation_anchor_date": "2026-07-17",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "missing",
+    "source": "daily_fetch_failed",
+    "calendar_is_open": true,
+    "error": "港股日线返回空数据: 06976; ak_stock_hk_hist_em: TypeError(\"'NoneType' object is not subscriptable\") | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: TypeError(\"'NoneType' object is not subscriptable\") | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: TypeError(\"'NoneType' object is not subscriptable\")",
+    "fetched_at": "2026-07-20T11:09:28+08:00"
+  },
+  "SECURITY:US:ARM:2026-07-17": {
+    "market": "US",
+    "ticker": "ARM",
+    "valuation_anchor_date": "2026-07-17",
+    "trade_date": "2026-07-17",
+    "return_pct": 1.9770237777184008,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-07-20T11:09:31+08:00"
   }
 }
