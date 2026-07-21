@@ -180,6 +180,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `tools/configs/afterhours_configs.py`：盘后观察图配置和时间窗。
 - `tools/configs/futu_night_configs.py`：富途夜盘观察图配置、Futu OpenD 连接参数、短缓存和报价时间校验阈值。
 - `tools/configs/safe_image_style_configs.py`：safe 公开图的统一样式配置。标题字号/颜色/间距、图片四周留白、表头底色、正文底色、涨跌颜色、表格行距、列宽、备注字号、水印文字、logo 透明度等都从这里维护，优先不要去绘图函数里硬改。
+- `tools/configs/fund_holding_change_style_configs.py`：前十大持仓变化图的专属竖屏样式配置。`canvas_width_px` 控制实际导出宽度，四个 `*_margin_px` 独立控制四边安全区，`export_dpi` 写入 PNG 元数据；它不影响 safe 或实时观察图。
 - `tools/configs/cache_policy_configs.py`：缓存有效期配置。限购缓存 7 天、A 股交易日历 7 天、证券/指数/基金历史保留天数、RSI ETF 实时补点新鲜度等都从这里维护。
 - `tools/configs/security_mappings.py`：美股 / 韩国证券代码映射；韩国六位数字代码需要配合名称别名匹配，避免误判 A 股。
 - `tools/configs/rsi_configs.py`：市场 RSI 图标的配置。
@@ -517,6 +518,7 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 - A 股或港股单日涨跌异常大：优先怀疑除权、拆股、送转、复权口径或旧缓存。先运行 `fund_estimate_breakdown.py` 查看该持仓的数据源字段；正常情况下应优先看到 `pct`、`qfq`、`hfq`、`adjclose` 等来源，而不是旧裸 close 计算来源。
 - `fund_estimate_breakdown.py` 只读缓存：如果刚修复了个股口径但基金合计仍是旧数，需要先运行 `main.py` 或 `git_main.py --no-send` 重算基金缓存，再用拆解工具查看。
 - safe 图文字大小、颜色、表头色、底色、水印不满意：优先改 `tools/configs/safe_image_style_configs.py`，再单独运行 `safe_fund.py`、`safe_holidays.py` 或 `sum_holidays.py --today <日期>` 预览。
+- 持仓变化图在短视频顶部被遮挡：优先增大 `tools/configs/fund_holding_change_style_configs.py` 的 `top_margin_px`；想提升像素清晰度改 `canvas_width_px`，无需直接修改绘图函数。
 - A 股节假日判断频繁联网：检查 `cache/a_share_trade_calendar_cache.json` 是否存在、`fetched_at` 是否在 7 天内；缓存新鲜时脚本日志应显示 `fresh`。
 - RSI 图仍频繁重拉历史：检查对应 `cache/*_index_daily.csv` 是否存在、最新日期是否足够新，以及文件是否已在当天检查过。
 - 需要查看本轮异常持仓：打开 `output/failed_holdings_latest.txt`，先看“运行汇总”和“唯一证券汇总”，再看底部“失败/未完成持仓明细”。

@@ -86,6 +86,7 @@ from tools.get_top10_holdings import (
     infer_sina_cn_symbol,
     get_fund_name,
     get_latest_stock_holdings_df,
+    resolve_purchase_limit_display_value,
 )
 from tools.paths import (
     AFTERHOURS_FAILED_HOLDINGS_REPORT,
@@ -3118,11 +3119,7 @@ def _load_cached_fund_names() -> dict[str, str]:
 def _purchase_limit_text(fund_code: str, cache: dict[str, Any]) -> str:
     code = str(fund_code).strip().zfill(6)
     item = cache.get(code)
-    if isinstance(item, dict):
-        value = str(item.get("value", "")).strip()
-    else:
-        value = str(item or "").strip()
-    return value or "未知"
+    return resolve_purchase_limit_display_value(item)
 
 
 def _write_report(

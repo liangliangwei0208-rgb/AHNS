@@ -31,6 +31,7 @@ for import_path in (PROJECT_ROOT, KEPU_DIR):
 
 import first_pic as art
 from tools.fund_universe import HAIWAI_FUND_CODES
+from tools.get_top10_holdings import resolve_purchase_limit_display_value
 from tools.paths import (
     FUND_ESTIMATE_CACHE,
     FUND_PURCHASE_LIMIT_CACHE,
@@ -91,7 +92,7 @@ def _parse_limit_amount_yuan(value: Any) -> float | None:
 def _limit_sort_key(limit_text: str, amount_yuan: float | None, code: str) -> tuple[int, float, str]:
     text = str(limit_text or "").strip()
 
-    if "不限购" in text or "开放申购" in text:
+    if "不限额度" in text or "不限购" in text or "开放申购" in text:
         return (0, 0.0, code)
 
     if "暂停申购" in text:
@@ -151,7 +152,9 @@ def _load_limit_rows() -> list[dict[str, Any]]:
         if not isinstance(item, dict):
             item = {}
 
-        limit_text = str(item.get("value") or "暂无记录")
+        limit_text = resolve_purchase_limit_display_value(item)
+        if limit_text == "未知" and not item:
+            limit_text = "暂无记录"
         amount_yuan = _parse_limit_amount_yuan(limit_text)
         fund_name = names.get(code, "缓存中暂无基金名称")
 

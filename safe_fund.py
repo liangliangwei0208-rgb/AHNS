@@ -27,6 +27,7 @@ from tools.configs.safe_image_style_configs import SAFE_TITLE_STYLE, safe_daily_
 from tools.console_display import print_dataframe_table
 from tools.fund_table_image import save_fund_estimate_table_image
 from tools.fund_universe import HAIWAI_FUND_CODES
+from tools.get_top10_holdings import resolve_purchase_limit_display_value
 from tools.paths import (
     FUND_ESTIMATE_CACHE,
     FUND_PURCHASE_LIMIT_CACHE,
@@ -170,12 +171,7 @@ def load_purchase_limit_cache() -> dict[str, Any]:
 def purchase_limit_text_for_record(record: dict[str, Any], purchase_limit_cache: dict[str, Any]) -> str:
     fund_code = normalize_fund_code(record.get("fund_code", ""))
     item = purchase_limit_cache.get(fund_code)
-    if isinstance(item, dict):
-        value = str(item.get("value", "")).strip()
-    else:
-        value = str(item or "").strip()
-
-    return value or "未知"
+    return resolve_purchase_limit_display_value(item)
 
 
 def record_valuation_date(record: dict[str, Any]) -> str:

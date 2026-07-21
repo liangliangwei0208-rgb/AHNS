@@ -1643,8 +1643,16 @@ def _format_purchase_limit_amount(value) -> str | None:
     if not text or text in {"-", "--", "---", "nan", "None"}:
         return None
 
+    normalized = text.replace(",", "")
+    multiplier = 1.0
+    if normalized.endswith("万元"):
+        normalized = normalized[:-2]
+        multiplier = 10_000.0
+    elif normalized.endswith("元"):
+        normalized = normalized[:-1]
+
     try:
-        amount = float(text.replace(",", ""))
+        amount = float(normalized) * multiplier
     except Exception:
         return None
 
@@ -1671,6 +1679,31 @@ def _format_purchase_limit_from_status(purchase_status, daily_limit_amount) -> s
     status = str(purchase_status or "").strip()
     amount_text = _format_purchase_limit_amount(daily_limit_amount)
 
+    # 东方财富会偶尔同时返回“暂停申购”和历史额度；完整暂停必须最高优先级。
+    normalized_status = re.sub(r"\s+", "", status)
+    if "暂停申购" in normalized_status:
+        return "暂停申购"
+
+    # 暂停/限制大额申购不是整只基金暂停，额度有效时仍展示额度。
+    is_large_limit = any(
+        marker in normalized_status
+        for marker in (
+            "限大额",
+            "暂停大额申购",
+            "暂停大额",
+            "限制大额申购",
+            "限制大额",
+            "限购",
+            "限制申购",
+            "大额申购",
+        )
+    )
+    if is_large_limit:
+        return amount_text or "限大额"
+
+    if "开放申购" in normalized_status or normalized_status == "开放":
+        return "不限额度"
+
     if amount_text:
         return amount_text
 
@@ -1690,6 +1723,27 @@ def _format_purchase_limit_from_status(purchase_status, daily_limit_amount) -> s
         return "不限购/开放申购"
 
     return "未知"
+
+
+def resolve_purchase_limit_display_value(item) -> str:
+    """按申购状态重新解析缓存展示值，兼容历史缓存里的旧 value。"""
+    if isinstance(item, dict):
+        raw_status = item.get("raw_purchase_status")
+        raw_amount = item.get("raw_daily_limit_amount")
+        if raw_status not in (None, "") or raw_amount not in (None, ""):
+            resolved = _format_purchase_limit_from_status(raw_status, raw_amount)
+            if resolved != "未知":
+                return resolved
+        value = str(item.get("value") or "").strip()
+    else:
+        value = str(item or "").strip()
+
+    # 兼容此前缓存的旧展示文案，避免必须等待缓存过期才能修正图片。
+    if value in {"不限购/开放申购", "开放申购"}:
+        return "不限额度"
+    if value == "限购(未识别金额)":
+        return "限大额"
+    return value or "未知"
 
 
 def _extract_eastmoney_redata_datas(text: str) -> list:
@@ -1845,6 +1899,12 @@ def get_fund_purchase_limit_uncached_detail(fund_code: str, timeout=8) -> dict[s
 
             clean_text = _normalize_html_text(resp.text)
 
+            # HTML 备用源也必须先判断完整暂停，不能先被页面里的历史额度抢走。
+            if "暂停申购" in clean_text and "暂停大额申购" not in clean_text:
+                result = "暂停申购"
+                source = f"eastmoney_html:{url}"
+                break
+
             found_amount = None
             for pattern in amount_patterns:
                 m = re.search(pattern, clean_text, flags=re.S)
@@ -1852,8 +1912,15 @@ def get_fund_purchase_limit_uncached_detail(fund_code: str, timeout=8) -> dict[s
                     found_amount = m.group(1)
                     break
 
+            is_large_limit = "暂停大额申购" in clean_text or "限制大额申购" in clean_text
             if found_amount:
-                result = found_amount
+                # 页面备用源拿到“限大额 + 0元”时，仍按限大额展示；非限额页面
+                # 则保留已解析出的真实额度。
+                result = (
+                    _format_purchase_limit_from_status("限大额", found_amount)
+                    if is_large_limit
+                    else _format_purchase_limit_amount(found_amount) or found_amount
+                )
                 source = f"eastmoney_html:{url}"
                 break
 
@@ -1862,13 +1929,13 @@ def get_fund_purchase_limit_uncached_detail(fund_code: str, timeout=8) -> dict[s
                 source = f"eastmoney_html:{url}"
                 break
 
-            if "暂停大额申购" in clean_text or "限制大额申购" in clean_text:
-                result = "限购(未识别金额)"
+            if is_large_limit:
+                result = "限大额"
                 source = f"eastmoney_html:{url}"
                 break
 
             if "开放申购" in clean_text:
-                result = "不限购/开放申购"
+                result = "不限额度"
                 source = f"eastmoney_html:{url}"
                 break
 
@@ -1891,17 +1958,19 @@ def get_fund_purchase_limit_uncached_detail(fund_code: str, timeout=8) -> dict[s
 
 def get_fund_purchase_limit_uncached(fund_code: str, timeout=8) -> str:
     detail = get_fund_purchase_limit_uncached_detail(fund_code=fund_code, timeout=timeout)
-    return detail.get("value", "未知")
+    return resolve_purchase_limit_display_value(detail)
 
 
 def _purchase_limit_return(detail: dict, return_detail: bool):
-    return detail if return_detail else detail.get("value", "未知")
+    resolved_detail = dict(detail)
+    resolved_detail["value"] = resolve_purchase_limit_display_value(resolved_detail)
+    return resolved_detail if return_detail else resolved_detail["value"]
 
 
 def _purchase_limit_cache_record(detail: dict) -> dict:
     record = {
         "fetched_at": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
-        "value": detail.get("value", "未知"),
+        "value": resolve_purchase_limit_display_value(detail),
     }
     for key in ("source", "raw_purchase_status", "raw_redeem_status", "raw_daily_limit_amount", "error"):
         value = detail.get(key)
@@ -1938,7 +2007,7 @@ def get_fund_purchase_limit(
     item = cache.get(fund_code)
 
     if item and not force_refresh and _is_cache_fresh(item.get("fetched_at"), max_age_days=cache_days):
-        value = item.get("value", "未知")
+        value = resolve_purchase_limit_display_value(item)
         _FUND_LIMIT_CACHE[fund_code] = value
         _cache_log(f"使用限购缓存: {fund_code} -> {value}")
         detail = {
@@ -1950,7 +2019,7 @@ def get_fund_purchase_limit(
                 detail[key] = item.get(key)
         return _purchase_limit_return(detail, return_detail)
 
-    old_value = item.get("value") if isinstance(item, dict) else None
+    old_value = resolve_purchase_limit_display_value(item) if isinstance(item, dict) else None
 
     try:
         if force_refresh:
@@ -1964,9 +2033,10 @@ def get_fund_purchase_limit(
         if bulk_limit_map is not None:
             bulk_detail = bulk_limit_map.get(fund_code)
             if bulk_detail:
-                bulk_value = bulk_detail.get("value", "未知")
+                bulk_value = resolve_purchase_limit_display_value(bulk_detail)
                 if bulk_value and bulk_value != "未知":
                     detail = dict(bulk_detail)
+                    detail["value"] = bulk_value
                 else:
                     candidate_errors.append("批量申购状态接口返回未知")
             else:
@@ -1982,7 +2052,8 @@ def get_fund_purchase_limit(
                 joined = " | ".join(candidate_errors)
                 detail["error"] = f"{joined} | {old_error}" if old_error else joined
 
-        value = detail.get("value", "未知")
+        value = resolve_purchase_limit_display_value(detail)
+        detail["value"] = value
 
         # 如果本次只得到“未知”，但旧缓存有明确值，则保留旧值，避免网络异常污染缓存。
         if value == "未知" and old_value and old_value != "未知":

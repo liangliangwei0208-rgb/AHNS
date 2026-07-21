@@ -22,6 +22,7 @@ import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 
 from tools.console_display import print_key_values, print_records_table, print_stage
+from tools.configs.fund_holding_change_style_configs import HOLDING_CHANGE_IMAGE_STYLE
 from tools.configs.fund_universe_configs import HAIWAI_FUND_CODES
 from tools.get_top10_holdings import detect_market_and_ticker, fetch_fund_stock_holdings_frames, quarter_key
 from tools.paths import (
@@ -888,12 +889,15 @@ def _draw_table(
     title_font: ImageFont.ImageFont,
     header_font: ImageFont.ImageFont,
     body_font: ImageFont.ImageFont,
+    title_height: int = 38,
+    header_text_padding: int = 10,
+    body_text_padding: int = 12,
     header_bg: str = "#334155",
     title_color: str = "#111827",
     row_status_key: str | None = None,
 ) -> int:
     _draw_text(draw, (x, y), title, font=title_font, fill=title_color)
-    y += 38
+    y += title_height
     header_h = row_height
     col_widths = [int(width * ratio) for _, _, ratio in columns]
     col_widths[-1] += width - sum(col_widths)
@@ -907,7 +911,7 @@ def _draw_table(
             label,
             font=header_font,
             fill="#ffffff",
-            max_width=col_w - 10,
+            max_width=col_w - header_text_padding,
             anchor="mm",
         )
         cur_x += col_w
@@ -935,7 +939,7 @@ def _draw_table(
                 value,
                 font=body_font,
                 fill=fill,
-                max_width=col_w - 12,
+                max_width=col_w - body_text_padding,
                 anchor=anchor,
             )
             cur_x += col_w
@@ -980,31 +984,33 @@ def _draw_summary_cards(
     value_font: ImageFont.ImageFont,
     columns: int = 5,
     card_height: int = 92,
+    card_gap: int = 14,
+    row_gap: int = 12,
+    corner_radius: int = 14,
+    text_padding: int = 18,
+    line_gap: int = 8,
 ) -> int:
-    gap = 14
-    row_gap = 12
     cur_y = y
     for start in range(0, len(cards), columns):
         row_cards = cards[start : start + columns]
-        card_w = (width - gap * (len(row_cards) - 1)) // len(row_cards)
+        card_w = (width - card_gap * (len(row_cards) - 1)) // len(row_cards)
         for idx, (label, value, color) in enumerate(row_cards):
-            left = x + idx * (card_w + gap)
+            left = x + idx * (card_w + card_gap)
             draw.rounded_rectangle(
                 [left, cur_y, left + card_w, cur_y + card_height],
-                radius=14,
+                radius=corner_radius,
                 fill="#f8fafc",
                 outline="#dbe3ee",
                 width=1,
             )
-            label_text, fitted_label_font = _fit_text(label, label_font, card_w - 36)
-            value_text, fitted_value_font = _fit_text(value, value_font, card_w - 36)
+            label_text, fitted_label_font = _fit_text(label, label_font, card_w - text_padding * 2)
+            value_text, fitted_value_font = _fit_text(value, value_font, card_w - text_padding * 2)
             label_h = _text_size(draw, label_text, fitted_label_font)[1]
             value_h = _text_size(draw, value_text, fitted_value_font)[1]
-            line_gap = 8
             block_h = label_h + line_gap + value_h
             text_y = cur_y + max(0, (card_height - block_h) // 2)
-            draw.text((left + 18, text_y), label_text, font=fitted_label_font, fill="#64748b")
-            draw.text((left + 18, text_y + label_h + line_gap), value_text, font=fitted_value_font, fill=color)
+            draw.text((left + text_padding, text_y), label_text, font=fitted_label_font, fill="#64748b")
+            draw.text((left + text_padding, text_y + label_h + line_gap), value_text, font=fitted_value_font, fill=color)
         cur_y += card_height + row_gap
     return cur_y - row_gap
 
@@ -1015,27 +1021,38 @@ def save_holding_change_image(result: HoldingChangeResult, output_file: str | Pa
     if output_path.parent:
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    width = 960
-    margin = 36
+    # 其余布局以旧版 960px 为设计基准等比放大；四边安全边距独立读取配置。
+    base_width = 960
+    width = max(1, int(HOLDING_CHANGE_IMAGE_STYLE["canvas_width_px"]))
+    scale = width / base_width
+
+    def px(value: int | float) -> int:
+        return max(1, round(value * scale))
+
+    top_margin = max(0, int(HOLDING_CHANGE_IMAGE_STYLE["top_margin_px"]))
+    bottom_margin = max(0, int(HOLDING_CHANGE_IMAGE_STYLE["bottom_margin_px"]))
+    left_margin = max(0, int(HOLDING_CHANGE_IMAGE_STYLE["left_margin_px"]))
+    right_margin = max(0, int(HOLDING_CHANGE_IMAGE_STYLE["right_margin_px"]))
+    export_dpi = max(1, int(HOLDING_CHANGE_IMAGE_STYLE["export_dpi"]))
     latest_rows = result.latest_table_df.to_dict(orient="records")
     previous_rows = result.previous_table_df.to_dict(orient="records")
 
-    table_row_h = 56
-    table_title_h = 38
+    table_row_h = px(56)
+    table_title_h = px(38)
     card_rows = 2
-    card_h = 80
-    card_gap = 12
-    after_subtitle_gap = 42
-    after_summary_gap = 30
-    table_gap = 26
-    footer_gap = 26
-    footer_block_h = 122
+    card_h = px(80)
+    card_gap = px(12)
+    after_subtitle_gap = px(42)
+    after_summary_gap = px(30)
+    table_gap = px(26)
+    footer_gap = px(26)
+    footer_block_h = px(122)
     summary_h = card_rows * card_h + (card_rows - 1) * card_gap
     latest_table_h = table_title_h + table_row_h * (len(latest_rows) + 1)
     previous_table_h = table_title_h + table_row_h * (len(previous_rows) + 1)
     height = (
-        margin
-        + 50
+        top_margin
+        + px(50)
         + after_subtitle_gap
         + summary_h
         + after_summary_gap
@@ -1043,28 +1060,29 @@ def save_holding_change_image(result: HoldingChangeResult, output_file: str | Pa
         + table_gap
         + previous_table_h
         + footer_block_h
+        + bottom_margin
     )
 
     image = Image.new("RGBA", (width, height), "#ffffff")
     draw = ImageDraw.Draw(image)
-    title_font = get_watermark_font(40)
-    subtitle_font = get_watermark_font(21)
-    section_font = get_watermark_font(30)
-    label_font = get_watermark_font(20)
-    card_font = get_watermark_font(26)
-    header_font = get_watermark_font(27)
-    body_font = get_watermark_font(27)
-    note_font = get_watermark_font(31)
+    title_font = get_watermark_font(px(40))
+    subtitle_font = get_watermark_font(px(21))
+    section_font = get_watermark_font(px(30))
+    label_font = get_watermark_font(px(20))
+    card_font = get_watermark_font(px(26))
+    header_font = get_watermark_font(px(27))
+    body_font = get_watermark_font(px(27))
+    note_font = get_watermark_font(px(31))
 
-    y = margin
+    y = top_margin
     title = f"{_display_title_fund_name(result.fund_name)} 前十大持仓变化解读"
-    _draw_text(draw, (margin, y), title, font=title_font, fill="#0f172a", max_width=width - margin * 2)
-    y += 50
+    _draw_text(draw, (left_margin, y), title, font=title_font, fill="#0f172a", max_width=width - left_margin - right_margin)
+    y += px(50)
     subtitle = (
         f"{result.previous.quarter_label} -> {result.latest.quarter_label}    "
         f"生成: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     )
-    _draw_text(draw, (margin, y), subtitle, font=subtitle_font, fill="#475569", max_width=width - margin * 2)
+    _draw_text(draw, (left_margin, y), subtitle, font=subtitle_font, fill="#475569", max_width=width - left_margin - right_margin)
     y += after_subtitle_gap
 
     cards = [
@@ -1076,14 +1094,19 @@ def save_holding_change_image(result: HoldingChangeResult, output_file: str | Pa
     ]
     y = _draw_summary_cards(
         draw,
-        x=margin,
+        x=left_margin,
         y=y,
-        width=width - margin * 2,
+        width=width - left_margin - right_margin,
         cards=cards,
         label_font=label_font,
         value_font=card_font,
         columns=3,
         card_height=card_h,
+        card_gap=px(14),
+        row_gap=card_gap,
+        corner_radius=px(14),
+        text_padding=px(18),
+        line_gap=px(8),
     )
     y += after_summary_gap
 
@@ -1106,8 +1129,8 @@ def save_holding_change_image(result: HoldingChangeResult, output_file: str | Pa
     ]
 
     table_top = y
-    table_area_x = margin
-    table_width = width - margin * 2
+    table_area_x = left_margin
+    table_width = width - left_margin - right_margin
     latest_columns = [
         ("排名", "序号", 0.13),
         ("股票名称", "股票名称", 0.43),
@@ -1131,6 +1154,9 @@ def save_holding_change_image(result: HoldingChangeResult, output_file: str | Pa
         title_font=section_font,
         header_font=header_font,
         body_font=body_font,
+        title_height=table_title_h,
+        header_text_padding=px(10),
+        body_text_padding=px(12),
         header_bg="#36506b",
         row_status_key="趋势",
     )
@@ -1147,6 +1173,9 @@ def save_holding_change_image(result: HoldingChangeResult, output_file: str | Pa
         title_font=section_font,
         header_font=header_font,
         body_font=body_font,
+        title_height=table_title_h,
+        header_text_padding=px(10),
+        body_text_padding=px(12),
         header_bg="#475569",
     )
     y = previous_bottom + footer_gap
@@ -1156,10 +1185,13 @@ def save_holding_change_image(result: HoldingChangeResult, output_file: str | Pa
     draw = ImageDraw.Draw(image)
 
     note = "个人模型观察，不构成任何投资建议"
-    _draw_text(draw, (width // 2, y), note, font=note_font, fill="#1f2937", max_width=width - margin * 2, anchor="ma")
-    _draw_text(draw, (width // 2, y + 40), "鱼师AHNS", font=get_watermark_font(20), fill="#94a3b8", anchor="ma")
+    _draw_text(draw, (width // 2, y), note, font=note_font, fill="#1f2937", max_width=width - left_margin - right_margin, anchor="ma")
+    _draw_text(draw, (width // 2, y + px(40)), "鱼师AHNS", font=get_watermark_font(px(20)), fill="#94a3b8", anchor="ma")
 
-    image.convert("RGB").save(output_path)
+    save_kwargs: dict[str, Any] = {"dpi": (export_dpi, export_dpi)}
+    if output_path.suffix.lower() == ".png":
+        save_kwargs["compress_level"] = 6
+    image.convert("RGB").save(output_path, **save_kwargs)
     return output_path
 
 
