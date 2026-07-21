@@ -129,7 +129,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `tools/trigger_service_command.py`：GitHub Actions 触发小电脑运行的 helper，负责基于 Gitee 最新 `main` 更新 `service_command.json`、提交、Git push 多轮重试，以及 Gitee API 兜底。
 - `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置 UTF-8 输出、仓库目录、Python 路径、日志路径、日志裁剪和 `--primary-remote gitee`。
 - `tail_ahns_log.ps1`：查看监听日志的 UTF-8 PowerShell 脚本，优先用它替代手写 `Get-Content -Wait`。
-- `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；建议 `origin` 使用 GitHub HTTPS，并只给 `github.com` 走 SakuraCat HTTP 代理和 OpenSSL，`gitee` 保持直连；疑似网络瞬时失败会短暂重试，GitHub 代理重试仍失败时会直连一次；只会自动合并运行缓存白名单冲突，例如 `cache/*_index_daily.csv`、`cache/fund_estimate_return_cache.json`、`cache/security_return_cache.json`，源码、配置和文档冲突仍会停止。
+- `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；建议 `origin` 使用 GitHub HTTPS，并只给 `github.com` 走 SakuraCat HTTP 代理和 OpenSSL，`gitee` 保持直连；疑似网络瞬时失败会短暂重试，GitHub 代理重试仍失败时会直连一次；会自动合并运行缓存白名单冲突，例如 `cache/*_index_daily.csv`、基金估算/证券收益/实时短缓存，以及按基金和披露季度合并的 `fund_holdings_cache.json`、`fund_holding_change_state.json`、`fund_holding_change_batch_state.json`；源码、配置和文档冲突仍会停止。
 - `github_gitee_sync.py`：通用 GitHub/Gitee 同名仓库初始化和同步脚本；可复制到其他本地 Git 仓库根目录使用，默认读取 `origin` 推导 Gitee remote；缺少 GitHub remote 时会询问仓库信息，并用 `GITHUB_TOKEN` / `GH_TOKEN` 创建公开 GitHub 仓库；缺 Gitee 仓库时用 `GITEE_ACCESS_TOKEN` 创建公开仓库。
 - `main.py`：主计算入口，手动运行时生成市场 RSI 图和海外/全球基金估算；总入口中用 `--skip-rsi` 跳过 RSI，只写正式基金估算缓存。
 - `premarket_fund.py`：盘前观察图手动入口；生成 `output/safe_haiwai_premarket.png` 和盘前失败报告，不写正式基金估算缓存。
