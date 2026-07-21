@@ -119,6 +119,37 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "本缓存只记录图片批次和编号，不保存完整持仓明细。",
         ],
     },
+    "fund_region_allocation_cache.json": {
+        "purpose": "晨星海外基金股票地区分布缓存，保存披露日期、父级区域和子区域权重。",
+        "producer": "fund_region_allocation.py 从晨星公开基金页直连解析后写入。",
+        "consumers": [
+            "fund_region_allocation.py",
+            "git_main.py",
+            "service_main.py",
+        ],
+        "refresh_policy": "默认 7 天检查一次；手动使用 --refresh 可强制直连刷新。",
+        "retention_policy": "按基金代码保留最近一次有效地区分布；请求失败时保留旧有效记录。",
+        "data_shape": "顶层是基金代码 -> 地区记录的映射，记录 report_date、primary_regions、subregions、fingerprint 与抓取时间。",
+        "notes": [
+            "地区权重属于晨星股票地区分布，不包含基金现金、债券等资产。",
+            "晨星请求使用 trust_env=False，不继承 HTTP/SOCKS 环境代理。",
+        ],
+    },
+    "fund_region_allocation_state.json": {
+        "purpose": "晨星地区分布图片的已发送状态，用于判断哪些分页图片需要重新生成。",
+        "producer": "fund_region_allocation.py --auto 在检测披露日期或地区权重变化后写入。",
+        "consumers": [
+            "fund_region_allocation.py",
+            "git_main.py",
+            "service_main.py",
+        ],
+        "refresh_policy": "每次自动检测后更新；只记录数据指纹和分页图片状态。",
+        "retention_policy": "保留当前基金池的最近状态。",
+        "data_shape": "顶层包含 funds、pages、updated_at；pages 按稳定页码记录聚合指纹和图片路径。",
+        "notes": [
+            "同一基金无地区数据变化时不会重复生成或发送图片。",
+        ],
+    },
     "fund_purchase_limit_cache.json": {
         "purpose": "基金限购金额缓存，用于每日基金图展示模型观察限购信息。",
         "producer": "tools/get_top10_holdings.py 解析公开网页限购文本后写入。",

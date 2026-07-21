@@ -339,6 +339,7 @@ def check_realtime_observation_anchors() -> list[CheckItem]:
         missing_close_group_scripts = {
             "main.py",
             "fund_holding_change.py",
+            "fund_region_allocation.py",
             "safe_fund.py",
         } - set(close_group_scripts)
         if missing_close_group_scripts:

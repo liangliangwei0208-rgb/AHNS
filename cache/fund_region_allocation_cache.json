@@ -1,0 +1,1095 @@
+{
+  "012922": {
+    "fund_code": "012922",
+    "fund_name": "易方达全球成长精选混合(QDII)人民币C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/012922.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 50.76,
+      "美洲": 43.71,
+      "大欧洲地区": 5.53,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.72,
+      "大洋洲": 0.0,
+      "发达亚洲": 8.56,
+      "新兴亚洲": 41.48,
+      "北美": 43.71,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.0,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 5.53
+    },
+    "fetched_at": "2026-07-21T14:20:35+08:00",
+    "last_checked_at": "2026-07-21T14:20:35+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "355be353b7a608de20febfca40feb5814199047e9818485f07bcfad32c5ce5fc"
+  },
+  "017437": {
+    "fund_code": "017437",
+    "fund_name": "华宝纳斯达克精选股票发起式(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/017437.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 0.41,
+      "美洲": 99.1,
+      "大欧洲地区": 0.49,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.05,
+      "新兴亚洲": 0.36,
+      "北美": 99.1,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.0,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.49
+    },
+    "fetched_at": "2026-07-21T14:20:34+08:00",
+    "last_checked_at": "2026-07-21T14:20:34+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "d0f3ca643019dfde08fa99175790172b3e8cd480336becb97d80ad35f026e9ba"
+  },
+  "016702": {
+    "fund_code": "016702",
+    "fund_name": "银华海外数字经济量化选股混合发起式(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/016702.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 2.74,
+      "美洲": 95.84,
+      "大欧洲地区": 1.42,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 2.46,
+      "新兴亚洲": 0.27,
+      "北美": 95.84,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 1.42,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:20:36+08:00",
+    "last_checked_at": "2026-07-21T14:20:36+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "902d3b6b35be712c70179062c4b91303fdcca17ef02fa4e3c0898c0aa988ff4f"
+  },
+  "024239": {
+    "fund_code": "024239",
+    "fund_name": "华夏全球科技先锋混合(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/024239.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 31.62,
+      "美洲": 65.69,
+      "大欧洲地区": 2.22,
+      "未分类": 0.47
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 8.41,
+      "新兴亚洲": 23.21,
+      "北美": 64.9,
+      "拉丁美洲": 0.79,
+      "英国": 0.83,
+      "发达欧洲": 0.24,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 1.15
+    },
+    "fetched_at": "2026-07-21T14:20:38+08:00",
+    "last_checked_at": "2026-07-21T14:20:38+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "d9595fc1aabcf14acc78afd7689cf6c91e17d93871c8a1364028e52674498b69"
+  },
+  "021842": {
+    "fund_code": "021842",
+    "fund_name": "国富全球科技互联混合(QDII)人民币C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/021842.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 19.73,
+      "美洲": 74.98,
+      "大欧洲地区": 5.29,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 5.62,
+      "大洋洲": 0.0,
+      "发达亚洲": 8.17,
+      "新兴亚洲": 5.94,
+      "北美": 74.98,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.0,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 5.29
+    },
+    "fetched_at": "2026-07-21T14:20:39+08:00",
+    "last_checked_at": "2026-07-21T14:20:39+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "80bbd68351417f1e700201e4f34dec246e500c28d079680bf61c51076b823ad3"
+  },
+  "021277": {
+    "fund_code": "021277",
+    "fund_name": "广发全球精选股票(QDII)人民币C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/021277.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 24.98,
+      "美洲": 69.39,
+      "大欧洲地区": 5.62,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 3.07,
+      "大洋洲": 0.0,
+      "发达亚洲": 1.55,
+      "新兴亚洲": 20.36,
+      "北美": 69.29,
+      "拉丁美洲": 0.11,
+      "英国": 0.22,
+      "发达欧洲": 5.4,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:20:41+08:00",
+    "last_checked_at": "2026-07-21T14:20:41+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "f52a39fa1bb1462d4450d9ae448a1aba46da090b54b05dda449962803453c8be"
+  },
+  "018036": {
+    "fund_code": "018036",
+    "fund_name": "长城全球新能源车股票发起式(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/018036.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 22.05,
+      "美洲": 72.78,
+      "大欧洲地区": 5.17,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 10.0,
+      "新兴亚洲": 12.04,
+      "北美": 72.78,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 5.17,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:20:42+08:00",
+    "last_checked_at": "2026-07-21T14:20:42+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "4a079a1de0667d7bf28b7f30ab67ba7ccbbb41e631667c5ae54a659b56c8f91d"
+  },
+  "022184": {
+    "fund_code": "022184",
+    "fund_name": "富国全球科技互联网股票(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/022184.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 63.36,
+      "美洲": 35.31,
+      "大欧洲地区": 1.33,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 10.98,
+      "新兴亚洲": 52.38,
+      "北美": 35.31,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 1.23,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.09
+    },
+    "fetched_at": "2026-07-21T14:20:43+08:00",
+    "last_checked_at": "2026-07-21T14:20:43+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "8d807f058e0c3c1d7306dc83f4f4677959c75b380151a23ff6d9bae3804fcd2d"
+  },
+  "016665": {
+    "fund_code": "016665",
+    "fund_name": "天弘全球高端制造混合(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/016665.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 65.23,
+      "美洲": 32.66,
+      "大欧洲地区": 2.11,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 7.73,
+      "大洋洲": 0.0,
+      "发达亚洲": 3.64,
+      "新兴亚洲": 53.85,
+      "北美": 32.66,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.0,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 2.11
+    },
+    "fetched_at": "2026-07-21T14:20:44+08:00",
+    "last_checked_at": "2026-07-21T14:20:44+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "e68f7ef3086c144d3a542f6edc045e0c75099c14bde414d31c3db70d044bfc4f"
+  },
+  "539002": {
+    "fund_code": "539002",
+    "fund_name": "建信新兴市场混合(QDII)A",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/539002.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 42.19,
+      "美洲": 57.23,
+      "大欧洲地区": 0.59,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 42.13,
+      "新兴亚洲": 0.06,
+      "北美": 57.23,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.59,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:20:46+08:00",
+    "last_checked_at": "2026-07-21T14:20:46+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "62c4edc86f1751c8aee4c1449cc60598403188439c48f940654baaa50eeaecae"
+  },
+  "000043": {
+    "fund_code": "000043",
+    "fund_name": "嘉实美国成长股票人民币",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/000043.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 1.93,
+      "美洲": 97.83,
+      "大欧洲地区": 0.24,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 1.5,
+      "新兴亚洲": 0.43,
+      "北美": 97.13,
+      "拉丁美洲": 0.7,
+      "英国": 0.0,
+      "发达欧洲": 0.08,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.16
+    },
+    "fetched_at": "2026-07-21T14:20:47+08:00",
+    "last_checked_at": "2026-07-21T14:20:47+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "bf0753609ac91f08b1e4bb447a19462bd7e27d9b626bd9315f4ddb7141c98fc3"
+  },
+  "013328": {
+    "fund_code": "013328",
+    "fund_name": "嘉实全球价值股票(QDII)人民币",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/013328.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 31.03,
+      "美洲": 57.15,
+      "大欧洲地区": 11.75,
+      "未分类": 0.07
+    },
+    "subregions": {
+      "日本": 2.62,
+      "大洋洲": 0.07,
+      "发达亚洲": 4.62,
+      "新兴亚洲": 23.73,
+      "北美": 55.88,
+      "拉丁美洲": 1.27,
+      "英国": 3.6,
+      "发达欧洲": 6.98,
+      "新兴欧洲": 0.28,
+      "非洲/中东": 0.88
+    },
+    "fetched_at": "2026-07-21T14:20:48+08:00",
+    "last_checked_at": "2026-07-21T14:20:48+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "d46857136d4dfdc74279ea3760c3696521cc5584bcb0df2b69d74665a8c6d0a1"
+  },
+  "002891": {
+    "fund_code": "002891",
+    "fund_name": "华夏移动互联混合人民币",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/002891.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 1.2,
+      "美洲": 95.95,
+      "大欧洲地区": 2.85,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 1.2,
+      "新兴亚洲": 0.0,
+      "北美": 94.55,
+      "拉丁美洲": 1.41,
+      "英国": 0.0,
+      "发达欧洲": 0.68,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 2.17
+    },
+    "fetched_at": "2026-07-21T14:20:49+08:00",
+    "last_checked_at": "2026-07-21T14:20:49+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "5aad924e2a4f5f25a62df0b9ff1576f209acb76bb61a0234f1f4f8c34ab4c59e"
+  },
+  "008254": {
+    "fund_code": "008254",
+    "fund_name": "华宝致远混合(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/008254.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 6.42,
+      "美洲": 91.52,
+      "大欧洲地区": 1.92,
+      "未分类": 0.14
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 4.17,
+      "新兴亚洲": 2.25,
+      "北美": 91.25,
+      "拉丁美洲": 0.28,
+      "英国": 0.0,
+      "发达欧洲": 0.65,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 1.27
+    },
+    "fetched_at": "2026-07-21T14:20:52+08:00",
+    "last_checked_at": "2026-07-21T14:20:52+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "833ea56ec70ee1fad86d5078fc04ccf882d45635fd2908b72250b4dff3742203"
+  },
+  "006555": {
+    "fund_code": "006555",
+    "fund_name": "浦银安盛全球智能科技(QDII)A",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/006555.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 9.09,
+      "美洲": 90.12,
+      "大欧洲地区": 0.79,
+      "未分类": -0.0
+    },
+    "subregions": {
+      "日本": 0.41,
+      "大洋洲": 0.0,
+      "发达亚洲": 8.68,
+      "新兴亚洲": 0.0,
+      "北美": 89.58,
+      "拉丁美洲": 0.55,
+      "英国": 0.0,
+      "发达欧洲": 0.5,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.29
+    },
+    "fetched_at": "2026-07-21T14:20:53+08:00",
+    "last_checked_at": "2026-07-21T14:20:53+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "f05a15aea37ca6c64db7af94a75d17dbabd642fc246c9c7248e2be848c4528f9"
+  },
+  "017654": {
+    "fund_code": "017654",
+    "fund_name": "创金合信全球芯片产业股票发起(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/017654.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 64.93,
+      "美洲": 32.38,
+      "大欧洲地区": 2.69,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 3.11,
+      "新兴亚洲": 61.82,
+      "北美": 32.38,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 2.69,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:20:54+08:00",
+    "last_checked_at": "2026-07-21T14:20:54+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "62a4669d66d39e456435907ad0c10513a11e9c9f2ff2482fbdab6135b5e5bf15"
+  },
+  "015202": {
+    "fund_code": "015202",
+    "fund_name": "汇添富全球移动互联混合(QDII)人民币C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/015202.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 15.9,
+      "美洲": 83.11,
+      "大欧洲地区": 0.98,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 6.89,
+      "新兴亚洲": 9.01,
+      "北美": 82.55,
+      "拉丁美洲": 0.56,
+      "英国": 0.0,
+      "发达欧洲": 0.98,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:20:55+08:00",
+    "last_checked_at": "2026-07-21T14:20:55+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "4ef0eeb0cdf1245161688f1722fa1e4c9e0811a99a212a73c7bd2c6d7ff402af"
+  },
+  "015205": {
+    "fund_code": "015205",
+    "fund_name": "银华全球新能源车量化优选股票(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/015205.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 44.85,
+      "美洲": 53.23,
+      "大欧洲地区": 1.92,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 3.15,
+      "新兴亚洲": 41.71,
+      "北美": 53.23,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 1.92,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:20:56+08:00",
+    "last_checked_at": "2026-07-21T14:20:56+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "075458b3e633733e73caba9bab1e06c981926cebe0fa26eaa724b8f67d4ecd2a"
+  },
+  "017731": {
+    "fund_code": "017731",
+    "fund_name": "嘉实全球产业升级股票发起式(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/017731.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 40.78,
+      "美洲": 55.35,
+      "大欧洲地区": 3.87,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 5.09,
+      "新兴亚洲": 35.69,
+      "北美": 55.35,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 3.87,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:20:57+08:00",
+    "last_checked_at": "2026-07-21T14:20:57+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "7f932a955c1dfc2d8b4679ff17588b539799c3711f0efda520b5bd7ca8b49826"
+  },
+  "001092": {
+    "fund_code": "001092",
+    "fund_name": "广发生物科技指数人民币(QDII)A",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/001092.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 0.39,
+      "美洲": 89.74,
+      "大欧洲地区": 9.42,
+      "未分类": 0.45
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.07,
+      "发达亚洲": 0.24,
+      "新兴亚洲": 0.08,
+      "北美": 89.74,
+      "拉丁美洲": 0.0,
+      "英国": 5.54,
+      "发达欧洲": 3.85,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.03
+    },
+    "fetched_at": "2026-07-21T14:20:59+08:00",
+    "last_checked_at": "2026-07-21T14:20:59+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "4bf059aed0e2c6445580f09a7a0fd4e7c41e7fe599110cc14c2630fc7590349e"
+  },
+  "519696": {
+    "fund_code": "519696",
+    "fund_name": "交银环球精选混合(QDII)A",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/519696.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 46.17,
+      "美洲": 37.4,
+      "大欧洲地区": 16.43,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 1.56,
+      "大洋洲": 0.0,
+      "发达亚洲": 4.4,
+      "新兴亚洲": 40.22,
+      "北美": 37.4,
+      "拉丁美洲": 0.0,
+      "英国": 7.74,
+      "发达欧洲": 8.69,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:00+08:00",
+    "last_checked_at": "2026-07-21T14:21:00+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "36df4af5a474a95978afb2f81b47f7e243d7740266b3d68d0fe8f87245ca27d7"
+  },
+  "519981": {
+    "fund_code": "519981",
+    "fund_name": "长信标普100等权重指数人民币",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/519981.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 0.46,
+      "美洲": 99.54,
+      "大欧洲地区": 0.0,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.0,
+      "新兴亚洲": 0.46,
+      "北美": 99.54,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.0,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:02+08:00",
+    "last_checked_at": "2026-07-21T14:21:02+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "3601c3918f15ae366272d72f0043f41c5ee98135bc2065e370f35a04d66268f3"
+  },
+  "486002": {
+    "fund_code": "486002",
+    "fund_name": "工银全球精选股票(QDII)",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/486002.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 16.78,
+      "美洲": 62.49,
+      "大欧洲地区": 20.74,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 6.2,
+      "大洋洲": 0.0,
+      "发达亚洲": 5.1,
+      "新兴亚洲": 5.48,
+      "北美": 58.89,
+      "拉丁美洲": 3.6,
+      "英国": 7.13,
+      "发达欧洲": 12.37,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 1.24
+    },
+    "fetched_at": "2026-07-21T14:21:04+08:00",
+    "last_checked_at": "2026-07-21T14:21:04+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "6b833f78782befaf670605aea4ec7aba38c309645acebeeaa8fdc5a583523f66"
+  },
+  "008401": {
+    "fund_code": "008401",
+    "fund_name": "大成标普500等权重指数(QDII)C人民币",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/008401.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 0.19,
+      "美洲": 98.82,
+      "大欧洲地区": 1.0,
+      "未分类": -0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.0,
+      "新兴亚洲": 0.19,
+      "北美": 98.82,
+      "拉丁美洲": 0.0,
+      "英国": 0.2,
+      "发达欧洲": 0.79,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:05+08:00",
+    "last_checked_at": "2026-07-21T14:21:05+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "f8d450b6ad229fc57b4971cc248f9668af1f5679bc44df34ee080f2cee5a90fa"
+  },
+  "007844": {
+    "fund_code": "007844",
+    "fund_name": "华宝标普油气上游股票人民币C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/007844.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 0.0,
+      "美洲": 100.0,
+      "大欧洲地区": 0.0,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.0,
+      "新兴亚洲": 0.0,
+      "北美": 100.0,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.0,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:07+08:00",
+    "last_checked_at": "2026-07-21T14:21:07+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "8bc24380368d21442ebbb3ea0a1015c859b9ac349b5c05eceff3b642dfa0a76c"
+  },
+  "006679": {
+    "fund_code": "006679",
+    "fund_name": "广发道琼斯石油指数美元现汇A",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/006679.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 0.0,
+      "美洲": 99.88,
+      "大欧洲地区": 0.0,
+      "未分类": 0.12
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.0,
+      "新兴亚洲": 0.0,
+      "北美": 99.88,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.0,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:08+08:00",
+    "last_checked_at": "2026-07-21T14:21:08+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "cb74a4e2d841444186d7282726a450f5e0af162a2ff938937ac48c72b7ff4841"
+  },
+  "018852": {
+    "fund_code": "018852",
+    "fund_name": "博时标普石油天然气勘探及生产精选行业指数发起(QDII)A美元现汇",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/018852.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 0.0,
+      "美洲": 100.0,
+      "大欧洲地区": 0.0,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.0,
+      "新兴亚洲": 0.0,
+      "北美": 100.0,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.0,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:09+08:00",
+    "last_checked_at": "2026-07-21T14:21:09+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "8bc24380368d21442ebbb3ea0a1015c859b9ac349b5c05eceff3b642dfa0a76c"
+  },
+  "118001": {
+    "fund_code": "118001",
+    "fund_name": "易方达亚洲精选股票",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/118001.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 75.69,
+      "美洲": 19.37,
+      "大欧洲地区": 4.95,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 29.5,
+      "新兴亚洲": 46.18,
+      "北美": 19.37,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 4.95,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:12+08:00",
+    "last_checked_at": "2026-07-21T14:21:12+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "931aed3a5b6cbcfb045d89f0ba179004cc45b9192b14841bff21cfa4c92f3407"
+  },
+  "018229": {
+    "fund_code": "018229",
+    "fund_name": "易方达全球优质企业混合(QDII)A(人民币份额)",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/018229.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 48.58,
+      "美洲": 45.36,
+      "大欧洲地区": 6.05,
+      "未分类": 0.01
+    },
+    "subregions": {
+      "日本": 0.26,
+      "大洋洲": 0.0,
+      "发达亚洲": 9.39,
+      "新兴亚洲": 38.94,
+      "北美": 45.36,
+      "拉丁美洲": 0.0,
+      "英国": 1.38,
+      "发达欧洲": 2.72,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 1.95
+    },
+    "fetched_at": "2026-07-21T14:21:13+08:00",
+    "last_checked_at": "2026-07-21T14:21:13+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "9cd23588d3c2bf41384989d7f04e1a6b68d13c9e92aa2813025b9ef35758b755"
+  },
+  "163813": {
+    "fund_code": "163813",
+    "fund_name": "中银全球策略(QDII-FOF)A",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/163813.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 4.27,
+      "美洲": 92.9,
+      "大欧洲地区": 2.81,
+      "未分类": 0.03
+    },
+    "subregions": {
+      "日本": 0.47,
+      "大洋洲": 0.14,
+      "发达亚洲": 1.6,
+      "新兴亚洲": 2.06,
+      "北美": 92.6,
+      "拉丁美洲": 0.3,
+      "英国": 0.52,
+      "发达欧洲": 2.15,
+      "新兴欧洲": 0.02,
+      "非洲/中东": 0.12
+    },
+    "fetched_at": "2026-07-21T14:21:15+08:00",
+    "last_checked_at": "2026-07-21T14:21:15+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "24e46ba3b1b818350edc45222e0e0565f4a66a3175d0a20f8af6ba0c34f9fc24"
+  },
+  "017145": {
+    "fund_code": "017145",
+    "fund_name": "华宝海外新能源汽车股票发起式(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/017145.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 32.13,
+      "美洲": 67.78,
+      "大欧洲地区": 0.09,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.15,
+      "新兴亚洲": 31.98,
+      "北美": 67.78,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.09,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:16+08:00",
+    "last_checked_at": "2026-07-21T14:21:16+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "517336630f6b5d9d1e57915c9763860ed1e6a99d287b174a29642c47e00dd497"
+  },
+  "009975": {
+    "fund_code": "009975",
+    "fund_name": "华宝标普美国消费人民币C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/009975.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 0.0,
+      "美洲": 99.24,
+      "大欧洲地区": 0.76,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.0,
+      "新兴亚洲": 0.0,
+      "北美": 99.24,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.76,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:17+08:00",
+    "last_checked_at": "2026-07-21T14:21:17+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "bb628cde691140650158f78bc749ab969227e4aab8d4aba745971c867b88f595"
+  },
+  "012868": {
+    "fund_code": "012868",
+    "fund_name": "易方达标普信息科技指数(QDII-LOF)C(人民币)",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/012868.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 0.33,
+      "美洲": 99.4,
+      "大欧洲地区": 0.27,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.0,
+      "新兴亚洲": 0.33,
+      "北美": 99.4,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.27,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:19+08:00",
+    "last_checked_at": "2026-07-21T14:21:19+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "3a9aea129a9d7e3df39a6171239f106943fea402def0b89aa972468df6f0d95d"
+  },
+  "019231": {
+    "fund_code": "019231",
+    "fund_name": "广发全球稳健配置混合(QDII)人民币C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/019231.html",
+    "report_date": "",
+    "primary_regions": {},
+    "subregions": {},
+    "valid": false,
+    "last_checked_at": "2026-07-21T14:25:45+08:00",
+    "last_error": "晨星直连获取失败: RuntimeError('晨星页面未找到“股票地区分布”区块')",
+    "fingerprint": ""
+  },
+  "164212": {
+    "fund_code": "164212",
+    "fund_name": "天弘全球新能源汽车股票(QDII-LOF)A",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/164212.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 51.23,
+      "美洲": 48.77,
+      "大欧洲地区": 0.0,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 6.9,
+      "新兴亚洲": 44.32,
+      "北美": 48.77,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.0,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:23+08:00",
+    "last_checked_at": "2026-07-21T14:21:23+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "f50a949da3ec9b24a137a045d7e94948cc3ae79eebd6effdabbec15440bb44b1"
+  },
+  "017072": {
+    "fund_code": "017072",
+    "fund_name": "申万菱信全球新能源股票型发起式(QDII)C",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/017072.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 29.73,
+      "美洲": 70.27,
+      "大欧洲地区": 0.0,
+      "未分类": -0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.0,
+      "新兴亚洲": 29.73,
+      "北美": 68.37,
+      "拉丁美洲": 1.9,
+      "英国": 0.0,
+      "发达欧洲": 0.0,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:23+08:00",
+    "last_checked_at": "2026-07-21T14:21:23+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "74343054ce65f87b1d623573ad6c4fafbf86448131688760d579d22b6cc7523c"
+  },
+  "160140": {
+    "fund_code": "160140",
+    "fund_name": "南方道琼斯美国精选A",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/160140.html",
+    "report_date": "2025-12-31",
+    "primary_regions": {
+      "大亚洲地区": 0.0,
+      "美洲": 99.98,
+      "大欧洲地区": 0.0,
+      "未分类": 0.02
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.0,
+      "新兴亚洲": 0.0,
+      "北美": 99.98,
+      "拉丁美洲": 0.0,
+      "英国": 0.0,
+      "发达欧洲": 0.0,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-07-21T14:21:25+08:00",
+    "last_checked_at": "2026-07-21T14:21:25+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "d690bde2ef0f517e06376ce0fad3299c0150321d8f2f4d12ff96116d2a574b72"
+  }
+}

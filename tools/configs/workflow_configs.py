@@ -60,6 +60,15 @@ COMMON_WORKFLOW_STEPS = [
         "close_observation_group": True,
     },
     {
+        "name": "海外基金晨星地区分布图",
+        "script": "fund_region_allocation.py",
+        "required": False,
+        "collect_images": True,
+        "args": ["--auto"],
+        # 只在完整日流程与早间收盘观察重叠窗口检查，避免晚间额外访问晨星。
+        "close_observation_group": True,
+    },
+    {
         "name": "安全版海外基金图",
         "script": "safe_fund.py",
         "required": True,

@@ -109,6 +109,28 @@
 - 注意：正式基金缓存只由完整日线主流程写入；盘前、盘中、盘后、富途夜盘实时观察入口不写本文件。
 - 注意：VIX 这类点位记录使用 value/value_type/display_value，不参与累计收益。
 
+### `fund_holding_change_batch_state.json`
+- 用途：基金前十大持仓变化图的披露批次状态缓存，用于维护 latest/ 下 1_基金代码.png 的本轮编号和上一轮图片清理状态。
+- 生成：fund_holding_change.py --auto 在自动检测到持仓变化并生成图片后写入。
+- 读取：fund_holding_change.py, git_main.py, service_main.py
+- 刷新：同一披露批次内基金首次生成图片时分配递增序号；新季度批次开始时把当前批次归档为上一轮。
+- 保留：当前批次满基金池数量且首张图生成超过 3 天后，按缓存中记录的明确图片路径逐个清理上一轮图片。
+- 结构：顶层包含 current、previous、last_cleaned_previous；current.funds 按基金代码记录 index、image、quarter_key、generated_at。
+- 说明位置：本 README
+- 注意：不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为批次状态。
+- 注意：本缓存只记录图片批次和编号，不保存完整持仓明细。
+
+### `fund_holding_change_state.json`
+- 用途：基金前十大持仓变化图的已处理状态缓存，用于判断持仓缓存是否发生新披露或内容变化。
+- 生成：fund_holding_change.py --auto 在自动检测持仓变化后写入。
+- 读取：fund_holding_change.py, git_main.py, service_main.py
+- 刷新：首次运行只初始化当前持仓指纹；后续季度或真实披露字段指纹变化时生成持仓变化图并更新状态。
+- 保留：每个 fund_code:topN 一个 key，更新时覆盖同 key；不按日期追加。
+- 结构：顶层是 fund_code:topN -> 状态记录，包含 latest_quarter_key、fingerprint、last_checked_at、last_image。
+- 说明位置：本 README
+- 注意：不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为基金状态。
+- 注意：该文件只记录是否已经处理过持仓变化，不保存完整持仓明细。
+
 ### `fund_holdings_cache.json`
 - 用途：基金最近披露前 N 大股票持仓缓存，用于估算海外/全球基金持仓贡献。
 - 生成：tools/get_top10_holdings.py 在首次缺失或披露窗口低频试探时写入。
@@ -128,6 +150,27 @@
 - 结构：顶层是 fund_code -> {fetched_at, value} 的映射。
 - 说明位置：本 README
 - 注意：不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为限购记录。
+
+### `fund_region_allocation_cache.json`
+- 用途：晨星海外基金股票地区分布缓存，保存披露日期、父级区域和子区域权重。
+- 生成：fund_region_allocation.py 从晨星公开基金页直连解析后写入。
+- 读取：fund_region_allocation.py, git_main.py, service_main.py
+- 刷新：默认 7 天检查一次；手动使用 --refresh 可强制直连刷新。
+- 保留：按基金代码保留最近一次有效地区分布；请求失败时保留旧有效记录。
+- 结构：顶层是基金代码 -> 地区记录的映射，记录 report_date、primary_regions、subregions、fingerprint 与抓取时间。
+- 说明位置：本 README
+- 注意：地区权重属于晨星股票地区分布，不包含基金现金、债券等资产。
+- 注意：晨星请求使用 trust_env=False，不继承 HTTP/SOCKS 环境代理。
+
+### `fund_region_allocation_state.json`
+- 用途：晨星地区分布图片的已发送状态，用于判断哪些分页图片需要重新生成。
+- 生成：fund_region_allocation.py --auto 在检测披露日期或地区权重变化后写入。
+- 读取：fund_region_allocation.py, git_main.py, service_main.py
+- 刷新：每次自动检测后更新；只记录数据指纹和分页图片状态。
+- 保留：保留当前基金池的最近状态。
+- 结构：顶层包含 funds、pages、updated_at；pages 按稳定页码记录聚合指纹和图片路径。
+- 说明位置：本 README
+- 注意：同一基金无地区数据变化时不会重复生成或发送图片。
 
 ### `futu_night_return_cache.json`
 - 用途：富途夜盘观察用的持仓股和基准涨跌幅结果缓存，避免 15 分钟内重复请求相同证券。

@@ -12,9 +12,9 @@ HOLDING_CHANGE_IMAGE_STYLE = {
     # 1080px 是抖音/手机竖图常用宽度；内部文字和表格会随宽度等比例放大。
     "canvas_width_px": 1080,
     # iPhone 灵动岛、抖音顶部控件的安全区。标题会从该位置之后开始绘制。
-    "top_margin_px": 120,
+    "top_margin_px": 160,
     # 其余三边独立控制，避免调整顶部安全区时影响表格和风险提示的位置。
-    "bottom_margin_px": 48,
+    "bottom_margin_px": 28,
     "left_margin_px": 42,
     "right_margin_px": 42,
     # PNG 是无损格式；DPI 是导出元数据，实际清晰度主要由上面的像素宽度决定。

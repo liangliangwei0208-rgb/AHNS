@@ -184,12 +184,14 @@
     "raw_daily_limit_amount": "1000.0"
   },
   "018852": {
-    "fetched_at": "2026-07-21T12:49:04+08:00",
-    "value": "限大额",
+    "fetched_at": "2026-07-21T13:37:35+08:00",
+    "value": "暂不销售",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "限大额",
     "raw_redeem_status": "开放赎回",
-    "raw_daily_limit_amount": "0"
+    "raw_daily_limit_amount": "0",
+    "raw_sale_availability": "暂不开放购买",
+    "sale_availability_source": "eastmoney_html:https://fund.eastmoney.com/018852.html"
   },
   "019231": {
     "fetched_at": "2026-07-21T12:49:08+08:00",

@@ -35,6 +35,8 @@ CACHE_CONFLICT_EXACT_PATHS = {
     "cache/fund_holding_change_state.json",
     "cache/fund_holdings_cache.json",
     "cache/fund_purchase_limit_cache.json",
+    "cache/fund_region_allocation_cache.json",
+    "cache/fund_region_allocation_state.json",
     "cache/futu_night_return_cache.json",
     "cache/intraday_quote_cache.json",
     "cache/night_quote_cache.json",
@@ -829,6 +831,156 @@ def merge_fund_purchase_limit_cache(ours_text: str, theirs_text: str) -> str:
     return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
 
 
+def _region_allocation_record_time(record: dict[str, Any]) -> datetime | None:
+    """返回地区分布记录最近一次检查或抓取时间。"""
+    values = [record.get("fetched_at"), record.get("last_checked_at")]
+    parsed = [dt for value in values if (dt := parse_datetime_like(value))]
+    return max(parsed) if parsed else None
+
+
+def _region_allocation_report_date(record: dict[str, Any]) -> datetime | None:
+    return parse_datetime_like(record.get("report_date"))
+
+
+def _region_allocation_record_score(record: dict[str, Any]) -> int:
+    """有效地区数据优先，其次保留字段更完整的一侧。"""
+    score = 100 if record.get("valid") is True else 0
+    primary = record.get("primary_regions")
+    subregions = record.get("subregions")
+    if isinstance(primary, dict):
+        score += len(primary) * 4
+    if isinstance(subregions, dict):
+        score += len(subregions)
+    if record.get("report_date"):
+        score += 4
+    if record.get("fingerprint"):
+        score += 2
+    return score
+
+
+def choose_fund_region_allocation_record(ours: Any, theirs: Any) -> Any:
+    """按有效性、晨星披露日和抓取时间合并单基金地区缓存。"""
+    if not isinstance(ours, dict):
+        return theirs
+    if not isinstance(theirs, dict):
+        return ours
+
+    ours_score = _region_allocation_record_score(ours)
+    theirs_score = _region_allocation_record_score(theirs)
+    if ours_score != theirs_score:
+        chosen = theirs if theirs_score > ours_score else ours
+        other = ours if chosen is theirs else theirs
+    else:
+        ours_date = _region_allocation_report_date(ours)
+        theirs_date = _region_allocation_report_date(theirs)
+        if ours_date != theirs_date:
+            chosen = theirs if (theirs_date or datetime.min) > (ours_date or datetime.min) else ours
+            other = ours if chosen is theirs else theirs
+        else:
+            ours_time = _region_allocation_record_time(ours)
+            theirs_time = _region_allocation_record_time(theirs)
+            chosen = theirs if (theirs_time or datetime.min) >= (ours_time or datetime.min) else ours
+            other = ours if chosen is theirs else theirs
+
+    merged = dict(chosen)
+    for key, value in other.items():
+        merged.setdefault(key, value)
+    # 刷新时间取较晚值，避免同步后过早再次直连晨星。
+    for field in ("fetched_at", "last_checked_at"):
+        values = [value for value in (ours.get(field), theirs.get(field)) if value]
+        if values:
+            merged[field] = max(
+                values,
+                key=lambda value: parse_datetime_like(value) or datetime.min,
+            )
+    return merged
+
+
+def merge_fund_region_allocation_cache(ours_text: str, theirs_text: str) -> str:
+    ours = json.loads(ours_text)
+    theirs = json.loads(theirs_text)
+    if not isinstance(ours, dict) or not isinstance(theirs, dict):
+        raise SyncError("晨星地区分布缓存不是 JSON object，无法自动合并。")
+
+    merged: dict[str, Any] = {}
+    for key in sorted(set(ours) | set(theirs)):
+        if key in ours and key in theirs:
+            merged[key] = choose_fund_region_allocation_record(ours[key], theirs[key])
+        elif key in theirs:
+            merged[key] = theirs[key]
+        else:
+            merged[key] = ours[key]
+    return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
+
+
+def _region_allocation_state_time(record: Any) -> datetime | None:
+    if not isinstance(record, dict):
+        return None
+    values = [
+        record.get("last_generated_at"),
+        record.get("last_checked_at"),
+        record.get("updated_at"),
+    ]
+    parsed = [dt for value in values if (dt := parse_datetime_like(value))]
+    return max(parsed) if parsed else None
+
+
+def choose_region_allocation_state_record(ours: Any, theirs: Any) -> Any:
+    if not isinstance(ours, dict):
+        return theirs
+    if not isinstance(theirs, dict):
+        return ours
+
+    # fund state also has report_date / valid, so reuse the data record policy first.
+    if "report_date" in ours or "report_date" in theirs:
+        return choose_fund_region_allocation_record(ours, theirs)
+
+    ours_time = _region_allocation_state_time(ours)
+    theirs_time = _region_allocation_state_time(theirs)
+    chosen = theirs if (theirs_time or datetime.min) >= (ours_time or datetime.min) else ours
+    other = ours if chosen is theirs else theirs
+    merged = dict(chosen)
+    for key, value in other.items():
+        merged.setdefault(key, value)
+    return merged
+
+
+def merge_fund_region_allocation_state_cache(ours_text: str, theirs_text: str) -> str:
+    ours = json.loads(ours_text)
+    theirs = json.loads(theirs_text)
+    if not isinstance(ours, dict) or not isinstance(theirs, dict):
+        raise SyncError("晨星地区分布状态缓存不是 JSON object，无法自动合并。")
+
+    ours_time = _region_allocation_state_time(ours)
+    theirs_time = _region_allocation_state_time(theirs)
+    base = dict(theirs if (theirs_time or datetime.min) >= (ours_time or datetime.min) else ours)
+    for key, value in ours.items():
+        base.setdefault(key, value)
+
+    for section in ("funds", "pages"):
+        ours_items = ours.get(section) if isinstance(ours.get(section), dict) else {}
+        theirs_items = theirs.get(section) if isinstance(theirs.get(section), dict) else {}
+        merged_items: dict[str, Any] = {}
+        for key in sorted(set(ours_items) | set(theirs_items)):
+            if key in ours_items and key in theirs_items:
+                merged_items[key] = choose_region_allocation_state_record(
+                    ours_items[key], theirs_items[key]
+                )
+            elif key in theirs_items:
+                merged_items[key] = theirs_items[key]
+            else:
+                merged_items[key] = ours_items[key]
+        base[section] = merged_items
+
+    updated_values = [value for value in (ours.get("updated_at"), theirs.get("updated_at")) if value]
+    if updated_values:
+        base["updated_at"] = max(
+            updated_values,
+            key=lambda value: parse_datetime_like(value) or datetime.min,
+        )
+    return json.dumps(base, ensure_ascii=False, indent=2) + "\n"
+
+
 def merge_a_share_trade_calendar_cache(ours_text: str, theirs_text: str) -> str:
     ours = json.loads(ours_text)
     theirs = json.loads(theirs_text)
@@ -882,6 +1034,10 @@ def merge_cache_conflict_file(repo: Path, path: str) -> None:
         merged_text = merge_fund_holdings_cache(ours_text, theirs_text)
     elif path == "cache/fund_purchase_limit_cache.json":
         merged_text = merge_fund_purchase_limit_cache(ours_text, theirs_text)
+    elif path == "cache/fund_region_allocation_cache.json":
+        merged_text = merge_fund_region_allocation_cache(ours_text, theirs_text)
+    elif path == "cache/fund_region_allocation_state.json":
+        merged_text = merge_fund_region_allocation_state_cache(ours_text, theirs_text)
     elif path == "cache/security_return_cache.json":
         merged_text = merge_security_return_cache(ours_text, theirs_text)
     else:

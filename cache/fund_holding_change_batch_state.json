@@ -6,7 +6,7 @@
     "quarter_label": "2026年2季度股票投资明细",
     "fund_pool_count": 37,
     "first_generated_at": "2026-07-20T11:14:16",
-    "updated_at": "2026-07-21T09:59:07",
+    "updated_at": "2026-07-21T14:52:30",
     "funds": {
       "001092": {
         "fund_code": "001092",
@@ -88,6 +88,258 @@
         "quarter_key": 20262,
         "quarter_label": "2026年2季度股票投资明细",
         "generated_at": "2026-07-21T09:58:59"
+      },
+      "017437": {
+        "fund_code": "017437",
+        "fund_name": "华宝纳斯达克精选股票发起式(QDII)C",
+        "index": 10,
+        "image": "output/fund_holding_change/latest/10_017437.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:35:40"
+      },
+      "012922": {
+        "fund_code": "012922",
+        "fund_name": "易方达全球成长精选混合(QDII)人民币C",
+        "index": 11,
+        "image": "output/fund_holding_change/latest/11_012922.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:36:11"
+      },
+      "024239": {
+        "fund_code": "024239",
+        "fund_name": "华夏全球科技先锋混合(QDII)C",
+        "index": 12,
+        "image": "output/fund_holding_change/latest/12_024239.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:37:19"
+      },
+      "021842": {
+        "fund_code": "021842",
+        "fund_name": "国富全球科技互联混合(QDII)人民币C",
+        "index": 13,
+        "image": "output/fund_holding_change/latest/13_021842.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:37:38"
+      },
+      "018036": {
+        "fund_code": "018036",
+        "fund_name": "长城全球新能源车股票发起式(QDII)C",
+        "index": 14,
+        "image": "output/fund_holding_change/latest/14_018036.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:38:17"
+      },
+      "022184": {
+        "fund_code": "022184",
+        "fund_name": "富国全球科技互联网股票(QDII)C",
+        "index": 15,
+        "image": "output/fund_holding_change/latest/15_022184.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:39:07"
+      },
+      "016665": {
+        "fund_code": "016665",
+        "fund_name": "天弘全球高端制造混合(QDII)C",
+        "index": 16,
+        "image": "output/fund_holding_change/latest/16_016665.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:39:35"
+      },
+      "000043": {
+        "fund_code": "000043",
+        "fund_name": "嘉实美国成长股票人民币",
+        "index": 17,
+        "image": "output/fund_holding_change/latest/17_000043.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:40:06"
+      },
+      "013328": {
+        "fund_code": "013328",
+        "fund_name": "嘉实全球价值股票(QDII)人民币",
+        "index": 18,
+        "image": "output/fund_holding_change/latest/18_013328.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:40:24"
+      },
+      "002891": {
+        "fund_code": "002891",
+        "fund_name": "华夏移动互联混合人民币",
+        "index": 19,
+        "image": "output/fund_holding_change/latest/19_002891.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:40:59"
+      },
+      "008254": {
+        "fund_code": "008254",
+        "fund_name": "华宝致远混合(QDII)C",
+        "index": 20,
+        "image": "output/fund_holding_change/latest/20_008254.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:41:33"
+      },
+      "006555": {
+        "fund_code": "006555",
+        "fund_name": "浦银安盛全球智能科技(QDII)A",
+        "index": 21,
+        "image": "output/fund_holding_change/latest/21_006555.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:42:07"
+      },
+      "015202": {
+        "fund_code": "015202",
+        "fund_name": "汇添富全球移动互联混合(QDII)人民币C",
+        "index": 22,
+        "image": "output/fund_holding_change/latest/22_015202.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:42:37"
+      },
+      "017731": {
+        "fund_code": "017731",
+        "fund_name": "嘉实全球产业升级股票发起式(QDII)C",
+        "index": 23,
+        "image": "output/fund_holding_change/latest/23_017731.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:42:57"
+      },
+      "519981": {
+        "fund_code": "519981",
+        "fund_name": "长信标普100等权重指数人民币",
+        "index": 24,
+        "image": "output/fund_holding_change/latest/24_519981.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:43:32"
+      },
+      "486002": {
+        "fund_code": "486002",
+        "fund_name": "工银全球精选股票(QDII)",
+        "index": 25,
+        "image": "output/fund_holding_change/latest/25_486002.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:43:52"
+      },
+      "008401": {
+        "fund_code": "008401",
+        "fund_name": "大成标普500等权重指数(QDII)C人民币",
+        "index": 26,
+        "image": "output/fund_holding_change/latest/26_008401.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:44:18"
+      },
+      "007844": {
+        "fund_code": "007844",
+        "fund_name": "华宝标普油气上游股票人民币C",
+        "index": 27,
+        "image": "output/fund_holding_change/latest/27_007844.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:44:59"
+      },
+      "018852": {
+        "fund_code": "018852",
+        "fund_name": "博时标普石油天然气勘探及生产精选行业指数发起(QDII)A美元现汇",
+        "index": 28,
+        "image": "output/fund_holding_change/latest/28_018852.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:45:41"
+      },
+      "118001": {
+        "fund_code": "118001",
+        "fund_name": "易方达亚洲精选股票",
+        "index": 29,
+        "image": "output/fund_holding_change/latest/29_118001.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:46:12"
+      },
+      "018229": {
+        "fund_code": "018229",
+        "fund_name": "易方达全球优质企业混合(QDII)A(人民币份额)",
+        "index": 30,
+        "image": "output/fund_holding_change/latest/30_018229.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:48:48"
+      },
+      "163813": {
+        "fund_code": "163813",
+        "fund_name": "中银全球策略(QDII-FOF)A",
+        "index": 31,
+        "image": "output/fund_holding_change/latest/31_163813.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:49:07"
+      },
+      "017145": {
+        "fund_code": "017145",
+        "fund_name": "华宝海外新能源汽车股票发起式(QDII)C",
+        "index": 32,
+        "image": "output/fund_holding_change/latest/32_017145.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:49:44"
+      },
+      "009975": {
+        "fund_code": "009975",
+        "fund_name": "华宝标普美国消费人民币C",
+        "index": 33,
+        "image": "output/fund_holding_change/latest/33_009975.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:50:10"
+      },
+      "012868": {
+        "fund_code": "012868",
+        "fund_name": "易方达标普信息科技指数(QDII-LOF)C(人民币)",
+        "index": 34,
+        "image": "output/fund_holding_change/latest/34_012868.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:50:58"
+      },
+      "164212": {
+        "fund_code": "164212",
+        "fund_name": "天弘全球新能源汽车股票(QDII-LOF)A",
+        "index": 35,
+        "image": "output/fund_holding_change/latest/35_164212.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:51:39"
+      },
+      "017072": {
+        "fund_code": "017072",
+        "fund_name": "申万菱信全球新能源股票型发起式(QDII)C",
+        "index": 36,
+        "image": "output/fund_holding_change/latest/36_017072.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:52:07"
+      },
+      "160140": {
+        "fund_code": "160140",
+        "fund_name": "南方道琼斯美国精选A",
+        "index": 37,
+        "image": "output/fund_holding_change/latest/37_160140.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T14:52:30"
       }
     }
   }

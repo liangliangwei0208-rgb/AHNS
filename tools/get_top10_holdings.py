@@ -1632,6 +1632,17 @@ def _normalize_html_text(text):
     return text
 
 
+def _decode_eastmoney_html(response) -> str:
+    """优先按 UTF-8 解码东方财富页面，修正缺失 charset 时的错误 ISO-8859-1 判断。"""
+    content = response.content
+    try:
+        return content.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        # 少数旧页面仍可能不是 UTF-8，此时才使用 requests 的探测结果兜底。
+        encoding = response.apparent_encoding or response.encoding or "utf-8"
+        return content.decode(encoding, errors="replace")
+
+
 def _format_purchase_limit_amount(value) -> str | None:
     """
     把东方财富“日累计限定金额”统一成图里使用的限购文案。
@@ -1675,9 +1686,19 @@ def _format_purchase_limit_amount(value) -> str | None:
     return f"{amount:.2f}".rstrip("0").rstrip(".") + "元"
 
 
-def _format_purchase_limit_from_status(purchase_status, daily_limit_amount) -> str:
+def _format_purchase_limit_from_status(
+    purchase_status,
+    daily_limit_amount,
+    sale_availability=None,
+) -> str:
     status = str(purchase_status or "").strip()
+    sale_text = re.sub(r"\s+", "", str(sale_availability or "").strip())
     amount_text = _format_purchase_limit_amount(daily_limit_amount)
+
+    # “暂不开放购买/暂不销售”描述的是当前销售渠道实际不能下单，优先级高于
+    # “限大额”这类基金规则状态，避免把不可买的基金展示成仍可申购。
+    if any(marker in sale_text for marker in ("暂不开放购买", "暂不销售", "不支持购买")):
+        return "暂不销售"
 
     # 东方财富会偶尔同时返回“暂停申购”和历史额度；完整暂停必须最高优先级。
     normalized_status = re.sub(r"\s+", "", status)
@@ -1730,8 +1751,17 @@ def resolve_purchase_limit_display_value(item) -> str:
     if isinstance(item, dict):
         raw_status = item.get("raw_purchase_status")
         raw_amount = item.get("raw_daily_limit_amount")
-        if raw_status not in (None, "") or raw_amount not in (None, ""):
-            resolved = _format_purchase_limit_from_status(raw_status, raw_amount)
+        raw_sale_availability = item.get("raw_sale_availability")
+        if (
+            raw_status not in (None, "")
+            or raw_amount not in (None, "")
+            or raw_sale_availability not in (None, "")
+        ):
+            resolved = _format_purchase_limit_from_status(
+                raw_status,
+                raw_amount,
+                raw_sale_availability,
+            )
             if resolved != "未知":
                 return resolved
         value = str(item.get("value") or "").strip()
@@ -1822,6 +1852,52 @@ def fetch_fund_purchase_limit_bulk_map(timeout=15, force_refresh=False) -> dict[
     return result
 
 
+def _is_purchase_unavailable_text(clean_text: str) -> bool:
+    """识别详情页的实际销售不可用提示，不把普通“限大额”误判为暂停销售。"""
+    return any(
+        marker in clean_text
+        for marker in (
+            "该基金暂不开放购买",
+            "暂不开放购买",
+            "暂不销售",
+            "不支持购买",
+        )
+    )
+
+
+def _should_verify_sale_availability(detail: dict) -> bool:
+    """仅校验“限大额 + 额度为零”的模糊批量状态，控制额外网页请求数量。"""
+    status = re.sub(r"\s+", "", str(detail.get("raw_purchase_status") or ""))
+    amount = _format_purchase_limit_amount(detail.get("raw_daily_limit_amount"))
+    return "限大额" in status and amount is None
+
+
+def _fetch_sale_availability_from_html(fund_code: str, timeout=8) -> dict[str, str]:
+    """读取基金详情页销售提示，仅在批量状态含义不足时调用。"""
+    url = f"https://fund.eastmoney.com/{fund_code}.html"
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/128.0.0.0 Safari/537.36"
+        ),
+        "Referer": url,
+    }
+    try:
+        response = requests.get(url, headers=headers, timeout=timeout)
+        response.raise_for_status()
+        clean_text = _normalize_html_text(_decode_eastmoney_html(response))
+    except Exception as exc:
+        return {"error": f"销售可用性页校验失败: {exc.__class__.__name__}({exc})"}
+
+    if _is_purchase_unavailable_text(clean_text):
+        return {
+            "raw_sale_availability": "暂不开放购买",
+            "sale_availability_source": f"eastmoney_html:{url}",
+        }
+    return {}
+
+
 def get_fund_purchase_limit_uncached_detail(fund_code: str, timeout=8) -> dict[str, str]:
     """
     尝试获取基金当前限购金额。
@@ -1893,11 +1969,14 @@ def get_fund_purchase_limit_uncached_detail(fund_code: str, timeout=8) -> dict[s
         try:
             resp = requests.get(url, headers=headers, timeout=timeout)
             resp.raise_for_status()
+            clean_text = _normalize_html_text(_decode_eastmoney_html(resp))
 
-            if not resp.encoding:
-                resp.encoding = resp.apparent_encoding or "utf-8"
-
-            clean_text = _normalize_html_text(resp.text)
+            # 页面可能同时写“限大额”和“暂不开放购买”。后者代表当前无法下单，
+            # 必须优先于基金规则状态展示。
+            if _is_purchase_unavailable_text(clean_text):
+                result = "暂不销售"
+                source = f"eastmoney_html:{url}"
+                break
 
             # HTML 备用源也必须先判断完整暂停，不能先被页面里的历史额度抢走。
             if "暂停申购" in clean_text and "暂停大额申购" not in clean_text:
@@ -1972,7 +2051,15 @@ def _purchase_limit_cache_record(detail: dict) -> dict:
         "fetched_at": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
         "value": resolve_purchase_limit_display_value(detail),
     }
-    for key in ("source", "raw_purchase_status", "raw_redeem_status", "raw_daily_limit_amount", "error"):
+    for key in (
+        "source",
+        "raw_purchase_status",
+        "raw_redeem_status",
+        "raw_daily_limit_amount",
+        "raw_sale_availability",
+        "sale_availability_source",
+        "error",
+    ):
         value = detail.get(key)
         if value not in (None, ""):
             record[key] = value
@@ -2014,7 +2101,14 @@ def get_fund_purchase_limit(
             "value": value,
             "source": item.get("source") or "file_cache",
         }
-        for key in ("raw_purchase_status", "raw_redeem_status", "raw_daily_limit_amount", "error"):
+        for key in (
+            "raw_purchase_status",
+            "raw_redeem_status",
+            "raw_daily_limit_amount",
+            "raw_sale_availability",
+            "sale_availability_source",
+            "error",
+        ):
             if isinstance(item, dict) and item.get(key) not in (None, ""):
                 detail[key] = item.get(key)
         return _purchase_limit_return(detail, return_detail)
@@ -2036,6 +2130,12 @@ def get_fund_purchase_limit(
                 bulk_value = resolve_purchase_limit_display_value(bulk_detail)
                 if bulk_value and bulk_value != "未知":
                     detail = dict(bulk_detail)
+                    if _should_verify_sale_availability(detail):
+                        sale_detail = _fetch_sale_availability_from_html(fund_code, timeout=timeout)
+                        if sale_detail.get("error"):
+                            candidate_errors.append(sale_detail["error"])
+                        else:
+                            detail.update(sale_detail)
                     detail["value"] = bulk_value
                 else:
                     candidate_errors.append("批量申购状态接口返回未知")
