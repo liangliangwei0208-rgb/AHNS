@@ -31,9 +31,14 @@ CACHE_CONFLICT_EXACT_PATHS = {
     "cache/a_share_trade_calendar_cache.json",
     "cache/afterhours_quote_cache.json",
     "cache/fund_estimate_return_cache.json",
+    "cache/fund_holding_change_batch_state.json",
     "cache/fund_holding_change_state.json",
+    "cache/fund_holdings_cache.json",
     "cache/fund_purchase_limit_cache.json",
+    "cache/futu_night_return_cache.json",
     "cache/intraday_quote_cache.json",
+    "cache/night_quote_cache.json",
+    "cache/premarket_quote_cache.json",
     "cache/security_return_cache.json",
 }
 CACHE_INDEX_DAILY_PATTERN = re.compile(r"^cache/[^/]+_index_daily\.csv$")
@@ -573,6 +578,202 @@ def merge_fund_holding_change_state_cache(ours_text: str, theirs_text: str) -> s
     return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
 
 
+def _holding_cache_quarter(record: dict[str, Any]) -> int:
+    try:
+        return int(record.get("latest_quarter_key"))
+    except (TypeError, ValueError):
+        return -1
+
+
+def _holding_cache_updated_at(record: dict[str, Any]) -> datetime | None:
+    values = [
+        record.get("fetched_at"),
+        record.get("last_checked_at"),
+        record.get("updated_at"),
+    ]
+    parsed = [dt for value in values if (dt := parse_datetime_like(value))]
+    return max(parsed) if parsed else None
+
+
+def choose_fund_holdings_cache_record(ours: Any, theirs: Any) -> Any:
+    """按披露季度和刷新时间保留更可靠的基金持仓缓存。"""
+    if not isinstance(ours, dict):
+        return theirs
+    if not isinstance(theirs, dict):
+        return ours
+
+    ours_quarter = _holding_cache_quarter(ours)
+    theirs_quarter = _holding_cache_quarter(theirs)
+    if theirs_quarter != ours_quarter:
+        chosen = theirs if theirs_quarter > ours_quarter else ours
+        other = ours if chosen is theirs else theirs
+    else:
+        ours_time = _holding_cache_updated_at(ours)
+        theirs_time = _holding_cache_updated_at(theirs)
+        if ours_time and theirs_time and theirs_time != ours_time:
+            chosen = theirs if theirs_time > ours_time else ours
+            other = ours if chosen is theirs else theirs
+        elif theirs_time and not ours_time:
+            chosen, other = theirs, ours
+        elif ours_time and not theirs_time:
+            chosen, other = ours, theirs
+        else:
+            # 同季度、同时间时优先保留包含更多披露数据的一侧。
+            ours_size = len(str(ours.get("data_json") or ""))
+            theirs_size = len(str(theirs.get("data_json") or ""))
+            chosen = theirs if theirs_size >= ours_size else ours
+            other = ours if chosen is theirs else theirs
+
+    merged = dict(chosen)
+    for key, value in other.items():
+        merged.setdefault(key, value)
+
+    # 检查时间和下次检查时间都取较晚值，避免同步后过早重复请求。
+    for field in ("fetched_at", "last_checked_at", "next_check_after"):
+        values = [value for value in (ours.get(field), theirs.get(field)) if value]
+        if values:
+            merged[field] = max(
+                values,
+                key=lambda value: parse_datetime_like(value) or datetime.min,
+            )
+    return merged
+
+
+def merge_fund_holdings_cache(ours_text: str, theirs_text: str) -> str:
+    ours = json.loads(ours_text)
+    theirs = json.loads(theirs_text)
+    if not isinstance(ours, dict) or not isinstance(theirs, dict):
+        raise SyncError("基金持仓缓存不是 JSON object，无法自动合并。")
+
+    merged: dict[str, Any] = {}
+    for key in sorted(set(ours) | set(theirs)):
+        if key in ours and key in theirs:
+            merged[key] = choose_fund_holdings_cache_record(ours[key], theirs[key])
+        elif key in theirs:
+            merged[key] = theirs[key]
+        else:
+            merged[key] = ours[key]
+    return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
+
+
+def _batch_quarter(record: Any) -> int:
+    if not isinstance(record, dict):
+        return -1
+    try:
+        return int(record.get("quarter_key"))
+    except (TypeError, ValueError):
+        return -1
+
+
+def _batch_record_time(record: dict[str, Any]) -> datetime | None:
+    values = [record.get("generated_at"), record.get("updated_at")]
+    parsed = [dt for value in values if (dt := parse_datetime_like(value))]
+    return max(parsed) if parsed else None
+
+
+def choose_holding_change_batch_fund_record(ours: Any, theirs: Any) -> Any:
+    if not isinstance(ours, dict):
+        return theirs
+    if not isinstance(theirs, dict):
+        return ours
+
+    ours_quarter = _batch_quarter(ours)
+    theirs_quarter = _batch_quarter(theirs)
+    if theirs_quarter != ours_quarter:
+        chosen = theirs if theirs_quarter > ours_quarter else ours
+        other = ours if chosen is theirs else theirs
+    else:
+        ours_time = _batch_record_time(ours)
+        theirs_time = _batch_record_time(theirs)
+        if ours_time and theirs_time and theirs_time != ours_time:
+            chosen = theirs if theirs_time > ours_time else ours
+            other = ours if chosen is theirs else theirs
+        else:
+            chosen, other = theirs, ours
+
+    merged = dict(chosen)
+    for key, value in other.items():
+        merged.setdefault(key, value)
+    return merged
+
+
+def merge_holding_change_batch_record(ours: Any, theirs: Any) -> Any:
+    """合并同一披露季度的批次清单，避免两端发现的基金更新互相丢失。"""
+    if not isinstance(ours, dict):
+        return theirs
+    if not isinstance(theirs, dict):
+        return ours
+
+    ours_quarter = _batch_quarter(ours)
+    theirs_quarter = _batch_quarter(theirs)
+    if theirs_quarter != ours_quarter:
+        return theirs if theirs_quarter > ours_quarter else ours
+
+    ours_time = _batch_record_time(ours)
+    theirs_time = _batch_record_time(theirs)
+    chosen = theirs if (theirs_time or datetime.min) >= (ours_time or datetime.min) else ours
+    base = dict(chosen)
+    other = ours if chosen is theirs else theirs
+    for key, value in other.items():
+        base.setdefault(key, value)
+
+    ours_funds = ours.get("funds") if isinstance(ours.get("funds"), dict) else {}
+    theirs_funds = theirs.get("funds") if isinstance(theirs.get("funds"), dict) else {}
+    merged_funds: dict[str, Any] = {}
+    for fund_code in sorted(set(ours_funds) | set(theirs_funds)):
+        if fund_code in ours_funds and fund_code in theirs_funds:
+            merged_funds[fund_code] = choose_holding_change_batch_fund_record(
+                ours_funds[fund_code], theirs_funds[fund_code]
+            )
+        elif fund_code in theirs_funds:
+            merged_funds[fund_code] = theirs_funds[fund_code]
+        else:
+            merged_funds[fund_code] = ours_funds[fund_code]
+    base["funds"] = merged_funds
+
+    # 首张图时间取更早值，保证三天清理保护期不会被后一次同步无限推迟。
+    first_values = [value for value in (ours.get("first_generated_at"), theirs.get("first_generated_at")) if value]
+    if first_values:
+        base["first_generated_at"] = min(
+            first_values,
+            key=lambda value: parse_datetime_like(value) or datetime.max,
+        )
+    updated_values = [value for value in (ours.get("updated_at"), theirs.get("updated_at")) if value]
+    if updated_values:
+        base["updated_at"] = max(
+            updated_values,
+            key=lambda value: parse_datetime_like(value) or datetime.min,
+        )
+    base["fund_pool_count"] = max(
+        int(ours.get("fund_pool_count") or 0),
+        int(theirs.get("fund_pool_count") or 0),
+    )
+    return base
+
+
+def merge_fund_holding_change_batch_state_cache(ours_text: str, theirs_text: str) -> str:
+    ours = json.loads(ours_text)
+    theirs = json.loads(theirs_text)
+    if not isinstance(ours, dict) or not isinstance(theirs, dict):
+        raise SyncError("持仓变化批次缓存不是 JSON object，无法自动合并。")
+
+    merged: dict[str, Any] = {}
+    for key in sorted(set(ours) | set(theirs)):
+        ours_value = ours.get(key)
+        theirs_value = theirs.get(key)
+        if key in {"current", "previous"}:
+            merged[key] = merge_holding_change_batch_record(ours_value, theirs_value)
+        elif key in ours and key in theirs:
+            ours_time = latest_datetime_from_record(ours_value) if isinstance(ours_value, dict) else None
+            theirs_time = latest_datetime_from_record(theirs_value) if isinstance(theirs_value, dict) else None
+            merged[key] = theirs_value if (theirs_time or datetime.min) >= (ours_time or datetime.min) else ours_value
+        elif key in theirs:
+            merged[key] = theirs_value
+        else:
+            merged[key] = ours_value
+    return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
+
+
 def purchase_limit_record_completeness(record: dict[str, Any]) -> int:
     return sum(1 for value in record.values() if value not in (None, "", [], {}))
 
@@ -663,12 +864,22 @@ def merge_cache_conflict_file(repo: Path, path: str) -> None:
         merged_text = merge_index_daily_csv(ours_text, theirs_text)
     elif path == "cache/a_share_trade_calendar_cache.json":
         merged_text = merge_a_share_trade_calendar_cache(ours_text, theirs_text)
-    elif path in {"cache/afterhours_quote_cache.json", "cache/intraday_quote_cache.json"}:
+    elif path in {
+        "cache/afterhours_quote_cache.json",
+        "cache/futu_night_return_cache.json",
+        "cache/intraday_quote_cache.json",
+        "cache/night_quote_cache.json",
+        "cache/premarket_quote_cache.json",
+    }:
         merged_text = merge_security_return_cache(ours_text, theirs_text)
     elif path == "cache/fund_estimate_return_cache.json":
         merged_text = merge_fund_estimate_cache(ours_text, theirs_text)
+    elif path == "cache/fund_holding_change_batch_state.json":
+        merged_text = merge_fund_holding_change_batch_state_cache(ours_text, theirs_text)
     elif path == "cache/fund_holding_change_state.json":
         merged_text = merge_fund_holding_change_state_cache(ours_text, theirs_text)
+    elif path == "cache/fund_holdings_cache.json":
+        merged_text = merge_fund_holdings_cache(ours_text, theirs_text)
     elif path == "cache/fund_purchase_limit_cache.json":
         merged_text = merge_fund_purchase_limit_cache(ours_text, theirs_text)
     elif path == "cache/security_return_cache.json":

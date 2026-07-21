@@ -6,53 +6,8 @@
     "quarter_label": "2026年2季度股票投资明细",
     "fund_pool_count": 37,
     "first_generated_at": "2026-07-20T11:14:16",
-    "updated_at": "2026-07-20T11:14:50",
+    "updated_at": "2026-07-21T09:59:07",
     "funds": {
-      "016702": {
-        "fund_code": "016702",
-        "fund_name": "银华海外数字经济量化选股混合发起式(QDII)C",
-        "index": 1,
-        "image": "output/fund_holding_change/latest/1_016702.png",
-        "quarter_key": 20262,
-        "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-20T11:14:16"
-      },
-      "021277": {
-        "fund_code": "021277",
-        "fund_name": "广发全球精选股票(QDII)人民币C",
-        "index": 2,
-        "image": "output/fund_holding_change/latest/2_021277.png",
-        "quarter_key": 20262,
-        "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-20T11:14:20"
-      },
-      "539002": {
-        "fund_code": "539002",
-        "fund_name": "建信新兴市场混合(QDII)A",
-        "index": 3,
-        "image": "output/fund_holding_change/latest/3_539002.png",
-        "quarter_key": 20262,
-        "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-20T11:14:25"
-      },
-      "017654": {
-        "fund_code": "017654",
-        "fund_name": "创金合信全球芯片产业股票发起(QDII)C",
-        "index": 4,
-        "image": "output/fund_holding_change/latest/4_017654.png",
-        "quarter_key": 20262,
-        "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-20T11:14:29"
-      },
-      "015205": {
-        "fund_code": "015205",
-        "fund_name": "银华全球新能源车量化优选股票(QDII)C",
-        "index": 5,
-        "image": "output/fund_holding_change/latest/5_015205.png",
-        "quarter_key": 20262,
-        "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-20T11:14:33"
-      },
       "001092": {
         "fund_code": "001092",
         "fund_name": "广发生物科技指数人民币(QDII)A",
@@ -60,16 +15,7 @@
         "image": "output/fund_holding_change/latest/6_001092.png",
         "quarter_key": 20262,
         "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-20T11:14:38"
-      },
-      "519696": {
-        "fund_code": "519696",
-        "fund_name": "交银环球精选混合(QDII)A",
-        "index": 7,
-        "image": "output/fund_holding_change/latest/7_519696.png",
-        "quarter_key": 20262,
-        "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-20T11:14:42"
+        "generated_at": "2026-07-21T09:59:03"
       },
       "006679": {
         "fund_code": "006679",
@@ -78,7 +24,34 @@
         "image": "output/fund_holding_change/latest/8_006679.png",
         "quarter_key": 20262,
         "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-20T11:14:46"
+        "generated_at": "2026-07-21T09:59:05"
+      },
+      "015205": {
+        "fund_code": "015205",
+        "fund_name": "银华全球新能源车量化优选股票(QDII)C",
+        "index": 5,
+        "image": "output/fund_holding_change/latest/5_015205.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T09:59:01"
+      },
+      "016702": {
+        "fund_code": "016702",
+        "fund_name": "银华海外数字经济量化选股混合发起式(QDII)C",
+        "index": 1,
+        "image": "output/fund_holding_change/latest/1_016702.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T09:58:56"
+      },
+      "017654": {
+        "fund_code": "017654",
+        "fund_name": "创金合信全球芯片产业股票发起(QDII)C",
+        "index": 4,
+        "image": "output/fund_holding_change/latest/4_017654.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T09:59:00"
       },
       "019231": {
         "fund_code": "019231",
@@ -87,7 +60,34 @@
         "image": "output/fund_holding_change/latest/9_019231.png",
         "quarter_key": 20262,
         "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-20T11:14:50"
+        "generated_at": "2026-07-21T09:59:07"
+      },
+      "021277": {
+        "fund_code": "021277",
+        "fund_name": "广发全球精选股票(QDII)人民币C",
+        "index": 2,
+        "image": "output/fund_holding_change/latest/2_021277.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T09:58:57"
+      },
+      "519696": {
+        "fund_code": "519696",
+        "fund_name": "交银环球精选混合(QDII)A",
+        "index": 7,
+        "image": "output/fund_holding_change/latest/7_519696.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T09:59:04"
+      },
+      "539002": {
+        "fund_code": "539002",
+        "fund_name": "建信新兴市场混合(QDII)A",
+        "index": 3,
+        "image": "output/fund_holding_change/latest/3_539002.png",
+        "quarter_key": 20262,
+        "quarter_label": "2026年2季度股票投资明细",
+        "generated_at": "2026-07-21T09:58:59"
       }
     }
   }
