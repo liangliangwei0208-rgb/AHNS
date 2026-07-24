@@ -170,7 +170,7 @@ Set-Location G:\AHNS
 - GitHub 仍然是主仓库和长期存档，但小电脑默认不主动访问 GitHub，避免国内网络错误拖慢监听。
 - 主机电脑改完代码后，手动运行 `sync_repos.py`，把本地、GitHub、Gitee 三边对齐。
 - 手机端可在 GitHub App 手动运行 `Trigger Service Command`；`holding_fund_code` 留空表示按基金库自动检测持仓变化，填写 6 位基金代码会让小电脑本轮强制生成该基金持仓变化图。
-- 坐在小电脑服务器前时，也可以直接运行 `service_gui.py` 或双击 `start_service_gui.ps1`，点按钮后立即按当前时间窗口运行 Service 流程；这不会修改 `service_command.json`，也不依赖 `run_flag=1`。
+- 坐在小电脑服务器前时，也可以直接运行 `service_gui.py` 或双击 `start_service_gui.ps1`。GUI 的“立即运行 service_main”会按当前时间窗口运行 Service 流程；“强制刷新限购+持仓缓存”会刷新全基金池限购状态和前十大持仓，然后提交推送到 Gitee，不生成图片、不发邮件。两项操作都不修改 `service_command.json`，也不依赖 `run_flag=1`。
 
 小电脑监听入口：
 
@@ -184,6 +184,12 @@ Set-Location "C:\Users\Administrator\Desktop\AHNS"
 ```powershell
 Set-Location "C:\Users\Administrator\Desktop\AHNS"
 & D:\anaconda\envs\py310\python.exe .\service_gui.py
+```
+
+仅强制刷新全基金池限购与持仓缓存：
+
+```powershell
+& D:\anaconda\envs\py310\python.exe .\service_runner.py --refresh-fund-limit-cache --primary-remote gitee
 ```
 
 主机电脑调试界面时建议跳过 Git 且不发邮件：

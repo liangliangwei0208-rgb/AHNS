@@ -174,7 +174,7 @@ PREMARKET_FUND_ESTIMATION_METHOD_MAP = {
     # 盘前/盘中/盘后/夜盘：只使用前十大持仓，可取行情持仓重新归一化到 100%。
     "015205": "top10_available_normalized",
     "017654": "top10_available_normalized",
-    "019231": "top10_available_normalized",
+    #"019231": "top10_available_normalized",
     #"164212": "top10_available_normalized",
     "118001": "top10_available_normalized",
     "017072": "top10_available_normalized",
