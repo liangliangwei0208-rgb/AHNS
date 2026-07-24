@@ -3,8 +3,8 @@ service_gui.py
 
 小电脑服务器的一键运行界面。
 
-这个界面只负责“按钮触发”和“日志展示”，真正的同步、运行、提交、推送仍由
-service_runner.py 处理，避免 GUI 里再维护一套业务逻辑。
+这个界面只负责“按钮触发”和“日志展示”。Service 流程与限购/持仓缓存强刷
+都交给 service_runner.py 处理，避免 GUI 里再维护一套同步逻辑。
 """
 from __future__ import annotations
 
@@ -75,9 +75,10 @@ class ServiceGuiApp:
         self.output_queue: queue.Queue[tuple[str, str | int]] = queue.Queue()
         self.worker: threading.Thread | None = None
         self.running = False
+        self.active_task_name = ""
 
         self.status_var = tk.StringVar(value="空闲")
-        self.command_var = tk.StringVar(value=self._format_runner_command())
+        self.command_var = tk.StringVar(value=self._format_command(self._service_runner_command()))
 
         self._build_ui()
         self.root.report_callback_exception = self._handle_tk_exception
@@ -85,8 +86,8 @@ class ServiceGuiApp:
 
     def _build_ui(self) -> None:
         self.root.title(DEFAULT_WINDOW_TITLE)
-        self.root.geometry("920x620")
-        self.root.minsize(760, 480)
+        self.root.geometry("1080x650")
+        self.root.minsize(900, 500)
 
         frame = ttk.Frame(self.root, padding=14)
         frame.pack(fill=tk.BOTH, expand=True)
@@ -116,6 +117,15 @@ class ServiceGuiApp:
         )
         self.run_button.pack(side=tk.LEFT)
 
+        self.refresh_cache_button = ttk.Button(
+            button_row,
+            text="强制刷新限购+持仓缓存",
+            command=self.start_fund_cache_refresh,
+            style="AhnsBig.TButton",
+            width=24,
+        )
+        self.refresh_cache_button.pack(side=tk.LEFT, padx=(18, 0))
+
         self.exit_button = ttk.Button(
             button_row,
             text="退出",
@@ -130,7 +140,7 @@ class ServiceGuiApp:
         ttk.Label(
             command_box,
             textvariable=self.command_var,
-            wraplength=860,
+            wraplength=1010,
             justify=tk.LEFT,
             font=("Consolas", 9),
         ).pack(anchor="w", padx=8, pady=8)
@@ -147,7 +157,7 @@ class ServiceGuiApp:
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
-    def _runner_command(self) -> list[str]:
+    def _service_runner_command(self) -> list[str]:
         command = [
             sys.executable,
             str(PROJECT_ROOT / "service_runner.py"),
@@ -162,8 +172,23 @@ class ServiceGuiApp:
             command.append("--skip-git")
         return command
 
-    def _format_runner_command(self) -> str:
-        return " ".join(f'"{part}"' if " " in str(part) else str(part) for part in self._runner_command())
+    def _refresh_cache_runner_command(self) -> list[str]:
+        command = [
+            sys.executable,
+            str(PROJECT_ROOT / "service_runner.py"),
+            "--python-exe",
+            str(self.args.python_exe),
+            "--primary-remote",
+            str(self.args.primary_remote),
+            "--refresh-fund-limit-cache",
+        ]
+        if self.args.skip_git:
+            command.append("--skip-git")
+        return command
+
+    @staticmethod
+    def _format_command(command: list[str]) -> str:
+        return " ".join(f'"{part}"' if " " in str(part) else str(part) for part in command)
 
     def _append_log(self, text: str) -> None:
         try:
@@ -178,29 +203,38 @@ class ServiceGuiApp:
         try:
             self.running = running
             self.run_button.configure(state=tk.DISABLED if running else tk.NORMAL)
+            self.refresh_cache_button.configure(state=tk.DISABLED if running else tk.NORMAL)
             self.exit_button.configure(text="运行中不可退出" if running else "退出")
             self.exit_button.configure(state=tk.DISABLED if running else tk.NORMAL)
         except Exception as exc:
             write_gui_log(f"更新按钮状态失败：{exc}")
 
     def start_service_run(self) -> None:
+        self._start_task("运行 service_main", self._service_runner_command())
+
+    def start_fund_cache_refresh(self) -> None:
+        """独立维护任务：强刷限购和前十大持仓，不生成图片或发送邮件。"""
+        self._start_task("强制刷新限购+持仓缓存", self._refresh_cache_runner_command())
+
+    def _start_task(self, task_name: str, command: list[str]) -> None:
         try:
             if self.running:
                 return
+            self.active_task_name = task_name
+            self.command_var.set(self._format_command(command))
             self._set_running_state(True)
-            self.status_var.set("运行中")
-            self._append_log("\n========== 开始运行 ==========\n")
-            self._append_log(self._format_runner_command() + "\n\n")
+            self.status_var.set(f"运行中：{task_name}")
+            self._append_log(f"\n========== 开始：{task_name} ==========\n")
+            self._append_log(self.command_var.get() + "\n\n")
 
-            self.worker = threading.Thread(target=self._run_worker, daemon=True)
+            self.worker = threading.Thread(target=self._run_worker, args=(command,), daemon=True)
             self.worker.start()
         except Exception as exc:
             self._handle_gui_error("启动后台运行线程失败", exc)
             self._finish_run(1)
 
-    def _run_worker(self) -> None:
+    def _run_worker(self, command: list[str]) -> None:
         try:
-            command = self._runner_command()
             creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
             process = subprocess.Popen(
                 command,
@@ -248,20 +282,22 @@ class ServiceGuiApp:
 
     def _finish_run(self, exit_code: int) -> None:
         try:
+            task_name = self.active_task_name or "任务"
             self._set_running_state(False)
             if exit_code == 0:
                 self.status_var.set("成功")
-                self._append_log("\n========== 运行成功 ==========\n")
+                self._append_log(f"\n========== {task_name} 成功 ==========\n")
             else:
                 self.status_var.set(f"失败，退出码 {exit_code}")
-                self._append_log(f"\n========== 运行失败，退出码 {exit_code} ==========\n")
+                self._append_log(f"\n========== {task_name} 失败，退出码 {exit_code} ==========\n")
+            self.active_task_name = ""
         except Exception as exc:
             self._handle_gui_error("更新运行结果失败", exc)
 
     def on_close(self) -> None:
         try:
             if self.running:
-                messagebox.showinfo("正在运行", "service_main.py 仍在运行，请等待结束后再关闭。")
+                messagebox.showinfo("正在运行", "当前 AHNS 任务仍在运行，请等待结束后再关闭。")
                 return
             self.root.destroy()
         except Exception as exc:
@@ -288,7 +324,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--python-exe",
         default=service_runner.DEFAULT_SERVICE_PYTHON,
-        help=f"运行 service_main.py 的 Python，默认 {service_runner.DEFAULT_SERVICE_PYTHON}",
+        help=f"运行服务或缓存刷新任务的 Python，默认 {service_runner.DEFAULT_SERVICE_PYTHON}",
     )
     parser.add_argument(
         "--primary-remote",
@@ -298,7 +334,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--skip-git",
         action="store_true",
-        help="只运行 service_main.py，不执行 pull/commit/push，适合调试",
+        help="跳过 pull/commit/push，适合调试 service 或缓存刷新任务",
     )
     parser.add_argument(
         "--no-send",

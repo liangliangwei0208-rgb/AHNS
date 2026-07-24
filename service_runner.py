@@ -3,7 +3,7 @@ service_runner.py
 
 小电脑服务器的一次性控制入口：
 1. 同步远程仓库；
-2. 运行 service_main.py；
+2. 运行 service_main.py 或指定的维护脚本；
 3. 提交源码/配置/缓存变化；
 4. 再同步并推送。
 
@@ -27,6 +27,7 @@ DEFAULT_PRIMARY_REMOTE = os.environ.get("AHNS_SERVICE_PRIMARY_REMOTE", "gitee")
 DEFAULT_FALLBACK_REMOTE = os.environ.get("AHNS_SERVICE_FALLBACK_REMOTE", "").strip() or None
 LOCAL_CHANGE_COMMIT_MESSAGE = "Update service local changes [skip ci]"
 RUNTIME_CHANGE_COMMIT_MESSAGE = "Update service runtime changes [skip ci]"
+FUND_CACHE_REFRESH_COMMIT_MESSAGE = "Refresh service fund caches [skip ci]"
 SERVICE_GIT_USER_NAME = "ahns-service[bot]"
 SERVICE_GIT_USER_EMAIL = "ahns-service@local"
 
@@ -38,6 +39,14 @@ class ServiceRunnerError(RuntimeError):
 @dataclass
 class ServiceRunResult:
     service_exit_code: int
+    git_commits_created: bool
+
+
+@dataclass
+class FundCacheRefreshResult:
+    """限购与持仓缓存强刷任务的执行结果。"""
+
+    refresh_exit_code: int
     git_commits_created: bool
 
 
@@ -254,20 +263,21 @@ def service_env() -> dict[str, str]:
     return env
 
 
-def run_service_once(
+def _run_synced_python_task(
     *,
-    python_exe: str = DEFAULT_SERVICE_PYTHON,
-    no_send: bool = False,
-    receiver: str | None = None,
-    holding_change_fund_code: str | None = None,
-    skip_git: bool = False,
-    primary_remote: str = DEFAULT_PRIMARY_REMOTE,
-    fallback_remote: str | None = DEFAULT_FALLBACK_REMOTE,
-) -> ServiceRunResult:
-    python_path = Path(python_exe)
-    if not python_path.exists() or not python_path.is_file():
-        raise ServiceRunnerError(f"Python executable not found: {python_exe}")
+    command: Sequence[str | os.PathLike[str]],
+    task_name: str,
+    runtime_commit_message: str,
+    skip_git: bool,
+    primary_remote: str,
+    fallback_remote: str | None,
+    env: dict[str, str],
+) -> tuple[int, bool]:
+    """统一处理小电脑任务的同步、执行、提交与推送。
 
+    `service_main.py` 和独立缓存维护脚本都可能修改运行缓存，因此必须共用
+    同一条 Git 流程，避免 GUI 新功能只更新本地而造成后续三方冲突。
+    """
     log(f"Repository root: {PROJECT_ROOT}")
     commits_created = False
 
@@ -286,31 +296,86 @@ def run_service_once(
         active_remote = ""
         log("Git synchronization is skipped for this run.")
 
-    service_args = build_service_args(
-        python_exe=str(python_path),
-        no_send=no_send,
-        receiver=receiver,
-    )
-    log(f"Running service_main.py with {python_path}")
-    env = service_env()
-    if holding_change_fund_code:
-        env["AHNS_HOLDING_CHANGE_FUND_CODE"] = str(holding_change_fund_code).strip()
-        log(f"Manual holding change fund code: {env['AHNS_HOLDING_CHANGE_FUND_CODE']}")
-    service_result = run_command(service_args, check=False, env=env)
-    service_exit_code = service_result.returncode
-    log(f"service_main.py exited with code {service_exit_code}")
+    log(f"Running {task_name}.")
+    task_result = run_command(command, check=False, env=env)
+    task_exit_code = int(task_result.returncode)
+    log(f"{task_name} exited with code {task_exit_code}")
 
+    # 即使部分基金刷新失败，也把本轮成功写入的缓存同步回 Gitee。
     if not skip_git:
-        commits_created = save_repo_changes(RUNTIME_CHANGE_COMMIT_MESSAGE) or commits_created
-
+        commits_created = save_repo_changes(runtime_commit_message) or commits_created
         if commits_created:
             run_git(["pull", "--rebase", active_remote, branch])
             push_with_retry(branch, active_remote)
         else:
             log("No local commits were created; push skipped.")
 
+    return task_exit_code, commits_created
+
+
+def run_service_once(
+    *,
+    python_exe: str = DEFAULT_SERVICE_PYTHON,
+    no_send: bool = False,
+    receiver: str | None = None,
+    holding_change_fund_code: str | None = None,
+    skip_git: bool = False,
+    primary_remote: str = DEFAULT_PRIMARY_REMOTE,
+    fallback_remote: str | None = DEFAULT_FALLBACK_REMOTE,
+) -> ServiceRunResult:
+    python_path = Path(python_exe)
+    if not python_path.exists() or not python_path.is_file():
+        raise ServiceRunnerError(f"Python executable not found: {python_exe}")
+
+    service_args = build_service_args(
+        python_exe=str(python_path),
+        no_send=no_send,
+        receiver=receiver,
+    )
+    env = service_env()
+    if holding_change_fund_code:
+        env["AHNS_HOLDING_CHANGE_FUND_CODE"] = str(holding_change_fund_code).strip()
+        log(f"Manual holding change fund code: {env['AHNS_HOLDING_CHANGE_FUND_CODE']}")
+    service_exit_code, commits_created = _run_synced_python_task(
+        command=service_args,
+        task_name="service_main.py",
+        runtime_commit_message=RUNTIME_CHANGE_COMMIT_MESSAGE,
+        skip_git=skip_git,
+        primary_remote=primary_remote,
+        fallback_remote=fallback_remote,
+        env=env,
+    )
+
     return ServiceRunResult(
-        service_exit_code=service_exit_code,
+        service_exit_code=int(service_exit_code),
+        git_commits_created=commits_created,
+    )
+
+
+def run_fund_limit_cache_refresh_once(
+    *,
+    python_exe: str = DEFAULT_SERVICE_PYTHON,
+    skip_git: bool = False,
+    primary_remote: str = DEFAULT_PRIMARY_REMOTE,
+    fallback_remote: str | None = DEFAULT_FALLBACK_REMOTE,
+) -> FundCacheRefreshResult:
+    """强制刷新全基金池限购与前十大持仓缓存，并同步运行结果。"""
+    python_path = Path(python_exe)
+    if not python_path.exists() or not python_path.is_file():
+        raise ServiceRunnerError(f"Python executable not found: {python_exe}")
+
+    refresh_args = [str(python_path), str(PROJECT_ROOT / "refresh_fund_limit_cache.py")]
+    refresh_exit_code, commits_created = _run_synced_python_task(
+        command=refresh_args,
+        task_name="refresh_fund_limit_cache.py",
+        runtime_commit_message=FUND_CACHE_REFRESH_COMMIT_MESSAGE,
+        skip_git=skip_git,
+        primary_remote=primary_remote,
+        fallback_remote=fallback_remote,
+        env=service_env(),
+    )
+    return FundCacheRefreshResult(
+        refresh_exit_code=int(refresh_exit_code),
         git_commits_created=commits_created,
     )
 
@@ -320,7 +385,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--python-exe",
         default=DEFAULT_SERVICE_PYTHON,
-        help=f"运行 service_main.py 的 Python 解释器，默认 {DEFAULT_SERVICE_PYTHON}",
+        help=f"运行服务或缓存刷新脚本的 Python 解释器，默认 {DEFAULT_SERVICE_PYTHON}",
+    )
+    parser.add_argument(
+        "--refresh-fund-limit-cache",
+        action="store_true",
+        help="强制刷新全基金池限购和前十大持仓缓存，不运行 service_main.py、不发邮件",
     )
     parser.add_argument(
         "--no-send",
@@ -340,7 +410,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--skip-git",
         action="store_true",
-        help="跳过 pull/commit/push，仅运行 service_main.py，便于本地调试",
+        help="跳过 pull/commit/push，仅运行当前指定任务，便于本地调试",
     )
     parser.add_argument(
         "--primary-remote",
@@ -358,6 +428,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     try:
+        if args.refresh_fund_limit_cache:
+            result = run_fund_limit_cache_refresh_once(
+                python_exe=args.python_exe,
+                skip_git=bool(args.skip_git),
+                primary_remote=args.primary_remote,
+                fallback_remote=args.fallback_remote,
+            )
+            return int(result.refresh_exit_code)
+
         result = run_service_once(
             python_exe=args.python_exe,
             no_send=bool(args.no_send),
