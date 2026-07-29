@@ -41,6 +41,7 @@
 - `AHNS Service GUI` 计划任务会在 `Administrator` 登录桌面后自动打开 GUI；GUI 依赖交互桌面，不能在无人登录前显示窗口。
 - `Trigger Service Command` 需要 GitHub Actions Secret `GITEE_PRIVATE_CODE`。该值必须放在 Secrets，不要放普通 Variables，不要写入 README、AGENTS、workflow 明文或本地 Git config。
 - 小电脑监听运行时间是北京时间 06:00-24:00。`AHNS Command Watcher` 每日 06:00 和登录后启动；`start_ahns_command_watcher.ps1` 在 06:00 前直接退出；`AHNS Command Watcher Stop` 每日 00:00 停止监听。
+- `AHNS Server Sleep` 每日 00:00 停止 AHNS 相关 Python 流程、Futu OpenD 和 GUI，然后进入 S3 睡眠；`AHNS Server Wake And Start` 每日 06:00 唤醒并依次启动 Futu、监听器和 GUI。
 - `Futu OpenD Autostart` 登录后启动 `C:\Users\Administrator\AppData\Roaming\Futu_OpenD\Futu_OpenD.exe`。富途夜盘依赖 Futu OpenD 已登录并在线；自动启动只能打开程序，不能替代扫码或登录。
 - 小电脑监听日志在 `C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log`。日志占用磁盘，不会一直占用内存；`start_ahns_command_watcher.ps1` 启动时会在日志超过 20MB 后只保留最近 3000 行。
 - 查看监听日志优先运行 `C:\Users\Administrator\Desktop\AHNS\tail_ahns_log.ps1`，它会先切换 UTF-8，避免 PowerShell 中文乱码。
@@ -53,6 +54,8 @@ schtasks /Query /TN "Futu OpenD Autostart"
 schtasks /Query /TN "AHNS Service GUI" /V /FO LIST
 schtasks /Query /TN "AHNS Command Watcher"
 schtasks /Query /TN "AHNS Command Watcher Stop"
+schtasks /Query /TN "AHNS Server Sleep" /V /FO LIST
+schtasks /Query /TN "AHNS Server Wake And Start" /V /FO LIST
 
 Get-CimInstance Win32_Process |
   Where-Object { $_.CommandLine -match "Futu_OpenD|service_command_watcher.py" } |
@@ -64,6 +67,7 @@ Get-CimInstance Win32_Process |
 
 & "C:\Users\Administrator\Desktop\AHNS\tail_ahns_log.ps1"
 Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_gui.log" -Tail 80
+Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\server_power.log" -Tail 80
 ```
 
 ## 当前工作流
@@ -129,6 +133,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `.github/workflows/trigger-service-command.yml`：GitHub App 手动触发小电脑运行的入口，只编译并调用 `tools/trigger_service_command.py`，不直接内嵌复杂业务逻辑，不运行主业务流程。
 - `tools/trigger_service_command.py`：GitHub Actions 触发小电脑运行的 helper，负责基于 Gitee 最新 `main` 更新 `service_command.json`、提交、Git push 多轮重试，以及 Gitee API 兜底。
 - `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置 UTF-8 输出、仓库目录、Python 路径、日志路径、日志裁剪和 `--primary-remote gitee`。
+- `sleep_ahns_server.ps1` / `wake_ahns_server.ps1`：小电脑每日 00:00 睡眠收尾和 06:00 唤醒启动脚本；只停止 AHNS/Futu 相关进程，不批量删除文件。
 - `tail_ahns_log.ps1`：查看监听日志的 UTF-8 PowerShell 脚本，优先用它替代手写 `Get-Content -Wait`。
 - `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；建议 `origin` 使用 GitHub HTTPS，并只给 `github.com` 走 SakuraCat HTTP 代理和 OpenSSL，`gitee` 保持直连；疑似网络瞬时失败会短暂重试，GitHub 代理重试仍失败时会直连一次；会自动合并运行缓存白名单冲突，例如 `cache/*_index_daily.csv`、基金估算/证券收益/实时短缓存，以及按基金、有效性、披露日期和刷新时间合并的持仓变化与晨星地区缓存；源码、配置和文档冲突仍会停止。
 - `github_gitee_sync.py`：通用 GitHub/Gitee 同名仓库初始化和同步脚本；可复制到其他本地 Git 仓库根目录使用，默认读取 `origin` 推导 Gitee remote；缺少 GitHub remote 时会询问仓库信息，并用 `GITHUB_TOKEN` / `GH_TOKEN` 创建公开 GitHub 仓库；缺 Gitee 仓库时用 `GITEE_ACCESS_TOKEN` 创建公开仓库。
@@ -165,7 +170,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 
 - 日常总入口：`git_main.py`、`service_main.py`、`main.py`、`safe_fund.py`、`safe_holidays.py`、`sum_holidays.py`。
 - 实时观察入口：`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py`。
-- 小电脑与同步入口：`service_command_watcher.py`、`service_runner.py`、`service_gui.py`、`start_ahns_command_watcher.ps1`、`start_service_gui.ps1`、`tail_ahns_log.ps1`、`sync_repos.py`、`github_gitee_sync.py`、`service_command.json`。
+- 小电脑与同步入口：`service_command_watcher.py`、`service_runner.py`、`service_gui.py`、`start_ahns_command_watcher.ps1`、`start_service_gui.ps1`、`sleep_ahns_server.ps1`、`wake_ahns_server.ps1`、`tail_ahns_log.ps1`、`sync_repos.py`、`github_gitee_sync.py`、`service_command.json`。
 - 诊断和手动工具：`check_project.py`、`fund_estimate_breakdown.py`、`fund_holding_change.py`、`fund_region_allocation.py`、`stock_analysis.py`、`refresh_fund_limit_cache.py`。
 - 内部实现模块：优先看 `tools/`；经常维护的常量和配置优先看 `tools/configs/`；科普图脚本放在 `kepu/`。
 
