@@ -88410,7 +88410,7 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-07-30T12:50:17+08:00"
+    "fetched_at": "2026-07-30T14:37:22+08:00"
   },
   "SECURITY:HK:06976:2026-07-30": {
     "market": "HK",
@@ -88422,6 +88422,6 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-07-30T12:50:50+08:00"
+    "fetched_at": "2026-07-30T14:38:10+08:00"
   }
 }
