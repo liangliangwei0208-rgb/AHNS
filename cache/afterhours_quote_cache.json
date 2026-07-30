@@ -1,37 +1,4 @@
 {
-  "US:QQQ": {
-    "return_pct": 0.66,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:NVDA": {
-    "return_pct": 0.66,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:MRVL": {
-    "return_pct": -0.15,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
   "US:AAPL": {
     "return_pct": 0.54,
     "value": null,
@@ -43,63 +10,8 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:MSFT": {
-    "return_pct": 8.88,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:NFLX": {
-    "return_pct": -0.67,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:AVGO": {
-    "return_pct": 0.7,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:TSLA": {
-    "return_pct": -0.48,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:META": {
-    "return_pct": -7.45,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:AMZN": {
-    "return_pct": 1.5198111542534365,
+  "US:ALAB": {
+    "return_pct": 0.8785617367706777,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
@@ -109,34 +21,34 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:SMCI": {
-    "return_pct": 0.97,
+  "US:ALGM": {
+    "return_pct": 4.24,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
+    "quote_time_bj": "2026-07-30 07:51",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:LRCX": {
-    "return_pct": 6.4,
+  "US:ALNY": {
+    "return_pct": 1.36,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
+    "quote_time_bj": "2026-07-30 07:51",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:TSM": {
-    "return_pct": 0.05,
+  "US:AMAT": {
+    "return_pct": 3.015075376884413,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
+    "source": "yahoo_chart_afterhours_pure_post",
     "trade_date": "2026-07-29",
     "quote_time_bj": "2026-07-30 07:59",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
@@ -153,19 +65,52 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:SNDK": {
-    "return_pct": -0.7,
+  "US:AMGN": {
+    "return_pct": -0.41,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:53",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:AMZN": {
+    "return_pct": 1.5198111542534365,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
     "quote_time_bj": "2026-07-30 07:59",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:INTC": {
-    "return_pct": -0.84,
+  "US:AR": {
+    "return_pct": -0.8,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:34",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:ARGX": {
+    "return_pct": 0.0,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:34",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:ARM": {
+    "return_pct": -5.77,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
@@ -186,41 +131,19 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:GOOGL": {
-    "return_pct": -0.24354024354024117,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:MU": {
-    "return_pct": -0.68,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:UMC": {
+  "US:AVB": {
     "return_pct": 0.0,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
+    "quote_time_bj": "2026-07-30 07:34",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:LITE": {
-    "return_pct": -0.56,
+  "US:AVGO": {
+    "return_pct": 0.7,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
@@ -230,19 +153,52 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:STX": {
+  "US:BE": {
+    "return_pct": 1.56,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 08:04",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:BIIB": {
+    "return_pct": -1.35,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:51",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:BKNG": {
+    "return_pct": 0.69,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 08:01",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:BTI": {
     "return_pct": 0.21,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
+    "quote_time_bj": "2026-07-30 07:34",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:WDC": {
-    "return_pct": -0.2624728850325386,
+  "US:CAT": {
+    "return_pct": 0.11606106597625843,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
@@ -252,14 +208,212 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:MKSI": {
-    "return_pct": 0.31,
+  "US:CNX": {
+    "return_pct": 0.0,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:51",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:COHR": {
+    "return_pct": -0.36,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:COP": {
+    "return_pct": 0.29,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 08:04",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:CSCO": {
+    "return_pct": 0.48,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:57",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:DINO": {
+    "return_pct": 0.9970000000000034,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:52",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:DK": {
+    "return_pct": 0.12,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:DLR": {
+    "return_pct": 2.2956743543415925,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:49",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:DVN": {
+    "return_pct": -0.4060116644235001,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:EOG": {
+    "return_pct": -6.852126317458129e-05,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:EQIX": {
+    "return_pct": 2.77,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:52",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:EQT": {
+    "return_pct": 0.02,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:54",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:EXE": {
+    "return_pct": 0.85,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 08:01",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:EXR": {
+    "return_pct": 0.0,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:34",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:FANG": {
+    "return_pct": -0.9,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:53",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:FIX": {
+    "return_pct": -0.14,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
     "quote_time_bj": "2026-07-30 07:55",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:GE": {
+    "return_pct": 0.53,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:GEV": {
+    "return_pct": 0.47,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:GILD": {
+    "return_pct": -0.78,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:34",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:GLD": {
+    "return_pct": 0.85,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
@@ -285,8 +439,19 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:NOK": {
-    "return_pct": -0.48,
+  "US:GOOGL": {
+    "return_pct": -0.24354024354024117,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:HD": {
+    "return_pct": 0.21,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
@@ -296,12 +461,23 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:AMAT": {
-    "return_pct": 3.015075376884413,
+  "US:IBB": {
+    "return_pct": 0.2,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:56",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:INTC": {
+    "return_pct": -0.84,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
     "quote_time_bj": "2026-07-30 07:59",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
@@ -318,6 +494,17 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
+  "US:LITE": {
+    "return_pct": -0.56,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
   "US:LLY": {
     "return_pct": -0.35554895603896464,
     "value": null,
@@ -326,567 +513,6 @@
     "source": "yahoo_chart_afterhours_pure_post",
     "trade_date": "2026-07-29",
     "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:ONTO": {
-    "return_pct": -1.8414181668269913,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:STM": {
-    "return_pct": 0.0,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:58",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:ALAB": {
-    "return_pct": 0.8785617367706777,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:NBIS": {
-    "return_pct": 1.77,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:COHR": {
-    "return_pct": -0.36,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:TER": {
-    "return_pct": 1.81,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 08:01",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:MPWR": {
-    "return_pct": 0.8,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:45",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:IBB": {
-    "return_pct": 0.2,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:56",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:VRTX": {
-    "return_pct": 1.25,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:52",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:AMGN": {
-    "return_pct": -0.41,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:53",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:GILD": {
-    "return_pct": -0.78,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:34",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:REGN": {
-    "return_pct": 0.51,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:53",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:ALNY": {
-    "return_pct": 1.36,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:51",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:RVMD": {
-    "return_pct": 0.54,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:55",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:BIIB": {
-    "return_pct": -1.35,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:51",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:MRNA": {
-    "return_pct": 0.53,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:56",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:RPRX": {
-    "return_pct": 0.0,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:34",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:ARGX": {
-    "return_pct": 0.0,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:34",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:SPY": {
-    "return_pct": 0.4,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:GEV": {
-    "return_pct": 0.47,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:CAT": {
-    "return_pct": 0.11606106597625843,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:GE": {
-    "return_pct": 0.53,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:BTI": {
-    "return_pct": 0.21,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:34",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:TECH": {
-    "return_pct": -0.1806810284920246,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:50",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:UAL": {
-    "return_pct": 0.43,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:XOP": {
-    "return_pct": 0.24,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:34",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:TPL": {
-    "return_pct": 1.1787062479134969,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:52",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:PBF": {
-    "return_pct": 0.62,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:40",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:DK": {
-    "return_pct": 0.12,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:EXE": {
-    "return_pct": 0.85,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 08:01",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:CNX": {
-    "return_pct": 0.0,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:51",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:EQT": {
-    "return_pct": 0.02,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:54",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:VLO": {
-    "return_pct": 0.72,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:AR": {
-    "return_pct": -0.8,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:34",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:DINO": {
-    "return_pct": 0.9970000000000034,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:52",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:PARR": {
-    "return_pct": 5.43,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:58",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:COP": {
-    "return_pct": 0.29,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 08:04",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:MPC": {
-    "return_pct": 0.72,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:55",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:EOG": {
-    "return_pct": -6.852126317458129e-05,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:PSX": {
-    "return_pct": 0.35,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:57",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:FANG": {
-    "return_pct": -0.9,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:53",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:DVN": {
-    "return_pct": -0.4060116644235001,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:ARM": {
-    "return_pct": -5.77,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:NIO": {
-    "return_pct": 0.42,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 08:04",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:RIVN": {
-    "return_pct": 0.17,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:RACE": {
-    "return_pct": 0.38632062018719715,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 08:00",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:PONY": {
-    "return_pct": 0.0,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:47",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:HD": {
-    "return_pct": 0.21,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:MCD": {
-    "return_pct": -0.18,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:TJX": {
-    "return_pct": -0.03,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:59",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:BKNG": {
-    "return_pct": 0.69,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 08:01",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
@@ -901,8 +527,8 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:SBUX": {
-    "return_pct": 5.43,
+  "US:LRCX": {
+    "return_pct": 6.4,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
@@ -923,69 +549,91 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:RCL": {
-    "return_pct": 0.01,
+  "US:MCD": {
+    "return_pct": -0.18,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:52",
+    "quote_time_bj": "2026-07-30 07:59",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:CSCO": {
-    "return_pct": 0.48,
+  "US:META": {
+    "return_pct": -7.45,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:57",
+    "quote_time_bj": "2026-07-30 07:59",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:BE": {
-    "return_pct": 1.56,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 08:04",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:VICR": {
-    "return_pct": -0.22706754575547716,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:57",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:ALGM": {
-    "return_pct": 4.24,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:51",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:FIX": {
-    "return_pct": -0.14,
+  "US:MKSI": {
+    "return_pct": 0.31,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
     "quote_time_bj": "2026-07-30 07:55",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:MPC": {
+    "return_pct": 0.72,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:55",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:MPWR": {
+    "return_pct": 0.8,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:45",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:MRNA": {
+    "return_pct": 0.53,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:56",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:MRVL": {
+    "return_pct": -0.15,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:MSFT": {
+    "return_pct": 8.88,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
@@ -1000,58 +648,69 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:WELL": {
-    "return_pct": 0.1949560311929721,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:48",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:PLD": {
-    "return_pct": -0.8455351618890439,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:34",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:EQIX": {
-    "return_pct": 2.77,
+  "US:MU": {
+    "return_pct": -0.68,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:52",
+    "quote_time_bj": "2026-07-30 07:59",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:SPG": {
-    "return_pct": 0.2,
+  "US:NBIS": {
+    "return_pct": 1.77,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:34",
+    "quote_time_bj": "2026-07-30 07:59",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:DLR": {
-    "return_pct": 2.2956743543415925,
+  "US:NFLX": {
+    "return_pct": -0.67,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
-    "source": "yahoo_chart_afterhours_pure_post",
+    "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:49",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:NIO": {
+    "return_pct": 0.42,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 08:04",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:NOK": {
+    "return_pct": -0.48,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:NVDA": {
+    "return_pct": 0.66,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
@@ -1066,6 +725,61 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
+  "US:ONTO": {
+    "return_pct": -1.8414181668269913,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:PARR": {
+    "return_pct": 5.43,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:58",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:PBF": {
+    "return_pct": 0.62,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:40",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:PLD": {
+    "return_pct": -0.8455351618890439,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:34",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:PONY": {
+    "return_pct": 0.0,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:47",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
   "US:PSA": {
     "return_pct": 0.63,
     "value": null,
@@ -1074,6 +788,292 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-07-29",
     "quote_time_bj": "2026-07-30 07:34",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:PSX": {
+    "return_pct": 0.35,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:57",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:QQQ": {
+    "return_pct": 0.66,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:RACE": {
+    "return_pct": 0.38632062018719715,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 08:00",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:RCL": {
+    "return_pct": 0.01,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:52",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:REGN": {
+    "return_pct": 0.51,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:53",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:RIVN": {
+    "return_pct": 0.17,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:RPRX": {
+    "return_pct": 0.0,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:34",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:RVMD": {
+    "return_pct": 0.54,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:55",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:SBUX": {
+    "return_pct": 5.43,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:SMCI": {
+    "return_pct": 0.97,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:SNDK": {
+    "return_pct": -0.7,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:SPG": {
+    "return_pct": 0.2,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:34",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:SPY": {
+    "return_pct": 0.4,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:STM": {
+    "return_pct": 0.0,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:58",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:STX": {
+    "return_pct": 0.21,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:TECH": {
+    "return_pct": -0.1806810284920246,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:50",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:TER": {
+    "return_pct": 1.81,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 08:01",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:TJX": {
+    "return_pct": -0.03,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:TPL": {
+    "return_pct": 1.1787062479134969,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:52",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:TSLA": {
+    "return_pct": -0.48,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:TSM": {
+    "return_pct": 0.05,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:UAL": {
+    "return_pct": 0.43,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:UMC": {
+    "return_pct": 0.0,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:VICR": {
+    "return_pct": -0.22706754575547716,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:57",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:VLO": {
+    "return_pct": 0.72,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:VRTX": {
+    "return_pct": 1.25,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:52",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
@@ -1088,36 +1088,36 @@
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },
-  "US:EXR": {
-    "return_pct": 0.0,
+  "US:WDC": {
+    "return_pct": -0.2624728850325386,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:34",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:AVB": {
-    "return_pct": 0.0,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
-    "trade_date": "2026-07-29",
-    "quote_time_bj": "2026-07-30 07:34",
-    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
-    "error": ""
-  },
-  "US:GLD": {
-    "return_pct": 0.85,
-    "value": null,
-    "value_type": "return_pct",
-    "status": "traded",
-    "source": "sina_us_afterhours_pure_post_http",
+    "source": "yahoo_chart_afterhours_pure_post",
     "trade_date": "2026-07-29",
     "quote_time_bj": "2026-07-30 07:59",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:WELL": {
+    "return_pct": 0.1949560311929721,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "yahoo_chart_afterhours_pure_post",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:48",
+    "fetched_at_bj": "2026-07-30T10:46:03+08:00",
+    "error": ""
+  },
+  "US:XOP": {
+    "return_pct": 0.24,
+    "value": null,
+    "value_type": "return_pct",
+    "status": "traded",
+    "source": "sina_us_afterhours_pure_post_http",
+    "trade_date": "2026-07-29",
+    "quote_time_bj": "2026-07-30 07:34",
     "fetched_at_bj": "2026-07-30T10:46:03+08:00",
     "error": ""
   },

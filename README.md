@@ -57,6 +57,8 @@ GitHub 仍是长期主仓和 Actions 运行源；Gitee 是小电脑服务器的�
 ├── service_gui.py                # 小电脑一键运行图形界面，按钮触发 service_runner
 ├── start_ahns_command_watcher.ps1 # 小电脑 Windows 计划任务启动脚本
 ├── start_service_gui.ps1         # 小电脑双击打开一键运行界面
+├── sleep_ahns_server.ps1         # 小电脑 00:00 停止 AHNS/Futu 并进入 S3 睡眠
+├── wake_ahns_server.ps1          # 小电脑 06:00 唤醒后启动 Futu、监听器和 GUI
 ├── tail_ahns_log.ps1             # UTF-8 模式查看小电脑监听日志
 ├── sync_repos.py                # 主机电脑同步本地、GitHub、Gitee 三边仓库
 ├── github_gitee_sync.py         # 通用 GitHub/Gitee 同名仓库初始化和三边同步脚本
@@ -204,11 +206,19 @@ Set-Location "C:\Users\Administrator\Desktop\AHNS"
 - `AHNS Service GUI`：登录 `Administrator` 后打开 `service_gui.py` 图形界面；GUI 必须依附桌面会话，所以不是无人登录前后台启动。
 - `AHNS Command Watcher`：每日 06:00 启动，登录后也会启动；实际执行 `start_ahns_command_watcher.ps1`，脚本在 06:00 前会直接退出。
 - `AHNS Command Watcher Stop`：每日 00:00 停止监听任务，并结束仍在运行的 `service_command_watcher.py`。
+- `AHNS Health Monitor`：06:00-24:00 每 5 分钟检查监听器、Futu OpenD、ToDesk 和 GUI；缺失时优先重启对应进程。监听器 15 分钟内连续 3 次无法存活时才请求重启 Windows，并限制 6 小时内最多重启一次。
+- `AHNS Server Sleep`：当前已停用，不再于每日 00:00 让小电脑进入 S3 睡眠。
+- `AHNS Server Wake And Start`：当前随睡眠策略一并停用；系统交流/直流自动睡眠均设为“从不”。脚本和任务仍保留，后续需要时可以重新启用。
+
+系统蓝屏保持内核转储，并在转储完成后自动重启。普通业务脚本返回非 0 只记录失败，不会重启整台电脑；监听器进程异常退出由计划任务和健康监控负责恢复。
 
 监听日志：
 
 ```text
 C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log
+C:\Users\Administrator\Desktop\AHNS\logs\health_monitor.log
+C:\Users\Administrator\Desktop\AHNS\logs\server_power.log
+C:\Users\Administrator\Desktop\AHNS\logs\diagnostics\
 ```
 
 日志文件占用的是磁盘，不会一直占用内存。`start_ahns_command_watcher.ps1` 每次启动时会检查日志大小；如果超过 20MB，会保留最近 3000 行并裁剪旧内容，避免长期运行后无限变大。
@@ -220,6 +230,9 @@ schtasks /Query /TN "Futu OpenD Autostart"
 schtasks /Query /TN "AHNS Service GUI" /V /FO LIST
 schtasks /Query /TN "AHNS Command Watcher"
 schtasks /Query /TN "AHNS Command Watcher Stop"
+schtasks /Query /TN "AHNS Health Monitor" /V /FO LIST
+schtasks /Query /TN "AHNS Server Sleep" /V /FO LIST
+schtasks /Query /TN "AHNS Server Wake And Start" /V /FO LIST
 
 Get-CimInstance Win32_Process |
   Where-Object { $_.CommandLine -match "Futu_OpenD|service_command_watcher.py" } |
@@ -231,6 +244,11 @@ Get-CimInstance Win32_Process |
 
 & "C:\Users\Administrator\Desktop\AHNS\tail_ahns_log.ps1"
 Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_gui.log" -Tail 80
+Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\health_monitor.log" -Tail 80
+Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\server_power.log" -Tail 80
+
+Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl" |
+  Select-Object CrashDumpEnabled, AutoReboot, LogEvent, DumpFile, MinidumpDir
 ```
 
 如果手动在 PowerShell 里直接运行 Python 脚本，先执行下面几行，避免中文日志乱码：
@@ -244,7 +262,7 @@ $env:PYTHONUTF8 = "1"
 $env:PYTHONIOENCODING = "utf-8"
 ```
 
-旧日志里已经写坏的乱码无法自动还原；重启 `AHNS Command Watcher` 后，新写入的日志会按 UTF-8 环境输出。
+旧的 UTF-16 混写日志会在维护时移动为带时间戳的备份；重启 `AHNS Command Watcher` 后，`watcher_supervisor.py` 会以 UTF-8 收集输出，不再使用 Windows PowerShell 5.1 的 `*>>`。监听器异常退出后，监督器会等待 60 秒重新启动。
 
 主机电脑同步本地、GitHub、Gitee：
 
@@ -325,6 +343,7 @@ GitHub 仓库需要在 Settings -> Secrets and variables -> Actions -> Secrets �
 - `service_gui.py`：小电脑服务器一键运行界面；按钮调用 `service_runner.py`，不改 command 文件。
 - `start_ahns_command_watcher.ps1`：计划任务调用的启动脚本，设置 UTF-8 输出、仓库目录、Python 路径、日志路径、日志裁剪和 `--primary-remote gitee`。
 - `start_service_gui.ps1`：小电脑双击启动 GUI 的脚本，只负责切换目录和启动 `service_gui.py`。
+- `sleep_ahns_server.ps1` / `wake_ahns_server.ps1`：小电脑每日 00:00 睡眠收尾和 06:00 唤醒启动脚本；只停止 AHNS/Futu 相关进程，不批量删除文件。
 - `tail_ahns_log.ps1`：查看监听日志的 UTF-8 PowerShell 脚本，优先用它替代手写 `Get-Content -Wait`。
 - `sync_repos.py`：主机电脑三边同步脚本，用于把本地、GitHub、Gitee 对齐。
 - `github_gitee_sync.py`：通用同名仓库同步脚本，可复制到其他仓库使用；会从 GitHub remote 推导 Gitee remote；若缺少 GitHub remote，会询问仓库信息并用 `GITHUB_TOKEN` / `GH_TOKEN` 创建 GitHub 仓库；必要时再用 `GITEE_ACCESS_TOKEN` 自动创建公开 Gitee 仓库。
