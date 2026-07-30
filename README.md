@@ -206,13 +206,19 @@ Set-Location "C:\Users\Administrator\Desktop\AHNS"
 - `AHNS Service GUI`：登录 `Administrator` 后打开 `service_gui.py` 图形界面；GUI 必须依附桌面会话，所以不是无人登录前后台启动。
 - `AHNS Command Watcher`：每日 06:00 启动，登录后也会启动；实际执行 `start_ahns_command_watcher.ps1`，脚本在 06:00 前会直接退出。
 - `AHNS Command Watcher Stop`：每日 00:00 停止监听任务，并结束仍在运行的 `service_command_watcher.py`。
-- `AHNS Server Sleep`：每日 00:00 停止 AHNS 相关 Python 流程、Futu OpenD 和 GUI，然后让小电脑进入 S3 睡眠。
-- `AHNS Server Wake And Start`：每日 06:00 唤醒小电脑，依次启动 Futu OpenD、`AHNS Command Watcher` 和 `AHNS Service GUI`。
+- `AHNS Health Monitor`：06:00-24:00 每 5 分钟检查监听器、Futu OpenD、ToDesk 和 GUI；缺失时优先重启对应进程。监听器 15 分钟内连续 3 次无法存活时才请求重启 Windows，并限制 6 小时内最多重启一次。
+- `AHNS Server Sleep`：每日 00:00 停止 AHNS 相关 Python 流程、Futu OpenD 和 GUI，通过 Windows S3 API 进入睡眠；ToDesk 保持运行并设置电源请求豁免。
+- `AHNS Server Wake And Start`：每日 06:00 唤醒小电脑，确保 ToDesk 在线，再依次启动 Futu OpenD、`AHNS Command Watcher` 和 `AHNS Service GUI`。
+
+系统蓝屏保持内核转储，并在转储完成后自动重启。普通业务脚本返回非 0 只记录失败，不会重启整台电脑；监听器进程异常退出由计划任务和健康监控负责恢复。
 
 监听日志：
 
 ```text
 C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log
+C:\Users\Administrator\Desktop\AHNS\logs\health_monitor.log
+C:\Users\Administrator\Desktop\AHNS\logs\server_power.log
+C:\Users\Administrator\Desktop\AHNS\logs\diagnostics\
 ```
 
 日志文件占用的是磁盘，不会一直占用内存。`start_ahns_command_watcher.ps1` 每次启动时会检查日志大小；如果超过 20MB，会保留最近 3000 行并裁剪旧内容，避免长期运行后无限变大。
@@ -224,6 +230,7 @@ schtasks /Query /TN "Futu OpenD Autostart"
 schtasks /Query /TN "AHNS Service GUI" /V /FO LIST
 schtasks /Query /TN "AHNS Command Watcher"
 schtasks /Query /TN "AHNS Command Watcher Stop"
+schtasks /Query /TN "AHNS Health Monitor" /V /FO LIST
 schtasks /Query /TN "AHNS Server Sleep" /V /FO LIST
 schtasks /Query /TN "AHNS Server Wake And Start" /V /FO LIST
 
@@ -237,7 +244,11 @@ Get-CimInstance Win32_Process |
 
 & "C:\Users\Administrator\Desktop\AHNS\tail_ahns_log.ps1"
 Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\service_gui.log" -Tail 80
+Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\health_monitor.log" -Tail 80
 Get-Content "C:\Users\Administrator\Desktop\AHNS\logs\server_power.log" -Tail 80
+
+Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl" |
+  Select-Object CrashDumpEnabled, AutoReboot, LogEvent, DumpFile, MinidumpDir
 ```
 
 如果手动在 PowerShell 里直接运行 Python 脚本，先执行下面几行，避免中文日志乱码：
@@ -251,7 +262,7 @@ $env:PYTHONUTF8 = "1"
 $env:PYTHONIOENCODING = "utf-8"
 ```
 
-旧日志里已经写坏的乱码无法自动还原；重启 `AHNS Command Watcher` 后，新写入的日志会按 UTF-8 环境输出。
+旧的 UTF-16 混写日志会在维护时移动为带时间戳的备份；重启 `AHNS Command Watcher` 后，新日志由 Python 以 UTF-8 原始字节写入，不再使用 Windows PowerShell 5.1 的 `*>>`。
 
 主机电脑同步本地、GitHub、Gitee：
 

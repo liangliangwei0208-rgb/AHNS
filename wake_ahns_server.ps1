@@ -12,6 +12,7 @@ try {
 
 $Repo = "C:\Users\Administrator\Desktop\AHNS"
 $FutuExe = "C:\Users\Administrator\AppData\Roaming\Futu_OpenD\Futu_OpenD.exe"
+$ToDeskExe = "D:\todesk\ToDesk.exe"
 $Log = Join-Path $Repo "logs\server_power.log"
 
 function Write-PowerLog {
@@ -37,6 +38,19 @@ function Start-TaskIfExists {
 }
 
 Write-PowerLog "AHNS server wake sequence started."
+
+if (-not (Get-Process -Name "ToDesk" -ErrorAction SilentlyContinue)) {
+    if (Test-Path -LiteralPath $ToDeskExe) {
+        try {
+            Start-Process -FilePath $ToDeskExe
+            Write-PowerLog "ToDesk process was missing and has been started."
+        } catch {
+            Write-PowerLog ("Failed to start ToDesk: {0}" -f $_.Exception.Message)
+        }
+    } else {
+        Write-PowerLog ("ToDesk exe not found: {0}" -f $ToDeskExe)
+    }
+}
 
 if (Test-Path -LiteralPath $FutuExe) {
     Start-TaskIfExists "Futu OpenD Autostart"

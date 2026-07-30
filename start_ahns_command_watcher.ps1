@@ -15,6 +15,7 @@ $env:PYTHONIOENCODING = "utf-8"
 
 $Repo = "C:\Users\Administrator\Desktop\AHNS"
 $Python = "D:\anaconda\envs\py310\python.exe"
+$WatcherScript = Join-Path $Repo "service_command_watcher.py"
 $Log = Join-Path $Repo "logs\service_command_watcher.log"
 $MaxLogBytes = 20MB
 $KeepLogTailLines = 3000
@@ -35,7 +36,17 @@ if (Test-Path -LiteralPath $Log) {
     }
 }
 
-$RemoteArgs = @("--primary-remote", "gitee")
-
 Set-Location -LiteralPath $Repo
-& $Python ".\service_command_watcher.py" --interval-seconds 60 @RemoteArgs *>> $Log
+
+# Windows PowerShell 5.1 的 *>> 会强制写 UTF-16。这里交给 cmd 做原始字节重定向，
+# 配合 PYTHONIOENCODING=utf-8，保证长期日志始终是 UTF-8。
+$StartLine = "[AHNS-COMMAND] Watcher launcher started at {0}." -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+[System.IO.File]::AppendAllText($Log, $StartLine + "`r`n", $Utf8NoBom)
+
+$CommandLine = '"{0}" "{1}" --interval-seconds 60 --primary-remote gitee >> "{2}" 2>&1' -f $Python, $WatcherScript, $Log
+& $env:ComSpec /d /s /c $CommandLine
+$WatcherExitCode = [int]$LASTEXITCODE
+
+$ExitLine = "[AHNS-COMMAND] Watcher launcher exited at {0}; exit code={1}." -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $WatcherExitCode
+[System.IO.File]::AppendAllText($Log, $ExitLine + "`r`n", $Utf8NoBom)
+exit $WatcherExitCode

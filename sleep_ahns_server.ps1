@@ -56,6 +56,17 @@ function Stop-MatchedProcess {
 
 Write-PowerLog "AHNS server sleep sequence started."
 
+# ToDesk 是主要远程通道，只忽略它阻止睡眠的电源请求，不结束 ToDesk 进程。
+powercfg.exe /requestsoverride PROCESS ToDesk.exe DISPLAY SYSTEM | Out-Null
+Write-PowerLog "Applied ToDesk DISPLAY/SYSTEM power request override."
+
+try {
+    $WakeTimerText = (powercfg.exe /waketimers 2>&1 | Out-String).Trim()
+    Write-PowerLog ("Wake timers before sleep:`r`n{0}" -f $WakeTimerText)
+} catch {
+    Write-PowerLog ("Failed to query wake timers: {0}" -f $_.Exception.Message)
+}
+
 Stop-TaskIfExists "AHNS Command Watcher"
 Stop-TaskIfExists "AHNS Service GUI"
 Stop-TaskIfExists "Futu OpenD Autostart"
@@ -98,5 +109,19 @@ $FutuProcessPredicate = {
 }
 Stop-MatchedProcess -Reason "Futu OpenD" -Predicate $FutuProcessPredicate
 
-Write-PowerLog "Entering S3 sleep."
-rundll32.exe powrprof.dll,SetSuspendState 0,1,0
+Write-PowerLog "Requesting forced S3 sleep with wake events enabled."
+try {
+    Add-Type -AssemblyName System.Windows.Forms -ErrorAction Stop
+    $SuspendResult = [System.Windows.Forms.Application]::SetSuspendState(
+        [System.Windows.Forms.PowerState]::Suspend,
+        $true,
+        $false
+    )
+    Write-PowerLog ("Returned from S3 sleep; SetSuspendState result={0}." -f $SuspendResult)
+    if (-not $SuspendResult) {
+        exit 1
+    }
+} catch {
+    Write-PowerLog ("S3 sleep request failed: {0}" -f $_.Exception.Message)
+    exit 1
+}
