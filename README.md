@@ -262,7 +262,7 @@ $env:PYTHONUTF8 = "1"
 $env:PYTHONIOENCODING = "utf-8"
 ```
 
-旧的 UTF-16 混写日志会在维护时移动为带时间戳的备份；重启 `AHNS Command Watcher` 后，新日志由 Python 以 UTF-8 原始字节写入，不再使用 Windows PowerShell 5.1 的 `*>>`。
+旧的 UTF-16 混写日志会在维护时移动为带时间戳的备份；重启 `AHNS Command Watcher` 后，`watcher_supervisor.py` 会以 UTF-8 收集输出，不再使用 Windows PowerShell 5.1 的 `*>>`。监听器异常退出后，监督器会等待 60 秒重新启动。
 
 主机电脑同步本地、GitHub、Gitee：
 

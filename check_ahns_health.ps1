@@ -101,9 +101,16 @@ if ($null -ne $State) {
 }
 
 $WatcherHealthy = Test-CommandLineProcess "service_command_watcher\.py"
+$ServiceRunActive = Test-CommandLineProcess "service_(main|runner)\.py"
 if (-not $WatcherHealthy) {
-    [void](Start-TaskSafely "AHNS Command Watcher")
-    $RestartTimes += $Now
+    if ($ServiceRunActive) {
+        # 监听器意外退出后，已经启动的业务子进程可能仍在收尾；此时不重复运行，也不计入重启失败。
+        $RestartTimes = @()
+        Write-HealthLog "Watcher is missing while a service run is active; waiting for the business process to finish."
+    } else {
+        [void](Start-TaskSafely "AHNS Command Watcher")
+        $RestartTimes += $Now
+    }
 } else {
     $RestartTimes = @()
 }

@@ -138,6 +138,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `.github/workflows/trigger-service-command.yml`：GitHub App 手动触发小电脑运行的入口，只编译并调用 `tools/trigger_service_command.py`，不直接内嵌复杂业务逻辑，不运行主业务流程。
 - `tools/trigger_service_command.py`：GitHub Actions 触发小电脑运行的 helper，负责基于 Gitee 最新 `main` 更新 `service_command.json`、提交、Git push 多轮重试，以及 Gitee API 兜底。
 - `start_ahns_command_watcher.ps1`：Windows 计划任务调用的启动脚本，设置 UTF-8 输出、仓库目录、Python 路径、日志路径、日志裁剪和 `--primary-remote gitee`。
+- `watcher_supervisor.py` / `check_ahns_health.ps1`：监听器 UTF-8 日志与 60 秒进程恢复监督器，以及每 5 分钟检查 ToDesk、Futu、监听器和 GUI 的健康监控。
 - `sleep_ahns_server.ps1` / `wake_ahns_server.ps1`：小电脑每日 00:00 睡眠收尾和 06:00 唤醒启动脚本；只停止 AHNS/Futu 相关进程，不批量删除文件。
 - `tail_ahns_log.ps1`：查看监听日志的 UTF-8 PowerShell 脚本，优先用它替代手写 `Get-Content -Wait`。
 - `sync_repos.py`：主机电脑同步本地、GitHub、Gitee 三边仓库的脚本；建议 `origin` 使用 GitHub HTTPS，并只给 `github.com` 走 SakuraCat HTTP 代理和 OpenSSL，`gitee` 保持直连；疑似网络瞬时失败会短暂重试，GitHub 代理重试仍失败时会直连一次；会自动合并运行缓存白名单冲突，例如 `cache/*_index_daily.csv`、基金估算/证券收益/实时短缓存，以及按基金、有效性、披露日期和刷新时间合并的持仓变化与晨星地区缓存；源码、配置和文档冲突仍会停止。
