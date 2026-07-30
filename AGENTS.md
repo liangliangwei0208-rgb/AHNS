@@ -42,7 +42,7 @@
 - `Trigger Service Command` 需要 GitHub Actions Secret `GITEE_PRIVATE_CODE`。该值必须放在 Secrets，不要放普通 Variables，不要写入 README、AGENTS、workflow 明文或本地 Git config。
 - 小电脑监听运行时间是北京时间 06:00-24:00。`AHNS Command Watcher` 每日 06:00 和登录后启动；`start_ahns_command_watcher.ps1` 在 06:00 前直接退出；`AHNS Command Watcher Stop` 每日 00:00 停止监听。
 - `AHNS Health Monitor` 在 06:00-24:00 每 5 分钟检查监听器、Futu、ToDesk 和 GUI。业务失败不重启 Windows；只有监听器 15 分钟内连续 3 次无法存活时才限频重启整机，6 小时内最多一次。
-- `AHNS Server Sleep` 每日 00:00 停止 AHNS 相关 Python 流程、Futu OpenD 和 GUI，然后通过可检查返回值的 Windows API 进入 S3 睡眠；`AHNS Server Wake And Start` 每日 06:00 唤醒并确保 ToDesk、Futu、监听器和 GUI 恢复。
+- `AHNS Server Sleep` 和 `AHNS Server Wake And Start` 当前均已停用，交流/直流自动睡眠设为“从不”；不要在没有用户明确要求时重新启用待机策略。睡眠、唤醒脚本和任务仍保留备用。
 - `Futu OpenD Autostart` 登录后启动 `C:\Users\Administrator\AppData\Roaming\Futu_OpenD\Futu_OpenD.exe`。富途夜盘依赖 Futu OpenD 已登录并在线；自动启动只能打开程序，不能替代扫码或登录。
 - 小电脑监听日志在 `C:\Users\Administrator\Desktop\AHNS\logs\service_command_watcher.log`。日志使用 UTF-8 原始字节写入，占用磁盘而不是一直占用内存；启动时超过 20MB 后只保留最近 3000 行。健康监控、睡眠和蓝屏分析分别写入 `health_monitor.log`、`server_power.log` 和 `logs/diagnostics/`。
 - Windows 蓝屏配置保留内核转储并自动重启；不要启用 Driver Verifier，避免远程小电脑陷入蓝屏循环。若 WinDbg 没有指出单一责任驱动，应先完成系统文件修复和内存检测，不要盲目降级存储或 ToDesk 驱动。

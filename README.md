@@ -207,8 +207,8 @@ Set-Location "C:\Users\Administrator\Desktop\AHNS"
 - `AHNS Command Watcher`：每日 06:00 启动，登录后也会启动；实际执行 `start_ahns_command_watcher.ps1`，脚本在 06:00 前会直接退出。
 - `AHNS Command Watcher Stop`：每日 00:00 停止监听任务，并结束仍在运行的 `service_command_watcher.py`。
 - `AHNS Health Monitor`：06:00-24:00 每 5 分钟检查监听器、Futu OpenD、ToDesk 和 GUI；缺失时优先重启对应进程。监听器 15 分钟内连续 3 次无法存活时才请求重启 Windows，并限制 6 小时内最多重启一次。
-- `AHNS Server Sleep`：每日 00:00 停止 AHNS 相关 Python 流程、Futu OpenD 和 GUI，通过 Windows S3 API 进入睡眠；ToDesk 保持运行并设置电源请求豁免。
-- `AHNS Server Wake And Start`：每日 06:00 唤醒小电脑，确保 ToDesk 在线，再依次启动 Futu OpenD、`AHNS Command Watcher` 和 `AHNS Service GUI`。
+- `AHNS Server Sleep`：当前已停用，不再于每日 00:00 让小电脑进入 S3 睡眠。
+- `AHNS Server Wake And Start`：当前随睡眠策略一并停用；系统交流/直流自动睡眠均设为“从不”。脚本和任务仍保留，后续需要时可以重新启用。
 
 系统蓝屏保持内核转储，并在转储完成后自动重启。普通业务脚本返回非 0 只记录失败，不会重启整台电脑；监听器进程异常退出由计划任务和健康监控负责恢复。
 
