@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import argparse
+from builtins import Exception
 
 from tools.configs.fund_universe_configs import HAIWAI_FUND_CODES
 from tools.console_display import fund_progress, print_records_table
