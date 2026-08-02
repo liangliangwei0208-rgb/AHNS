@@ -14781,7 +14781,7 @@
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
     "error": "港股日线返回空数据: 06857; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
-    "fetched_at": "2026-08-02T07:33:29+08:00"
+    "fetched_at": "2026-08-03T07:32:24+08:00"
   },
   "SECURITY:HK:06869:2026-05-08": {
     "market": "HK",
@@ -15465,7 +15465,7 @@
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
     "error": "港股日线返回空数据: 06976; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
-    "fetched_at": "2026-08-02T07:33:40+08:00"
+    "fetched_at": "2026-08-03T07:32:37+08:00"
   },
   "SECURITY:HK:09630:2026-07-17": {
     "market": "HK",
@@ -90084,7 +90084,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-08-02T07:33:36+08:00"
+    "fetched_at": "2026-08-03T07:32:33+08:00"
   },
   "SECURITY:US:TSM:2026-07-31": {
     "market": "US",
@@ -90432,7 +90432,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-08-02T07:33:29+08:00"
+    "fetched_at": "2026-08-03T07:32:26+08:00"
   },
   "SECURITY:HK:02476:2026-07-31": {
     "market": "HK",
@@ -90468,7 +90468,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-08-02T07:33:29+08:00"
+    "fetched_at": "2026-08-03T07:32:26+08:00"
   },
   "SECURITY:CN:002384:2026-07-31": {
     "market": "CN",
@@ -90515,8 +90515,8 @@
     "status": "missing",
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
-    "error": "美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError('东方财富美股日线获取失败: SMSN: 105.SMSN: empty klines | 106.SMSN: empty klines | 107.SMSN: empty klines') | yahoo_chart_daily_us_fallback: RuntimeError(\"Yahoo 美股日线获取失败: SMSN: ['close']\")",
-    "fetched_at": "2026-08-02T07:33:33+08:00"
+    "error": "美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError(\"东方财富美股日线获取失败: SMSN: 105.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 106.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 107.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))\") | yahoo_chart_daily_us_fallback: RuntimeError(\"Yahoo 美股日线获取失败: SMSN: ['close']\")",
+    "fetched_at": "2026-08-03T07:32:30+08:00"
   },
   "SECURITY:HK:03661:2026-07-31": {
     "market": "HK",
