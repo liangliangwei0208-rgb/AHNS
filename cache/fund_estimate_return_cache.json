@@ -120640,7 +120640,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -120688,7 +120688,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 62.62%，其中行情有效 62.62%，行情失败 0.00%，未披露仓位 37.38%；有效持仓放大系数 1.15，实际有效估算权重 72.01%，从基准补偿仓位转移 9.39% 给有效持仓；补偿仓位 27.99% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017437:2026-08-03"
     },
@@ -120699,7 +120699,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -120747,7 +120747,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 42.72%，其中行情有效 42.72%，行情失败 0.00%，未披露仓位 57.28%；有效持仓放大系数 1.15，实际有效估算权重 49.13%，从基准补偿仓位转移 6.41% 给有效持仓；补偿仓位 50.87% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:008254:2026-08-03"
     },
@@ -120758,7 +120758,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 95.41,
@@ -120814,7 +120814,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 51.55%，其中行情有效 46.96%，行情失败 4.59%，未披露仓位 48.45%；有效持仓放大系数 1.15，实际有效估算权重 54.00%，从基准补偿仓位转移 7.04% 给有效持仓；补偿仓位 46.00% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:002891:2026-08-03"
     },
@@ -120825,7 +120825,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -120880,7 +120880,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 29.02%，其中行情有效 29.02%，行情失败 0.00%，未披露仓位 70.98%；有效持仓放大系数 1.15，实际有效估算权重 33.37%，从基准补偿仓位转移 4.35% 给有效持仓；补偿仓位 66.63% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:164212:2026-08-03"
     },
@@ -120891,7 +120891,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -120939,7 +120939,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 65.51%，其中行情有效 65.51%，行情失败 0.00%，未披露仓位 34.49%；有效持仓放大系数 1.15，实际有效估算权重 75.34%，从基准补偿仓位转移 9.83% 给有效持仓；补偿仓位 24.66% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:009975:2026-08-03"
     },
@@ -120950,7 +120950,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 97.25,
@@ -121002,11 +121002,11 @@
       },
       "source": "anchor_daily",
       "warnings": [
-        "爱德万测试(06857) 所属市场 HK 在估值锚点 2026-08-03 状态为 missing，本次贡献暂按 0% 计入；港股日线返回空数据: 06857; ak_stock_hk_hist_em: TypeError(\"'NoneType' object is not subscriptable\") | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: TypeError(\"'NoneType' object is not subscriptable\") | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: TypeError(\"'NoneType' object is not subscriptable\")",
+        "爱德万测试(06857) 所属市场 HK 在估值锚点 2026-08-03 状态为 missing，本次贡献暂按 0% 计入；港股日线返回空数据: 06857; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 52.58%，其中行情有效 49.83%，行情失败 2.75%，未披露仓位 47.42%；有效持仓放大系数 1.15，实际有效估算权重 57.30%，从基准补偿仓位转移 7.47% 给有效持仓；补偿仓位 42.70% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:021842:2026-08-03"
     },
@@ -121017,7 +121017,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121065,7 +121065,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 27.88%，其中行情有效 27.88%，行情失败 0.00%，未披露仓位 72.12%；有效持仓放大系数 1.15，实际有效估算权重 32.06%，从基准补偿仓位转移 4.18% 给有效持仓；补偿仓位 67.94% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:519696:2026-08-03"
     },
@@ -121076,7 +121076,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121124,7 +121124,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 45.39%，其中行情有效 45.39%，行情失败 0.00%，未披露仓位 54.61%；有效持仓放大系数 1.15，实际有效估算权重 52.20%，从基准补偿仓位转移 6.81% 给有效持仓；补偿仓位 47.80% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:015202:2026-08-03"
     },
@@ -121135,7 +121135,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121197,7 +121197,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 51.62%，其中行情有效 51.62%，行情失败 0.00%，未披露仓位 48.38%；有效持仓放大系数 1.15，实际有效估算权重 59.36%，从基准补偿仓位转移 7.74% 给有效持仓；补偿仓位 40.64% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:015205:2026-08-03"
     },
@@ -121208,7 +121208,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121256,7 +121256,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 54.96%，其中行情有效 54.96%，行情失败 0.00%，未披露仓位 45.04%；有效持仓放大系数 1.15，实际有效估算权重 63.20%，从基准补偿仓位转移 8.24% 给有效持仓；补偿仓位 36.80% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:016702:2026-08-03"
     },
@@ -121267,7 +121267,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121315,7 +121315,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 57.20%，其中行情有效 57.20%，行情失败 0.00%，未披露仓位 42.80%；有效持仓放大系数 1.15，实际有效估算权重 65.78%，从基准补偿仓位转移 8.58% 给有效持仓；补偿仓位 34.22% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:018036:2026-08-03"
     },
@@ -121326,7 +121326,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121374,7 +121374,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 11.49%，其中行情有效 11.49%，行情失败 0.00%，未披露仓位 88.51%；有效持仓放大系数 1.15，实际有效估算权重 13.21%，从基准补偿仓位转移 1.72% 给有效持仓；补偿仓位 86.79% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:163813:2026-08-03"
     },
@@ -121385,7 +121385,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121440,7 +121440,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 17.85%，其中行情有效 17.85%，行情失败 0.00%，未披露仓位 82.15%；有效持仓放大系数 1.15，实际有效估算权重 20.53%，从基准补偿仓位转移 2.68% 给有效持仓；补偿仓位 79.47% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:024239:2026-08-03"
     },
@@ -121451,7 +121451,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121499,7 +121499,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 46.00%，其中行情有效 46.00%，行情失败 0.00%，未披露仓位 54.00%；有效持仓放大系数 1.15，实际有效估算权重 52.90%，从基准补偿仓位转移 6.90% 给有效持仓；补偿仓位 47.10% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:000043:2026-08-03"
     },
@@ -121510,7 +121510,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 94.11,
@@ -121573,7 +121573,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 47.48%，其中行情有效 41.59%，行情失败 5.89%，未披露仓位 52.52%；有效持仓放大系数 1.15，实际有效估算权重 47.83%，从基准补偿仓位转移 6.24% 给有效持仓；补偿仓位 52.17% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:012922:2026-08-03"
     },
@@ -121584,7 +121584,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 94.25,
@@ -121655,7 +121655,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 23.20%，其中行情有效 17.45%，行情失败 5.75%，未披露仓位 76.80%；有效持仓放大系数 1.15，实际有效估算权重 20.07%，从基准补偿仓位转移 2.62% 给有效持仓；补偿仓位 79.93% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:016665:2026-08-03"
     },
@@ -121666,7 +121666,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121714,7 +121714,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 24.85%，其中行情有效 24.85%，行情失败 0.00%，未披露仓位 75.15%；有效持仓放大系数 1.15，实际有效估算权重 28.58%，从基准补偿仓位转移 3.73% 给有效持仓；补偿仓位 71.42% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017654:2026-08-03"
     },
@@ -121725,7 +121725,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121780,7 +121780,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 76.14%，其中行情有效 76.14%，行情失败 0.00%，未披露仓位 23.86%；有效持仓放大系数 1.15，实际有效估算权重 87.56%，从基准补偿仓位转移 11.42% 给有效持仓；补偿仓位 12.44% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017145:2026-08-03"
     },
@@ -121791,7 +121791,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121839,7 +121839,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 11.20%，其中行情有效 11.20%，行情失败 0.00%，未披露仓位 88.80%；有效持仓放大系数 1.15，实际有效估算权重 12.88%，从基准补偿仓位转移 1.68% 给有效持仓；补偿仓位 87.12% 使用 标普500(2026-08-03) +1.4791% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:519981:2026-08-03"
     },
@@ -121850,7 +121850,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121898,7 +121898,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 2.57%，其中行情有效 2.57%，行情失败 0.00%，未披露仓位 97.43%；有效持仓放大系数 1.15，实际有效估算权重 2.96%，从基准补偿仓位转移 0.39% 给有效持仓；补偿仓位 97.04% 使用 标普500(2026-08-03) +1.4791% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:008401:2026-08-03"
     },
@@ -121909,7 +121909,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -121957,7 +121957,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 67.59%，其中行情有效 67.59%，行情失败 0.00%，未披露仓位 32.41%；有效持仓放大系数 1.15，实际有效估算权重 77.73%，从基准补偿仓位转移 10.14% 给有效持仓；补偿仓位 22.27% 使用 标普500(2026-08-03) +1.4791% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:012868:2026-08-03"
     },
@@ -121968,7 +121968,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -122023,7 +122023,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 30.62%，其中行情有效 30.62%，行情失败 0.00%，未披露仓位 69.38%；有效持仓放大系数 1.15，实际有效估算权重 35.21%，从基准补偿仓位转移 4.59% 给有效持仓；补偿仓位 64.79% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:486002:2026-08-03"
     },
@@ -122034,7 +122034,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -122089,7 +122089,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 41.43%，其中行情有效 41.43%，行情失败 0.00%，未披露仓位 58.57%；有效持仓放大系数 1.15，实际有效估算权重 47.64%，从基准补偿仓位转移 6.21% 给有效持仓；补偿仓位 52.36% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017072:2026-08-03"
     },
@@ -122100,7 +122100,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 98.71,
@@ -122166,11 +122166,11 @@
       },
       "source": "anchor_daily",
       "warnings": [
-        "SAMSUNG ELECTRONICS CO LTD (ATT) GDR (EACH REP 25 COM STK KRW100)(REG S)(SMSN) 所属市场 US 在估值锚点 2026-08-03 状态为 missing，本次贡献暂按 0% 计入；美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError('东方财富美股日线获取失败: SMSN: 105.SMSN: empty klines | 106.SMSN: empty klines | 107.SMSN: empty klines') | yahoo_chart_daily_us_fallback: RuntimeError('Yahoo 美股日线获取失败: SMSN: 403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/SMSN?range=20d&interval=1d&includePrePost=false&events=history')",
+        "SAMSUNG ELECTRONICS CO LTD (ATT) GDR (EACH REP 25 COM STK KRW100)(REG S)(SMSN) 所属市场 US 在估值锚点 2026-08-03 状态为 missing，本次贡献暂按 0% 计入；美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError(\"东方财富美股日线获取失败: SMSN: 105.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 106.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 107.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))\") | yahoo_chart_daily_us_fallback: RuntimeError('Yahoo 美股日线获取失败: SMSN: 403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/SMSN?range=20d&interval=1d&includePrePost=false&events=history')",
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 24.62%，其中行情有效 23.33%，行情失败 1.29%，未披露仓位 75.38%；有效持仓放大系数 1.15，实际有效估算权重 26.83%，从基准补偿仓位转移 3.50% 给有效持仓；补偿仓位 73.17% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:013328:2026-08-03"
     },
@@ -122181,7 +122181,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 98.61,
@@ -122251,7 +122251,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 16.66%，其中行情有效 15.27%，行情失败 1.39%，未披露仓位 83.34%；有效持仓放大系数 1.15，实际有效估算权重 17.56%，从基准补偿仓位转移 2.29% 给有效持仓；补偿仓位 82.44% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:019231:2026-08-03"
     },
@@ -122262,7 +122262,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 95.93,
@@ -122332,7 +122332,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 45.69%，其中行情有效 41.62%，行情失败 4.07%，未披露仓位 54.31%；有效持仓放大系数 1.15，实际有效估算权重 47.86%，从基准补偿仓位转移 6.24% 给有效持仓；补偿仓位 52.14% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:021277:2026-08-03"
     },
@@ -122343,7 +122343,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 91.19,
@@ -122406,7 +122406,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 65.26%，其中行情有效 56.45%，行情失败 8.81%，未披露仓位 34.74%；有效持仓放大系数 1.15，实际有效估算权重 64.92%，从基准补偿仓位转移 8.47% 给有效持仓；补偿仓位 35.08% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:006555:2026-08-03"
     },
@@ -122417,7 +122417,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 96.88,
@@ -122487,7 +122487,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 27.15%，其中行情有效 24.03%，行情失败 3.12%，未披露仓位 72.85%；有效持仓放大系数 1.15，实际有效估算权重 27.63%，从基准补偿仓位转移 3.60% 给有效持仓；补偿仓位 72.37% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:018229:2026-08-03"
     },
@@ -122498,7 +122498,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -122560,7 +122560,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 30.38%，其中行情有效 30.38%，行情失败 0.00%，未披露仓位 69.62%；有效持仓放大系数 1.15，实际有效估算权重 34.94%，从基准补偿仓位转移 4.56% 给有效持仓；补偿仓位 65.06% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017731:2026-08-03"
     },
@@ -122571,7 +122571,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -122626,7 +122626,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 62.22%，其中行情有效 62.22%，行情失败 0.00%，未披露仓位 37.78%；有效持仓放大系数 1.15，实际有效估算权重 71.55%，从基准补偿仓位转移 9.33% 给有效持仓；补偿仓位 28.45% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:539002:2026-08-03"
     },
@@ -122637,7 +122637,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -122683,7 +122683,7 @@
       "source": "anchor_daily",
       "warnings": [],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:160140:2026-08-03"
     },
@@ -122694,7 +122694,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -122742,7 +122742,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 36.08%，其中行情有效 36.08%，行情失败 0.00%，未披露仓位 63.92%；有效持仓放大系数 1.15，实际有效估算权重 41.49%，从基准补偿仓位转移 5.41% 给有效持仓；补偿仓位 58.51% 使用 生物科技(2026-08-03) -0.2682% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:001092:2026-08-03"
     },
@@ -122753,7 +122753,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 95.42,
@@ -122830,7 +122830,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 47.46%，其中行情有效 42.88%，行情失败 4.58%，未披露仓位 52.54%；有效持仓放大系数 1.15，实际有效估算权重 49.31%，从基准补偿仓位转移 6.43% 给有效持仓；补偿仓位 50.69% 使用 纳斯达克100(2026-08-03) +1.7776% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:022184:2026-08-03"
     },
@@ -122841,7 +122841,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -122901,7 +122901,7 @@
       "source": "anchor_daily",
       "warnings": [],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:118001:2026-08-03"
     },
@@ -122912,7 +122912,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -122960,7 +122960,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 65.49%，其中行情有效 65.49%，行情失败 0.00%，未披露仓位 34.51%；有效持仓放大系数 1.15，实际有效估算权重 75.31%，从基准补偿仓位转移 9.82% 给有效持仓；补偿仓位 24.69% 使用 美国油气开采(XOP)(2026-08-03) -1.7587% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:006679:2026-08-03"
     },
@@ -122971,7 +122971,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -123019,7 +123019,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 26.51%，其中行情有效 26.51%，行情失败 0.00%，未披露仓位 73.49%；有效持仓放大系数 1.15，实际有效估算权重 30.49%，从基准补偿仓位转移 3.98% 给有效持仓；补偿仓位 69.51% 使用 美国油气开采(XOP)(2026-08-03) -1.7587% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:007844:2026-08-03"
     },
@@ -123030,7 +123030,7 @@
       "valuation_date": "2026-08-03",
       "valuation_anchor_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:29",
+      "run_time_bj": "2026-08-04T13:26:47",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -123078,12 +123078,12 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 26.25%，其中行情有效 26.25%，行情失败 0.00%，未披露仓位 73.75%；有效持仓放大系数 1.15，实际有效估算权重 30.19%，从基准补偿仓位转移 3.94% 给有效持仓；补偿仓位 69.81% 使用 美国油气开采(XOP)(2026-08-03) -1.7587% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:018852:2026-08-03"
     }
   },
-  "updated_at": "2026-08-04T10:32:31",
+  "updated_at": "2026-08-04T13:26:49",
   "benchmark_records": {
     "benchmark:.INX:2026-05-08": {
       "market_group": "overseas",
@@ -132521,7 +132521,7 @@
       "valuation_anchor_date": "2026-08-03",
       "trade_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:31",
+      "run_time_bj": "2026-08-04T13:26:49",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -132532,7 +132532,7 @@
       "status": "traded",
       "source": "rsi_module_index_daily",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -132550,7 +132550,7 @@
       "valuation_anchor_date": "2026-08-03",
       "trade_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:31",
+      "run_time_bj": "2026-08-04T13:26:49",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -132561,7 +132561,7 @@
       "status": "traded",
       "source": "rsi_module_index_daily",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -132579,7 +132579,7 @@
       "valuation_anchor_date": "2026-08-03",
       "trade_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:31",
+      "run_time_bj": "2026-08-04T13:26:49",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -132590,7 +132590,7 @@
       "status": "traded",
       "source": "ak_stock_us_daily",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -132608,7 +132608,7 @@
       "valuation_anchor_date": "2026-08-03",
       "trade_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:31",
+      "run_time_bj": "2026-08-04T13:26:49",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -132619,7 +132619,7 @@
       "status": "traded",
       "source": "rsi_module_index_daily",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -132637,7 +132637,7 @@
       "valuation_anchor_date": "2026-08-03",
       "trade_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:31",
+      "run_time_bj": "2026-08-04T13:26:49",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -132648,7 +132648,7 @@
       "status": "traded",
       "source": "ak_futures_foreign_hist_sina",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -132666,7 +132666,7 @@
       "valuation_anchor_date": "2026-08-03",
       "trade_date": "2026-08-03",
       "run_date_bj": "2026-08-04",
-      "run_time_bj": "2026-08-04T10:32:31",
+      "run_time_bj": "2026-08-04T13:26:49",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -132677,7 +132677,7 @@
       "status": "traded",
       "source": "CBOE",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 10:29:24",
+      "table_title": "海外市场收益率预估 估值日：2026-08-03 生成：2026-08-04 13:26:05",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": false,
