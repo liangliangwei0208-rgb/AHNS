@@ -96406,5 +96406,41 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-08-06T07:57:50+08:00"
+  },
+  "SECURITY:HK:06857:2026-08-06": {
+    "market": "HK",
+    "ticker": "06857",
+    "valuation_anchor_date": "2026-08-06",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-08-06T14:00:26+08:00"
+  },
+  "SECURITY:KR:005930:2026-08-06": {
+    "market": "KR",
+    "ticker": "005930",
+    "valuation_anchor_date": "2026-08-06",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-08-06T14:00:35+08:00"
+  },
+  "SECURITY:HK:06976:2026-08-06": {
+    "market": "HK",
+    "ticker": "06976",
+    "valuation_anchor_date": "2026-08-06",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-08-06T14:00:39+08:00"
   }
 }
