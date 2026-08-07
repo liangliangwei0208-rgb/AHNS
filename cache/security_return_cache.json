@@ -98017,5 +98017,29 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-08-07T09:52:58+08:00"
+  },
+  "SECURITY:HK:06857:2026-08-07": {
+    "market": "HK",
+    "ticker": "06857",
+    "valuation_anchor_date": "2026-08-07",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-08-07T15:21:07+08:00"
+  },
+  "SECURITY:HK:06976:2026-08-07": {
+    "market": "HK",
+    "ticker": "06976",
+    "valuation_anchor_date": "2026-08-07",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-08-07T15:21:12+08:00"
   }
 }
