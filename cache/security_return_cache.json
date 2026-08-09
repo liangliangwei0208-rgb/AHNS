@@ -98079,7 +98079,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-08-09T07:00:49+08:00"
+    "fetched_at": "2026-08-10T07:02:48+08:00"
   },
   "SECURITY:US:TSM:2026-08-07": {
     "market": "US",
@@ -98319,7 +98319,7 @@
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
     "error": "港股日线返回空数据: 06857; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
-    "fetched_at": "2026-08-09T07:00:39+08:00"
+    "fetched_at": "2026-08-10T07:02:39+08:00"
   },
   "SECURITY:US:NOK:2026-08-07": {
     "market": "US",
@@ -98439,7 +98439,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-08-09T07:00:41+08:00"
+    "fetched_at": "2026-08-10T07:02:40+08:00"
   },
   "SECURITY:HK:02476:2026-08-07": {
     "market": "HK",
@@ -98475,7 +98475,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-08-09T07:00:41+08:00"
+    "fetched_at": "2026-08-10T07:02:40+08:00"
   },
   "SECURITY:CN:002384:2026-08-07": {
     "market": "CN",
@@ -98522,8 +98522,8 @@
     "status": "missing",
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
-    "error": "美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError(\"东方财富美股日线获取失败: SMSN: 105.SMSN: empty klines | 106.SMSN: empty klines | 107.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))\") | yahoo_chart_daily_us_fallback: RuntimeError(\"Yahoo 美股日线获取失败: SMSN: ['close']\")",
-    "fetched_at": "2026-08-09T07:00:45+08:00"
+    "error": "美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError(\"东方财富美股日线获取失败: SMSN: 105.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 106.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 107.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))\") | yahoo_chart_daily_us_fallback: RuntimeError(\"Yahoo 美股日线获取失败: SMSN: ['close']\")",
+    "fetched_at": "2026-08-10T07:02:45+08:00"
   },
   "SECURITY:HK:03661:2026-08-07": {
     "market": "HK",
@@ -99339,7 +99339,7 @@
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
     "error": "港股日线返回空数据: 06976; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
-    "fetched_at": "2026-08-09T07:00:54+08:00"
+    "fetched_at": "2026-08-10T07:02:52+08:00"
   },
   "SECURITY:US:BE:2026-08-07": {
     "market": "US",
