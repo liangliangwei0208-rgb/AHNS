@@ -728,7 +728,7 @@
     "primary_regions": {},
     "subregions": {},
     "valid": false,
-    "last_checked_at": "2026-08-10T07:03:03+08:00",
+    "last_checked_at": "2026-08-11T07:15:30+08:00",
     "last_error": "晨星直连获取失败: RuntimeError('晨星页面未找到“股票地区分布”区块')",
     "fingerprint": ""
   },
