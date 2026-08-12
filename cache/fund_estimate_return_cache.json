@@ -135353,9 +135353,2458 @@
       "table_title": "海外市场收益率预估 估值日：2026-08-10 生成：2026-08-11 09:10:04",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:002891:2026-08-10"
+    },
+    "overseas:006679:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "006679",
+      "fund_name": "广发道琼斯石油指数美元现汇A",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 2.2127065044502356,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 65.49,
+      "raw_holding_weight_sum_pct": 65.49,
+      "available_raw_weight_sum_pct": 65.49,
+      "valid_holding_weight_pct": 65.49,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "美国油气开采(XOP)(2026-08-11)",
+      "residual_benchmark_key": "us_oil_gas_ep_xop",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": "XOP",
+      "residual_benchmark_return_pct": 1.3869152503836801,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 24.68650000000001,
+      "residual_benchmark_weight_pct": 24.68650000000001,
+      "boosted_valid_holding_weight_pct": 75.31349999999999,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 65.49%，其中行情有效 65.49%，行情失败 0.00%，未披露仓位 34.51%；有效持仓放大系数 1.15，实际有效估算权重 75.31%，从基准补偿仓位转移 9.82% 给有效持仓；补偿仓位 24.69% 使用 美国油气开采(XOP)(2026-08-11) +1.3869% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:006679:2026-08-11"
+    },
+    "overseas:118001:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "118001",
+      "fund_name": "易方达亚洲精选股票",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 1.8363104922123057,
+      "method": "stock_topn_available_normalized",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 71.93,
+      "raw_holding_weight_sum_pct": 71.93,
+      "available_raw_weight_sum_pct": 71.93,
+      "valid_holding_weight_pct": 71.93,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": null,
+      "residual_benchmark_key": "",
+      "residual_benchmark_market": "",
+      "residual_benchmark_ticker": "",
+      "residual_benchmark_return_pct": null,
+      "residual_benchmark_trade_date": "",
+      "residual_benchmark_status": "",
+      "residual_weight_pct": 0.0,
+      "residual_benchmark_weight_pct": 0.0,
+      "boosted_valid_holding_weight_pct": 71.93,
+      "holding_boost": 1.0,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "KR": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "HK": "traded",
+        "KR": "traded",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "HK": "2026-08-11",
+        "KR": "2026-08-11",
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:118001:2026-08-11"
+    },
+    "overseas:007844:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "007844",
+      "fund_name": "华宝标普油气上游股票人民币C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 1.7717698181811694,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 26.509999999999998,
+      "raw_holding_weight_sum_pct": 26.509999999999998,
+      "available_raw_weight_sum_pct": 26.509999999999998,
+      "valid_holding_weight_pct": 26.509999999999998,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "美国油气开采(XOP)(2026-08-11)",
+      "residual_benchmark_key": "us_oil_gas_ep_xop",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": "XOP",
+      "residual_benchmark_return_pct": 1.3869152503836801,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 69.51350000000001,
+      "residual_benchmark_weight_pct": 69.51350000000001,
+      "boosted_valid_holding_weight_pct": 30.486499999999996,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 26.51%，其中行情有效 26.51%，行情失败 0.00%，未披露仓位 73.49%；有效持仓放大系数 1.15，实际有效估算权重 30.49%，从基准补偿仓位转移 3.98% 给有效持仓；补偿仓位 69.51% 使用 美国油气开采(XOP)(2026-08-11) +1.3869% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:007844:2026-08-11"
+    },
+    "overseas:018852:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "018852",
+      "fund_name": "博时标普石油天然气勘探及生产精选行业指数发起(QDII)A美元现汇",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 1.76758089317699,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 26.249999999999996,
+      "raw_holding_weight_sum_pct": 26.249999999999996,
+      "available_raw_weight_sum_pct": 26.249999999999996,
+      "valid_holding_weight_pct": 26.249999999999996,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "美国油气开采(XOP)(2026-08-11)",
+      "residual_benchmark_key": "us_oil_gas_ep_xop",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": "XOP",
+      "residual_benchmark_return_pct": 1.3869152503836801,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 69.8125,
+      "residual_benchmark_weight_pct": 69.8125,
+      "boosted_valid_holding_weight_pct": 30.187499999999993,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 26.25%，其中行情有效 26.25%，行情失败 0.00%，未披露仓位 73.75%；有效持仓放大系数 1.15，实际有效估算权重 30.19%，从基准补偿仓位转移 3.94% 给有效持仓；补偿仓位 69.81% 使用 美国油气开采(XOP)(2026-08-11) +1.3869% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:018852:2026-08-11"
+    },
+    "overseas:002891:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "002891",
+      "fund_name": "华夏移动互联混合人民币",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "partial",
+      "data_status": "partial",
+      "completeness_score": 95.41,
+      "is_final": false,
+      "estimate_return_pct": 0.9125727131092509,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 51.55,
+      "raw_holding_weight_sum_pct": 51.55,
+      "available_raw_weight_sum_pct": 46.96,
+      "valid_holding_weight_pct": 46.96,
+      "failed_raw_weight_sum_pct": 4.59,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 45.996,
+      "residual_benchmark_weight_pct": 45.996,
+      "boosted_valid_holding_weight_pct": 54.004,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "UNKNOWN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "UNKNOWN": "missing",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "UNKNOWN": null,
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "KIOXIA(285A) 所属市场 UNKNOWN 在估值锚点 2026-08-11 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 51.55%，其中行情有效 46.96%，行情失败 4.59%，未披露仓位 48.45%；有效持仓放大系数 1.15，实际有效估算权重 54.00%，从基准补偿仓位转移 7.04% 给有效持仓；补偿仓位 46.00% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:002891:2026-08-11"
+    },
+    "overseas:006555:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "006555",
+      "fund_name": "浦银安盛全球智能科技(QDII)A",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "partial",
+      "data_status": "partial",
+      "completeness_score": 91.19,
+      "is_final": false,
+      "estimate_return_pct": 0.7863175084194636,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 65.25999999999999,
+      "raw_holding_weight_sum_pct": 65.25999999999999,
+      "available_raw_weight_sum_pct": 56.45000000000001,
+      "valid_holding_weight_pct": 56.45000000000001,
+      "failed_raw_weight_sum_pct": 8.81,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 35.082499999999996,
+      "residual_benchmark_weight_pct": 35.082499999999996,
+      "boosted_valid_holding_weight_pct": 64.9175,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "KR": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "UNKNOWN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "KR": "traded",
+        "UNKNOWN": "missing",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "KR": "2026-08-11",
+        "UNKNOWN": null,
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "KIOXIA(285A) 所属市场 UNKNOWN 在估值锚点 2026-08-11 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 65.26%，其中行情有效 56.45%，行情失败 8.81%，未披露仓位 34.74%；有效持仓放大系数 1.15，实际有效估算权重 64.92%，从基准补偿仓位转移 8.47% 给有效持仓；补偿仓位 35.08% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:006555:2026-08-11"
+    },
+    "overseas:008254:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "008254",
+      "fund_name": "华宝致远混合(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 0.6779052516346173,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 42.71999999999999,
+      "raw_holding_weight_sum_pct": 42.71999999999999,
+      "available_raw_weight_sum_pct": 42.71999999999999,
+      "valid_holding_weight_pct": 42.71999999999999,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 50.872000000000014,
+      "residual_benchmark_weight_pct": 50.872000000000014,
+      "boosted_valid_holding_weight_pct": 49.127999999999986,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 42.72%，其中行情有效 42.72%，行情失败 0.00%，未披露仓位 57.28%；有效持仓放大系数 1.15，实际有效估算权重 49.13%，从基准补偿仓位转移 6.41% 给有效持仓；补偿仓位 50.87% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:008254:2026-08-11"
+    },
+    "overseas:539002:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "539002",
+      "fund_name": "建信新兴市场混合(QDII)A",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 0.6617869013374392,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 62.22,
+      "raw_holding_weight_sum_pct": 62.22,
+      "available_raw_weight_sum_pct": 62.22,
+      "valid_holding_weight_pct": 62.22,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 28.447000000000003,
+      "residual_benchmark_weight_pct": 28.447000000000003,
+      "boosted_valid_holding_weight_pct": 71.553,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "KR": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "KR": "traded",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "KR": "2026-08-11",
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 62.22%，其中行情有效 62.22%，行情失败 0.00%，未披露仓位 37.78%；有效持仓放大系数 1.15，实际有效估算权重 71.55%，从基准补偿仓位转移 9.33% 给有效持仓；补偿仓位 28.45% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:539002:2026-08-11"
+    },
+    "overseas:012922:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "012922",
+      "fund_name": "易方达全球成长精选混合(QDII)人民币C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "partial",
+      "data_status": "partial",
+      "completeness_score": 94.11,
+      "is_final": false,
+      "estimate_return_pct": 0.5304488735078164,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 47.480000000000004,
+      "raw_holding_weight_sum_pct": 47.480000000000004,
+      "available_raw_weight_sum_pct": 41.59,
+      "valid_holding_weight_pct": 41.59,
+      "failed_raw_weight_sum_pct": 5.89,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 52.1715,
+      "residual_benchmark_weight_pct": 52.1715,
+      "boosted_valid_holding_weight_pct": 47.8285,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "CN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "UNKNOWN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "CN": "traded",
+        "UNKNOWN": "missing",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "CN": "2026-08-11",
+        "UNKNOWN": null,
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "KIOXIA(285A) 所属市场 UNKNOWN 在估值锚点 2026-08-11 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 47.48%，其中行情有效 41.59%，行情失败 5.89%，未披露仓位 52.52%；有效持仓放大系数 1.15，实际有效估算权重 47.83%，从基准补偿仓位转移 6.24% 给有效持仓；补偿仓位 52.17% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:012922:2026-08-11"
+    },
+    "overseas:018036:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "018036",
+      "fund_name": "长城全球新能源车股票发起式(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 0.3835714072828899,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 57.2,
+      "raw_holding_weight_sum_pct": 57.2,
+      "available_raw_weight_sum_pct": 57.2,
+      "valid_holding_weight_pct": 57.2,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 34.22,
+      "residual_benchmark_weight_pct": 34.22,
+      "boosted_valid_holding_weight_pct": 65.78,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 57.20%，其中行情有效 57.20%，行情失败 0.00%，未披露仓位 42.80%；有效持仓放大系数 1.15，实际有效估算权重 65.78%，从基准补偿仓位转移 8.58% 给有效持仓；补偿仓位 34.22% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:018036:2026-08-11"
+    },
+    "overseas:021842:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "021842",
+      "fund_name": "国富全球科技互联混合(QDII)人民币C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "partial",
+      "data_status": "partial",
+      "completeness_score": 97.25,
+      "is_final": false,
+      "estimate_return_pct": 0.3257845777690319,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 52.58,
+      "raw_holding_weight_sum_pct": 52.58,
+      "available_raw_weight_sum_pct": 49.83,
+      "valid_holding_weight_pct": 49.83,
+      "failed_raw_weight_sum_pct": 2.75,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 42.69550000000001,
+      "residual_benchmark_weight_pct": 42.69550000000001,
+      "boosted_valid_holding_weight_pct": 57.30449999999999,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "HK": "missing",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "HK": null,
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "爱德万测试(06857) 所属市场 HK 在估值锚点 2026-08-11 状态为 missing，本次贡献暂按 0% 计入；港股日线返回空数据: 06857; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 52.58%，其中行情有效 49.83%，行情失败 2.75%，未披露仓位 47.42%；有效持仓放大系数 1.15，实际有效估算权重 57.30%，从基准补偿仓位转移 7.47% 给有效持仓；补偿仓位 42.70% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:021842:2026-08-11"
+    },
+    "overseas:022184:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "022184",
+      "fund_name": "富国全球科技互联网股票(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "partial",
+      "data_status": "partial",
+      "completeness_score": 95.42,
+      "is_final": false,
+      "estimate_return_pct": 0.2333142740551454,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 47.459999999999994,
+      "raw_holding_weight_sum_pct": 47.459999999999994,
+      "available_raw_weight_sum_pct": 42.879999999999995,
+      "valid_holding_weight_pct": 42.879999999999995,
+      "failed_raw_weight_sum_pct": 4.58,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 50.68800000000001,
+      "residual_benchmark_weight_pct": 50.68800000000001,
+      "boosted_valid_holding_weight_pct": 49.31199999999999,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "CN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "KR": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "UNKNOWN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "CN": "traded",
+        "HK": "traded",
+        "KR": "traded",
+        "UNKNOWN": "missing",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "CN": "2026-08-11",
+        "HK": "2026-08-11",
+        "KR": "2026-08-11",
+        "UNKNOWN": null,
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "KIOXIA(285A) 所属市场 UNKNOWN 在估值锚点 2026-08-11 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 47.46%，其中行情有效 42.88%，行情失败 4.58%，未披露仓位 52.54%；有效持仓放大系数 1.15，实际有效估算权重 49.31%，从基准补偿仓位转移 6.43% 给有效持仓；补偿仓位 50.69% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:022184:2026-08-11"
+    },
+    "overseas:017654:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "017654",
+      "fund_name": "创金合信全球芯片产业股票发起(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 0.14990258525063052,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 24.849999999999998,
+      "raw_holding_weight_sum_pct": 24.849999999999998,
+      "available_raw_weight_sum_pct": 24.849999999999998,
+      "valid_holding_weight_pct": 24.849999999999998,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 71.4225,
+      "residual_benchmark_weight_pct": 71.4225,
+      "boosted_valid_holding_weight_pct": 28.577499999999997,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 24.85%，其中行情有效 24.85%，行情失败 0.00%，未披露仓位 75.15%；有效持仓放大系数 1.15，实际有效估算权重 28.58%，从基准补偿仓位转移 3.73% 给有效持仓；补偿仓位 71.42% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:017654:2026-08-11"
+    },
+    "overseas:164212:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "164212",
+      "fund_name": "天弘全球新能源汽车股票(QDII-LOF)A",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 0.12552772706431833,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 29.02,
+      "raw_holding_weight_sum_pct": 29.02,
+      "available_raw_weight_sum_pct": 29.02,
+      "valid_holding_weight_pct": 29.02,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 66.62700000000001,
+      "residual_benchmark_weight_pct": 66.62700000000001,
+      "boosted_valid_holding_weight_pct": 33.373,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "HK": "traded",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "HK": "2026-08-11",
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 29.02%，其中行情有效 29.02%，行情失败 0.00%，未披露仓位 70.98%；有效持仓放大系数 1.15，实际有效估算权重 33.37%，从基准补偿仓位转移 4.35% 给有效持仓；补偿仓位 66.63% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:164212:2026-08-11"
+    },
+    "overseas:001092:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "001092",
+      "fund_name": "广发生物科技指数人民币(QDII)A",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 0.044727551183578504,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 36.08,
+      "raw_holding_weight_sum_pct": 36.08,
+      "available_raw_weight_sum_pct": 36.08,
+      "valid_holding_weight_pct": 36.08,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "生物科技(2026-08-11)",
+      "residual_benchmark_key": "biotech_ibb",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": "IBB",
+      "residual_benchmark_return_pct": -0.13998600139986106,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 58.508,
+      "residual_benchmark_weight_pct": 58.508,
+      "boosted_valid_holding_weight_pct": 41.492,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 36.08%，其中行情有效 36.08%，行情失败 0.00%，未披露仓位 63.92%；有效持仓放大系数 1.15，实际有效估算权重 41.49%，从基准补偿仓位转移 5.41% 给有效持仓；补偿仓位 58.51% 使用 生物科技(2026-08-11) -0.1400% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:001092:2026-08-11"
+    },
+    "overseas:017145:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "017145",
+      "fund_name": "华宝海外新能源汽车股票发起式(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": 0.01893885190891873,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 76.14,
+      "raw_holding_weight_sum_pct": 76.14,
+      "available_raw_weight_sum_pct": 76.14,
+      "valid_holding_weight_pct": 76.14,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 12.439000000000007,
+      "residual_benchmark_weight_pct": 12.439000000000007,
+      "boosted_valid_holding_weight_pct": 87.56099999999999,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "HK": "traded",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "HK": "2026-08-11",
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 76.14%，其中行情有效 76.14%，行情失败 0.00%，未披露仓位 23.86%；有效持仓放大系数 1.15，实际有效估算权重 87.56%，从基准补偿仓位转移 11.42% 给有效持仓；补偿仓位 12.44% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:017145:2026-08-11"
+    },
+    "overseas:018229:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "018229",
+      "fund_name": "易方达全球优质企业混合(QDII)A(人民币份额)",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "partial",
+      "data_status": "partial",
+      "completeness_score": 96.88,
+      "is_final": false,
+      "estimate_return_pct": -0.004032497368187449,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 27.150000000000002,
+      "raw_holding_weight_sum_pct": 27.150000000000002,
+      "available_raw_weight_sum_pct": 24.029999999999998,
+      "valid_holding_weight_pct": 24.029999999999998,
+      "failed_raw_weight_sum_pct": 3.12,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 72.3655,
+      "residual_benchmark_weight_pct": 72.3655,
+      "boosted_valid_holding_weight_pct": 27.634499999999996,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "CN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "KR": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "UNKNOWN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "CN": "traded",
+        "KR": "traded",
+        "UNKNOWN": "missing",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "CN": "2026-08-11",
+        "KR": "2026-08-11",
+        "UNKNOWN": null,
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "KIOXIA(285A) 所属市场 UNKNOWN 在估值锚点 2026-08-11 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 27.15%，其中行情有效 24.03%，行情失败 3.12%，未披露仓位 72.85%；有效持仓放大系数 1.15，实际有效估算权重 27.63%，从基准补偿仓位转移 3.60% 给有效持仓；补偿仓位 72.37% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:018229:2026-08-11"
+    },
+    "overseas:024239:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "024239",
+      "fund_name": "华夏全球科技先锋混合(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.053222686205428194,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 17.85,
+      "raw_holding_weight_sum_pct": 17.85,
+      "available_raw_weight_sum_pct": 17.85,
+      "valid_holding_weight_pct": 17.85,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 79.4725,
+      "residual_benchmark_weight_pct": 79.4725,
+      "boosted_valid_holding_weight_pct": 20.5275,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "HK": "traded",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "HK": "2026-08-11",
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 17.85%，其中行情有效 17.85%，行情失败 0.00%，未披露仓位 82.15%；有效持仓放大系数 1.15，实际有效估算权重 20.53%，从基准补偿仓位转移 2.68% 给有效持仓；补偿仓位 79.47% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:024239:2026-08-11"
+    },
+    "overseas:015205:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "015205",
+      "fund_name": "银华全球新能源车量化优选股票(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.06188825681755597,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 51.62,
+      "raw_holding_weight_sum_pct": 51.62,
+      "available_raw_weight_sum_pct": 51.62,
+      "valid_holding_weight_pct": 51.62,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 40.63700000000001,
+      "residual_benchmark_weight_pct": 40.63700000000001,
+      "boosted_valid_holding_weight_pct": 59.36299999999999,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "CN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "CN": "traded",
+        "HK": "traded",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "CN": "2026-08-11",
+        "HK": "2026-08-11",
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 51.62%，其中行情有效 51.62%，行情失败 0.00%，未披露仓位 48.38%；有效持仓放大系数 1.15，实际有效估算权重 59.36%，从基准补偿仓位转移 7.74% 给有效持仓；补偿仓位 40.64% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:015205:2026-08-11"
+    },
+    "overseas:163813:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "163813",
+      "fund_name": "中银全球策略(QDII-FOF)A",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.11058573845792538,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 11.490000000000002,
+      "raw_holding_weight_sum_pct": 11.490000000000002,
+      "available_raw_weight_sum_pct": 11.490000000000002,
+      "valid_holding_weight_pct": 11.490000000000002,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 86.7865,
+      "residual_benchmark_weight_pct": 86.7865,
+      "boosted_valid_holding_weight_pct": 13.213500000000002,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 11.49%，其中行情有效 11.49%，行情失败 0.00%，未披露仓位 88.51%；有效持仓放大系数 1.15，实际有效估算权重 13.21%，从基准补偿仓位转移 1.72% 给有效持仓；补偿仓位 86.79% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:163813:2026-08-11"
+    },
+    "overseas:017072:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "017072",
+      "fund_name": "申万菱信全球新能源股票型发起式(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.170524268861622,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 41.43000000000001,
+      "raw_holding_weight_sum_pct": 41.43000000000001,
+      "available_raw_weight_sum_pct": 41.43000000000001,
+      "valid_holding_weight_pct": 41.43000000000001,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 52.3555,
+      "residual_benchmark_weight_pct": 52.3555,
+      "boosted_valid_holding_weight_pct": 47.6445,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "CN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "CN": "traded",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "CN": "2026-08-11",
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 41.43%，其中行情有效 41.43%，行情失败 0.00%，未披露仓位 58.57%；有效持仓放大系数 1.15，实际有效估算权重 47.64%，从基准补偿仓位转移 6.21% 给有效持仓；补偿仓位 52.36% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:017072:2026-08-11"
+    },
+    "overseas:519981:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "519981",
+      "fund_name": "长信标普100等权重指数人民币",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.17809071405123694,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 11.200000000000001,
+      "raw_holding_weight_sum_pct": 11.200000000000001,
+      "available_raw_weight_sum_pct": 11.200000000000001,
+      "valid_holding_weight_pct": 11.200000000000001,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "标普500(2026-08-11)",
+      "residual_benchmark_key": "sp500",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".INX",
+      "residual_benchmark_return_pct": -0.32128655882976975,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 87.12,
+      "residual_benchmark_weight_pct": 87.12,
+      "boosted_valid_holding_weight_pct": 12.88,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 11.20%，其中行情有效 11.20%，行情失败 0.00%，未披露仓位 88.80%；有效持仓放大系数 1.15，实际有效估算权重 12.88%，从基准补偿仓位转移 1.68% 给有效持仓；补偿仓位 87.12% 使用 标普500(2026-08-11) -0.3213% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:519981:2026-08-11"
+    },
+    "overseas:021277:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "021277",
+      "fund_name": "广发全球精选股票(QDII)人民币C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "partial",
+      "data_status": "partial",
+      "completeness_score": 95.93,
+      "is_final": false,
+      "estimate_return_pct": -0.1905582737740078,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 45.69,
+      "raw_holding_weight_sum_pct": 45.69,
+      "available_raw_weight_sum_pct": 41.62,
+      "valid_holding_weight_pct": 41.62,
+      "failed_raw_weight_sum_pct": 4.07,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 52.13700000000001,
+      "residual_benchmark_weight_pct": 52.13700000000001,
+      "boosted_valid_holding_weight_pct": 47.86299999999999,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "CN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "UNKNOWN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "CN": "traded",
+        "HK": "traded",
+        "UNKNOWN": "missing",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "CN": "2026-08-11",
+        "HK": "2026-08-11",
+        "UNKNOWN": null,
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "KIOXIA(285A) 所属市场 UNKNOWN 在估值锚点 2026-08-11 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 45.69%，其中行情有效 41.62%，行情失败 4.07%，未披露仓位 54.31%；有效持仓放大系数 1.15，实际有效估算权重 47.86%，从基准补偿仓位转移 6.24% 给有效持仓；补偿仓位 52.14% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:021277:2026-08-11"
+    },
+    "overseas:013328:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "013328",
+      "fund_name": "嘉实全球价值股票(QDII)人民币",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "partial",
+      "data_status": "partial",
+      "completeness_score": 98.71,
+      "is_final": false,
+      "estimate_return_pct": -0.23122406925764405,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 24.62,
+      "raw_holding_weight_sum_pct": 24.62,
+      "available_raw_weight_sum_pct": 23.330000000000002,
+      "valid_holding_weight_pct": 23.330000000000002,
+      "failed_raw_weight_sum_pct": 1.29,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 73.1705,
+      "residual_benchmark_weight_pct": 73.1705,
+      "boosted_valid_holding_weight_pct": 26.8295,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "CN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "KR": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "CN": "traded",
+        "HK": "traded",
+        "KR": "traded",
+        "US": "missing"
+      },
+      "market_trade_dates": {
+        "CN": "2026-08-11",
+        "HK": "2026-08-11",
+        "KR": "2026-08-11",
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "SAMSUNG ELECTRONICS CO LTD (ATT) GDR (EACH REP 25 COM STK KRW100)(REG S)(SMSN) 所属市场 US 在估值锚点 2026-08-11 状态为 missing，本次贡献暂按 0% 计入；美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError(\"东方财富美股日线获取失败: SMSN: 105.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 106.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 107.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))\") | yahoo_chart_daily_us_fallback: RuntimeError('Yahoo 美股日线获取失败: SMSN: 403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/SMSN?range=20d&interval=1d&includePrePost=false&events=history')",
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 24.62%，其中行情有效 23.33%，行情失败 1.29%，未披露仓位 75.38%；有效持仓放大系数 1.15，实际有效估算权重 26.83%，从基准补偿仓位转移 3.50% 给有效持仓；补偿仓位 73.17% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:013328:2026-08-11"
+    },
+    "overseas:008401:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "008401",
+      "fund_name": "大成标普500等权重指数(QDII)C人民币",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.2552673442158699,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 2.5700000000000003,
+      "raw_holding_weight_sum_pct": 2.5700000000000003,
+      "available_raw_weight_sum_pct": 2.5700000000000003,
+      "valid_holding_weight_pct": 2.5700000000000003,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "标普500(2026-08-11)",
+      "residual_benchmark_key": "sp500",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".INX",
+      "residual_benchmark_return_pct": -0.32128655882976975,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 97.0445,
+      "residual_benchmark_weight_pct": 97.0445,
+      "boosted_valid_holding_weight_pct": 2.9555000000000002,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 2.57%，其中行情有效 2.57%，行情失败 0.00%，未披露仓位 97.43%；有效持仓放大系数 1.15，实际有效估算权重 2.96%，从基准补偿仓位转移 0.39% 给有效持仓；补偿仓位 97.04% 使用 标普500(2026-08-11) -0.3213% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:008401:2026-08-11"
+    },
+    "overseas:019231:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "019231",
+      "fund_name": "广发全球稳健配置混合(QDII)人民币C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "partial",
+      "data_status": "partial",
+      "completeness_score": 98.61,
+      "is_final": false,
+      "estimate_return_pct": -0.3018711915505269,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 16.66,
+      "raw_holding_weight_sum_pct": 16.66,
+      "available_raw_weight_sum_pct": 15.27,
+      "valid_holding_weight_pct": 15.27,
+      "failed_raw_weight_sum_pct": 1.3900000000000001,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 82.43950000000001,
+      "residual_benchmark_weight_pct": 82.43950000000001,
+      "boosted_valid_holding_weight_pct": 17.560499999999998,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "CN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "KR": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "CN": "traded",
+        "HK": "missing",
+        "KR": "traded",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "CN": "2026-08-11",
+        "HK": "2026-08-11",
+        "KR": "2026-08-11",
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "太阳诱电(06976) 所属市场 HK 在估值锚点 2026-08-11 状态为 missing，本次贡献暂按 0% 计入；港股日线返回空数据: 06976; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 16.66%，其中行情有效 15.27%，行情失败 1.39%，未披露仓位 83.34%；有效持仓放大系数 1.15，实际有效估算权重 17.56%，从基准补偿仓位转移 2.29% 给有效持仓；补偿仓位 82.44% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:019231:2026-08-11"
+    },
+    "overseas:017437:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "017437",
+      "fund_name": "华宝纳斯达克精选股票发起式(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.30367026567042593,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 62.62,
+      "raw_holding_weight_sum_pct": 62.62,
+      "available_raw_weight_sum_pct": 62.62,
+      "valid_holding_weight_pct": 62.62,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 27.98700000000001,
+      "residual_benchmark_weight_pct": 27.98700000000001,
+      "boosted_valid_holding_weight_pct": 72.01299999999999,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 62.62%，其中行情有效 62.62%，行情失败 0.00%，未披露仓位 37.38%；有效持仓放大系数 1.15，实际有效估算权重 72.01%，从基准补偿仓位转移 9.39% 给有效持仓；补偿仓位 27.99% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:017437:2026-08-11"
+    },
+    "overseas:012868:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "012868",
+      "fund_name": "易方达标普信息科技指数(QDII-LOF)C(人民币)",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.32644800357723025,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 67.59,
+      "raw_holding_weight_sum_pct": 67.59,
+      "available_raw_weight_sum_pct": 67.59,
+      "valid_holding_weight_pct": 67.59,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "标普500(2026-08-11)",
+      "residual_benchmark_key": "sp500",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".INX",
+      "residual_benchmark_return_pct": -0.32128655882976975,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 22.271500000000003,
+      "residual_benchmark_weight_pct": 22.271500000000003,
+      "boosted_valid_holding_weight_pct": 77.7285,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 67.59%，其中行情有效 67.59%，行情失败 0.00%，未披露仓位 32.41%；有效持仓放大系数 1.15，实际有效估算权重 77.73%，从基准补偿仓位转移 10.14% 给有效持仓；补偿仓位 22.27% 使用 标普500(2026-08-11) -0.3213% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:012868:2026-08-11"
+    },
+    "overseas:009975:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "009975",
+      "fund_name": "华宝标普美国消费人民币C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.3737030511982494,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 65.51,
+      "raw_holding_weight_sum_pct": 65.51,
+      "available_raw_weight_sum_pct": 65.51,
+      "valid_holding_weight_pct": 65.51,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 24.6635,
+      "residual_benchmark_weight_pct": 24.6635,
+      "boosted_valid_holding_weight_pct": 75.3365,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 65.51%，其中行情有效 65.51%，行情失败 0.00%，未披露仓位 34.49%；有效持仓放大系数 1.15，实际有效估算权重 75.34%，从基准补偿仓位转移 9.83% 给有效持仓；补偿仓位 24.66% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:009975:2026-08-11"
+    },
+    "overseas:017731:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "017731",
+      "fund_name": "嘉实全球产业升级股票发起式(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.40530603136184673,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 30.38,
+      "raw_holding_weight_sum_pct": 30.38,
+      "available_raw_weight_sum_pct": 30.38,
+      "valid_holding_weight_pct": 30.38,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 65.063,
+      "residual_benchmark_weight_pct": 65.063,
+      "boosted_valid_holding_weight_pct": 34.937,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "CN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "CN": "traded",
+        "HK": "traded",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "CN": "2026-08-11",
+        "HK": "2026-08-11",
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 30.38%，其中行情有效 30.38%，行情失败 0.00%，未披露仓位 69.62%；有效持仓放大系数 1.15，实际有效估算权重 34.94%，从基准补偿仓位转移 4.56% 给有效持仓；补偿仓位 65.06% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:017731:2026-08-11"
+    },
+    "overseas:016665:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "016665",
+      "fund_name": "天弘全球高端制造混合(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "partial",
+      "data_status": "partial",
+      "completeness_score": 94.25,
+      "is_final": false,
+      "estimate_return_pct": -0.42986537735525215,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 23.200000000000003,
+      "raw_holding_weight_sum_pct": 23.200000000000003,
+      "available_raw_weight_sum_pct": 17.45,
+      "valid_holding_weight_pct": 17.45,
+      "failed_raw_weight_sum_pct": 5.75,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 79.9325,
+      "residual_benchmark_weight_pct": 79.9325,
+      "boosted_valid_holding_weight_pct": 20.0675,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "CN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "HK": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "UNKNOWN": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "CN": "traded",
+        "HK": "traded",
+        "UNKNOWN": "missing",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "CN": "2026-08-11",
+        "HK": "2026-08-11",
+        "UNKNOWN": null,
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "铠侠控股株式会社(JP3236330001) 所属市场 UNKNOWN 在估值锚点 2026-08-11 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
+        "日东纺织(JP3684400009) 所属市场 UNKNOWN 在估值锚点 2026-08-11 状态为 missing，本次贡献暂按 0% 计入；未配置交易日历: market=UNKNOWN",
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 23.20%，其中行情有效 17.45%，行情失败 5.75%，未披露仓位 76.80%；有效持仓放大系数 1.15，实际有效估算权重 20.07%，从基准补偿仓位转移 2.62% 给有效持仓；补偿仓位 79.93% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:016665:2026-08-11"
+    },
+    "overseas:519696:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "519696",
+      "fund_name": "交银环球精选混合(QDII)A",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.5233655057259345,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 27.88,
+      "raw_holding_weight_sum_pct": 27.88,
+      "available_raw_weight_sum_pct": 27.88,
+      "valid_holding_weight_pct": 27.88,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 67.938,
+      "residual_benchmark_weight_pct": 67.938,
+      "boosted_valid_holding_weight_pct": 32.062,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 27.88%，其中行情有效 27.88%，行情失败 0.00%，未披露仓位 72.12%；有效持仓放大系数 1.15，实际有效估算权重 32.06%，从基准补偿仓位转移 4.18% 给有效持仓；补偿仓位 67.94% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:519696:2026-08-11"
+    },
+    "overseas:015202:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "015202",
+      "fund_name": "汇添富全球移动互联混合(QDII)人民币C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.5244557535892908,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 45.39,
+      "raw_holding_weight_sum_pct": 45.39,
+      "available_raw_weight_sum_pct": 45.39,
+      "valid_holding_weight_pct": 45.39,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 47.801500000000004,
+      "residual_benchmark_weight_pct": 47.801500000000004,
+      "boosted_valid_holding_weight_pct": 52.198499999999996,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 45.39%，其中行情有效 45.39%，行情失败 0.00%，未披露仓位 54.61%；有效持仓放大系数 1.15，实际有效估算权重 52.20%，从基准补偿仓位转移 6.81% 给有效持仓；补偿仓位 47.80% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:015202:2026-08-11"
+    },
+    "overseas:486002:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "486002",
+      "fund_name": "工银全球精选股票(QDII)",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.5545866258822245,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 30.619999999999997,
+      "raw_holding_weight_sum_pct": 30.619999999999997,
+      "available_raw_weight_sum_pct": 30.619999999999997,
+      "valid_holding_weight_pct": 30.619999999999997,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 64.787,
+      "residual_benchmark_weight_pct": 64.787,
+      "boosted_valid_holding_weight_pct": 35.212999999999994,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "KR": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        },
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "KR": "traded",
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "KR": "2026-08-11",
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 30.62%，其中行情有效 30.62%，行情失败 0.00%，未披露仓位 69.38%；有效持仓放大系数 1.15，实际有效估算权重 35.21%，从基准补偿仓位转移 4.59% 给有效持仓；补偿仓位 64.79% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:486002:2026-08-11"
+    },
+    "overseas:016702:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "016702",
+      "fund_name": "银华海外数字经济量化选股混合发起式(QDII)C",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.5568775891977056,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 54.96000000000001,
+      "raw_holding_weight_sum_pct": 54.96000000000001,
+      "available_raw_weight_sum_pct": 54.96000000000001,
+      "valid_holding_weight_pct": 54.96000000000001,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 36.79599999999999,
+      "residual_benchmark_weight_pct": 36.79599999999999,
+      "boosted_valid_holding_weight_pct": 63.20400000000001,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 54.96%，其中行情有效 54.96%，行情失败 0.00%，未披露仓位 45.04%；有效持仓放大系数 1.15，实际有效估算权重 63.20%，从基准补偿仓位转移 8.24% 给有效持仓；补偿仓位 36.80% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:016702:2026-08-11"
+    },
+    "overseas:000043:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "000043",
+      "fund_name": "嘉实美国成长股票人民币",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -0.6879289003031228,
+      "method": "stock_boosted_raw_plus_residual_benchmark",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 46.0,
+      "raw_holding_weight_sum_pct": 46.0,
+      "available_raw_weight_sum_pct": 46.0,
+      "valid_holding_weight_pct": 46.0,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": "纳斯达克100(2026-08-11)",
+      "residual_benchmark_key": "nasdaq100",
+      "residual_benchmark_market": "US",
+      "residual_benchmark_ticker": ".NDX",
+      "residual_benchmark_return_pct": -0.3251868040302086,
+      "residual_benchmark_trade_date": "2026-08-11",
+      "residual_benchmark_status": "traded",
+      "residual_weight_pct": 47.1,
+      "residual_benchmark_weight_pct": 47.1,
+      "boosted_valid_holding_weight_pct": 52.9,
+      "holding_boost": 1.15,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [
+        "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 46.00%，其中行情有效 46.00%，行情失败 0.00%，未披露仓位 54.00%；有效持仓放大系数 1.15，实际有效估算权重 52.90%，从基准补偿仓位转移 6.90% 给有效持仓；补偿仓位 47.10% 使用 纳斯达克100(2026-08-11) -0.3252% 估算。"
+      ],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:000043:2026-08-11"
+    },
+    "overseas:160140:2026-08-11": {
+      "market_group": "overseas",
+      "fund_code": "160140",
+      "fund_name": "南方道琼斯美国精选A",
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:09",
+      "stage": "final",
+      "data_status": "complete",
+      "completeness_score": 100.0,
+      "is_final": true,
+      "estimate_return_pct": -1.3448607844920417,
+      "method": "stock_topn_available_normalized",
+      "valuation_mode": "last_close",
+      "effective_valuation_mode": "last_close",
+      "raw_weight_sum_pct": 49.59,
+      "raw_holding_weight_sum_pct": 49.59,
+      "available_raw_weight_sum_pct": 49.59,
+      "valid_holding_weight_pct": 49.59,
+      "failed_raw_weight_sum_pct": 0.0,
+      "estimated_weight_sum_pct": null,
+      "residual_benchmark_label": null,
+      "residual_benchmark_key": "",
+      "residual_benchmark_market": "",
+      "residual_benchmark_ticker": "",
+      "residual_benchmark_return_pct": null,
+      "residual_benchmark_trade_date": "",
+      "residual_benchmark_status": "",
+      "residual_weight_pct": 0.0,
+      "residual_benchmark_weight_pct": 0.0,
+      "boosted_valid_holding_weight_pct": 49.59,
+      "holding_boost": 1.0,
+      "zero_stale_cn_hk_returns": true,
+      "stale_market_estimate_date": "2026-08-11",
+      "stale_zeroed_count": 0,
+      "stale_zeroed_markets": [],
+      "market_effective": {
+        "US": {
+          "has_return": true,
+          "all_zeroed_as_stale": false,
+          "zeroed_count": 0
+        }
+      },
+      "market_status": {
+        "US": "traded"
+      },
+      "market_trade_dates": {
+        "US": "2026-08-11"
+      },
+      "source": "anchor_daily",
+      "warnings": [],
+      "holding_quarter": "2026年2季度股票投资明细",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "cache_key": "overseas:160140:2026-08-11"
     }
   },
-  "updated_at": "2026-08-11T09:11:20",
+  "updated_at": "2026-08-12T08:22:11",
   "benchmark_records": {
     "benchmark:.INX:2026-05-08": {
       "market_group": "overseas",
@@ -145825,6 +148274,180 @@
       "display_in_holidays": false,
       "include_in_cumulative": false,
       "cache_key": "benchmark:VIX:2026-08-10"
+    },
+    "benchmark:.NDX:2026-08-11": {
+      "market_group": "overseas",
+      "record_type": "benchmark",
+      "label": "纳斯达克100",
+      "symbol": ".NDX",
+      "kind": "us_index",
+      "order": 1,
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "trade_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:11",
+      "stage": "final",
+      "data_status": "complete",
+      "is_final": true,
+      "return_pct": -0.3251868040302086,
+      "value": null,
+      "display_value": "",
+      "value_type": "return_pct",
+      "status": "traded",
+      "source": "rsi_module_index_daily",
+      "error": "",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "display_in_daily_fund": true,
+      "display_in_holidays": true,
+      "include_in_cumulative": true,
+      "cache_key": "benchmark:.NDX:2026-08-11"
+    },
+    "benchmark:.INX:2026-08-11": {
+      "market_group": "overseas",
+      "record_type": "benchmark",
+      "label": "标普500",
+      "symbol": ".INX",
+      "kind": "us_index",
+      "order": 2,
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "trade_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:11",
+      "stage": "final",
+      "data_status": "complete",
+      "is_final": true,
+      "return_pct": -0.32128655882976975,
+      "value": null,
+      "display_value": "",
+      "value_type": "return_pct",
+      "status": "traded",
+      "source": "rsi_module_index_daily",
+      "error": "",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "display_in_daily_fund": true,
+      "display_in_holidays": true,
+      "include_in_cumulative": true,
+      "cache_key": "benchmark:.INX:2026-08-11"
+    },
+    "benchmark:XOP:2026-08-11": {
+      "market_group": "overseas",
+      "record_type": "benchmark",
+      "label": "油气开采指数",
+      "symbol": "XOP",
+      "kind": "us_security",
+      "order": 4,
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "trade_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:11",
+      "stage": "final",
+      "data_status": "complete",
+      "is_final": true,
+      "return_pct": 1.3869152503836801,
+      "value": null,
+      "display_value": "",
+      "value_type": "return_pct",
+      "status": "traded",
+      "source": "ak_stock_us_daily",
+      "error": "",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "display_in_daily_fund": true,
+      "display_in_holidays": true,
+      "include_in_cumulative": true,
+      "cache_key": "benchmark:XOP:2026-08-11"
+    },
+    "benchmark:.SOX:2026-08-11": {
+      "market_group": "overseas",
+      "record_type": "benchmark",
+      "label": "费城半导体",
+      "symbol": ".SOX",
+      "kind": "us_index",
+      "order": 5,
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "trade_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:11",
+      "stage": "final",
+      "data_status": "complete",
+      "is_final": true,
+      "return_pct": 0.8721995142631833,
+      "value": null,
+      "display_value": "",
+      "value_type": "return_pct",
+      "status": "traded",
+      "source": "rsi_module_index_daily",
+      "error": "",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "display_in_daily_fund": true,
+      "display_in_holidays": true,
+      "include_in_cumulative": true,
+      "cache_key": "benchmark:.SOX:2026-08-11"
+    },
+    "benchmark:XAU:2026-08-11": {
+      "market_group": "overseas",
+      "record_type": "benchmark",
+      "label": "现货黄金",
+      "symbol": "XAU",
+      "kind": "foreign_futures",
+      "order": 6,
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "trade_date": "2026-08-11",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:11",
+      "stage": "final",
+      "data_status": "complete",
+      "is_final": true,
+      "return_pct": -0.5068048516599255,
+      "value": null,
+      "display_value": "",
+      "value_type": "return_pct",
+      "status": "traded",
+      "source": "ak_futures_foreign_hist_sina",
+      "error": "",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "display_in_daily_fund": true,
+      "display_in_holidays": true,
+      "include_in_cumulative": true,
+      "cache_key": "benchmark:XAU:2026-08-11"
+    },
+    "benchmark:VIX:2026-08-11": {
+      "market_group": "overseas",
+      "record_type": "benchmark",
+      "label": "VIX恐慌指数",
+      "symbol": "VIX",
+      "kind": "vix_level",
+      "order": 7,
+      "valuation_date": "2026-08-11",
+      "valuation_anchor_date": "2026-08-11",
+      "trade_date": "2026-08-10",
+      "run_date_bj": "2026-08-12",
+      "run_time_bj": "2026-08-12T08:22:11",
+      "stage": "partial",
+      "data_status": "stale",
+      "is_final": false,
+      "return_pct": null,
+      "value": 15.46,
+      "display_value": "15.46",
+      "value_type": "level",
+      "status": "stale",
+      "source": "CBOE",
+      "error": "VIX trade_date=2026-08-10 与 valuation_anchor_date=2026-08-11 不一致",
+      "table_title": "海外市场收益率预估 估值日：2026-08-11 生成：2026-08-12 08:19:20",
+      "output_file": "output/haiwai_fund.png",
+      "display_in_daily_fund": true,
+      "display_in_holidays": false,
+      "include_in_cumulative": false,
+      "cache_key": "benchmark:VIX:2026-08-11"
     }
   }
 }
