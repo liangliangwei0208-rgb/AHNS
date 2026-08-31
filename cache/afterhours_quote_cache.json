@@ -7,7 +7,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:NVDA": {
@@ -18,7 +18,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:MRVL": {
@@ -29,7 +29,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:AAPL": {
@@ -40,7 +40,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:MSFT": {
@@ -51,7 +51,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:NFLX": {
@@ -62,7 +62,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:AVGO": {
@@ -73,7 +73,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:TSLA": {
@@ -84,7 +84,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:META": {
@@ -95,7 +95,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 08:01",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:AMZN": {
@@ -106,7 +106,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:SMCI": {
@@ -117,7 +117,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:LRCX": {
@@ -128,7 +128,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:TSM": {
@@ -139,7 +139,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:AMD": {
@@ -150,7 +150,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:SNDK": {
@@ -161,7 +161,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 08:01",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:INTC": {
@@ -172,7 +172,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 08:01",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:ASML": {
@@ -183,7 +183,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:GOOGL": {
@@ -194,7 +194,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:MU": {
@@ -205,7 +205,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:UMC": {
@@ -216,7 +216,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 08:04",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:LITE": {
@@ -227,18 +227,18 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:STX": {
-    "return_pct": -0.04,
+    "return_pct": -0.06,
     "value": null,
     "value_type": "return_pct",
     "status": "traded",
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:WDC": {
@@ -249,7 +249,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:MKSI": {
@@ -260,7 +260,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:55",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:GLW": {
@@ -271,7 +271,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:58",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:GOOG": {
@@ -282,7 +282,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:NOK": {
@@ -293,7 +293,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 08:04",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:AMAT": {
@@ -304,7 +304,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:KLAC": {
@@ -315,7 +315,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:LLY": {
@@ -326,7 +326,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:ONTO": {
@@ -337,7 +337,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:50",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:STM": {
@@ -348,7 +348,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:58",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:ALAB": {
@@ -359,7 +359,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:NBIS": {
@@ -370,7 +370,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:COHR": {
@@ -381,7 +381,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:TER": {
@@ -392,7 +392,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:MPWR": {
@@ -403,7 +403,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 08:01",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:IBB": {
@@ -414,7 +414,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:55",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:VRTX": {
@@ -425,7 +425,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:58",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:AMGN": {
@@ -436,7 +436,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:44",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:GILD": {
@@ -447,7 +447,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:46",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:REGN": {
@@ -458,7 +458,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:44",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:ALNY": {
@@ -469,7 +469,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:30",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:RVMD": {
@@ -480,7 +480,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:BIIB": {
@@ -491,7 +491,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:30",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:MRNA": {
@@ -502,7 +502,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 08:01",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:RPRX": {
@@ -513,7 +513,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:38",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:ARGX": {
@@ -524,7 +524,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:30",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:SPY": {
@@ -535,7 +535,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:GEV": {
@@ -546,7 +546,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:CAT": {
@@ -557,7 +557,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:58",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:GE": {
@@ -568,7 +568,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:BTI": {
@@ -579,7 +579,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:56",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:TECH": {
@@ -590,7 +590,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:30",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:UAL": {
@@ -601,7 +601,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:XOP": {
@@ -612,7 +612,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:54",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:TPL": {
@@ -623,7 +623,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:51",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:PBF": {
@@ -634,7 +634,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:57",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:DK": {
@@ -645,7 +645,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:52",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:EXE": {
@@ -656,7 +656,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:30",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:CNX": {
@@ -667,7 +667,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:30",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:EQT": {
@@ -678,7 +678,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:53",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:VLO": {
@@ -689,7 +689,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:AR": {
@@ -700,7 +700,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:53",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:DINO": {
@@ -711,7 +711,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:56",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:PARR": {
@@ -722,7 +722,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:COP": {
@@ -733,7 +733,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:58",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:MPC": {
@@ -744,7 +744,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:58",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:EOG": {
@@ -755,7 +755,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:30",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:PSX": {
@@ -766,7 +766,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:54",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:FANG": {
@@ -777,7 +777,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:51",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:DVN": {
@@ -788,7 +788,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:ARM": {
@@ -799,7 +799,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:NIO": {
@@ -810,7 +810,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:RIVN": {
@@ -821,7 +821,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:RACE": {
@@ -832,7 +832,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:51",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:PONY": {
@@ -843,7 +843,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 08:01",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:HD": {
@@ -854,7 +854,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:MCD": {
@@ -865,7 +865,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:TJX": {
@@ -876,7 +876,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:BKNG": {
@@ -887,7 +887,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:55",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:LOW": {
@@ -898,7 +898,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:54",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:SBUX": {
@@ -909,7 +909,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:MAR": {
@@ -920,7 +920,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:56",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:RCL": {
@@ -931,7 +931,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:58",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:CSCO": {
@@ -942,7 +942,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 08:01",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:BE": {
@@ -953,7 +953,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:VICR": {
@@ -964,7 +964,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:ALGM": {
@@ -975,7 +975,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 08:01",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:FIX": {
@@ -986,7 +986,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:MTZ": {
@@ -997,7 +997,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:57",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:WELL": {
@@ -1008,7 +1008,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:33",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:PLD": {
@@ -1019,7 +1019,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:36",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:EQIX": {
@@ -1030,7 +1030,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:36",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:SPG": {
@@ -1041,7 +1041,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:56",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:DLR": {
@@ -1052,7 +1052,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:O": {
@@ -1063,7 +1063,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:57",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:PSA": {
@@ -1074,7 +1074,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:30",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:VTR": {
@@ -1085,7 +1085,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:33",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:EXR": {
@@ -1096,7 +1096,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:32",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "US:GLD": {
@@ -1107,7 +1107,7 @@
     "source": "sina_us_afterhours_pure_post_http",
     "trade_date": "2026-08-28",
     "quote_time_bj": "2026-08-29 07:59",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": ""
   },
   "VIX_LEVEL:VIX": {
@@ -1118,7 +1118,7 @@
     "source": "vix_latest_close_fallback:CBOE",
     "trade_date": "2026-08-28",
     "quote_time_bj": "",
-    "fetched_at_bj": "2026-08-29T09:47:10+08:00",
+    "fetched_at_bj": "2026-08-31T08:33:51+08:00",
     "error": "realtime fallback: yahoo query1 1d_1m: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true') | yahoo query2 1d_1m: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true') | yahoo query1 1d_5m: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=5m&includePrePost=true') | yahoo query2 1d_5m: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=5m&includePrePost=true') | yahoo query1 5d_5m: HTTPError('403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=5d&interval=5m&includePrePost=true') | yahoo query2 5d_5m: HTTPError('403 Client Error: Forbidden for url: https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX?range=5d&interval=5m&includePrePost=true') | yfinance: RuntimeError(\"yfinance 1d/1m: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.') | yfinance 5d/5m: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.') | yfinance 10d/1d: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')\")"
   }
 }
