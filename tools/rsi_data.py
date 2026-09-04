@@ -187,6 +187,7 @@ def get_current_chinese_font() -> Optional[str]:
 
 __all__ = [
     "compute_rsi_wilder",
+    "add_bollinger_bands",
     "get_index_akshare",
     "get_us_index_akshare",
     "get_symbol_display_name",
@@ -485,6 +486,35 @@ def compute_rsi_wilder(close: pd.Series, window: int = 9) -> pd.Series:
     rsi[no_change] = 50
 
     return rsi
+
+
+def add_bollinger_bands(
+    df: pd.DataFrame,
+    close_col: str = "close",
+    window: int = 20,
+    std_multiplier: float = 2.0,
+) -> pd.DataFrame:
+    """为日线数据增加标准 BOLL(中轨、上轨、下轨)列。"""
+    if close_col not in df.columns:
+        raise KeyError(f"数据中找不到收盘价列: {close_col}")
+
+    if int(window) < 2:
+        raise ValueError(f"BOLL 周期必须不小于 2: {window}")
+
+    if float(std_multiplier) < 0:
+        raise ValueError(f"BOLL 标准差倍数不能为负数: {std_multiplier}")
+
+    result = df.copy()
+    close = pd.to_numeric(result[close_col], errors="coerce")
+    rolling = close.rolling(window=int(window), min_periods=int(window))
+    middle = rolling.mean()
+    # 使用总体标准差，与常见技术指标库的 BOLL 口径保持一致。
+    standard_deviation = rolling.std(ddof=0)
+
+    result["BOLL_MID"] = middle
+    result["BOLL_UPPER"] = middle + standard_deviation * float(std_multiplier)
+    result["BOLL_LOWER"] = middle - standard_deviation * float(std_multiplier)
+    return result
 
 
 def _cn_index_symbol_candidates(symbol: str) -> list[str]:
@@ -2007,6 +2037,13 @@ def plot_analysis(
     show_daily_signals: bool = True,
     show_weekly_signals: bool = True,
     show_monthly_signals: bool = True,
+    show_boll: bool = True,
+    boll_window: int = 20,
+    boll_std_multiplier: float = 2.0,
+    weekly_boll_df: Optional[pd.DataFrame] = None,
+    show_weekly_boll: bool = True,
+    weekly_boll_window: int = 20,
+    weekly_boll_std_multiplier: float = 2.0,
     dpi: int = 180,
 ):
     """
@@ -2036,6 +2073,15 @@ def plot_analysis(
         symbol_name_map=symbol_name_map,
     )
 
+    plot_df = df
+    boll_columns = {"BOLL_MID", "BOLL_UPPER", "BOLL_LOWER"}
+    if show_boll and not boll_columns.issubset(df.columns):
+        plot_df = add_bollinger_bands(
+            df,
+            window=boll_window,
+            std_multiplier=boll_std_multiplier,
+        )
+
     fig, axes = plt.subplots(3, 1, figsize=(12, 8), sharex=True)
 
     # 关闭日线信号时，价格和 RSI 曲线统一使用蓝色。
@@ -2043,7 +2089,7 @@ def plot_analysis(
 
     _plot_segmented_by_rsi(
         ax=axes[0],
-        df=df,
+        df=plot_df,
         y_col="close",
         rsi_col=rsi_col,
         date_col="date",
@@ -2054,6 +2100,57 @@ def plot_analysis(
         show_points=show_points and show_daily_signals,
         color_by_rsi=daily_color_by_rsi,
     )
+
+    if show_boll and plot_df["BOLL_MID"].notna().any():
+        boll_line_specs = [
+            ("BOLL_UPPER", "#E05263"),
+            ("BOLL_LOWER", "#25AE88"),
+        ]
+        for column, color in boll_line_specs:
+            axes[0].plot(
+                plot_df["date"],
+                plot_df[column],
+                color=color,
+                linestyle=(0, (5, 3)),
+                linewidth=1.15,
+                alpha=0.92,
+                zorder=2,
+            )
+
+    if show_weekly_boll and weekly_boll_df is not None and not weekly_boll_df.empty:
+        weekly_plot_df = weekly_boll_df.copy()
+        weekly_boll_columns = {"BOLL_MID", "BOLL_UPPER", "BOLL_LOWER"}
+        if not weekly_boll_columns.issubset(weekly_plot_df.columns):
+            weekly_plot_df = add_bollinger_bands(
+                weekly_plot_df,
+                window=weekly_boll_window,
+                std_multiplier=weekly_boll_std_multiplier,
+            )
+
+        weekly_plot_df["date"] = pd.to_datetime(weekly_plot_df["date"], errors="coerce")
+        display_start = pd.to_datetime(plot_df["date"]).min()
+        display_end = pd.to_datetime(plot_df["date"]).max()
+        weekly_plot_df = weekly_plot_df.loc[
+            weekly_plot_df["date"].between(display_start, display_end)
+        ].copy()
+
+        if not weekly_plot_df.empty and weekly_plot_df["BOLL_MID"].notna().any():
+            # 周频指标在日线坐标中保持到下次周更新，避免普通折线制造跨周斜线插值。
+            weekly_boll_line_specs = [
+                ("BOLL_UPPER", "#7451B5"),
+                ("BOLL_LOWER", "#9A5C1A"),
+            ]
+            for column, color in weekly_boll_line_specs:
+                axes[0].step(
+                    weekly_plot_df["date"],
+                    weekly_plot_df[column],
+                    where="post",
+                    color=color,
+                    linestyle=(0, (8, 3, 1, 3)),
+                    linewidth=1.35,
+                    alpha=0.92,
+                    zorder=1.2,
+                )
 
     # 给周线/月线标记留出上下空间。
     axes[0].margins(y=0.20)
@@ -2111,11 +2208,11 @@ def plot_analysis(
             marker_fontsize=18,
         )
 
-    _plot_volume_bar(axes[1], df)
+    _plot_volume_bar(axes[1], plot_df)
 
     _plot_segmented_by_rsi(
         ax=axes[2],
-        df=df,
+        df=plot_df,
         y_col=rsi_col,
         rsi_col=rsi_col,
         date_col="date",
@@ -2161,6 +2258,12 @@ def rsi_analyze_index(
     do_plot: bool = True,
     show_plot: bool = True,
     show_period_markers: bool = True,
+    show_boll: bool = True,
+    boll_window: int = 20,
+    boll_std_multiplier: float = 2.0,
+    show_weekly_boll: bool = True,
+    weekly_boll_window: int = 20,
+    weekly_boll_std_multiplier: float = 2.0,
     weekly_rsi_col: str = "RSI_W",
     monthly_rsi_col: str = "RSI_M",
     signal_fetch_days: Optional[int] = None,
@@ -2277,6 +2380,14 @@ def rsi_analyze_index(
         rsi_window=daily_rsi_window,
     )
 
+    if show_boll:
+        # 在完整历史上计算后再截取展示区间，避免左侧布林带失真。
+        raw_daily_df = add_bollinger_bands(
+            raw_daily_df,
+            window=boll_window,
+            std_multiplier=boll_std_multiplier,
+        )
+
     hist = raw_daily_df.tail(days).copy()
 
     # 周线 RSI 和月线 RSI 也在完整 raw_hist 上计算。
@@ -2286,6 +2397,14 @@ def rsi_analyze_index(
         rsi_col=weekly_rsi_col,
         rsi_window=weekly_rsi_window,
     )
+
+    if show_weekly_boll:
+        # 周 BOLL 必须先在完整周线历史上计算，再交给展示区间绘制。
+        weekly_df = add_bollinger_bands(
+            weekly_df,
+            window=weekly_boll_window,
+            std_multiplier=weekly_boll_std_multiplier,
+        )
 
     monthly_df = build_period_rsi_df(
         df=raw_hist,
@@ -2396,6 +2515,13 @@ def rsi_analyze_index(
             show_daily_signals=show_daily_signals,
             show_weekly_signals=show_weekly_signals,
             show_monthly_signals=show_monthly_signals,
+            show_boll=show_boll,
+            boll_window=boll_window,
+            boll_std_multiplier=boll_std_multiplier,
+            weekly_boll_df=weekly_df,
+            show_weekly_boll=show_weekly_boll,
+            weekly_boll_window=weekly_boll_window,
+            weekly_boll_std_multiplier=weekly_boll_std_multiplier,
         )
 
     if return_signals:
