@@ -123,14 +123,14 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 
 基金估算相关脚本在交互终端中使用 Rich 进度条和表格输出；非交互环境会自动退回纯文本。需要排障并恢复传统逐行缓存日志时，可设置 `AHNS_PROGRESS=0`。
 
-`check_project.py` 是只读体检工具：检查 Python 环境、关键目录、`cache/mark.jpg`、核心缓存、邮箱配置、依赖导入、Git 状态和总入口配置。它不联网、不拉行情、不出图、不写缓存、不发邮件、不删除文件、不提交 Git。
+`check_project.py` 是只读体检工具：检查 Python 环境、关键目录、`cache/mark.jpg`、核心缓存、缓存容量与保留策略、邮箱配置、依赖导入、Git 状态和总入口配置。缓存自检会报告受管缓存的大小、条目数、配置上限、过期记录和基金池外状态键，但不会清理或改写任何缓存。它不联网、不拉行情、不出图、不写缓存、不发邮件、不删除文件、不提交 Git。
 
 `premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py` 是独立实时观察入口；在总入口命中对应窗口时，会和全天固定的 `stock_analysis.py` 一起运行，也可手动用 `--force` 调试。它们不写 `cache/fund_estimate_return_cache.json`。
 
 ## 关键文件
 
 - `git_main.py`：项目总控入口，顺序运行全部脚本，收集本次图片并发送邮件；子脚本失败会继续运行后续步骤，并在最后汇总错误输出，同步写入邮件正文；支持 `--no-send` 和 `--receiver`。
-- `check_project.py`：运行前自检入口，只检查不修改，用于确认环境、缓存、依赖、邮箱配置和流程配置是否基本正常。
+- `check_project.py`：运行前自检入口，只检查不修改，用于确认环境、缓存容量与保留策略、依赖、邮箱配置和流程配置是否基本正常。
 - `service_command_watcher.py`：小电脑服务器长期监听入口，默认监听 `gitee/main` 的 `service_command.json`，根据 `run_flag` 触发服务流程。
 - `service_runner.py`：小电脑服务器单次运行流程，负责 pull、运行 `service_main.py` 或限购/持仓缓存强刷脚本、提交允许范围内的变化、push；使用 `--refresh-fund-limit-cache` 时不运行 Service 流程、不生成图片、不发邮件。
 - `service_gui.py`：小电脑服务器一键运行图形界面，提供 Service 流程与“强制刷新限购+持仓缓存”两个按钮，均通过 `service_runner.py` 同步运行结果。

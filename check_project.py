@@ -13,14 +13,34 @@ AHNS 项目运行前自检工具。
 from __future__ import annotations
 
 import importlib
+import json
 import os
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from tools.configs.cache_policy_configs import (
+    AFTERHOURS_QUOTE_CACHE_MAX_ITEMS,
+    AFTERHOURS_QUOTE_CACHE_RETENTION_DAYS,
+    ANCHOR_CACHE_STABLE_RETENTION_DAYS,
+    FUND_ESTIMATE_HISTORY_RETENTION_DAYS,
+    INTRADAY_QUOTE_CACHE_MAX_ITEMS,
+    INTRADAY_QUOTE_CACHE_RETENTION_DAYS,
+    PREMARKET_QUOTE_CACHE_MAX_ITEMS,
+    PREMARKET_QUOTE_CACHE_RETENTION_DAYS,
+    SECURITY_DAILY_CACHE_RETENTION_DAYS,
+    SECURITY_HOURLY_CACHE_RETENTION_DAYS,
+    SECURITY_INDEX_CACHE_RETENTION_DAYS,
+)
+from tools.configs.fund_universe_configs import HAIWAI_FUND_CODES
+from tools.configs.futu_night_configs import (
+    FUTU_NIGHT_RETURN_CACHE_MAX_ITEMS,
+    FUTU_NIGHT_RETURN_CACHE_RETENTION_DAYS,
+)
 from tools.configs.workflow_configs import GITHUB_WORKFLOW_STEPS, SERVICE_WORKFLOW_STEPS
 from tools.paths import (
     CACHE_DIR,
@@ -120,6 +140,240 @@ def check_key_files() -> list[CheckItem]:
         check_path_exists(FUND_PURCHASE_LIMIT_CACHE, "基金限购缓存", required=False),
         check_path_exists(SECURITY_RETURN_CACHE, "证券涨跌幅缓存", required=False),
     ]
+
+
+def _read_json_cache_readonly(path: Path) -> tuple[object | None, str]:
+    """只读 JSON 缓存；不调用项目写缓存工具，避免体检产生副作用。"""
+    try:
+        return json.loads(path.read_text(encoding="utf-8")), ""
+    except Exception as exc:
+        return None, str(exc)
+
+
+def _normalize_check_datetime(value) -> datetime | None:
+    """将缓存中的北京时间字符串转换为可比较的无时区 datetime。"""
+    if value is None:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).strip().replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    if parsed.tzinfo is not None:
+        parsed = parsed.astimezone(ZoneInfo("Asia/Shanghai")).replace(tzinfo=None)
+    return parsed
+
+
+def _cache_check_now(now: datetime | None) -> datetime:
+    value = now or datetime.now(ZoneInfo("Asia/Shanghai"))
+    if value.tzinfo is not None:
+        return value.astimezone(ZoneInfo("Asia/Shanghai")).replace(tzinfo=None)
+    return value
+
+
+def _cache_detail(path: Path, entry_count: int, policy: str) -> str:
+    return (
+        f"{relative_path_str(path)}，{path.stat().st_size:,} bytes，"
+        f"{entry_count} 条；{policy}"
+    )
+
+
+def _get_cache_date_from_record(record) -> datetime | None:
+    if not isinstance(record, dict):
+        return None
+    for field in ("valuation_date", "run_date_bj", "trade_date", "fetched_at_bj", "fetched_at"):
+        parsed = _normalize_check_datetime(record.get(field))
+        if parsed is not None:
+            return parsed
+    return None
+
+
+def _security_retention_days_for_check(cache_key: str, record) -> int:
+    """镜像行情缓存写入侧的保留策略，仅用于只读预警。"""
+    text = str(cache_key)
+    item = record if isinstance(record, dict) else {}
+    if text.startswith("SECURITY:"):
+        status = str(item.get("status", "")).strip().lower()
+        return ANCHOR_CACHE_STABLE_RETENTION_DAYS if status in {"traded", "closed"} else SECURITY_HOURLY_CACHE_RETENTION_DAYS
+
+    market = str(item.get("market") or text.split(":", 1)[0]).strip().upper()
+    if market == "INDEX":
+        return SECURITY_INDEX_CACHE_RETENTION_DAYS
+    if re.search(r"20\d{2}-\d{2}-\d{2}-\d{1,2}", text):
+        return SECURITY_HOURLY_CACHE_RETENTION_DAYS
+    if str(item.get("valuation_mode", "")).strip().lower() == "intraday" and market in {"CN", "HK"}:
+        return SECURITY_HOURLY_CACHE_RETENTION_DAYS
+    return SECURITY_DAILY_CACHE_RETENTION_DAYS
+
+
+def _security_entry_datetime_for_check(cache_key: str, record) -> datetime | None:
+    matches = re.findall(r"(20\d{2}-\d{2}-\d{2})(?:-(\d{1,2}))?", str(cache_key))
+    if matches:
+        date_text, hour_text = matches[-1]
+        if hour_text:
+            return _normalize_check_datetime(f"{date_text}T{str(hour_text).zfill(2)}:00:00")
+        return _normalize_check_datetime(date_text)
+    if isinstance(record, dict):
+        return _normalize_check_datetime(record.get("fetched_at"))
+    return None
+
+
+def _extract_fund_codes_from_state(data, filename: str) -> set[str]:
+    """从几种状态缓存结构中提取基金代码，不把说明字段当作业务记录。"""
+    candidate_keys: list[object] = []
+    if not isinstance(data, dict):
+        return set()
+
+    if filename == "fund_holding_change_batch_state.json":
+        for batch_name in ("current", "previous"):
+            batch = data.get(batch_name)
+            if isinstance(batch, dict) and isinstance(batch.get("funds"), dict):
+                candidate_keys.extend(batch["funds"].keys())
+    elif filename == "fund_region_allocation_state.json":
+        funds = data.get("funds")
+        if isinstance(funds, dict):
+            candidate_keys.extend(funds.keys())
+    else:
+        candidate_keys.extend(data.keys())
+
+    codes = set()
+    for key in candidate_keys:
+        matched = re.match(r"^(\d{6})(?::|$)", str(key).strip())
+        if matched:
+            codes.add(matched.group(1))
+    return codes
+
+
+def check_cache_growth_policy(
+    *,
+    cache_dir: Path | None = None,
+    now: datetime | None = None,
+    active_fund_codes: set[str] | None = None,
+) -> list[CheckItem]:
+    """只读检查受管缓存的容量和保留策略，不清理、不改写也不联网。"""
+    root = Path(cache_dir) if cache_dir is not None else CACHE_DIR
+    check_now = _cache_check_now(now)
+    configured_codes = set(HAIWAI_FUND_CODES) if active_fund_codes is None else active_fund_codes
+    active_codes = {str(code).strip().zfill(6) for code in configured_codes}
+    items: list[CheckItem] = []
+
+    short_cache_specs = (
+        ("premarket_quote_cache.json", "盘前实时短缓存", PREMARKET_QUOTE_CACHE_RETENTION_DAYS, PREMARKET_QUOTE_CACHE_MAX_ITEMS),
+        ("afterhours_quote_cache.json", "盘后实时短缓存", AFTERHOURS_QUOTE_CACHE_RETENTION_DAYS, AFTERHOURS_QUOTE_CACHE_MAX_ITEMS),
+        ("intraday_quote_cache.json", "盘中实时短缓存", INTRADAY_QUOTE_CACHE_RETENTION_DAYS, INTRADAY_QUOTE_CACHE_MAX_ITEMS),
+        ("futu_night_return_cache.json", "富途夜盘短缓存", FUTU_NIGHT_RETURN_CACHE_RETENTION_DAYS, FUTU_NIGHT_RETURN_CACHE_MAX_ITEMS),
+    )
+    for filename, title, retention_days, max_items in short_cache_specs:
+        path = root / filename
+        if not path.exists():
+            continue
+        data, error = _read_json_cache_readonly(path)
+        if not isinstance(data, dict):
+            items.append(make_item("WARN", title, f"{relative_path_str(path)} 无法按映射读取: {error or '顶层不是对象'}"))
+            continue
+
+        entry_count = len(data)
+        items.append(
+            make_item(
+                "OK",
+                title,
+                _cache_detail(path, entry_count, f"写入时保留最近 {retention_days} 天，最多 {max_items} 条"),
+            )
+        )
+        expired_count = 0
+        missing_time_count = 0
+        cutoff = check_now - timedelta(days=retention_days)
+        for record in data.values():
+            fetched_at = _normalize_check_datetime(record.get("fetched_at_bj")) if isinstance(record, dict) else None
+            if fetched_at is None:
+                missing_time_count += 1
+            elif fetched_at < cutoff:
+                expired_count += 1
+        if expired_count:
+            items.append(make_item("WARN", title, f"发现 {expired_count} 条过期实时缓存；下一次写入将裁剪。"))
+        if entry_count > max_items:
+            items.append(make_item("WARN", title, f"条目数 {entry_count} 超过配置上限 {max_items}；下一次写入将裁剪。"))
+        if missing_time_count:
+            items.append(make_item("WARN", title, f"发现 {missing_time_count} 条缺少或无法解析 fetched_at_bj，保留策略无法确认。"))
+
+    estimate_path = root / "fund_estimate_return_cache.json"
+    if estimate_path.exists():
+        data, error = _read_json_cache_readonly(estimate_path)
+        if not isinstance(data, dict):
+            items.append(make_item("WARN", "基金估算历史缓存", f"{relative_path_str(estimate_path)} 无法按容器读取: {error or '顶层不是对象'}"))
+        else:
+            record_maps = {
+                "records": data.get("records"),
+                "benchmark_records": data.get("benchmark_records"),
+            }
+            count = sum(len(value) for value in record_maps.values() if isinstance(value, dict))
+            items.append(
+                make_item(
+                    "OK",
+                    "基金估算历史缓存",
+                    _cache_detail(estimate_path, count, f"records 与 benchmark_records 写入时保留最近 {FUND_ESTIMATE_HISTORY_RETENTION_DAYS} 天"),
+                )
+            )
+            cutoff = check_now - timedelta(days=FUND_ESTIMATE_HISTORY_RETENTION_DAYS)
+            expired_count = sum(
+                1
+                for record_map in record_maps.values()
+                if isinstance(record_map, dict)
+                for record in record_map.values()
+                if (record_date := _get_cache_date_from_record(record)) is not None and record_date < cutoff
+            )
+            if expired_count:
+                items.append(make_item("WARN", "基金估算历史缓存", f"发现 {expired_count} 条超过保留期的历史记录；下一次写入将裁剪。"))
+
+    security_path = root / "security_return_cache.json"
+    if security_path.exists():
+        data, error = _read_json_cache_readonly(security_path)
+        if not isinstance(data, dict):
+            items.append(make_item("WARN", "证券涨跌幅缓存", f"{relative_path_str(security_path)} 无法按映射读取: {error or '顶层不是对象'}"))
+        else:
+            items.append(
+                make_item(
+                    "OK",
+                    "证券涨跌幅缓存",
+                    _cache_detail(
+                        security_path,
+                        len(data),
+                        f"小时桶 {SECURITY_HOURLY_CACHE_RETENTION_DAYS} 天、日线 {SECURITY_DAILY_CACHE_RETENTION_DAYS} 天、指数 {SECURITY_INDEX_CACHE_RETENTION_DAYS} 天、稳定锚点 {ANCHOR_CACHE_STABLE_RETENTION_DAYS} 天",
+                    ),
+                )
+            )
+            expired_count = sum(
+                1
+                for key, record in data.items()
+                if (entry_date := _security_entry_datetime_for_check(str(key), record)) is not None
+                and entry_date < check_now - timedelta(days=_security_retention_days_for_check(str(key), record))
+            )
+            if expired_count:
+                items.append(make_item("WARN", "证券涨跌幅缓存", f"发现 {expired_count} 条超过对应保留期的记录；下一次写入将裁剪。"))
+
+    state_filenames = (
+        "fund_holding_change_state.json",
+        "fund_holding_change_batch_state.json",
+        "fund_region_allocation_state.json",
+    )
+    for filename in state_filenames:
+        path = root / filename
+        if not path.exists():
+            continue
+        data, error = _read_json_cache_readonly(path)
+        if not isinstance(data, dict):
+            items.append(make_item("WARN", "基金状态缓存", f"{relative_path_str(path)} 无法按映射读取: {error or '顶层不是对象'}"))
+            continue
+        state_codes = _extract_fund_codes_from_state(data, filename)
+        items.append(make_item("OK", "基金状态缓存", _cache_detail(path, len(state_codes), "按基金代码覆盖更新；自检不自动删除")))
+        inactive_codes = sorted(state_codes - active_codes)
+        if inactive_codes:
+            preview = "、".join(inactive_codes[:8])
+            suffix = " 等" if len(inactive_codes) > 8 else ""
+            items.append(make_item("WARN", "基金状态缓存", f"发现 {len(inactive_codes)} 条基金池外状态键（{preview}{suffix}）；未自动删除，请人工确认。"))
+
+    if not items:
+        items.append(make_item("OK", "缓存容量与保留策略", f"{relative_path_str(root)} 中未发现可检查的受管 JSON 缓存。"))
+    return items
 
 
 def check_email_config() -> list[CheckItem]:
@@ -559,6 +813,11 @@ def run_checks() -> list[CheckItem]:
             "关键资源和缓存",
             "确认水印图片和常用缓存是否存在；缺失时部分只读图可能无法生成。",
             check_key_files,
+        ),
+        (
+            "缓存容量与保留策略",
+            "只读报告受管缓存大小、条目数、过期项和基金池外状态；不清理、不改写、不联网。",
+            check_cache_growth_policy,
         ),
         (
             "总入口脚本清单",

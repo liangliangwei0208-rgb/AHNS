@@ -540,14 +540,22 @@ def _find_a_share_closed_window_start(
     today: date,
     trade_dates: set[str],
     max_lookback_days: int,
-) -> str:
+) -> str | None:
+    """找到休市区间开始日；缺少上一交易日时明确返回 None。"""
     start = today
     for _ in range(max(1, max_lookback_days)):
         previous_day = start - timedelta(days=1)
         if previous_day.isoformat() in trade_dates:
-            break
+            return start.isoformat()
         start = previous_day
-    return start.isoformat()
+    return None
+
+
+def _latest_a_share_trade_date(trade_dates: set[str]) -> date | None:
+    """取得日历中最晚的有效交易日，用于确认日历是否覆盖待判断日期。"""
+    parsed_dates = [_parse_normalized_date(value) for value in trade_dates]
+    valid_dates = [value for value in parsed_dates if value is not None]
+    return max(valid_dates) if valid_dates else None
 
 
 def _weekday_closed_dates(start_date: str, end_date: str) -> tuple[str, ...]:
@@ -617,6 +625,19 @@ def detect_overseas_holiday_estimate_window(
             calendar_source=calendar_source,
         )
 
+    # 交易日集合只列开市日，不能仅凭“今天不在集合中”就断言休市。
+    # 日历最晚日期早于今天时，可能只是缓存停在上周五，普通工作日会被误判为节假日。
+    latest_calendar_date = _latest_a_share_trade_date(trade_dates)
+    if latest_calendar_date is None or latest_calendar_date < today_date:
+        latest_text = latest_calendar_date.isoformat() if latest_calendar_date else "无有效日期"
+        return _no_holiday_window(
+            (
+                f"A股交易日历仅覆盖至 {latest_text}，未覆盖北京时间 {today_str}，"
+                "无法判断是否休市，未生成节假日累计图。"
+            ),
+            calendar_source=calendar_source,
+        )
+
     if today_str in trade_dates:
         return _no_holiday_window(
             f"{today_str} 是A股交易日，不属于“A股休市、海外有新估值”的累计场景，未生成图片。",
@@ -628,6 +649,14 @@ def detect_overseas_holiday_estimate_window(
         trade_dates=trade_dates,
         max_lookback_days=max_a_share_lookback_days,
     )
+    if start_date is None:
+        return _no_holiday_window(
+            (
+                f"在北京时间 {today_str} 前回看 {max(1, max_a_share_lookback_days)} 天"
+                "仍找不到上一A股交易日，无法判断休市区间，未生成节假日累计图。"
+            ),
+            calendar_source=calendar_source,
+        )
     end_date = today_str
 
     weekday_closed_dates = _weekday_closed_dates(start_date, end_date)

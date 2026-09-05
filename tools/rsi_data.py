@@ -631,6 +631,58 @@ def _safe_numeric(value):
     return pd.to_numeric(value, errors="coerce")
 
 
+def _parse_cn_etf_quote_date(value) -> pd.Timestamp | None:
+    """解析来源明确提供的 ETF 报价日期，拒绝只有时分秒的模糊值。"""
+    if value is None:
+        return None
+
+    # pandas 会把 "09:30:00" 这类纯时间补成运行当天；这正是周末旧报价
+    # 被误当成今日日线的来源之一，因此字符串必须包含完整的年月日。
+    if isinstance(value, str):
+        raw = value.strip()
+        if not re.search(r"\d{4}\D\d{1,2}\D\d{1,2}", raw):
+            return None
+
+    try:
+        parsed = pd.to_datetime(value, errors="coerce")
+    except Exception:
+        return None
+    if pd.isna(parsed):
+        return None
+
+    timestamp = pd.Timestamp(parsed)
+    if timestamp.tzinfo is not None:
+        timestamp = timestamp.tz_convert(ZoneInfo("Asia/Shanghai")).tz_localize(None)
+    return timestamp.normalize()
+
+
+def _beijing_day(as_of_bj=None) -> pd.Timestamp:
+    """返回传入时点或当前时点对应的北京时间自然日。"""
+    if as_of_bj is None:
+        timestamp = pd.Timestamp.now(tz=ZoneInfo("Asia/Shanghai"))
+    else:
+        timestamp = pd.Timestamp(as_of_bj)
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.tz_localize(ZoneInfo("Asia/Shanghai"))
+        else:
+            timestamp = timestamp.tz_convert(ZoneInfo("Asia/Shanghai"))
+    return timestamp.normalize().tz_localize(None)
+
+
+def _is_sse_trade_date(day: pd.Timestamp) -> bool:
+    """只在 SSE 日历明确列出该日时，才允许 ETF 临时日线入序列。"""
+    try:
+        import pandas_market_calendars as mcal
+
+        calendar = mcal.get_calendar(MARKET_CALENDAR_NAMES["CN"])
+        schedule = calendar.schedule(start_date=day.date(), end_date=day.date())
+        return schedule is not None and not schedule.empty
+    except Exception as exc:
+        # 正确性优先：日历不可用时宁可不用实时点，也不伪造假日 K 线。
+        print(f"[WARN] 无法确认 SSE 交易日，跳过 ETF 实时行情: {day.date()}, 原因: {exc}")
+        return False
+
+
 def _fetch_cn_etf_realtime_sina_row(symbol: str, retry: int = 2, sleep_seconds: float = 0.8) -> dict | None:
     """
     新浪单代码 ETF 实时行情接口。
@@ -700,14 +752,10 @@ def _fetch_cn_etf_realtime_sina_row(symbol: str, retry: int = 2, sleep_seconds: 
                 last_error = f"新浪实时行情最新价无效: latest={latest_price}"
                 continue
 
-            if not trade_date:
-                trade_date = str(pd.Timestamp.today().date())
-
-            trade_day = pd.to_datetime(trade_date, errors="coerce")
-            if pd.isna(trade_day):
-                trade_day = pd.Timestamp.today().normalize()
-            else:
-                trade_day = trade_day.normalize()
+            trade_day = _parse_cn_etf_quote_date(trade_date)
+            if trade_day is None:
+                last_error = f"新浪实时行情缺少可验证报价日期: date={trade_date!r}, time={trade_time!r}"
+                continue
 
             # 新浪有时停牌/未开盘时 open/high/low 可能为 0，用最新价兜底
             open_value = open_price if not pd.isna(open_price) and float(open_price) > 0 else latest_price
@@ -778,8 +826,20 @@ def _fetch_cn_etf_realtime_spot_row(symbol: str, retry: int = 2, sleep_seconds: 
                 last_error = f"fund_etf_spot_em 最新价无效: {symbol}"
                 continue
 
+            # 全市场快照通常没有可核验的交易日期。绝不能用本机日期补齐，
+            # 否则节假日或接口滞后时会把旧报价伪装成今天的临时日线。
+            quote_day = None
+            for date_column in ("日期", "交易日期", "交易日"):
+                if date_column in spot_df.columns:
+                    quote_day = _parse_cn_etf_quote_date(row.get(date_column))
+                    if quote_day is not None:
+                        break
+            if quote_day is None:
+                last_error = f"fund_etf_spot_em 缺少可验证报价日期: {symbol}"
+                continue
+
             return {
-                "date": pd.Timestamp.today().normalize(),
+                "date": quote_day,
                 "open": open_price if not pd.isna(open_price) else latest_price,
                 "high": high_price if not pd.isna(high_price) else latest_price,
                 "low": low_price if not pd.isna(low_price) else latest_price,
@@ -813,8 +873,8 @@ def _fetch_cn_etf_realtime_minute_row(symbol: str) -> dict | None:
     失败返回 None，不抛出异常。
     """
     s = str(symbol).strip().zfill(6)
-    now = pd.Timestamp.now()
-    today = now.normalize()
+    now = pd.Timestamp.now(tz=ZoneInfo("Asia/Shanghai"))
+    today = now.normalize().tz_localize(None)
 
     start_date = f"{today.date()} 09:30:00"
     end_date = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -850,10 +910,13 @@ def _fetch_cn_etf_realtime_minute_row(symbol: str) -> dict | None:
     }
     min_df = min_df.rename(columns=rename_map)
 
-    if "datetime" in min_df.columns:
-        min_df["datetime"] = pd.to_datetime(min_df["datetime"], errors="coerce")
-        min_df = min_df.dropna(subset=["datetime"])
-        min_df = min_df[min_df["datetime"].dt.date == today.date()]
+    if "datetime" not in min_df.columns:
+        print(f"[WARN] ETF 分时行情缺少可验证时间字段，跳过实时点: {symbol}")
+        return None
+
+    min_df["datetime"] = pd.to_datetime(min_df["datetime"], errors="coerce")
+    min_df = min_df.dropna(subset=["datetime"])
+    min_df = min_df[min_df["datetime"].dt.date == today.date()]
 
     for col in ["open", "high", "low", "close", "volume", "amount", "latest"]:
         if col in min_df.columns:
@@ -884,8 +947,13 @@ def _fetch_cn_etf_realtime_minute_row(symbol: str) -> dict | None:
     volume = min_df["volume"].sum() if "volume" in min_df.columns else np.nan
     amount = min_df["amount"].sum() if "amount" in min_df.columns else np.nan
 
+    quote_day = _parse_cn_etf_quote_date(last_row.get("datetime"))
+    if quote_day is None:
+        print(f"[WARN] ETF 分时行情报价日期无效，跳过实时点: {symbol}")
+        return None
+
     return {
-        "date": today,
+        "date": quote_day,
         "open": open_price,
         "high": high_price,
         "low": low_price,
@@ -922,13 +990,17 @@ def _get_cn_etf_realtime_row(symbol: str) -> dict | None:
     return None
 
 
-def _merge_cn_etf_realtime_today(df: pd.DataFrame, symbol: str) -> pd.DataFrame:
+def _merge_cn_etf_realtime_today(
+    df: pd.DataFrame,
+    symbol: str,
+    *,
+    as_of_bj=None,
+) -> pd.DataFrame:
     """
     将中国场内 ETF 的实时行情合并到历史日线末尾。
 
-    先尝试 fund_etf_spot_em；
-    如果实时快照接口失败，再用 fund_etf_hist_min_em 分时数据兜底。
-    如果两个实时接口都失败，则返回原始历史日线数据，不中断主流程。
+    只有报价日期等于北京时间当天，且 SSE 日历确认当天开市时才合并。
+    来源缺日期、返回旧报价、节假日或日历无法确认时，始终保留历史日线。
     """
     if df is None or df.empty:
         return df
@@ -939,7 +1011,20 @@ def _merge_cn_etf_realtime_today(df: pd.DataFrame, symbol: str) -> pd.DataFrame:
         print(f"[WARN] 无法合并 ETF 盘中实时行情，继续使用历史日线数据: {symbol}")
         return df
 
-    today = pd.Timestamp(realtime_row["date"]).normalize()
+    today = _beijing_day(as_of_bj=as_of_bj)
+    quote_day = _parse_cn_etf_quote_date(realtime_row.get("date"))
+    if quote_day is None:
+        print(f"[WARN] ETF 实时行情缺少可验证报价日期，继续使用历史日线: {symbol}")
+        return df
+    if quote_day != today:
+        print(
+            f"[WARN] ETF 实时行情日期不是北京时间当天，继续使用历史日线: "
+            f"{symbol}, quote_date={quote_day.date()}, today={today.date()}"
+        )
+        return df
+    if not _is_sse_trade_date(today):
+        print(f"[WARN] SSE 当天未开市，跳过 ETF 实时行情: {symbol}, date={today.date()}")
+        return df
 
     out = df.copy()
     out["date"] = pd.to_datetime(out["date"], errors="coerce")
