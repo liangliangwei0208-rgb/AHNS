@@ -1,225 +1,225 @@
 {
   "funds": {
-    "000043": {
-      "fingerprint": "3db4da12d5d453a22c514d58bd2ba1ff1793da991f1ab408f04102dbd9b24b56",
+    "017437": {
+      "fingerprint": "d6590d670f9dceb9468ef4cd69bb0eb71f4a7de36607520edc0650020c682d95",
       "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "001092": {
-      "fingerprint": "b85f0b02563ef02a64fb80f4224781c0897b794846fc9a62e64ca1372f7ac1f2",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "002891": {
-      "fingerprint": "a3ecba0e0797eea21dd5b1372bd257a305338e9f05e247aa608a897aa065f8b0",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "006555": {
-      "fingerprint": "14d71af6a2740c29ac9b33d63914608ec9a1940f247b23bd2a91b06115edfc54",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "006679": {
-      "fingerprint": "9700e6b70a093d2ef9645571c3295eb8fb7a5209147ec2b4dbe10700e7fce1e8",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "007844": {
-      "fingerprint": "9700e6b70a093d2ef9645571c3295eb8fb7a5209147ec2b4dbe10700e7fce1e8",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "008254": {
-      "fingerprint": "ac38b1d301957bc8540ac8a6006a05713da7acec9c76929245fd244c6ae772a4",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "008401": {
-      "fingerprint": "3b35d0c76664177939ff8c39198cf41b43cafef3e095da45a10b5f70f1084e31",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "009975": {
-      "fingerprint": "95880a6e87c92f2a7ed9b8d46f31eb163e3010bdc8a43d0b6e14e5ee8832b79e",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "012868": {
-      "fingerprint": "292b1535f30c382ffcff97d42fd5232f0e31d8b7c8cbaa31b61aa84ddc48e9b7",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
       "valid": true
     },
     "012922": {
       "fingerprint": "264b2662027f0c57c6f41e8193aa99c043ac37887454bcb2f300592576d0d3e5",
       "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "013328": {
-      "fingerprint": "9e26c04f806a9afc1f3565f49e5f9b5108725f5d5d85ffbd209f92773d71f359",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "015202": {
-      "fingerprint": "06e8bbd24eb42891a30a08261621ccaface7297c2c075f99fb57330861d3daaa",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "015205": {
-      "fingerprint": "ad0e371d2809e9d250ff9700c6dd20f2d6888bdc3396f7c5cdc975f4d20f3298",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "016665": {
-      "fingerprint": "a343282ed9510a014206152d7f270137a8ead4d8c87dd0a2e5fab641f294522b",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
       "valid": true
     },
     "016702": {
       "fingerprint": "9d695e79d2b06bc6a20ccca7baabc213a7ed35f6245e52010a6af1b44ab7d884",
       "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "017072": {
-      "fingerprint": "20bce568a46deaac1b475591228bf505275f0b5339b4f3322d58232641155b06",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "017145": {
-      "fingerprint": "3021d0d5242f32fff4a930e52fd626d1ca4ea2c107418ace8fafec88a20ed694",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "017437": {
-      "fingerprint": "d6590d670f9dceb9468ef4cd69bb0eb71f4a7de36607520edc0650020c682d95",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "017654": {
-      "fingerprint": "0c76cad191cb78c3d2f0c619fe69be42afeddf973f14d1d65e7e25f677eee3c4",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "017731": {
-      "fingerprint": "92d2799b64e7a4e498f7eeb21d2e9f3d3025fd8141d4e36e731cf204272c854f",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "018036": {
-      "fingerprint": "8b17060e34f2ee7dabeac8a4711e0779880fc121dfa778dffa316e92b39e68f8",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "018229": {
-      "fingerprint": "5f05d58670ad6caa9fd6249eb753e40f216f53400031ec26309eb2acdf3d78d8",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "018852": {
-      "fingerprint": "9700e6b70a093d2ef9645571c3295eb8fb7a5209147ec2b4dbe10700e7fce1e8",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "019231": {
-      "fingerprint": "",
-      "report_date": "",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": false
-    },
-    "021277": {
-      "fingerprint": "8ecf97ab0b5c5690d64bc9b28c9b51f993532a8e33b95b43b490b8de08ef72b5",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "021842": {
-      "fingerprint": "b3b0630c7fab8edc99b5272ff49f949228fc102d7edb3f586aa7d80499f5253a",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "022184": {
-      "fingerprint": "8929f763205819f73a34b399bcd7e85257c0e996481a636822fcdb68f037b4af",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
       "valid": true
     },
     "024239": {
       "fingerprint": "fba527331ab4dc8dc30635b838c56b7129ffe33a92ffffa8186a9484eada5268",
       "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
       "valid": true
     },
-    "118001": {
-      "fingerprint": "bcc4af7a47d6115115f89d8ce32c87c134f2791b7bb983e379071c3937e9cb7a",
+    "021842": {
+      "fingerprint": "b3b0630c7fab8edc99b5272ff49f949228fc102d7edb3f586aa7d80499f5253a",
       "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
       "valid": true
     },
-    "160140": {
-      "fingerprint": "6ed636b8734dcbacb4282c5cd04a0189a04a335f56e290b3117218d1f3ad7d46",
+    "021277": {
+      "fingerprint": "8ecf97ab0b5c5690d64bc9b28c9b51f993532a8e33b95b43b490b8de08ef72b5",
       "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
       "valid": true
     },
-    "163813": {
-      "fingerprint": "9fcb3b18999778a189699886dac63422a6771d86a2f22a956d5a8cf873d9819d",
+    "018036": {
+      "fingerprint": "8b17060e34f2ee7dabeac8a4711e0779880fc121dfa778dffa316e92b39e68f8",
       "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
       "valid": true
     },
-    "164212": {
-      "fingerprint": "749b6c9817a1a278409b59c2a6a1920ec2e99e53a45447203a40ad889b2f37e4",
+    "022184": {
+      "fingerprint": "8929f763205819f73a34b399bcd7e85257c0e996481a636822fcdb68f037b4af",
       "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
       "valid": true
     },
-    "486002": {
-      "fingerprint": "e15c7f5e3fba8a8b18b9147157f1cd922988e707babbad5a5f51c55261ed95a8",
+    "016665": {
+      "fingerprint": "a343282ed9510a014206152d7f270137a8ead4d8c87dd0a2e5fab641f294522b",
       "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "519696": {
-      "fingerprint": "eaa8f2b1b3367b519a6f29e9e987eabccd5887de6939071c56ec640b9dbd066e",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
-      "valid": true
-    },
-    "519981": {
-      "fingerprint": "2ada645fbbc19008b176a7759ff9f74d1e96a2e607ac4d76fb39897abbe005c1",
-      "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
       "valid": true
     },
     "539002": {
       "fingerprint": "b85dd5fc943ca6057d62b7f28bf98c7ba6863a4b1976e46a152212377b3d29ce",
       "report_date": "2026-06-30",
-      "last_checked_at": "2026-09-05T09:37:47+08:00",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "000043": {
+      "fingerprint": "3db4da12d5d453a22c514d58bd2ba1ff1793da991f1ab408f04102dbd9b24b56",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "013328": {
+      "fingerprint": "9e26c04f806a9afc1f3565f49e5f9b5108725f5d5d85ffbd209f92773d71f359",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "002891": {
+      "fingerprint": "a3ecba0e0797eea21dd5b1372bd257a305338e9f05e247aa608a897aa065f8b0",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "008254": {
+      "fingerprint": "ac38b1d301957bc8540ac8a6006a05713da7acec9c76929245fd244c6ae772a4",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "006555": {
+      "fingerprint": "14d71af6a2740c29ac9b33d63914608ec9a1940f247b23bd2a91b06115edfc54",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "017654": {
+      "fingerprint": "0c76cad191cb78c3d2f0c619fe69be42afeddf973f14d1d65e7e25f677eee3c4",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "015202": {
+      "fingerprint": "06e8bbd24eb42891a30a08261621ccaface7297c2c075f99fb57330861d3daaa",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "015205": {
+      "fingerprint": "ad0e371d2809e9d250ff9700c6dd20f2d6888bdc3396f7c5cdc975f4d20f3298",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "017731": {
+      "fingerprint": "92d2799b64e7a4e498f7eeb21d2e9f3d3025fd8141d4e36e731cf204272c854f",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "001092": {
+      "fingerprint": "b85f0b02563ef02a64fb80f4224781c0897b794846fc9a62e64ca1372f7ac1f2",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "519696": {
+      "fingerprint": "eaa8f2b1b3367b519a6f29e9e987eabccd5887de6939071c56ec640b9dbd066e",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "519981": {
+      "fingerprint": "2ada645fbbc19008b176a7759ff9f74d1e96a2e607ac4d76fb39897abbe005c1",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "486002": {
+      "fingerprint": "e15c7f5e3fba8a8b18b9147157f1cd922988e707babbad5a5f51c55261ed95a8",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "008401": {
+      "fingerprint": "3b35d0c76664177939ff8c39198cf41b43cafef3e095da45a10b5f70f1084e31",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "007844": {
+      "fingerprint": "9700e6b70a093d2ef9645571c3295eb8fb7a5209147ec2b4dbe10700e7fce1e8",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "006679": {
+      "fingerprint": "9700e6b70a093d2ef9645571c3295eb8fb7a5209147ec2b4dbe10700e7fce1e8",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "018852": {
+      "fingerprint": "9700e6b70a093d2ef9645571c3295eb8fb7a5209147ec2b4dbe10700e7fce1e8",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "118001": {
+      "fingerprint": "bcc4af7a47d6115115f89d8ce32c87c134f2791b7bb983e379071c3937e9cb7a",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "018229": {
+      "fingerprint": "5f05d58670ad6caa9fd6249eb753e40f216f53400031ec26309eb2acdf3d78d8",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "163813": {
+      "fingerprint": "9fcb3b18999778a189699886dac63422a6771d86a2f22a956d5a8cf873d9819d",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "017145": {
+      "fingerprint": "3021d0d5242f32fff4a930e52fd626d1ca4ea2c107418ace8fafec88a20ed694",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "009975": {
+      "fingerprint": "95880a6e87c92f2a7ed9b8d46f31eb163e3010bdc8a43d0b6e14e5ee8832b79e",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "012868": {
+      "fingerprint": "292b1535f30c382ffcff97d42fd5232f0e31d8b7c8cbaa31b61aa84ddc48e9b7",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "019231": {
+      "fingerprint": "",
+      "report_date": "",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": false
+    },
+    "164212": {
+      "fingerprint": "749b6c9817a1a278409b59c2a6a1920ec2e99e53a45447203a40ad889b2f37e4",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "017072": {
+      "fingerprint": "20bce568a46deaac1b475591228bf505275f0b5339b4f3322d58232641155b06",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
+      "valid": true
+    },
+    "160140": {
+      "fingerprint": "6ed636b8734dcbacb4282c5cd04a0189a04a335f56e290b3117218d1f3ad7d46",
+      "report_date": "2026-06-30",
+      "last_checked_at": "2026-09-06T08:12:12+08:00",
       "valid": true
     }
   },
@@ -236,7 +236,7 @@
         "018036"
       ],
       "output_file": "output/fund_region_allocation/latest/1_海外基金地区分布.png",
-      "last_generated_at": "2026-09-05T09:37:46+08:00"
+      "last_generated_at": "2026-09-06T08:12:11+08:00"
     },
     "2": {
       "signature": "3adbb5ceda488f06e0450a1a178dd564fe5b96c40bb9afecfa49e35ca7b48995",
@@ -250,7 +250,7 @@
         "008254"
       ],
       "output_file": "output/fund_region_allocation/latest/2_海外基金地区分布.png",
-      "last_generated_at": "2026-09-05T09:37:47+08:00"
+      "last_generated_at": "2026-09-06T08:12:11+08:00"
     },
     "3": {
       "signature": "e6eba015cb5a124e642cabf5d7242d9891e8519f9967ce8f05eff0d6dc3d83d1",
@@ -264,7 +264,7 @@
         "519696"
       ],
       "output_file": "output/fund_region_allocation/latest/3_海外基金地区分布.png",
-      "last_generated_at": "2026-09-05T09:37:47+08:00"
+      "last_generated_at": "2026-09-06T08:12:11+08:00"
     },
     "4": {
       "signature": "165b648e1c80bbb5fd712b8fd96b89082d39fc15b4918e45595810115eb77f86",
@@ -278,7 +278,7 @@
         "118001"
       ],
       "output_file": "output/fund_region_allocation/latest/4_海外基金地区分布.png",
-      "last_generated_at": "2026-09-05T09:37:47+08:00"
+      "last_generated_at": "2026-09-06T08:12:12+08:00"
     },
     "5": {
       "signature": "8df20c72bfcceaa7dc17314aee65c04038b031421891cf9c814913a910af229e",
@@ -292,7 +292,7 @@
         "164212"
       ],
       "output_file": "output/fund_region_allocation/latest/5_海外基金地区分布.png",
-      "last_generated_at": "2026-09-05T09:37:47+08:00"
+      "last_generated_at": "2026-09-06T08:12:12+08:00"
     },
     "6": {
       "signature": "22f07b9c10c52cbf72409b54336f98ee7c6f60adc1f4e696708f82763ee89269",
@@ -301,8 +301,8 @@
         "160140"
       ],
       "output_file": "output/fund_region_allocation/latest/6_海外基金地区分布.png",
-      "last_generated_at": "2026-09-05T09:37:47+08:00"
+      "last_generated_at": "2026-09-06T08:12:12+08:00"
     }
   },
-  "updated_at": "2026-09-05T09:37:47+08:00"
+  "updated_at": "2026-09-06T08:12:12+08:00"
 }
