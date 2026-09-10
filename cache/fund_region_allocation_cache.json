@@ -323,8 +323,8 @@
       "新兴欧洲": 0.0,
       "非洲/中东": 0.0
     },
-    "fetched_at": "2026-09-03T13:08:04+08:00",
-    "last_checked_at": "2026-09-03T13:08:04+08:00",
+    "fetched_at": "2026-09-10T13:08:11+08:00",
+    "last_checked_at": "2026-09-10T13:08:11+08:00",
     "valid": true,
     "last_error": "",
     "fingerprint": "264b2662027f0c57c6f41e8193aa99c043ac37887454bcb2f300592576d0d3e5"
@@ -473,8 +473,8 @@
       "新兴欧洲": 0.0,
       "非洲/中东": 0.0
     },
-    "fetched_at": "2026-09-03T13:08:05+08:00",
-    "last_checked_at": "2026-09-03T13:08:05+08:00",
+    "fetched_at": "2026-09-10T13:08:13+08:00",
+    "last_checked_at": "2026-09-10T13:08:13+08:00",
     "valid": true,
     "last_error": "",
     "fingerprint": "9d695e79d2b06bc6a20ccca7baabc213a7ed35f6245e52010a6af1b44ab7d884"
@@ -563,8 +563,8 @@
       "新兴欧洲": 0.0,
       "非洲/中东": 0.0
     },
-    "fetched_at": "2026-09-03T13:08:03+08:00",
-    "last_checked_at": "2026-09-03T13:08:03+08:00",
+    "fetched_at": "2026-09-10T13:08:10+08:00",
+    "last_checked_at": "2026-09-10T13:08:10+08:00",
     "valid": true,
     "last_error": "",
     "fingerprint": "d6590d670f9dceb9468ef4cd69bb0eb71f4a7de36607520edc0650020c682d95"
@@ -756,8 +756,8 @@
       "新兴欧洲": 0.0,
       "非洲/中东": 0.88
     },
-    "fetched_at": "2026-09-03T13:08:09+08:00",
-    "last_checked_at": "2026-09-03T13:08:09+08:00",
+    "fetched_at": "2026-09-10T13:08:17+08:00",
+    "last_checked_at": "2026-09-10T13:08:17+08:00",
     "valid": true,
     "last_error": "",
     "fingerprint": "8ecf97ab0b5c5690d64bc9b28c9b51f993532a8e33b95b43b490b8de08ef72b5"
@@ -786,8 +786,8 @@
       "新兴欧洲": 0.0,
       "非洲/中东": 3.07
     },
-    "fetched_at": "2026-09-03T13:08:07+08:00",
-    "last_checked_at": "2026-09-03T13:08:07+08:00",
+    "fetched_at": "2026-09-10T13:08:16+08:00",
+    "last_checked_at": "2026-09-10T13:08:16+08:00",
     "valid": true,
     "last_error": "",
     "fingerprint": "b3b0630c7fab8edc99b5272ff49f949228fc102d7edb3f586aa7d80499f5253a"
@@ -829,28 +829,28 @@
     "source_url": "https://www.morningstar.cn/fund/024239.html",
     "report_date": "2026-06-30",
     "primary_regions": {
-      "大亚洲地区": 73.1,
-      "美洲": 24.7,
+      "大亚洲地区": 74.91,
+      "美洲": 22.89,
       "大欧洲地区": 0.15,
       "未分类": 2.06
     },
     "subregions": {
       "日本": 0.0,
       "大洋洲": 0.0,
-      "发达亚洲": 3.33,
+      "发达亚洲": 5.14,
       "新兴亚洲": 69.76,
-      "北美": 24.7,
+      "北美": 22.89,
       "拉丁美洲": 0.0,
       "英国": 0.0,
       "发达欧洲": 0.15,
       "新兴欧洲": 0.0,
       "非洲/中东": 0.0
     },
-    "fetched_at": "2026-09-03T13:08:06+08:00",
-    "last_checked_at": "2026-09-03T13:08:06+08:00",
+    "fetched_at": "2026-09-10T13:08:14+08:00",
+    "last_checked_at": "2026-09-10T13:08:14+08:00",
     "valid": true,
     "last_error": "",
-    "fingerprint": "fba527331ab4dc8dc30635b838c56b7129ffe33a92ffffa8186a9484eada5268"
+    "fingerprint": "aa54a544dad86a3bd5c915d8463fafc572f825db9285542acc423f410cb21cc3"
   },
   "118001": {
     "fund_code": "118001",
