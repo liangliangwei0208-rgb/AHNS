@@ -1,115 +1,115 @@
-name: AHNS Daily Run
+# name: AHNS Daily Run
 
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: "35 22 * * *" # 21:00 UTC / 次日 05:00 北京时间
-    #- cron: "00 22 * * *" # 23:40 UTC / 次日 07:40 北京时间
+# on:
+#   workflow_dispatch:
+#   schedule:
+#     - cron: "35 22 * * *" # 21:00 UTC / 次日 05:00 北京时间
+#     #- cron: "00 22 * * *" # 23:40 UTC / 次日 07:40 北京时间
 
-permissions:
-  contents: write
+# permissions:
+#   contents: write
 
-concurrency:
-  group: ahns-daily-${{ github.ref }}
-  cancel-in-progress: false
+# concurrency:
+#   group: ahns-daily-${{ github.ref }}
+#   cancel-in-progress: false
 
-jobs:
-  run-ahns:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
+# jobs:
+#   run-ahns:
+#     runs-on: ubuntu-24.04
+#     timeout-minutes: 60
 
-    env:
-      TZ: Asia/Shanghai
-      PYTHONUNBUFFERED: "1"
-      PYTHONUTF8: "1"
-      MPLBACKEND: Agg
-      QQ_EMAIL_ACCOUNT: ${{ secrets.QQ_EMAIL_ACCOUNT }}
-      QQ_EMAIL_AUTH_CODE: ${{ secrets.QQ_EMAIL_AUTH_CODE }}
-      #QQ_EMAIL_RECEIVER: ${{ secrets.QQ_EMAIL_RECEIVER }}
+#     env:
+#       TZ: Asia/Shanghai
+#       PYTHONUNBUFFERED: "1"
+#       PYTHONUTF8: "1"
+#       MPLBACKEND: Agg
+#       QQ_EMAIL_ACCOUNT: ${{ secrets.QQ_EMAIL_ACCOUNT }}
+#       QQ_EMAIL_AUTH_CODE: ${{ secrets.QQ_EMAIL_AUTH_CODE }}
+#       #QQ_EMAIL_RECEIVER: ${{ secrets.QQ_EMAIL_RECEIVER }}
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-          cache: pip
+#       - name: Set up Python
+#         uses: actions/setup-python@v5
+#         with:
+#           python-version: "3.10"
+#           cache: pip
 
-      - name: Install system fonts
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y fonts-noto-cjk fonts-wqy-microhei
+#       - name: Install system fonts
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get install -y fonts-noto-cjk fonts-wqy-microhei
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+#       - name: Install Python dependencies
+#         run: |
+#           python -m pip install --upgrade pip
+#           pip install -r requirements.txt
 
-      - name: Compile source files
-        run: |
-          python -m py_compile \
-            git_main.py service_main.py service_runner.py service_command_watcher.py main.py premarket_fund.py intraday_fund.py afterhours_fund.py futu_night_fund.py safe_fund.py safe_holidays.py holidays.py sum_holidays.py stock_analysis.py \
-            kepu/first_pic.py kepu/kepu_sum_holidays.py kepu/kepu_xiane.py \
-            tools/*.py tools/configs/*.py
+#       - name: Compile source files
+#         run: |
+#           python -m py_compile \
+#             git_main.py service_main.py service_runner.py service_command_watcher.py main.py premarket_fund.py intraday_fund.py afterhours_fund.py futu_night_fund.py safe_fund.py safe_holidays.py holidays.py sum_holidays.py stock_analysis.py \
+#             kepu/first_pic.py kepu/kepu_sum_holidays.py kepu/kepu_xiane.py \
+#             tools/*.py tools/configs/*.py
 
-      - name: Run AHNS pipeline
-        run: python git_main.py
+#       - name: Run AHNS pipeline
+#         run: python git_main.py
 
-      - name: Commit runtime cache updates
-        if: success()
-        shell: bash
-        run: |
-          set -euo pipefail
+#       - name: Commit runtime cache updates
+#         if: success()
+#         shell: bash
+#         run: |
+#           set -euo pipefail
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+#           git config user.name "github-actions[bot]"
+#           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          rebase_origin() {
-            if git pull --rebase origin "${GITHUB_REF_NAME}"; then
-              return 0
-            fi
+#           rebase_origin() {
+#             if git pull --rebase origin "${GITHUB_REF_NAME}"; then
+#               return 0
+#             fi
 
-            if git diff --name-only --diff-filter=U | grep -q .; then
-              echo "Rebase hit conflicts; trying known runtime cache auto-merge..."
-              python sync_repos.py --resolve-cache-conflicts
-              return 0
-            fi
+#             if git diff --name-only --diff-filter=U | grep -q .; then
+#               echo "Rebase hit conflicts; trying known runtime cache auto-merge..."
+#               python sync_repos.py --resolve-cache-conflicts
+#               return 0
+#             fi
 
-            return 1
-          }
+#             return 1
+#           }
 
-          git add -A cache
+#           git add -A cache
 
-          if git diff --cached --quiet; then
-            echo "No runtime cache changes to commit."
-            exit 0
-          fi
+#           if git diff --cached --quiet; then
+#             echo "No runtime cache changes to commit."
+#             exit 0
+#           fi
 
-          git commit -m "Update runtime cache [skip ci]"
-          rebase_origin
+#           git commit -m "Update runtime cache [skip ci]"
+#           rebase_origin
 
-          for attempt in 1 2; do
-            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
-              echo "Runtime cache changes pushed."
-              exit 0
-            fi
+#           for attempt in 1 2; do
+#             if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+#               echo "Runtime cache changes pushed."
+#               exit 0
+#             fi
 
-            echo "Push failed on attempt ${attempt}; rebasing and retrying..."
-            rebase_origin
-          done
+#             echo "Push failed on attempt ${attempt}; rebasing and retrying..."
+#             rebase_origin
+#           done
 
-          echo "Failed to push runtime cache changes after retry."
-          exit 1
+#           echo "Failed to push runtime cache changes after retry."
+#           exit 1
 
-      - name: Upload generated images on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ahns-output-debug-${{ github.run_id }}
-          path: output/*.png
-          retention-days: 3
-          if-no-files-found: ignore
+#       - name: Upload generated images on failure
+#         if: failure()
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: ahns-output-debug-${{ github.run_id }}
+#           path: output/*.png
+#           retention-days: 3
+#           if-no-files-found: ignore

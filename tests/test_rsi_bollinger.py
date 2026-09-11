@@ -134,6 +134,35 @@ class BollingerBandsTests(unittest.TestCase):
             self.assertEqual([line.get_color() for line in weekly_lines], ["#7451B5", "#9A5C1A"])
             self.assertEqual([line.get_drawstyle() for line in weekly_lines], ["steps-post", "steps-post"])
 
+    def test_price_chart_hides_rsi_panel_when_disabled(self):
+        """关闭开关后，公开输出图只保留收盘价和成交量两行。"""
+        dates = pd.date_range("2026-01-01", periods=30, freq="D")
+        frame = pd.DataFrame(
+            {
+                "date": dates,
+                "close": np.linspace(100, 130, 30),
+                "volume": np.full(30, 1_000_000),
+                "RSI": np.full(30, 50.0),
+            }
+        )
+
+        with TemporaryDirectory() as temp_dir:
+            output_file = Path(temp_dir) / "two_panels.png"
+            with patch.object(rsi_data.plt, "close") as close_figure:
+                rsi_data.plot_analysis(
+                    df=frame,
+                    symbol="TEST",
+                    output_file=str(output_file),
+                    show_plot=False,
+                    show_points=False,
+                    show_daily_signals=False,
+                    show_weekly_signals=False,
+                    show_monthly_signals=False,
+                    show_rsi_panel=False,
+                )
+
+            self.assertEqual(len(close_figure.call_args.args[0].axes), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

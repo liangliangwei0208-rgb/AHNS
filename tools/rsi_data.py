@@ -28,6 +28,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib import font_manager
 from matplotlib.collections import LineCollection
+from matplotlib.patches import Rectangle
 import time
 import requests
 
@@ -36,9 +37,23 @@ from tools.configs.market_calendar_configs import (
     MARKET_CALENDAR_NAMES,
     MARKET_CLOSE_BUFFER_HOURS,
 )
+from tools.paths import VIX_DAILY_HISTORY_CACHE
 from tools.runtime_stats import record_market_event, timed_market_call
+from tools.vix_history import add_vix_moving_average_spread, fetch_vix_daily_history
 
 rule = "ME"
+
+# 价格图底缘的 VIX 极端状态带仅作风险环境提示，不改变收盘价线本身的颜色。
+VIX_STATE_BAND_NEGATIVE_COLOR = "#C63D3D"
+VIX_STATE_BAND_POSITIVE_COLOR = "#00796B"
+VIX_STATE_LONG_WINDOW = 200
+VIX_STATE_SHORT_WINDOW = 20
+VIX_STATE_BAND_BOTTOM = 0.018
+VIX_STATE_BAND_HEIGHT = 0.03
+VIX_STATE_BAND_SLOT_GAP = 0.008
+VIX_STATE_BAND_POSITIVE_BOTTOM = VIX_STATE_BAND_BOTTOM + VIX_STATE_BAND_HEIGHT + VIX_STATE_BAND_SLOT_GAP
+VIX_STATE_BAND_ALPHA = 0.68
+_VIX_STATE_HISTORY_MEMORY_CACHE: dict[int, pd.DataFrame] = {}
 
 # 默认中文名称映射；可在 rsi_analyze_index(display_name=...) 中覆盖。
 DEFAULT_SYMBOL_NAME_MAP = {
@@ -515,6 +530,137 @@ def add_bollinger_bands(
     result["BOLL_UPPER"] = middle + standard_deviation * float(std_multiplier)
     result["BOLL_LOWER"] = middle - standard_deviation * float(std_multiplier)
     return result
+
+
+def classify_vix_state_band(
+    spread_value: float | None,
+    negative_threshold: float = -5.0,
+    positive_threshold: float = 5.0,
+) -> str | None:
+    """按严格阈值识别 VIX 极端状态；阈值本身和中性值均不绘制。"""
+    try:
+        value = float(spread_value)
+    except (TypeError, ValueError):
+        return None
+
+    if not np.isfinite(value):
+        return None
+    if value < float(negative_threshold):
+        return "negative"
+    if value > float(positive_threshold):
+        return "positive"
+    return None
+
+
+def draw_vix_state_band(
+    axis,
+    price_df: pd.DataFrame,
+    vix_state_df: pd.DataFrame,
+    negative_threshold: float = -5.0,
+    positive_threshold: float = 5.0,
+    max_staleness_days: int = 0,
+) -> list[Rectangle] | None:
+    """在价格图底缘绘制 VIX 极端状态色块带，不参与价格坐标轴自动缩放。"""
+    required_state_columns = {"date", "VIX_MA_SPREAD"}
+    if (
+        price_df is None
+        or price_df.empty
+        or vix_state_df is None
+        or vix_state_df.empty
+        or "date" not in price_df.columns
+        or not required_state_columns.issubset(vix_state_df.columns)
+    ):
+        return None
+
+    price_dates = price_df.loc[:, ["date"]].copy()
+    price_dates["date"] = pd.to_datetime(price_dates["date"], errors="coerce")
+    price_dates = price_dates.dropna(subset=["date"])
+    price_dates["date"] = price_dates["date"].dt.normalize()
+    price_dates = price_dates.drop_duplicates(subset=["date"], keep="last").sort_values("date")
+
+    vix_state = vix_state_df.loc[:, ["date", "VIX_MA_SPREAD"]].copy()
+    vix_state["date"] = pd.to_datetime(vix_state["date"], errors="coerce")
+    vix_state["VIX_MA_SPREAD"] = pd.to_numeric(vix_state["VIX_MA_SPREAD"], errors="coerce")
+    vix_state = vix_state.dropna(subset=["date"])
+    vix_state["date"] = vix_state["date"].dt.normalize()
+    vix_state = vix_state.drop_duplicates(subset=["date"], keep="last").sort_values("date")
+
+    try:
+        max_staleness_days = max(0, int(max_staleness_days))
+    except (TypeError, ValueError):
+        max_staleness_days = 0
+
+    # 跨市场 ETF 可能在 VIX 休市日仍有报价。只向前取最近 VIX，避免使用未来风险状态；
+    # 默认 0 天保持原有严格同日匹配，配置开启后才允许跨短假延续。
+    data = pd.merge_asof(
+        price_dates,
+        vix_state,
+        on="date",
+        direction="backward",
+        tolerance=pd.Timedelta(days=max_staleness_days),
+    )
+    if data.empty:
+        return None
+
+    x_values = mdates.date2num(data["date"].to_numpy())
+    if len(x_values) == 1:
+        left_edges = x_values - 0.5
+        right_edges = x_values + 0.5
+    else:
+        midpoints = (x_values[:-1] + x_values[1:]) / 2
+        left_edges = np.empty(len(x_values), dtype=float)
+        right_edges = np.empty(len(x_values), dtype=float)
+        left_edges[0] = x_values[0] - (midpoints[0] - x_values[0])
+        left_edges[1:] = midpoints
+        right_edges[:-1] = midpoints
+        right_edges[-1] = x_values[-1] + (x_values[-1] - midpoints[-1])
+
+    # 红色贴近图底，深青色置于其上，避免两种风险状态共用同一视觉槽位。
+    state_bands = []
+    for index, value in enumerate(data["VIX_MA_SPREAD"]):
+        state = classify_vix_state_band(value, negative_threshold, positive_threshold)
+        if state == "negative":
+            band = (VIX_STATE_BAND_NEGATIVE_COLOR, VIX_STATE_BAND_BOTTOM)
+        elif state == "positive":
+            band = (VIX_STATE_BAND_POSITIVE_COLOR, VIX_STATE_BAND_POSITIVE_BOTTOM)
+        else:
+            band = None
+        state_bands.append(band)
+
+    color_runs: list[tuple[int, int, str, float]] = []
+    run_start = None
+    run_band = None
+    for index, band in enumerate(state_bands):
+        if band == run_band:
+            continue
+        if run_band is not None and run_start is not None:
+            color_runs.append((run_start, index - 1, *run_band))
+        run_start = index if band is not None else None
+        run_band = band
+    if run_band is not None and run_start is not None:
+        color_runs.append((run_start, len(state_bands) - 1, *run_band))
+
+    if not color_runs:
+        return None
+
+    patches = []
+    for start_index, end_index, color, band_bottom in color_runs:
+        # x 使用数据坐标、y 使用 axes fraction，色块永远贴在图底而不挤占价格空间。
+        patch = Rectangle(
+            (left_edges[start_index], band_bottom),
+            right_edges[end_index] - left_edges[start_index],
+            VIX_STATE_BAND_HEIGHT,
+            transform=axis.get_xaxis_transform(),
+            facecolor=color,
+            edgecolor="none",
+            alpha=VIX_STATE_BAND_ALPHA,
+            zorder=2.4,
+            clip_on=True,
+        )
+        # add_artist 不更新 dataLim，价格图的 x/y 自动缩放保持原样。
+        axis.add_artist(patch)
+        patches.append(patch)
+    return patches
 
 
 def _cn_index_symbol_candidates(symbol: str) -> list[str]:
@@ -2122,6 +2268,7 @@ def plot_analysis(
     show_daily_signals: bool = True,
     show_weekly_signals: bool = True,
     show_monthly_signals: bool = True,
+    show_rsi_panel: bool = True,
     show_boll: bool = True,
     boll_window: int = 20,
     boll_std_multiplier: float = 2.0,
@@ -2129,10 +2276,15 @@ def plot_analysis(
     show_weekly_boll: bool = True,
     weekly_boll_window: int = 20,
     weekly_boll_std_multiplier: float = 2.0,
+    vix_state_df: Optional[pd.DataFrame] = None,
+    show_vix_state_band: bool = False,
+    vix_state_negative_threshold: float = -5.0,
+    vix_state_positive_threshold: float = 5.0,
+    vix_state_max_staleness_days: int = 0,
     dpi: int = 180,
 ):
     """
-    输出价格、成交量、RSI 图。曲线按 RSI 阈值连续变色。
+    输出价格、成交量和可选 RSI 图。曲线按 RSI 阈值连续变色。
 
     output_two_file:
         兼容旧调用参数，当前不再生成第二张简版 RSI 图。
@@ -2167,7 +2319,9 @@ def plot_analysis(
             std_multiplier=boll_std_multiplier,
         )
 
-    fig, axes = plt.subplots(3, 1, figsize=(12, 8), sharex=True)
+    panel_count = 3 if show_rsi_panel else 2
+    figure_height = 8 if show_rsi_panel else 6
+    fig, axes = plt.subplots(panel_count, 1, figsize=(12, figure_height), sharex=True)
 
     # 关闭日线信号时，价格和 RSI 曲线统一使用蓝色。
     daily_color_by_rsi = bool(show_daily_signals)
@@ -2264,6 +2418,16 @@ def plot_analysis(
         ],
     )
 
+    if show_vix_state_band:
+        draw_vix_state_band(
+            axes[0],
+            plot_df,
+            vix_state_df,
+            vix_state_negative_threshold,
+            vix_state_positive_threshold,
+            vix_state_max_staleness_days,
+        )
+
     # 在收盘价曲线上叠加周线/月线极端区间信号。
     if show_weekly_signals:
         _annotate_period_rsi_signals(
@@ -2295,24 +2459,25 @@ def plot_analysis(
 
     _plot_volume_bar(axes[1], plot_df)
 
-    _plot_segmented_by_rsi(
-        ax=axes[2],
-        df=plot_df,
-        y_col=rsi_col,
-        rsi_col=rsi_col,
-        date_col="date",
-        rsi_high=rsi_high,
-        rsi_low=rsi_low,
-        ylabel="RSI",
-        title=f"{rsi_col}",
-        show_points=show_points and show_daily_signals,
-        color_by_rsi=daily_color_by_rsi,
-    )
+    if show_rsi_panel:
+        _plot_segmented_by_rsi(
+            ax=axes[2],
+            df=plot_df,
+            y_col=rsi_col,
+            rsi_col=rsi_col,
+            date_col="date",
+            rsi_high=rsi_high,
+            rsi_low=rsi_low,
+            ylabel="RSI",
+            title=f"{rsi_col}",
+            show_points=show_points and show_daily_signals,
+            color_by_rsi=daily_color_by_rsi,
+        )
 
-    # RSI 子图固定 0-100，便于和阈值线对照。
-    axes[2].axhline(rsi_high, linestyle="--", linewidth=1, color="red")
-    axes[2].axhline(rsi_low, linestyle="--", linewidth=1, color="black")
-    axes[2].set_ylim(0, 100)
+        # RSI 子图固定 0-100，便于和阈值线对照。
+        axes[2].axhline(rsi_high, linestyle="--", linewidth=1, color="red")
+        axes[2].axhline(rsi_low, linestyle="--", linewidth=1, color="black")
+        axes[2].set_ylim(0, 100)
 
     plt.tight_layout()
 
@@ -2343,12 +2508,17 @@ def rsi_analyze_index(
     do_plot: bool = True,
     show_plot: bool = True,
     show_period_markers: bool = True,
+    show_rsi_panel: bool = True,
     show_boll: bool = True,
     boll_window: int = 20,
     boll_std_multiplier: float = 2.0,
     show_weekly_boll: bool = True,
     weekly_boll_window: int = 20,
     weekly_boll_std_multiplier: float = 2.0,
+    show_vix_state_band: bool = False,
+    vix_state_negative_threshold: float = -5.0,
+    vix_state_positive_threshold: float = 5.0,
+    vix_state_max_staleness_days: int = 0,
     weekly_rsi_col: str = "RSI_W",
     monthly_rsi_col: str = "RSI_M",
     signal_fetch_days: Optional[int] = None,
@@ -2475,6 +2645,30 @@ def rsi_analyze_index(
 
     hist = raw_daily_df.tail(days).copy()
 
+    vix_state_df = None
+    if do_plot and show_vix_state_band:
+        # 200 日均线要在展示窗口前充分预热；同一次总运行只联网读取一次。
+        required_vix_days = max(1_000, int(days) + VIX_STATE_LONG_WINDOW + 30)
+        try:
+            cached_history = _VIX_STATE_HISTORY_MEMORY_CACHE.get(required_vix_days)
+            if cached_history is None:
+                cached_history = fetch_vix_daily_history(
+                    days=required_vix_days,
+                    cache_file=VIX_DAILY_HISTORY_CACHE,
+                )
+                _VIX_STATE_HISTORY_MEMORY_CACHE[required_vix_days] = cached_history.copy()
+            vix_state_df = add_vix_moving_average_spread(
+                cached_history,
+                long_window=VIX_STATE_LONG_WINDOW,
+                short_window=VIX_STATE_SHORT_WINDOW,
+            )
+            if vix_state_df.empty:
+                print(f"[WARN] {plot_title_name} VIX 状态带没有可用日线数据，已跳过。")
+                vix_state_df = None
+        except Exception as error:
+            print(f"[WARN] {plot_title_name} VIX 状态带获取失败，已跳过: {error}")
+            vix_state_df = None
+
     # 周线 RSI 和月线 RSI 也在完整 raw_hist 上计算。
     weekly_df = build_period_rsi_df(
         df=raw_hist,
@@ -2600,6 +2794,7 @@ def rsi_analyze_index(
             show_daily_signals=show_daily_signals,
             show_weekly_signals=show_weekly_signals,
             show_monthly_signals=show_monthly_signals,
+            show_rsi_panel=show_rsi_panel,
             show_boll=show_boll,
             boll_window=boll_window,
             boll_std_multiplier=boll_std_multiplier,
@@ -2607,6 +2802,11 @@ def rsi_analyze_index(
             show_weekly_boll=show_weekly_boll,
             weekly_boll_window=weekly_boll_window,
             weekly_boll_std_multiplier=weekly_boll_std_multiplier,
+            vix_state_df=vix_state_df,
+            show_vix_state_band=show_vix_state_band,
+            vix_state_negative_threshold=vix_state_negative_threshold,
+            vix_state_positive_threshold=vix_state_positive_threshold,
+            vix_state_max_staleness_days=vix_state_max_staleness_days,
         )
 
     if return_signals:
