@@ -90,7 +90,7 @@ def snapshot_market_events() -> list[dict]:
 def summarize_market_events(events: list[dict] | None = None) -> dict:
     events = snapshot_market_events() if events is None else [dict(item) for item in events]
     cache_hits = sum(1 for item in events if item.get("cache_hit"))
-    network_actions = {"daily_source_fetch", "rsi_network_fetch", "calendar_network_fetch"}
+    network_actions = {"daily_source_fetch", "rsi_network_fetch", "calendar_network_fetch", "vix_daily_network_fetch"}
     network_attempts = sum(
         1 for item in events
         if not item.get("cache_hit") and str(item.get("action", "")).strip() in network_actions

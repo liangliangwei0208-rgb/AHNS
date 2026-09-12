@@ -163,6 +163,7 @@ class Nasdaq100VixSpreadTests(unittest.TestCase):
             nasdaq100_vix_spread.VIX_CACHE_FILE,
             strategy_dir / "cache" / "vix_index_daily.csv",
         )
+        self.assertEqual(nasdaq100_vix_spread.DEFAULT_VIX_HISTORY_DAYS, 1_000)
 
         with patch.object(nasdaq100_vix_spread, "get_index_akshare") as get_index:
             get_index.return_value = pd.DataFrame(

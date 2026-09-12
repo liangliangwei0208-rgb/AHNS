@@ -24,6 +24,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from tools import vix_history
+from tools.configs.cache_policy_configs import VIX_DAILY_HISTORY_MAX_ROWS
 from tools.rsi_data import _setup_chinese_font, get_index_akshare
 from tools.vix_history import add_vix_moving_average_spread
 
@@ -34,7 +35,7 @@ STRATEGY_DIR = PROJECT_ROOT / "strategy"
 STRATEGY_OUTPUT_DIR = STRATEGY_DIR / "output"
 STRATEGY_CACHE_DIR = STRATEGY_DIR / "cache"
 # VIX 需要足够长的历史预热长均线；价格图只展示近期，避免压缩可读性。
-DEFAULT_VIX_HISTORY_DAYS = 3_000
+DEFAULT_VIX_HISTORY_DAYS = VIX_DAILY_HISTORY_MAX_ROWS
 DEFAULT_DISPLAY_DAYS = 220
 DEFAULT_LONG_WINDOW = 200
 DEFAULT_SHORT_WINDOW = 20

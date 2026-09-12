@@ -125,7 +125,7 @@
 - 生成：fund_holding_change.py --auto 在自动检测持仓变化后写入。
 - 读取：fund_holding_change.py, git_main.py, service_main.py
 - 刷新：首次运行只初始化当前持仓指纹；后续季度或真实披露字段指纹变化时生成持仓变化图并更新状态。
-- 保留：每个 fund_code:topN 一个 key，更新时覆盖同 key；不按日期追加。
+- 保留：每个 fund_code:topN 一个 key，指纹未变时不改写检查时间；基金池外且明确超过 365 天的手动 key 在下次写入时回收。
 - 结构：顶层是 fund_code:topN -> 状态记录，包含 latest_quarter_key、fingerprint、last_checked_at、last_image。
 - 说明位置：本 README
 - 注意：不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为基金状态。
@@ -136,7 +136,7 @@
 - 生成：tools/get_top10_holdings.py 在首次缺失或披露窗口低频试探时写入。
 - 读取：tools/get_top10_holdings.py, fund_estimate_breakdown.py
 - 刷新：非披露窗口直接复用；披露窗口内每只基金约 3 天最多试探一次。
-- 保留：每个 fund_code:topN 一个 key，更新时覆盖同 key，不按日期追加。
+- 保留：每个 fund_code:topN 一个 key，更新时覆盖同 key；基金池外且明确超过 365 天的手动 key 在下次写入时回收。
 - 结构：顶层是 fund_code:topN -> 持仓记录的映射；data_json 内保存持仓表。
 - 说明位置：本 README
 - 注意：不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为基金持仓。
@@ -146,7 +146,7 @@
 - 生成：tools/get_top10_holdings.py 解析公开网页限购文本后写入。
 - 读取：tools/get_top10_holdings.py, kepu/kepu_xiane.py
 - 刷新：默认 7 天刷新一次；新结果为未知且旧值明确时保留旧值。
-- 保留：每个基金代码一个 key，更新时覆盖同 key，不按日期追加。
+- 保留：每个基金代码一个 key，更新时覆盖同 key；基金池外且明确超过 365 天的手动 key 在下次写入时回收。
 - 结构：顶层是 fund_code -> {fetched_at, value} 的映射。
 - 说明位置：本 README
 - 注意：不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为限购记录。
@@ -156,7 +156,7 @@
 - 生成：fund_region_allocation.py 从晨星公开基金页直连解析后写入。
 - 读取：fund_region_allocation.py, git_main.py, service_main.py
 - 刷新：默认 7 天检查一次；手动使用 --refresh 可强制直连刷新。
-- 保留：按基金代码保留最近一次有效地区分布；请求失败时保留旧有效记录。
+- 保留：按基金代码保留最近一次有效地区分布；请求失败时保留旧有效记录；基金池外且明确超过 365 天的手动 key 在下次写入时回收。
 - 结构：顶层是基金代码 -> 地区记录的映射，记录 report_date、primary_regions、subregions、fingerprint 与抓取时间。
 - 说明位置：本 README
 - 注意：地区权重属于晨星股票地区分布，不包含基金现金、债券等资产。
@@ -167,7 +167,7 @@
 - 生成：fund_region_allocation.py --auto 在检测披露日期或地区权重变化后写入。
 - 读取：fund_region_allocation.py, git_main.py, service_main.py
 - 刷新：每次自动检测后更新；只记录数据指纹和分页图片状态。
-- 保留：保留当前基金池的最近状态。
+- 保留：数据指纹未变时不改写检查时间；基金池外且明确超过 365 天的状态 key 在后续自动检测时回收。
 - 结构：顶层包含 funds、pages、updated_at；pages 按稳定页码记录聚合指纹和图片路径。
 - 说明位置：本 README
 - 注意：同一基金无地区数据变化时不会重复生成或发送图片。
@@ -237,3 +237,14 @@
 - 结构：顶层是缓存 key -> 行情记录的映射，例如 SECURITY:US:NVDA:2026-05-08。
 - 说明位置：本 README
 - 注意：不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为行情记录。
+
+### `vix_index_daily.csv`
+- 用途：RSI 图 VIX 风险状态带使用的 VIX 日线历史，供 200/20 日均线计算预热。
+- 生成：tools/vix_history.py 从 Yahoo Chart 明确 1d 区间拉取后写入。
+- 读取：tools/rsi_data.py, strategy/nasdaq100_vix_spread.py
+- 刷新：缓存已覆盖最近完整美股交易日时不联网；落后时最多每 2 小时尝试一次，失败继续使用已验证旧日线。
+- 保留：始终只保留最近 1000 条交易日日线，满足 200/20 日均线预热且不会无限增长。
+- 结构：CSV 表，固定包含 date、close 两列。
+- 说明位置：本 README
+- 注意：美股完整交易日按 NYSE 日历和收盘后缓冲判断；GitHub UTC 运行环境会先换算为北京时间。
+- 注意：策略试验使用 strategy/cache/vix_index_daily.csv，主程序使用 cache/vix_index_daily.csv，二者互不覆盖。

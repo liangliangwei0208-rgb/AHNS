@@ -102,6 +102,7 @@ from tools.configs.cache_policy_configs import (
     SECURITY_HOURLY_CACHE_RETENTION_DAYS,
     SECURITY_INDEX_CACHE_RETENTION_DAYS,
 )
+from tools.configs.fund_universe_configs import HAIWAI_FUND_CODES
 from tools.configs.residual_benchmark_configs import (
     DEFAULT_RESIDUAL_BENCHMARK_KEY,
     FUND_ESTIMATION_METHOD_MAP,
@@ -112,6 +113,7 @@ from tools.configs.residual_benchmark_configs import (
 from tools.configs.security_mappings import KR_TICKER_MAP, US_TICKER_MAP
 from tools.cache_metadata import attach_cache_info
 from tools.console_display import cache_log, fund_progress, print_dataframe_table
+from tools.fund_cache_maintenance import prune_inactive_fund_records
 from tools.paths import CACHE_DIR
 from tools.runtime_stats import (
     format_market_stats_lines,
@@ -200,6 +202,14 @@ def _save_json_cache(filename: str, data) -> None:
     """
     保存 cache/*.json。
     """
+    if filename in {FUND_HOLDINGS_CACHE_FILE, FUND_PURCHASE_LIMIT_CACHE_FILE} and isinstance(data, dict):
+        pruned, removed_keys = prune_inactive_fund_records(data, active_fund_codes=HAIWAI_FUND_CODES)
+        if removed_keys:
+            # 同步更新调用方持有的 dict，避免本次运行后续写回旧 key。
+            data.clear()
+            data.update(pruned)
+            _cache_log(f"回收基金池外超期缓存: {filename}，{len(removed_keys)} 条")
+
     _ensure_cache_dir()
     path = CACHE_DIR / filename
     if path.exists() and str(filename) in _CORRUPT_JSON_CACHE_FILES:

@@ -81,7 +81,7 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "fund_estimate_breakdown.py",
         ],
         "refresh_policy": "非披露窗口直接复用；披露窗口内每只基金约 3 天最多试探一次。",
-        "retention_policy": "每个 fund_code:topN 一个 key，更新时覆盖同 key，不按日期追加。",
+        "retention_policy": "每个 fund_code:topN 一个 key，更新时覆盖同 key；基金池外且明确超过 365 天的手动 key 在下次写入时回收。",
         "data_shape": "顶层是 fund_code:topN -> 持仓记录的映射；data_json 内保存持仓表。",
         "notes": [
             "不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为基金持仓。",
@@ -96,7 +96,7 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "service_main.py",
         ],
         "refresh_policy": "首次运行只初始化当前持仓指纹；后续季度或真实披露字段指纹变化时生成持仓变化图并更新状态。",
-        "retention_policy": "每个 fund_code:topN 一个 key，更新时覆盖同 key；不按日期追加。",
+        "retention_policy": "每个 fund_code:topN 一个 key，指纹未变时不改写检查时间；基金池外且明确超过 365 天的手动 key 在下次写入时回收。",
         "data_shape": "顶层是 fund_code:topN -> 状态记录，包含 latest_quarter_key、fingerprint、last_checked_at、last_image。",
         "notes": [
             "不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为基金状态。",
@@ -128,7 +128,7 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "service_main.py",
         ],
         "refresh_policy": "默认 7 天检查一次；手动使用 --refresh 可强制直连刷新。",
-        "retention_policy": "按基金代码保留最近一次有效地区分布；请求失败时保留旧有效记录。",
+        "retention_policy": "按基金代码保留最近一次有效地区分布；请求失败时保留旧有效记录；基金池外且明确超过 365 天的手动 key 在下次写入时回收。",
         "data_shape": "顶层是基金代码 -> 地区记录的映射，记录 report_date、primary_regions、subregions、fingerprint 与抓取时间。",
         "notes": [
             "地区权重属于晨星股票地区分布，不包含基金现金、债券等资产。",
@@ -144,7 +144,7 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "service_main.py",
         ],
         "refresh_policy": "每次自动检测后更新；只记录数据指纹和分页图片状态。",
-        "retention_policy": "保留当前基金池的最近状态。",
+        "retention_policy": "数据指纹未变时不改写检查时间；基金池外且明确超过 365 天的状态 key 在后续自动检测时回收。",
         "data_shape": "顶层包含 funds、pages、updated_at；pages 按稳定页码记录聚合指纹和图片路径。",
         "notes": [
             "同一基金无地区数据变化时不会重复生成或发送图片。",
@@ -158,10 +158,25 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "kepu/kepu_xiane.py",
         ],
         "refresh_policy": "默认 7 天刷新一次；新结果为未知且旧值明确时保留旧值。",
-        "retention_policy": "每个基金代码一个 key，更新时覆盖同 key，不按日期追加。",
+        "retention_policy": "每个基金代码一个 key，更新时覆盖同 key；基金池外且明确超过 365 天的手动 key 在下次写入时回收。",
         "data_shape": "顶层是 fund_code -> {fetched_at, value} 的映射。",
         "notes": [
             "不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为限购记录。",
+        ],
+    },
+    "vix_index_daily.csv": {
+        "purpose": "RSI 图 VIX 风险状态带使用的 VIX 日线历史，供 200/20 日均线计算预热。",
+        "producer": "tools/vix_history.py 从 Yahoo Chart 明确 1d 区间拉取后写入。",
+        "consumers": [
+            "tools/rsi_data.py",
+            "strategy/nasdaq100_vix_spread.py",
+        ],
+        "refresh_policy": "缓存已覆盖最近完整美股交易日时不联网；落后时最多每 2 小时尝试一次，失败继续使用已验证旧日线。",
+        "retention_policy": "始终只保留最近 1000 条交易日日线，满足 200/20 日均线预热且不会无限增长。",
+        "data_shape": "CSV 表，固定包含 date、close 两列。",
+        "notes": [
+            "美股完整交易日按 NYSE 日历和收盘后缓冲判断；GitHub UTC 运行环境会先换算为北京时间。",
+            "策略试验使用 strategy/cache/vix_index_daily.csv，主程序使用 cache/vix_index_daily.csv，二者互不覆盖。",
         ],
     },
     "premarket_quote_cache.json": {

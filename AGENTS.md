@@ -196,7 +196,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `tools/configs/fund_holding_change_style_configs.py`：前十大持仓变化图的专属竖屏样式配置。`canvas_width_px` 控制实际导出宽度，四个 `*_margin_px` 独立控制四边安全区，`export_dpi` 写入 PNG 元数据；它不影响 safe 或实时观察图。
 - `tools/configs/fund_region_allocation_configs.py`：晨星地区分布的直连地址、超时、重试、地区层级和配色；直连请求不继承环境代理。
 - `tools/configs/fund_region_allocation_style_configs.py`：地区分布图的 1080 竖版尺寸、顶部安全区、四边边距、每页基金数、卡片高度/间距、字号、鱼师图像水印和导出 DPI。
-- `tools/configs/cache_policy_configs.py`：缓存有效期配置。限购缓存 7 天、A 股交易日历 7 天、证券/指数/基金历史保留天数、RSI ETF 实时补点新鲜度等都从这里维护。
+- `tools/configs/cache_policy_configs.py`：缓存有效期与容量上限配置。限购缓存 7 天、A 股交易日历 7 天、VIX 日线最多 1000 条且落后后两小时重试、基金池外手动 key 保留 365 天、证券/指数/基金历史保留天数、RSI ETF 实时补点新鲜度等都从这里维护。
 - `tools/configs/security_mappings.py`：美股 / 韩国证券代码映射；韩国六位数字代码需要配合名称别名匹配，避免误判 A 股。
 - `tools/configs/rsi_configs.py`：市场 RSI 图标的配置。
 - `tools/configs/market_calendar_configs.py`：市场交易日历名称、收盘缓冲、韩国节假日置零策略。

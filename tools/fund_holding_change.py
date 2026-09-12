@@ -24,6 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 from tools.console_display import print_key_values, print_records_table, print_stage
 from tools.configs.fund_holding_change_style_configs import HOLDING_CHANGE_IMAGE_STYLE
 from tools.configs.fund_universe_configs import HAIWAI_FUND_CODES
+from tools.fund_cache_maintenance import prune_inactive_fund_records, write_json_if_changed
 from tools.get_top10_holdings import detect_market_and_ticker, fetch_fund_stock_holdings_frames, quarter_key
 from tools.paths import (
     FUND_ESTIMATE_CACHE,
@@ -156,9 +157,8 @@ def _load_json(path: Path, default: Any) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _write_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+def _write_json(path: Path, data: Any) -> bool:
+    return write_json_if_changed(path, data)
 
 
 def _cached_period_from_item(fund_code: str, top_n: int, item: dict[str, Any]) -> HoldingPeriod | None:
@@ -1263,9 +1263,17 @@ def run_auto_holding_change(*, top_n: int, force_fund_code: str = "") -> int:
     if not isinstance(holdings_cache, dict):
         raise RuntimeError(f"持仓缓存格式异常: {relative_path_str(FUND_HOLDINGS_CACHE)}")
 
-    state = _load_change_state()
-    batch_state = {} if force_fund_code else _load_batch_state()
     pool_fund_codes = [_normalize_fund_code(code) for code in HAIWAI_FUND_CODES]
+    active_fund_codes = set(pool_fund_codes)
+    if force_fund_code:
+        active_fund_codes.add(_normalize_fund_code(force_fund_code))
+    state, removed_state_keys = prune_inactive_fund_records(
+        _load_change_state(),
+        active_fund_codes=active_fund_codes,
+    )
+    if removed_state_keys:
+        print(f"[HOLDING_CHANGE] 回收基金池外超期状态 {len(removed_state_keys)} 条", flush=True)
+    batch_state = {} if force_fund_code else _load_batch_state()
     fund_pool_count = len(pool_fund_codes)
     fund_codes = [force_fund_code] if force_fund_code else pool_fund_codes
     initialized = 0
@@ -1322,8 +1330,7 @@ def run_auto_holding_change(*, top_n: int, force_fund_code: str = "") -> int:
         same_quarter = int(previous.get("latest_quarter_key") or -1) == int(period.quarter_key)
         same_fingerprint = str(previous.get("fingerprint") or "") == str(new_entry.get("fingerprint") or "")
         if same_quarter and same_fingerprint:
-            previous["last_checked_at"] = new_entry["last_checked_at"]
-            state[state_key] = previous
+            # 只读持仓缓存且指纹未变时，不改检查时间，避免制造 Git 缓存提交。
             unchanged += 1
             continue
 

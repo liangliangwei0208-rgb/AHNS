@@ -12,6 +12,7 @@ AHNS 项目运行前自检工具。
 
 from __future__ import annotations
 
+import csv
 import importlib
 import json
 import os
@@ -28,6 +29,7 @@ from tools.configs.cache_policy_configs import (
     AFTERHOURS_QUOTE_CACHE_RETENTION_DAYS,
     ANCHOR_CACHE_STABLE_RETENTION_DAYS,
     FUND_ESTIMATE_HISTORY_RETENTION_DAYS,
+    INACTIVE_FUND_CACHE_RETENTION_DAYS,
     INTRADAY_QUOTE_CACHE_MAX_ITEMS,
     INTRADAY_QUOTE_CACHE_RETENTION_DAYS,
     PREMARKET_QUOTE_CACHE_MAX_ITEMS,
@@ -35,6 +37,7 @@ from tools.configs.cache_policy_configs import (
     SECURITY_DAILY_CACHE_RETENTION_DAYS,
     SECURITY_HOURLY_CACHE_RETENTION_DAYS,
     SECURITY_INDEX_CACHE_RETENTION_DAYS,
+    VIX_DAILY_HISTORY_MAX_ROWS,
 )
 from tools.configs.fund_universe_configs import HAIWAI_FUND_CODES
 from tools.configs.futu_night_configs import (
@@ -42,6 +45,7 @@ from tools.configs.futu_night_configs import (
     FUTU_NIGHT_RETURN_CACHE_RETENTION_DAYS,
 )
 from tools.configs.workflow_configs import GITHUB_WORKFLOW_STEPS, SERVICE_WORKFLOW_STEPS
+from tools.fund_cache_maintenance import prune_inactive_fund_records
 from tools.paths import (
     CACHE_DIR,
     FUND_ESTIMATE_CACHE,
@@ -256,6 +260,41 @@ def check_cache_growth_policy(
     active_codes = {str(code).strip().zfill(6) for code in configured_codes}
     items: list[CheckItem] = []
 
+    if root.exists():
+        total_bytes = sum(path.stat().st_size for path in root.iterdir() if path.is_file())
+        items.append(
+            make_item(
+                "OK",
+                "缓存目录总大小",
+                f"缓存目录总大小：{total_bytes:,} bytes；体检只读，不会清理或改写缓存。",
+            )
+        )
+
+    vix_daily_path = root / "vix_index_daily.csv"
+    if vix_daily_path.exists():
+        try:
+            with vix_daily_path.open("r", encoding="utf-8-sig", newline="") as file_obj:
+                reader = csv.reader(file_obj)
+                next(reader, None)
+                row_count = sum(1 for row in reader if any(str(value).strip() for value in row))
+            items.append(
+                make_item(
+                    "OK",
+                    "VIX 日线缓存",
+                    _cache_detail(vix_daily_path, row_count, f"写入时最多保留 {VIX_DAILY_HISTORY_MAX_ROWS} 条日线，供 200/20 日均线预热"),
+                )
+            )
+            if row_count > VIX_DAILY_HISTORY_MAX_ROWS:
+                items.append(
+                    make_item(
+                        "WARN",
+                        "VIX 日线缓存",
+                        f"发现 {row_count} 条日线，超过上限 {VIX_DAILY_HISTORY_MAX_ROWS}；下一次 VIX 缓存命中或刷新时将裁剪。",
+                    )
+                )
+        except OSError as error:
+            items.append(make_item("WARN", "VIX 日线缓存", f"{relative_path_str(vix_daily_path)} 无法读取: {error}"))
+
     short_cache_specs = (
         ("premarket_quote_cache.json", "盘前实时短缓存", PREMARKET_QUOTE_CACHE_RETENTION_DAYS, PREMARKET_QUOTE_CACHE_MAX_ITEMS),
         ("afterhours_quote_cache.json", "盘后实时短缓存", AFTERHOURS_QUOTE_CACHE_RETENTION_DAYS, AFTERHOURS_QUOTE_CACHE_MAX_ITEMS),
@@ -350,8 +389,48 @@ def check_cache_growth_policy(
             if expired_count:
                 items.append(make_item("WARN", "证券涨跌幅缓存", f"发现 {expired_count} 条超过对应保留期的记录；下一次写入将裁剪。"))
 
-    state_filenames = (
+    keyed_cache_filenames = (
+        "fund_holdings_cache.json",
+        "fund_purchase_limit_cache.json",
         "fund_holding_change_state.json",
+        "fund_region_allocation_cache.json",
+    )
+    for filename in keyed_cache_filenames:
+        path = root / filename
+        if not path.exists():
+            continue
+        data, error = _read_json_cache_readonly(path)
+        if not isinstance(data, dict):
+            items.append(make_item("WARN", "基金 key 型缓存", f"{relative_path_str(path)} 无法按映射读取: {error or '顶层不是对象'}"))
+            continue
+        fund_codes = _extract_fund_codes_from_state(data, filename)
+        items.append(
+            make_item(
+                "OK",
+                "基金 key 型缓存",
+                _cache_detail(path, len(fund_codes), f"按基金代码覆盖；基金池外且明确超过 {INACTIVE_FUND_CACHE_RETENTION_DAYS} 天的 key 在下次写入时回收"),
+            )
+        )
+        inactive_codes = sorted(fund_codes - active_codes)
+        if inactive_codes:
+            preview = "、".join(inactive_codes[:8])
+            suffix = " 等" if len(inactive_codes) > 8 else ""
+            items.append(make_item("WARN", "基金 key 型缓存", f"发现 {len(inactive_codes)} 条基金池外 key（{preview}{suffix}）；本次只读，不会删除。"))
+        _, expired_keys = prune_inactive_fund_records(
+            data,
+            active_fund_codes=active_codes,
+            now=check_now,
+        )
+        if expired_keys:
+            items.append(
+                make_item(
+                    "WARN",
+                    "基金 key 型缓存",
+                    f"发现 {len(expired_keys)} 条基金池外且超过 {INACTIVE_FUND_CACHE_RETENTION_DAYS} 天的 key；下一次写入将回收。",
+                )
+            )
+
+    state_filenames = (
         "fund_holding_change_batch_state.json",
         "fund_region_allocation_state.json",
     )

@@ -29,6 +29,17 @@ FUND_HOLDINGS_CACHE_DAYS = 75
 # 该缓存用于海外基金地区分布对比图，不参与基金收益估算。
 FUND_REGION_ALLOCATION_CACHE_DAYS = 7
 
+# 基金 key 型缓存（持仓、限购、状态、地区分布）中，基金池外的手动记录仍保留
+# 一段时间。超过该期限才会在下次写入相关缓存时回收，避免这些映射长期累积。
+INACTIVE_FUND_CACHE_RETENTION_DAYS = 365
+
+# VIX 日线只会在美股完整交易日后更新。缓存落后时，最多隔两小时再试一次，
+# 兼顾 Yahoo 延迟发布与全天 RSI 流程的重复请求控制。
+VIX_DAILY_STALE_RETRY_HOURS = 2
+
+# VIX 的 200/20 日均线只需有限预热历史；日线 CSV 始终只保留最近约 1000 个交易日。
+VIX_DAILY_HISTORY_MAX_ROWS = 1_000
+
 # A 股交易日历文件缓存有效期。过期后才主动刷新 AkShare 日历。
 A_SHARE_TRADE_CALENDAR_CACHE_DAYS = 7
 
@@ -64,6 +75,9 @@ __all__ = [
     "FUND_PURCHASE_LIMIT_CACHE_DAYS",
     "FUND_HOLDINGS_CACHE_DAYS",
     "FUND_REGION_ALLOCATION_CACHE_DAYS",
+    "INACTIVE_FUND_CACHE_RETENTION_DAYS",
+    "VIX_DAILY_STALE_RETRY_HOURS",
+    "VIX_DAILY_HISTORY_MAX_ROWS",
     "A_SHARE_TRADE_CALENDAR_CACHE_DAYS",
     "RSI_CN_ETF_REALTIME_CACHE_MAX_AGE_DAYS",
     "PREMARKET_QUOTE_CACHE_TTL_MINUTES",

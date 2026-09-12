@@ -37,6 +37,7 @@ from tools.configs.fund_region_allocation_configs import (
 from tools.configs.fund_region_allocation_style_configs import FUND_REGION_ALLOCATION_IMAGE_STYLE
 from tools.configs.fund_universe_configs import HAIWAI_FUND_CODES
 from tools.console_display import print_key_values, print_records_table, print_stage
+from tools.fund_cache_maintenance import prune_inactive_fund_records, write_json_if_changed
 from tools.paths import (
     FUND_ESTIMATE_CACHE,
     FUND_REGION_ALLOCATION_CACHE,
@@ -112,9 +113,8 @@ def _load_json(path: Path, default: Any) -> Any:
         return default
 
 
-def _write_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+def _write_json(path: Path, data: Any) -> bool:
+    return write_json_if_changed(path, data)
 
 
 def _record_fingerprint(record: dict[str, Any]) -> str:
@@ -310,6 +310,10 @@ def _resolve_records(
     cache = _load_json(FUND_REGION_ALLOCATION_CACHE, {})
     if not isinstance(cache, dict):
         cache = {}
+    active_codes = set(_candidate_fund_codes()) | set(fund_codes)
+    cache, removed_cache_keys = prune_inactive_fund_records(cache, active_fund_codes=active_codes)
+    if removed_cache_keys:
+        print(f"[MORNINGSTAR] 回收基金池外超期地区缓存 {len(removed_cache_keys)} 条", flush=True)
     names = _fund_names_from_estimate_cache()
     errors: list[dict[str, str]] = []
     now = datetime.now().astimezone()
@@ -883,13 +887,40 @@ def _load_state() -> dict[str, Any]:
     return state
 
 
-def _record_state_item(record: dict[str, Any]) -> dict[str, Any]:
-    return {
+def _record_state_item(record: dict[str, Any], *, previous: dict[str, Any] | None = None) -> dict[str, Any]:
+    item = {
         "fingerprint": str(record.get("fingerprint", "")),
         "report_date": str(record.get("report_date", "")),
-        "last_checked_at": _now_text(),
         "valid": bool(record.get("valid", False)),
     }
+    if isinstance(previous, dict) and all(previous.get(key) == value for key, value in item.items()):
+        # 数据和发布状态均未变时，沿用旧检查时间，避免产生无意义的同步改动。
+        return dict(previous)
+    item["last_checked_at"] = _now_text()
+    return item
+
+
+def _build_next_state_funds(
+    records: dict[str, dict[str, Any]],
+    previous_funds: dict[str, Any],
+    *,
+    active_fund_codes: Iterable[str],
+    now: datetime | None = None,
+) -> tuple[dict[str, Any], list[str]]:
+    """合并本轮检测结果，并保留尚在保留期内的手动基金状态。"""
+    next_funds = {
+        str(code): dict(item)
+        for code, item in previous_funds.items()
+        if isinstance(item, dict)
+    }
+    for code, record in records.items():
+        previous = next_funds.get(code) if isinstance(next_funds.get(code), dict) else None
+        next_funds[code] = _record_state_item(record, previous=previous)
+    return prune_inactive_fund_records(
+        next_funds,
+        active_fund_codes=active_fund_codes,
+        now=now,
+    )
 
 
 def _records_for_page(page: RegionPage, records: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
@@ -913,7 +944,11 @@ def run_auto(*, refresh: bool = False) -> int:
     records, errors = _resolve_records(fund_codes, refresh=refresh)
     pages = _pages_for_codes(fund_codes)
     state = _load_state()
-    page_state = state.get("pages", {}) if isinstance(state.get("pages"), dict) else {}
+    prior_funds = state.get("funds", {}) if isinstance(state.get("funds"), dict) else {}
+    page_state = {
+        str(key): dict(value) if isinstance(value, dict) else value
+        for key, value in (state.get("pages", {}) if isinstance(state.get("pages"), dict) else {}).items()
+    }
     changed_pages: list[Path] = []
 
     for page in pages:
@@ -945,10 +980,19 @@ def run_auto(*, refresh: bool = False) -> int:
             "last_generated_at": _now_text(),
         }
 
-    state["funds"] = {code: _record_state_item(record) for code, record in records.items()}
-    state["pages"] = page_state
-    state["updated_at"] = _now_text()
-    _write_json(FUND_REGION_ALLOCATION_STATE_CACHE, state)
+    next_funds, removed_state_keys = _build_next_state_funds(
+        records,
+        prior_funds,
+        active_fund_codes=fund_codes,
+    )
+    next_state = dict(state)
+    next_state["funds"] = next_funds
+    next_state["pages"] = page_state
+    if next_funds != prior_funds or page_state != state.get("pages", {}):
+        next_state["updated_at"] = _now_text()
+    _write_json(FUND_REGION_ALLOCATION_STATE_CACHE, next_state)
+    if removed_state_keys:
+        print(f"[MORNINGSTAR] 回收基金池外超期地区状态 {len(removed_state_keys)} 条", flush=True)
     print_key_values(
         "晨星地区分布自动检测汇总",
         [

@@ -360,7 +360,7 @@ GitHub 仓库需要在 Settings -> Secrets and variables -> Actions -> Secrets �
 - `tools/configs/fund_holding_change_style_configs.py`：维护前十大持仓变化图的竖屏发布尺寸、四边安全边距和 PNG 导出 DPI；不影响 safe 或实时观察图。
 - `tools/configs/fund_region_allocation_configs.py`：维护晨星地区分布直连地址、超时、重试、地区层级及颜色；请求固定不继承环境代理。
 - `tools/configs/fund_region_allocation_style_configs.py`：维护地区图的 1080 竖版尺寸、安全边距、每页基金数、卡片尺寸、字号、鱼师图像水印和 PNG DPI。
-- `tools/configs/cache_policy_configs.py`：维护缓存有效期。限购 7 天、A 股交易日历 7 天、证券/指数/基金历史保留天数、RSI ETF 实时补点新鲜度等都集中在这里。
+- `tools/configs/cache_policy_configs.py`：维护缓存有效期和容量上限。限购 7 天、A 股交易日历 7 天、VIX 日线 1000 条与 2 小时落后重试、基金池外手动 key 365 天保留、证券/指数/基金历史保留天数、RSI ETF 实时补点新鲜度等都集中在这里。
 - `tools/configs/security_mappings.py`：维护美股 / 韩国证券映射。
 - `tools/configs/rsi_configs.py`：维护 RSI 图标的列表。
 - `tools/cache_metadata.py`：维护缓存文件说明，并生成 `cache/README.md`。只有安全容器型 JSON 会内嵌 `_cache_info`，key-map JSON 和 CSV 不改变结构。
@@ -591,10 +591,11 @@ Matplotlib 表格和 RSI 图默认使用 180 DPI，科普图使用 Pillow 固定
 - `a_share_trade_calendar_cache.json` 保存 A 股交易日历，字段包含 `fetched_at`、`source`、`trade_dates`。默认 7 天有效；这是节假日判断和节后补更新判断的重要降频缓存。
 - `fund_estimate_return_cache.json` 和 `a_share_trade_calendar_cache.json` 会内嵌 `_cache_info` 说明；`security_return_cache.json`、持仓缓存、限购缓存和 CSV 不内嵌说明，统一由 `cache/README.md` 描述，避免破坏读取逻辑。
 - `*_index_daily.csv` 是 RSI/指数行情 CSV 缓存。主流程会优先读缓存，只有缓存不满足当前运行需求时才联网刷新。
+- `vix_index_daily.csv` 是 VIX 风险状态带的独立日线缓存：按最近完整美股交易日判断是否命中；缓存落后时两小时最多联网重试一次，失败继续使用有效旧日线。主程序与策略试验各自保留最近 1000 条交易日，纳指策略图仍只展示最新 220 个交易日。
 - 实时观察短缓存 TTL 保持 15 分钟：盘前、盘中、盘后分别使用独立 quote cache，富途夜盘使用 `futu_night_return_cache.json`；旧 `night_quote_cache.json` 是 legacy 缓存，不再由当前代码写入。
 - `output/failed_holdings_latest.txt` 每轮海外基金估算后覆盖写入，包含运行汇总、行情请求统计、唯一证券汇总和失败/未完成持仓明细。它是本地排查文件，不进入邮件正文。
 - 行情请求统计只保存在当前 Python 进程内，不写 JSON；用于控制台摘要和 `failed_holdings_latest.txt`。
-- 指数行情和基金估算历史保留 300 天；证券日缓存、小时桶缓存、限购缓存和 A 股交易日历按各自策略裁剪或覆盖写入，不会无限制追加。
+- 指数行情和基金估算历史保留 300 天；VIX 日线固定最多 1000 条；证券日缓存、小时桶缓存、限购缓存和 A 股交易日历按各自策略裁剪或覆盖写入。基金 key 型持仓、限购和地区分布缓存会保留当前基金池及 365 天内手动基金记录，不会无限制追加。
 - Actions 运行后会自动回推缓存变化。
 
 ## 估算拆解与排错
