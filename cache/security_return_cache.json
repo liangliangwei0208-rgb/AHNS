@@ -143254,5 +143254,29 @@
     "calendar_is_open": true,
     "error": "trade_date=2026-08-14 与 valuation_anchor_date=2026-09-15 不一致",
     "fetched_at": "2026-09-16T08:35:24+08:00"
+  },
+  "SECURITY:HK:06857:2026-09-16": {
+    "market": "HK",
+    "ticker": "06857",
+    "valuation_anchor_date": "2026-09-16",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-16T13:58:18+08:00"
+  },
+  "SECURITY:HK:06976:2026-09-16": {
+    "market": "HK",
+    "ticker": "06976",
+    "valuation_anchor_date": "2026-09-16",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-16T13:58:22+08:00"
   }
 }
