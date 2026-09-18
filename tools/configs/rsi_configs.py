@@ -28,7 +28,7 @@ RSI_ANALYSIS_CONFIGS = [
             "show_weekly_signals": True,
             "show_monthly_signals": True,
             # 主程序默认只输出收盘价与成交量；想恢复本图底部 RSI 时改为 True。
-            "show_rsi_panel": False,
+            "show_rsi_panel": True,
             # 收盘价子图的 BOLL(20,2)；可按单个标的关闭或调整参数。
             "show_boll": True,
             "boll_window": 20,
@@ -72,7 +72,7 @@ RSI_ANALYSIS_CONFIGS = [
             "show_weekly_signals": True,
             "show_monthly_signals": True,
             # 想恢复本图底部 RSI 时改为 True。
-            "show_rsi_panel": False,
+            "show_rsi_panel": True,
             "show_boll": True,
             "boll_window": 20,
             "boll_std_multiplier": 2.0,
@@ -117,7 +117,7 @@ RSI_ANALYSIS_CONFIGS = [
             "show_weekly_signals": True,
             "show_monthly_signals": True,
             # 想恢复本图底部 RSI 时改为 True。
-            "show_rsi_panel": False,
+            "show_rsi_panel": True,
             "show_boll": True,
             "boll_window": 20,
             "boll_std_multiplier": 2.0,
@@ -161,7 +161,7 @@ RSI_ANALYSIS_CONFIGS = [
             "show_weekly_signals": True,
             "show_monthly_signals": True,
             # 想恢复本图底部 RSI 时改为 True。
-            "show_rsi_panel": False,
+            "show_rsi_panel": True,
             "show_boll": True,
             "boll_window": 20,
             "boll_std_multiplier": 2.0,
@@ -205,7 +205,7 @@ RSI_ANALYSIS_CONFIGS = [
             "show_weekly_signals": True,
             "show_monthly_signals": True,
             # 想恢复本图底部 RSI 时改为 True。
-            "show_rsi_panel": False,
+            "show_rsi_panel": True,
             "show_boll": True,
             "boll_window": 20,
             "boll_std_multiplier": 2.0,
@@ -249,7 +249,7 @@ RSI_ANALYSIS_CONFIGS = [
             "show_weekly_signals": True,
             "show_monthly_signals": True,
             # 想恢复本图底部 RSI 时改为 True。
-            "show_rsi_panel": False,
+            "show_rsi_panel": True,
             "show_boll": True,
             "boll_window": 20,
             "boll_std_multiplier": 2.0,
