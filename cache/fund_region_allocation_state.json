@@ -295,14 +295,14 @@
       "last_generated_at": "2026-09-11T08:34:04+08:00"
     },
     "6": {
-      "signature": "22f07b9c10c52cbf72409b54336f98ee7c6f60adc1f4e696708f82763ee89269",
+      "signature": "cd247f3054daba5d1e4b2b58acf2fd65fdf085c7f1e3169e6487465c891ee1bd",
       "fund_codes": [
         "017072",
         "160140"
       ],
       "output_file": "output/fund_region_allocation/latest/6_海外基金地区分布.png",
-      "last_generated_at": "2026-09-11T08:34:04+08:00"
+      "last_generated_at": "2026-09-21T12:24:15+08:00"
     }
   },
-  "updated_at": "2026-09-12T08:45:07+08:00"
+  "updated_at": "2026-09-21T12:24:15+08:00"
 }
