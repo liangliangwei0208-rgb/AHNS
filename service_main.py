@@ -19,6 +19,7 @@ def main(argv: list[str] | None = None) -> int:
         entry_name="service_main.py",
         workflow_label="Service 小电脑",
         workflow_steps=SERVICE_WORKFLOW_STEPS,
+        service_mode=True,
     )
 
 
