@@ -784,6 +784,39 @@ def _latest_complete_market_session(market: str, now=None, lookback_days: int = 
     return pd.Timestamp(complete.index[-1]).strftime("%Y-%m-%d")
 
 
+def determine_latest_complete_cross_market_session(
+    markets=("US", "CN", "HK", "KR"), now=None, lookback_days: int = 15,
+) -> str:
+    """假期估算锚点：当天所有开市市场均收盘后才使用该日期。"""
+    now_bj = _beijing_now(now)
+    now_utc = pd.Timestamp(now_bj.astimezone(timezone.utc))
+    for days_back in range(max(1, int(lookback_days)) + 1):
+        candidate = (now_bj.date() - timedelta(days=days_back)).isoformat()
+        any_open = False
+        all_complete = True
+        for market in markets:
+            market_norm = str(market).strip().upper()
+            try:
+                schedule = _market_schedule(market_norm, candidate, candidate)
+            except Exception as exc:
+                raise RuntimeError(f"{market_norm} 交易日历读取失败: {exc}") from exc
+            if schedule is None or schedule.empty:
+                continue
+            if "market_close" not in schedule.columns:
+                raise RuntimeError(f"{market_norm} 交易日历缺少收盘时间: {candidate}")
+            any_open = True
+            close_utc = pd.Timestamp(schedule.iloc[-1]["market_close"])
+            if close_utc.tzinfo is None:
+                close_utc = close_utc.tz_localize("UTC")
+            complete_after = close_utc.tz_convert("UTC") + pd.Timedelta(hours=MARKET_CLOSE_BUFFER_HOURS)
+            if complete_after > now_utc:
+                all_complete = False
+        if any_open and all_complete:
+            _cache_log(f"假期跨市场完整估值锚点: {candidate}")
+            return candidate
+    raise RuntimeError("回看范围内没有可核实的完整跨市场交易日")
+
+
 def determine_latest_valuation_anchor_date(markets=("US", "CN", "HK", "KR"), now=None) -> str:
     """
     确定本次海外/全球基金估算使用的全表统一估值锚点。
@@ -791,6 +824,9 @@ def determine_latest_valuation_anchor_date(markets=("US", "CN", "HK", "KR"), now
     取相关市场中最近一个已过“收盘 + 缓冲时间”的完整交易日；如果所有市场
     都没有完整交易日，返回空字符串，由调用方跳过写入有效收益记录。
     """
+    if os.getenv("AHNS_HOLIDAY_COMPLETE_SESSION") == "1":
+        return determine_latest_complete_cross_market_session(markets=markets, now=now)
+
     candidates: list[str] = []
     errors: list[str] = []
 

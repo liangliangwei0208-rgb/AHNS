@@ -370,7 +370,9 @@ GitHub 仓库需要在 Settings -> Secrets and variables -> Actions -> Secrets �
 
 ## 实时观察图
 
-`safe_fund.py` 是收盘观察图入口，只读正式缓存生成 `output/safe_haiwai_fund.png`；自动总入口只在 06:00-13:40 运行它。早间盘后/富途夜盘窗口与收盘窗口重叠时，会先运行 `main.py --skip-rsi`、`fund_holding_change.py --auto`、`fund_region_allocation.py --auto` 和 `safe_fund.py`，再运行对应实时观察；晚间盘前/盘中窗口不会输出收盘观察图。
+`safe_fund.py` 是收盘观察图入口，只读正式缓存生成 `output/safe_haiwai_fund.png`；平日自动总入口只在 06:00-13:40 运行它。早间盘后/富途夜盘窗口与收盘窗口重叠时，会先运行 `main.py --skip-rsi`、`fund_holding_change.py --auto`、`fund_region_allocation.py --auto` 和 `safe_fund.py`，再运行对应实时观察；平日晚间盘前/盘中窗口不会输出收盘观察图。
+
+小电脑 Service 的**A 股节假日例外**：交易日历确认连续休市区间含工作日休市时（普通周末不算），无论当前窗口都运行 RSI、正式估算、收盘观察、节假日累计图，并保留命中的实时观察。正式估算使用中美港韩当天开市市场均完整收盘后的同一估值日；某市场休市不等于行情失败。累计图只统计假前最后一个 A 股交易日之后的有效估值日，每次运行均更新并进入邮件；尚无完整交易日时显示“暂无可累计的完整交易日”。节后首个 A 股交易日另行保留 T+2 补更新图，同时补发截至假期末的独立累计图。日历过期且刷新失败时不猜测假期，错误会进入邮件摘要。此例外只扩展 Service 流程，不扩大 GitHub 的运行窗口。
 
 `premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py` 都是独立观察入口；它们会读持仓、限购和 15 分钟实时短缓存，但不会写 `cache/fund_estimate_return_cache.json`，也不会覆盖正式每日图 `output/safe_haiwai_fund.png`。
 

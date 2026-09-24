@@ -1,7 +1,7 @@
 """
 safe_holidays.py
 
-只读取缓存，自动识别“A股休市、海外有新估值”的北京时间运行区间，
+只读取缓存，自动识别含工作日休市的 A 股假期，
 统计海外基金节假日期间模型估算观察，并输出公开展示版表格图片。
 
 表格只展示：
@@ -17,6 +17,7 @@ safe_holidays.py
 
 from __future__ import annotations
 
+import argparse
 import pandas as pd
 from tools.configs.safe_image_style_configs import safe_cumulative_table_kwargs
 from tools.paths import SAFE_HOLIDAYS_IMAGE, ensure_runtime_dirs, relative_path_str
@@ -28,6 +29,7 @@ from tools.fund_estimate_history_overseas import (
     detect_overseas_holiday_estimate_window,
     get_benchmark_estimate_records,
     get_fund_estimate_records,
+    filter_effective_holiday_fund_days,
     print_cumulative_estimate_table,
     save_cumulative_estimate_table_image,
 )
@@ -107,8 +109,8 @@ def build_safe_benchmark_summary_df(benchmark_summary_df: pd.DataFrame) -> pd.Da
     return benchmark_summary_df.drop(columns=["有效估值日数"], errors="ignore")
 
 
-def main() -> None:
-    window = detect_overseas_holiday_estimate_window()
+def main(*, include_first_reopen: bool = False) -> None:
+    window = detect_overseas_holiday_estimate_window(include_first_reopen=include_first_reopen)
     if not window.should_generate:
         print(window.reason)
         return
@@ -122,27 +124,47 @@ def main() -> None:
         end_date=window.end_date,
         market_group="overseas",
         date_field=window.date_field,
-        include_intraday=True,
-        require_final=False,
+        include_intraday=False,
+        require_final=True,
     )
+    daily_df = filter_effective_holiday_fund_days(daily_df)
     summary_df = build_cumulative_dataframe(daily_df)
-    safe_summary_df = build_safe_summary_df(summary_df)
+    if summary_df.empty:
+        # 休市首日尚无完整海外交易日时也要发送图片，但不显示虚构的 0%。
+        safe_summary_df = pd.DataFrame([{
+            "序号": "",
+            "基金名称": "暂无可累计的完整交易日",
+            CUMULATIVE_DISPLAY_COLUMN: None,
+            "起始估值日": "",
+            "结束估值日": "",
+        }])
+    else:
+        safe_summary_df = build_safe_summary_df(summary_df)
 
     benchmark_daily_df = get_benchmark_estimate_records(
         start_date=window.start_date,
         end_date=window.end_date,
         market_group="overseas",
         date_field=window.date_field,
-        include_intraday=True,
-        require_final=False,
+        include_intraday=False,
+        require_final=True,
     )
-    benchmark_summary_df = build_benchmark_cumulative_dataframe(benchmark_daily_df)
+    if not benchmark_daily_df.empty and "status" in benchmark_daily_df:
+        benchmark_daily_df = benchmark_daily_df[
+            benchmark_daily_df["status"].astype(str).str.lower() == "traded"
+        ].copy()
+    benchmark_summary_df = (
+        build_benchmark_cumulative_dataframe(benchmark_daily_df)
+        if not benchmark_daily_df.empty and not summary_df.empty else pd.DataFrame()
+    )
     safe_benchmark_summary_df = build_safe_benchmark_summary_df(benchmark_summary_df)
     # 底层累计绘图函数依赖原始列名；图片展示时再映射为“区间模型估算观察”。
     image_summary_df = safe_summary_df.rename(
         columns={CUMULATIVE_DISPLAY_COLUMN: CUMULATIVE_INTERNAL_COLUMN}
     )
 
+    as_of = str(daily_df["valuation_date"].max()) if not daily_df.empty else "暂无可累计的完整交易日"
+    print(f"节假日累计数据截至: {as_of}")
     print_cumulative_estimate_table(
         summary_df=image_summary_df,
         title=title,
@@ -155,7 +177,7 @@ def main() -> None:
     image_kwargs.update(
         {
             "footnote_text": (
-                "依据基金季度报告前十大持仓股及指数估算，仅供学习记录，"
+                f"数据截至：{as_of}。依据基金季度报告前十大持仓股及指数估算，仅供学习记录，"
                 "不构成投资建议；最终以基金公司更新为准。"
             ),
             # safe 系列统一由 tools.safe_display.apply_safe_public_watermarks()
@@ -184,7 +206,10 @@ def main() -> None:
 
 if __name__ == "__main__":
     try:
-        main()
+        parser = argparse.ArgumentParser(description="海外基金节假日累计观察图")
+        parser.add_argument("--first-reopen", action="store_true", help="节后首个A股交易日补发假期累计图")
+        args = parser.parse_args()
+        main(include_first_reopen=args.first_reopen)
     except Exception as exc:
         print(f"[ERROR] {exc}", flush=True)
         raise SystemExit(1)

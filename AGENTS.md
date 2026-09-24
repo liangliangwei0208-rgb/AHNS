@@ -97,6 +97,8 @@ Get-ChildItem "C:\Users\Administrator\Desktop\AHNS\logs\diagnostics" -File
 
 `git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、必要性标记、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。`stock_analysis.py` 是 `always_run=True` 的全天固定步骤，无论是否命中实时窗口都会先生成 RSI / 市场分析图；命中盘前、盘中、盘后或富途夜盘实时窗口时，总入口默认只额外运行对应实时观察步骤。若盘后/富途夜盘窗口与 `safe_fund.py` 的 06:00-13:40 收盘窗口重叠，则会同时运行 `close_observation_group=True` 的收盘必要步骤，先刷新收盘观察再生成实时观察。未命中实时窗口时，才运行完整日流程中符合 `run_window_bj` 的步骤。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。邮件成功发出后，即使有子脚本失败，总入口也按退出码 0 结束；`--no-send` 预演仍保留非 0 退出码方便调试。
 
+Service 假期特例：A 股日历核实连续休市区间含工作日休市时（普通周末不算），全天选中 `holiday_observation_group` 的正式估算、收盘观察和 `safe_holidays.py`，同时保留 RSI 与当前实时窗口脚本；`safe_fund.py` 此时不受平日 06:00-13:40 限制。`main.py` 子进程只在 Service 假期/节后首日接收 `AHNS_HOLIDAY_COMPLETE_SESSION=1`，以中美港韩所有开市市场均完整收盘的日期为估值锚点；不要把这个开关全局设置到 GitHub。累计按 `valuation_date` 从假前最后一个 A 股交易日之后统计，闭市零值不计为有效日，无数据仍出占位图并随邮件发送。节后首个 A 股交易日同时运行假期累计图（`safe_holidays.py --first-reopen`）和原有 `sum_holidays.py` 补更新图。日历未核实则按平日窗口运行并将错误写入邮件。
+
 GitHub / 主机 `git_main.py` 当前全天固定步骤、非实时窗口完整日流程和限时步骤：
 
 1. `stock_analysis.py` 全天固定运行，生成 RSI / 市场分析图

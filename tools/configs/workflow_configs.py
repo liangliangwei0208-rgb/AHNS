@@ -50,6 +50,7 @@ COMMON_WORKFLOW_STEPS = [
         "collect_images": True,
         "args": ["--skip-rsi"],
         "close_observation_group": True,
+        "holiday_observation_group": True,
     },
     {
         "name": "基金持仓变化图",
@@ -75,18 +76,21 @@ COMMON_WORKFLOW_STEPS = [
         "collect_images": True,
         "run_window_bj": ("06:00", "13:40"),
         "close_observation_group": True,
+        "holiday_observation_group": True,
     },
     {
         "name": "安全版海外节假日图",
         "script": "safe_holidays.py",
         "required": True,
         "collect_images": True,
+        "holiday_observation_group": True,
     },
     {
         "name": "节后补更新观察图",
         "script": "sum_holidays.py",
         "required": True,
         "collect_images": True,
+        "first_reopen_group": True,
     },
     {
         "name": "节后补更新科普图",

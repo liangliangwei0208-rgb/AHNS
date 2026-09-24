@@ -49,7 +49,7 @@ A_SHARE_TRADE_CALENDAR_CACHE_FILE = "a_share_trade_calendar_cache.json"
 
 @dataclass(frozen=True)
 class HolidayEstimateWindow:
-    """自动识别出的 A 股休市、海外有新估值的累计统计窗口。"""
+    """自动识别出的 A 股假期累计窗口，可暂时没有完整海外估值。"""
 
     should_generate: bool
     start_date: str = ""
@@ -61,6 +61,20 @@ class HolidayEstimateWindow:
     reason: str = ""
     overseas_run_dates: tuple[str, ...] = field(default_factory=tuple)
     overseas_valuation_dates: tuple[str, ...] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class AShareHolidayContext:
+    """A 股休市区间；普通周末不会被识别为假期。"""
+
+    is_holiday: bool = False
+    is_first_reopen: bool = False
+    verified: bool = False
+    start_date: str = ""
+    end_date: str = ""
+    previous_trade_date: str = ""
+    calendar_source: str = ""
+    reason: str = ""
 
 
 def _load_json_cache(filename: str, default=None):
@@ -430,6 +444,8 @@ def _load_a_share_trade_dates_from_local_cache(
 def _load_a_share_trade_dates(
     use_akshare: bool = True,
     cache_dir: str | Path | None = None,
+    strict: bool = False,
+    required_date: date | None = None,
 ) -> tuple[set[str], str]:
     akshare_reason = ""
     if use_akshare:
@@ -437,7 +453,12 @@ def _load_a_share_trade_dates(
             cache_dir=cache_dir,
             allow_expired=False,
         )
-        if trade_dates:
+        needs_future_session = bool(
+            strict and required_date is not None and trade_dates
+            and required_date.isoformat() not in trade_dates
+            and max(trade_dates) <= required_date.isoformat()
+        )
+        if trade_dates and not needs_future_session:
             record_market_event(
                 action="calendar_cache",
                 source="a_share_trade_calendar_file",
@@ -462,6 +483,9 @@ def _load_a_share_trade_dates(
             return trade_dates, source
         akshare_reason = source
 
+        if strict:
+            return set(), akshare_reason
+
         trade_dates, source = _load_a_share_trade_dates_from_file_cache(
             cache_dir=cache_dir,
             allow_expired=True,
@@ -477,6 +501,9 @@ def _load_a_share_trade_dates(
             if akshare_reason:
                 source = f"{source}; {akshare_reason}"
             return trade_dates, source
+
+    if strict:
+        return set(), akshare_reason or "A股交易日历未验证，不能判断节假日"
 
     trade_dates, source = _load_a_share_trade_dates_from_local_cache(cache_dir=cache_dir)
     if trade_dates:
@@ -602,155 +629,114 @@ def _unique_sorted_dates(values) -> tuple[str, ...]:
     return tuple(dates)
 
 
+def filter_effective_holiday_fund_days(df: pd.DataFrame) -> pd.DataFrame:
+    """剔除该基金所有相关市场均休市的记录，避免虚增有效日数。"""
+    if df is None or df.empty or "market_status" not in df:
+        return df
+
+    def has_session(value) -> bool:
+        if not isinstance(value, dict) or not value:
+            return True  # 旧缓存没有市场明细时保留已标为 final 的记录。
+        return any(str(status).lower() == "traded" for status in value.values())
+
+    return df[df["market_status"].map(has_session)].copy()
+
+
+def detect_a_share_holiday_context(
+    today=None,
+    *,
+    use_akshare: bool = True,
+    max_lookback_days: int = 45,
+) -> AShareHolidayContext:
+    """用已验证的完整交易日历识别含工作日休市的连续区间。"""
+    current = _get_beijing_today(today)
+    trade_dates, source = _load_a_share_trade_dates(
+        use_akshare=use_akshare, strict=True, required_date=current,
+    )
+    if not trade_dates:
+        return AShareHolidayContext(reason=f"无法核实A股交易日历: {source}", calendar_source=source)
+
+    parsed = sorted(value for value in (_parse_normalized_date(item) for item in trade_dates) if value)
+    previous = max((item for item in parsed if item < current), default=None)
+    if previous is None or (current - previous).days > max_lookback_days:
+        return AShareHolidayContext(reason="缺少可核实的假前A股交易日，无法判断休市区间", calendar_source=source)
+
+    is_trading_day = current in parsed
+    next_trade = current if is_trading_day else next((item for item in parsed if item > current), None)
+    if next_trade is None:
+        return AShareHolidayContext(reason="A股日历尚未覆盖下一交易日，无法判断休市区间", calendar_source=source)
+
+    start = previous + timedelta(days=1)
+    last_closed = next_trade - timedelta(days=1)
+    weekday_closure = bool(_weekday_closed_dates(start.isoformat(), last_closed.isoformat()))
+    if not weekday_closure:
+        return AShareHolidayContext(verified=True, reason="普通交易日或普通周末", calendar_source=source)
+
+    return AShareHolidayContext(
+        is_holiday=not is_trading_day,
+        is_first_reopen=is_trading_day,
+        verified=True,
+        start_date=start.isoformat(),
+        end_date=(current if not is_trading_day else last_closed).isoformat(),
+        previous_trade_date=previous.isoformat(),
+        calendar_source=source,
+        reason=f"A股休市区间: {start.isoformat()} 至 {last_closed.isoformat()}",
+    )
+
+
 def detect_overseas_holiday_estimate_window(
     today=None,
     cache_file: str | Path | None = None,
     use_akshare: bool = True,
-    max_a_share_lookback_days: int = 20,
+    max_a_share_lookback_days: int = 45,
     max_overseas_valuation_lag_days: int = 1,
+    include_first_reopen: bool = False,
 ) -> HolidayEstimateWindow:
     """
-    自动识别 A 股休市且海外有新估值时的累计统计窗口。
+    自动识别 A 股假期及节后首日的累计统计窗口。
 
-    A 股交易日优先使用 AkShare 日历；失败时用本地国内行情缓存兜底。
-    海外是否有新估值只看 main.py 已写入的缓存，不重新拉行情。
+    假期判断只使用新鲜、覆盖目标日期的 AkShare 日历；失败则不猜测。
+    max_overseas_valuation_lag_days 保留兼容旧调用；累计口径已改为完整
+    valuation_date，假期内无新增交易日仍须生成占位图。
     """
-    today_date = _get_beijing_today(today=today)
-    today_str = today_date.isoformat()
-
-    trade_dates, calendar_source = _load_a_share_trade_dates(use_akshare=use_akshare)
-    if not trade_dates:
-        return _no_holiday_window(
-            "无法判断A股交易日历，未生成节假日累计图。请检查网络或先运行 main.py 更新本地缓存。",
-            calendar_source=calendar_source,
-        )
-
-    # 交易日集合只列开市日，不能仅凭“今天不在集合中”就断言休市。
-    # 日历最晚日期早于今天时，可能只是缓存停在上周五，普通工作日会被误判为节假日。
-    latest_calendar_date = _latest_a_share_trade_date(trade_dates)
-    if latest_calendar_date is None or latest_calendar_date < today_date:
-        latest_text = latest_calendar_date.isoformat() if latest_calendar_date else "无有效日期"
-        return _no_holiday_window(
-            (
-                f"A股交易日历仅覆盖至 {latest_text}，未覆盖北京时间 {today_str}，"
-                "无法判断是否休市，未生成节假日累计图。"
-            ),
-            calendar_source=calendar_source,
-        )
-
-    if today_str in trade_dates:
-        return _no_holiday_window(
-            f"{today_str} 是A股交易日，不属于“A股休市、海外有新估值”的累计场景，未生成图片。",
-            calendar_source=calendar_source,
-        )
-
-    start_date = _find_a_share_closed_window_start(
-        today=today_date,
-        trade_dates=trade_dates,
+    context = detect_a_share_holiday_context(
+        today=today,
+        use_akshare=use_akshare,
         max_lookback_days=max_a_share_lookback_days,
     )
-    if start_date is None:
-        return _no_holiday_window(
-            (
-                f"在北京时间 {today_str} 前回看 {max(1, max_a_share_lookback_days)} 天"
-                "仍找不到上一A股交易日，无法判断休市区间，未生成节假日累计图。"
-            ),
-            calendar_source=calendar_source,
-        )
-    end_date = today_str
+    if not context.is_holiday and not (include_first_reopen and context.is_first_reopen):
+        return _no_holiday_window(context.reason, calendar_source=context.calendar_source)
 
-    weekday_closed_dates = _weekday_closed_dates(start_date, end_date)
-    if not weekday_closed_dates:
-        return _no_holiday_window(
-            f"{today_str} 是普通周末，不属于节假日累计收益场景，未生成图片。",
-            calendar_source=calendar_source,
-        )
-
+    start_date, end_date = context.start_date, context.end_date
     fund_df = load_fund_estimate_history(cache_file=cache_file)
-    benchmark_df = load_benchmark_estimate_history(cache_file=cache_file)
-    interval_fund_df = _filter_overseas_records_by_run_date(
-        fund_df,
-        start_date=start_date,
-        end_date=end_date,
-        value_column="estimate_return_pct",
-    )
-    interval_benchmark_df = _filter_overseas_records_by_run_date(
-        benchmark_df,
-        start_date=start_date,
-        end_date=end_date,
-        value_column="return_pct",
-    )
-
-    if interval_fund_df.empty:
-        return _no_holiday_window(
-            f"{start_date} 至 {end_date} 未发现可用海外基金缓存，未生成图片。请先运行 main.py。",
-            calendar_source=calendar_source,
-        )
-
-    if interval_benchmark_df.empty:
-        return _no_holiday_window(
-            f"{start_date} 至 {end_date} 未发现可用海外指数基准缓存，未生成图片。请先运行 main.py。",
-            calendar_source=calendar_source,
-        )
-
-    fund_run_dates = set(_unique_sorted_dates(interval_fund_df[DATE_FIELD_RUN_DATE_BJ]))
-    benchmark_run_dates = set(_unique_sorted_dates(interval_benchmark_df[DATE_FIELD_RUN_DATE_BJ]))
-    common_run_dates = sorted(fund_run_dates & benchmark_run_dates)
-    if not common_run_dates:
-        return _no_holiday_window(
-            f"{start_date} 至 {end_date} 未发现同一北京时间运行日的海外基金和指数基准缓存，未生成图片。请先运行 main.py。",
-            calendar_source=calendar_source,
-        )
-
-    has_today_cache = today_str in common_run_dates
-    selected_run_date = today_str if has_today_cache else common_run_dates[-1]
-    selected_benchmark_df = interval_benchmark_df[
-        interval_benchmark_df[DATE_FIELD_RUN_DATE_BJ] == selected_run_date
-    ]
-
-    valuation_dates = _unique_sorted_dates(selected_benchmark_df.get("valuation_date", []))
-    latest_valuation_date = valuation_dates[-1] if valuation_dates else ""
-    latest_valuation = _parse_normalized_date(latest_valuation_date)
-    if latest_valuation is None:
-        return _no_holiday_window(
-            f"北京时间 {selected_run_date} 的海外指数基准缓存缺少有效估值日，未生成图片。",
-            calendar_source=calendar_source,
-        )
-
-    valuation_lag_days = (today_date - latest_valuation).days
-    if has_today_cache and valuation_lag_days > max_overseas_valuation_lag_days:
-        return _no_holiday_window(
-            (
-                f"海外最新估值日为 {latest_valuation_date}，与北京时间 {today_str} 间隔 "
-                f"{valuation_lag_days} 天，未判断为新的海外交易估值，未生成图片。"
-            ),
-            calendar_source=calendar_source,
-        )
-
-    date_label = format_holiday_estimate_date_label(start_date, end_date)
-    if has_today_cache:
-        reason = (
-            f"自动识别区间: {start_date} 至 {end_date}; "
-            f"A股日历来源: {calendar_source}; 最新海外估值日: {latest_valuation_date}"
-        )
+    if not fund_df.empty and "valuation_date" in fund_df:
+        interval_fund_df = fund_df[
+            (fund_df.get("market_group") == "overseas")
+            & (fund_df["valuation_date"] >= start_date)
+            & (fund_df["valuation_date"] <= end_date)
+            & fund_df["is_final"]
+            & fund_df["estimate_return_pct"].notna()
+        ].copy()
+        interval_fund_df = filter_effective_holiday_fund_days(interval_fund_df)
     else:
-        reason = (
-            "今日无新增海外估值缓存，已复用当前休市区间内最近有效缓存生成区间观察图。"
-            f"自动识别区间: {start_date} 至 {end_date}; "
-            f"A股日历来源: {calendar_source}; 最近缓存运行日: {selected_run_date}; "
-            f"最新海外估值日: {latest_valuation_date}"
-        )
+        interval_fund_df = pd.DataFrame()
+    valuation_dates = _unique_sorted_dates(interval_fund_df.get("valuation_date", []))
+    latest_valuation_date = valuation_dates[-1] if valuation_dates else ""
+    reason = (
+        f"{context.reason}; A股日历来源: {context.calendar_source}; "
+        f"完整基金估算数据截至: {latest_valuation_date or '暂无'}"
+    )
     return HolidayEstimateWindow(
         should_generate=True,
         start_date=start_date,
         end_date=end_date,
-        date_field=DATE_FIELD_RUN_DATE_BJ,
-        date_label=date_label,
+        date_field="valuation_date",
+        date_label=format_holiday_estimate_date_label(start_date, end_date),
         output_suffix=format_holiday_estimate_output_suffix(start_date, end_date),
-        calendar_source=calendar_source,
+        calendar_source=context.calendar_source,
         reason=reason,
-        overseas_run_dates=_unique_sorted_dates(interval_fund_df[DATE_FIELD_RUN_DATE_BJ]),
-        overseas_valuation_dates=_unique_sorted_dates(interval_fund_df.get("valuation_date", [])),
+        overseas_run_dates=_unique_sorted_dates(interval_fund_df.get(DATE_FIELD_RUN_DATE_BJ, [])),
+        overseas_valuation_dates=valuation_dates,
     )
 
 
@@ -1791,10 +1777,13 @@ def build_cumulative_estimate_table(
 
 __all__ = [
     "HolidayEstimateWindow",
+    "AShareHolidayContext",
     "load_fund_estimate_history",
     "load_benchmark_estimate_history",
     "load_a_share_trade_dates",
     "detect_overseas_holiday_estimate_window",
+    "detect_a_share_holiday_context",
+    "filter_effective_holiday_fund_days",
     "format_holiday_estimate_date_label",
     "format_holiday_estimate_output_suffix",
     "get_fund_estimate_records",

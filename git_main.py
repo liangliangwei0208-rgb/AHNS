@@ -19,7 +19,7 @@ import subprocess
 import sys
 import time
 import traceback
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, time as datetime_time
 from pathlib import Path
 from typing import Iterable
@@ -68,6 +68,8 @@ class WorkflowStep:
     args: tuple[str, ...]
     always_run: bool = False
     close_observation_group: bool = False
+    holiday_observation_group: bool = False
+    first_reopen_group: bool = False
     run_window_start_bj: datetime_time | None = None
     run_window_end_bj: datetime_time | None = None
 
@@ -234,6 +236,8 @@ def resolve_workflow_steps(
         collect_images = bool(item.get("collect_images", True))
         always_run = bool(item.get("always_run", False))
         close_observation_group = bool(item.get("close_observation_group", False))
+        holiday_observation_group = bool(item.get("holiday_observation_group", False))
+        first_reopen_group = bool(item.get("first_reopen_group", False))
         args_raw = item.get("args") or []
         if isinstance(args_raw, str):
             args = (args_raw,)
@@ -254,6 +258,8 @@ def resolve_workflow_steps(
                 args=args,
                 always_run=always_run,
                 close_observation_group=close_observation_group,
+                holiday_observation_group=holiday_observation_group,
+                first_reopen_group=first_reopen_group,
                 run_window_start_bj=run_window_start_bj,
                 run_window_end_bj=run_window_end_bj,
             )
@@ -280,6 +286,9 @@ def time_in_closed_window(current: datetime_time, start: datetime_time, end: dat
 def select_workflow_steps_for_time(
     steps: list[WorkflowStep],
     current_time: datetime | None = None,
+    *,
+    service_holiday: bool = False,
+    service_first_reopen: bool = False,
 ) -> list[WorkflowStep]:
     """按配置中的北京时间窗口选择步骤。
 
@@ -303,6 +312,21 @@ def select_workflow_steps_for_time(
         for step in matching_window_steps
         if step.script_path.name in REALTIME_OBSERVATION_SCRIPTS
     ]
+    if service_holiday or service_first_reopen:
+        chosen = [
+            step for step in steps
+            if step.always_run
+            or step.holiday_observation_group
+            or (service_first_reopen and step.first_reopen_group)
+            or step in matching_realtime_steps
+        ]
+        if service_first_reopen:
+            chosen = [
+                replace(step, args=(*step.args, "--first-reopen"))
+                if step.script_path.name == "safe_holidays.py" else step
+                for step in chosen
+            ]
+        return chosen
     close_window_active = any(
         step.script_path.name == "safe_fund.py"
         for step in matching_window_steps
@@ -327,7 +351,11 @@ def select_workflow_steps_for_time(
     ]
 
 
-def stream_script_output(script_path: Path, args: tuple[str, ...] = ()) -> tuple[int, list[str]]:
+def stream_script_output(
+    script_path: Path,
+    args: tuple[str, ...] = (),
+    extra_env: dict[str, str] | None = None,
+) -> tuple[int, list[str]]:
     """运行单个脚本，并把子脚本输出实时打印出来。
 
     这里继续使用当前 Python 解释器，也就是你运行 git_main.py 时用的那个环境。
@@ -338,6 +366,9 @@ def stream_script_output(script_path: Path, args: tuple[str, ...] = ()) -> tuple
     env["PYTHONIOENCODING"] = "utf-8"
     env["PYTHONUTF8"] = "1"
     env["PYTHONUNBUFFERED"] = "1"
+    env.pop("AHNS_HOLIDAY_COMPLETE_SESSION", None)
+    if extra_env:
+        env.update(extra_env)
 
     command = [sys.executable, str(script_path), *args]
     process = subprocess.Popen(
@@ -365,7 +396,7 @@ def stream_script_output(script_path: Path, args: tuple[str, ...] = ()) -> tuple
     return process.wait(), output_tail
 
 
-def run_script(step: WorkflowStep) -> ScriptResult:
+def run_script(step: WorkflowStep, *, extra_env: dict[str, str] | None = None) -> ScriptResult:
     """运行一个配置步骤，并记录它本次生成或更新的图片。
 
     注意：有些脚本本来就不是每天都出图，例如 safe_holidays.py 和
@@ -379,7 +410,7 @@ def run_script(step: WorkflowStep) -> ScriptResult:
     output_tail: list[str] = []
     error_message = ""
     try:
-        return_code, output_tail = stream_script_output(script_path, step.args)
+        return_code, output_tail = stream_script_output(script_path, step.args, extra_env)
     except Exception as exc:
         return_code = -1
         error_message = repr(exc)
@@ -603,6 +634,7 @@ def main(
     entry_name: str = "git_main.py",
     workflow_label: str = "GitHub Actions",
     workflow_steps: Iterable[dict[str, object]] | None = None,
+    service_mode: bool = False,
 ) -> int:
     args = parse_args(argv)
     started_at = datetime.now(BJ_TZ)
@@ -614,7 +646,28 @@ def main(
     steps = resolve_workflow_steps(workflow_steps)
     now_bj = datetime.now(BJ_TZ)
     all_steps = steps
-    steps = select_workflow_steps_for_time(steps, current_time=now_bj)
+    service_holiday = False
+    service_first_reopen = False
+    calendar_error = ""
+    if service_mode:
+        from tools.fund_history_io import detect_a_share_holiday_context
+
+        try:
+            holiday_context = detect_a_share_holiday_context(today=now_bj)
+            service_holiday = holiday_context.is_holiday
+            service_first_reopen = holiday_context.is_first_reopen
+            if not holiday_context.verified:
+                calendar_error = holiday_context.reason
+        except Exception as exc:
+            calendar_error = f"A股节假日历核验失败: {exc}"
+        if calendar_error:
+            log(f"[WARN] {calendar_error}；按平日窗口运行，并将错误写入邮件")
+
+    steps = select_workflow_steps_for_time(
+        steps, current_time=now_bj,
+        service_holiday=service_holiday,
+        service_first_reopen=service_first_reopen,
+    )
     log(f"当前北京时间: {now_bj.strftime('%Y-%m-%d %H:%M:%S')}")
     configured_windows = [
         f"{step.name}:{step.run_window_text}"
@@ -636,7 +689,11 @@ def main(
         for step in window_steps
         if step.script_path.name in REALTIME_OBSERVATION_SCRIPTS
     ]
-    if realtime_steps:
+    if service_holiday:
+        log("A股节假日：全天运行正式估算、收盘观察和累计图，并保留当前实时观察")
+    elif service_first_reopen:
+        log("节后首个A股交易日：同时生成假期累计图和节后补更新图")
+    elif realtime_steps:
         if close_group_steps:
             log(
                 "当前命中实时观察窗口，同时处于收盘观察窗口，运行收盘必要步骤和实时观察步骤: "
@@ -678,8 +735,18 @@ def main(
     log("实际运行顺序: " + " -> ".join(step.name for step in steps))
 
     results: list[ScriptResult] = []
+    if calendar_error:
+        results.append(ScriptResult(
+            step_name="A股节假日历核验", script_name="calendar_check",
+            script_path=PROJECT_ROOT, return_code=1, elapsed_seconds=0.0,
+            changed_images=[], collect_images=False, output_tail=[calendar_error],
+            error_message=calendar_error,
+        ))
     for step in steps:
-        result = run_script(step)
+        if (service_holiday or service_first_reopen) and step.script_path.name == "main.py":
+            result = run_script(step, extra_env={"AHNS_HOLIDAY_COMPLETE_SESSION": "1"})
+        else:
+            result = run_script(step)
         results.append(result)
 
         if not result.success:
