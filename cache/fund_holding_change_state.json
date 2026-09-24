@@ -114,10 +114,10 @@
     "top_n": 10,
     "latest_quarter_key": 20262,
     "latest_quarter_label": "2026年2季度股票投资明细",
-    "fingerprint": "542de1be673d6d2d34dc8cbaa026b482af0c6395ce958dff5504b355a62a0272",
-    "last_checked_at": "2026-09-12T08:45:04",
+    "fingerprint": "d9ec02a1a132ec5c9feca84b1597642b40a31ffce85646c78dcaa1f0e63df42a",
+    "last_checked_at": "2026-09-24T16:54:09",
     "last_image": "output/fund_holding_change/latest/18_013328.png",
-    "last_generated_at": "2026-07-21T14:40:24"
+    "last_generated_at": "2026-09-24T16:54:09"
   },
   "015202:top10": {
     "fund_code": "015202",
@@ -134,10 +134,10 @@
     "top_n": 10,
     "latest_quarter_key": 20262,
     "latest_quarter_label": "2026年2季度股票投资明细",
-    "fingerprint": "3eec6fb0edb2e06faff8e98cab35da3fa2b38d8ae069a5774e152d98f8761b07",
-    "last_checked_at": "2026-09-12T08:45:04",
+    "fingerprint": "ae1b38a4d243c1ec9b85947b266199b67fb3bc60a238d191bec7a60d4fdf6bf0",
+    "last_checked_at": "2026-09-24T16:54:10",
     "last_image": "output/fund_holding_change/latest/5_015205.png",
-    "last_generated_at": "2026-07-21T09:59:01"
+    "last_generated_at": "2026-09-24T16:54:10"
   },
   "016665:top10": {
     "fund_code": "016665",
@@ -204,10 +204,10 @@
     "top_n": 10,
     "latest_quarter_key": 20262,
     "latest_quarter_label": "2026年2季度股票投资明细",
-    "fingerprint": "d877d0403817f590afaa6bd48896b0b40d753ce2f03c8a2fa87fe582cc46a148",
-    "last_checked_at": "2026-09-12T08:45:04",
+    "fingerprint": "c87e4c54d37ccf491351b130e7909cc6b163d219c3b109ee3e7f31f142064e6e",
+    "last_checked_at": "2026-09-24T16:54:11",
     "last_image": "output/fund_holding_change/latest/23_017731.png",
-    "last_generated_at": "2026-07-21T14:42:57"
+    "last_generated_at": "2026-09-24T16:54:11"
   },
   "018036:top10": {
     "fund_code": "018036",
@@ -354,10 +354,10 @@
     "top_n": 10,
     "latest_quarter_key": 20262,
     "latest_quarter_label": "2026年2季度股票投资明细",
-    "fingerprint": "4f1527fedda3efcc73bcfe2eeabee90db97853a753d26f0daa4b88e419bd2144",
-    "last_checked_at": "2026-09-12T08:45:04",
+    "fingerprint": "e6c1461e31231cb2959c32c8af10e0ddf93dcd760f035e46e279dd2d8cf4d012",
+    "last_checked_at": "2026-09-24T16:54:13",
     "last_image": "output/fund_holding_change/latest/24_519981.png",
-    "last_generated_at": "2026-07-21T14:43:32"
+    "last_generated_at": "2026-09-24T16:54:13"
   },
   "539002:top10": {
     "fund_code": "539002",

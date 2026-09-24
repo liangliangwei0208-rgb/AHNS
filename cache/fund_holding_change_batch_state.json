@@ -6,7 +6,7 @@
     "quarter_label": "2026年2季度股票投资明细",
     "fund_pool_count": 37,
     "first_generated_at": "2026-07-20T11:14:16",
-    "updated_at": "2026-07-24T13:35:05",
+    "updated_at": "2026-09-24T16:54:13",
     "funds": {
       "000043": {
         "fund_code": "000043",
@@ -114,7 +114,7 @@
         "image": "output/fund_holding_change/latest/18_013328.png",
         "quarter_key": 20262,
         "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-21T14:40:24"
+        "generated_at": "2026-09-24T16:54:09"
       },
       "015202": {
         "fund_code": "015202",
@@ -132,7 +132,7 @@
         "image": "output/fund_holding_change/latest/5_015205.png",
         "quarter_key": 20262,
         "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-21T09:59:01"
+        "generated_at": "2026-09-24T16:54:10"
       },
       "016665": {
         "fund_code": "016665",
@@ -195,7 +195,7 @@
         "image": "output/fund_holding_change/latest/23_017731.png",
         "quarter_key": 20262,
         "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-21T14:42:57"
+        "generated_at": "2026-09-24T16:54:11"
       },
       "018036": {
         "fund_code": "018036",
@@ -330,7 +330,7 @@
         "image": "output/fund_holding_change/latest/24_519981.png",
         "quarter_key": 20262,
         "quarter_label": "2026年2季度股票投资明细",
-        "generated_at": "2026-07-21T14:43:32"
+        "generated_at": "2026-09-24T16:54:13"
       },
       "539002": {
         "fund_code": "539002",
