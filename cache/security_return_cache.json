@@ -152940,7 +152940,7 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-24T12:10:23+08:00"
+    "fetched_at": "2026-09-24T14:54:24+08:00"
   },
   "SECURITY:KR:000660:2026-09-24": {
     "market": "KR",
@@ -152976,6 +152976,6 @@
     "source": "market_close_not_confirmed",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-24T12:10:35+08:00"
+    "fetched_at": "2026-09-24T14:54:30+08:00"
   }
 }
