@@ -1,12 +1,12 @@
 {
-  "run_flag": 1,
+  "run_flag": 0,
   "no_send": false,
   "receiver": "",
   "holding_change_fund_code": "",
-  "status": "requested",
+  "status": "success",
   "requested_at_bj": "2026-09-26T08:55:48+08:00",
-  "last_started_at_bj": "2026-09-25T13:23:54+08:00",
-  "last_finished_at_bj": "2026-09-25T13:28:10+08:00",
+  "last_started_at_bj": "2026-09-26T08:56:32+08:00",
+  "last_finished_at_bj": "2026-09-26T09:02:10+08:00",
   "last_exit_code": 0,
-  "last_message": "requested from GitHub Actions by liangliangwei0208-rgb, run_id=36206613617"
+  "last_message": "service_main.py exit code 0"
 }
