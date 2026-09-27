@@ -120,38 +120,38 @@ class EmailSummaryTests(unittest.TestCase):
 
 
 class HolidaySceneLayoutTests(unittest.TestCase):
-    """假期场景字必须在表格外侧的专用留白区。"""
+    """假期场景字按用户标注叠加在基金名称列右侧。"""
 
-    def test_holiday_config_uses_left_gutter_layout(self):
+    def test_holiday_config_uses_marked_overlay_position(self):
         style = safe_scene_text_style()["safe_holidays.png"]
 
-        self.assertEqual(style["placement"], "left_gutter")
-        self.assertEqual(style["left_gutter_ratio"], 0.10)
+        self.assertEqual(style["placement"], "overlay")
+        self.assertAlmostEqual(style["x_ratio"], 0.495)
+        self.assertAlmostEqual(style["y_ratio"], 0.39)
         self.assertEqual(style["font_size"], 150)
 
-    def test_holiday_scene_label_uses_left_gutter_without_covering_table(self):
-        # 使用真实配置，避免测试样例与图片实际旋转、字号等参数脱节。
+    def test_holiday_scene_label_keeps_canvas_and_uses_marked_center(self):
+        # 检查实际渲染位置，同时确保取消留白后不扩展图片宽度。
         style = safe_scene_text_style()
-        source = Image.new("RGB", (3000, 900), "#123456")
-
+        source = Image.new("RGB", (3000, 2400), "#123456")
         with TemporaryDirectory() as directory:
             path = Path(directory) / "safe_holidays.png"
             source.save(path)
             add_scene_text_watermark(path, style_by_filename=style)
             rendered = Image.open(path).convert("RGB")
-
-        gutter_width = 300
-        self.assertEqual(rendered.size, (3300, 900))
-        self.assertIsNone(
-            ImageChops.difference(
-                rendered.crop((gutter_width, 0, 3300, 900)),
-                source,
-            ).getbbox()
-        )
+        self.assertEqual(rendered.size, source.size)
+        bounds = ImageChops.difference(rendered, source).getbbox()
+        self.assertIsNotNone(bounds)
+        assert bounds is not None
+        self.assertAlmostEqual((bounds[0]+bounds[2])/2, 3000*0.495, delta=2)
+        self.assertAlmostEqual((bounds[1]+bounds[3])/2, 2400*0.39, delta=2)
+        self.assertGreater(bounds[1], 0)
+        self.assertLess(bounds[3], rendered.height)
 
     def test_left_gutter_label_stays_inside_short_holiday_image(self):
         """数据行较少时，竖排标签也不能被图片顶部或底部裁切。"""
         style = safe_scene_text_style()
+        style["safe_holidays.png"].update(placement="left_gutter", left_gutter_ratio=0.10)
         source = Image.new("RGB", (3000, 767), "#123456")
 
         with TemporaryDirectory() as directory:

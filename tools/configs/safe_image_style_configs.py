@@ -366,9 +366,8 @@ SAFE_SCENE_TEXT_STYLE = {
         "enabled": True,
         "text": "假期观察",
         "layout": "vertical",
-        # 累计表的文字和日期列较密集，场景字单独放到左侧留白栏。
-        "placement": "left_gutter",
-        "left_gutter_ratio": 0.10,
+        # 按标注叠加到基金名称列右侧，不再为场景字增加左侧留白。
+        "placement": "overlay",
         "font_size": 150,
         "fill_color": "#CC0321",
         "stroke_color": "#f8fafc",
@@ -376,8 +375,8 @@ SAFE_SCENE_TEXT_STYLE = {
         "alpha": 0.85,
         "rotation": 0,
         "char_spacing_px": 2,
-        "x_ratio": 0.545,
-        "y_ratio": 0.40,
+        "x_ratio": 0.495,
+        "y_ratio": 0.39,
         "x_offset_px": 0,
         "y_offset_px": 0,
     },
