@@ -240,7 +240,7 @@ class HolidayServiceTests(unittest.TestCase):
             safe_holidays.main()
         summary = save_image.call_args.kwargs["summary_df"]
         self.assertIn("暂无可累计的完整交易日", summary.to_string())
-        self.assertIn("暂无可累计的完整交易日", save_image.call_args.kwargs["footnote_text"])
+        self.assertEqual(save_image.call_args.kwargs["footnote_text"], "依据季报持仓及指数估算，最终以基金公司公告为准。")
 
 
 if __name__ == "__main__":

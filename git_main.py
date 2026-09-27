@@ -32,7 +32,7 @@ from tools.paths import OUTPUT_DIR, PROJECT_ROOT, relative_path_str
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 BJ_TZ = ZoneInfo("Asia/Shanghai")
 SCRIPT_OUTPUT_TAIL_LINES = 80
-EMAIL_INLINE_IMAGE_LIMIT = 10
+EMAIL_INLINE_IMAGE_LIMIT = 12  # 12张以内正文内嵌并附附件，13张起仅附件
 EMAIL_FAILURE_REASON_LIMIT = 120
 REALTIME_OBSERVATION_SCRIPTS = {
     "premarket_fund.py",
@@ -638,7 +638,7 @@ def send_uncaught_exception_email(
             to_email=receiver,
             embed_images=False,
             attach_images=False,
-            timeout=120,
+            timeout=180,  # 异常通知允许等待SMTP响应180秒
         )
         log("总入口异常邮件已发送")
         return True
@@ -818,7 +818,7 @@ def main(
             to_email=args.receiver,
             embed_images=embed_images,
             attach_images=attach_images,
-            timeout=240,
+            timeout=350,  # 图片邮件较大，允许等待SMTP响应350秒
         )
     except Exception as exc:
         log(

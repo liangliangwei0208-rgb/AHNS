@@ -756,3 +756,5 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 诊断：`output/market_breadth_diagnostics.json`。`check_project.py`只读检查容量与覆盖率。GitHub已暂停workflow保持原状；`main.py`不修改。回退广度可将 `BREADTH_ENABLED`设为False。
 
 本轮验收：124项测试通过，五个市场来源与样图已验证；用户批准以真实报价回放先合入。开盘现场实测尚待完成。详细证据见 `docs/superpowers/plans/2026-09-27-dow-50dma-breadth.md`。
+
+邮件发送规则：12张及以下正文内嵌并附附件，超过12张仅发附件；主流程SMTP响应超时350秒，异常通知180秒。假期图备注不重复截止日期，仍仅累计完整收盘记录。

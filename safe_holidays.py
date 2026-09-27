@@ -176,10 +176,7 @@ def main(*, include_first_reopen: bool = False) -> None:
     image_kwargs = safe_cumulative_table_kwargs()
     image_kwargs.update(
         {
-            "footnote_text": (
-                f"数据截至：{as_of}。依据基金季度报告前十大持仓股及指数估算，仅供学习记录，"
-                "不构成投资建议；最终以基金公司更新为准。"
-            ),
+            "footnote_text": "依据季报持仓及指数估算，最终以基金公司公告为准。",
             # safe 系列统一由 tools.safe_display.apply_safe_public_watermarks()
             # 叠加居中 logo 和斜向文字水印，这里关闭表格函数内置平铺水印。
             "watermark_text": "",
