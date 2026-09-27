@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Any
 
 
+BREADTH_CACHE_DOCUMENTATION = '## 50DMA广度缓存\n\n- `market_breadth/prices/<市场.证券>.json`：同一复权基准下最近400个完整交易日，多个指数共用；来源/复权变化须重取窗口。\n- `market_breadth/members/<市场>.json`：按日期保存经验证的完整名单和版本；不把上市目录或ETF前十大持仓当作完整指数成分。\n- `market_breadth/results/<市场>.json`：最近400个广度记录，`kind=close/intraday`区分完整收盘和临时值；缺失值为null，不是0。\n- `market_breadth/results/nasdaq_stockcharts.json`：StockCharts纳斯达克市场口径，从启用时开始积累，不与综合指数自算结果拼接。\n- `market_breadth/snapshots/<市场>.json`：最近一批快照，默认30分钟复用；原始报价时间控制有效性，不以文件修改时间替代。\n- 生产者：`market_breadth.py`；读取：RSI绘图、`check_project.py`和`sync_repos.py`。\n- 所有业务分片参加Git三边同步；本机锁、连接配置和临时文件不提交。`market_breadth_local/`仅用于本机协调。\n- 合并价格先校验复权基准与重叠值；不兼容时取较新完整快照。正式收盘结果优先于盘中值，不按后来成分版本回写既有历史。\n- 日线/结果仅裁剪文件内记录，不批量删除分片；停用证券保留但不再主动抓取。体检只读报告容量。\n'
+
 CACHE_INFO_VERSION = 1
 CACHE_README_FILENAME = "README.md"
 
@@ -371,6 +373,9 @@ def build_cache_readme(cache_dir: str | Path) -> str:
         "## 当前缓存文件",
         "",
     ]
+
+    lines.extend(BREADTH_CACHE_DOCUMENTATION.splitlines())
+    lines.append("")
 
     if not files:
         lines.append("当前未发现缓存文件。")

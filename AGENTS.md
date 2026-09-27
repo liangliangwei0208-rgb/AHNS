@@ -580,3 +580,27 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 - GitHub Actions 会定时或手动运行并自动回推缓存；本地提交前要注意先同步远端缓存，避免 JSON 合并损坏。
 - 小电脑服务器当前只主动监听和同步 `gitee/main`；GitHub 同步由主机电脑运行 `sync_repos.py` 负责；复制到其他仓库的一次性同名仓库初始化可用 `github_gitee_sync.py`。
 - `C:\Users\Administrator\Desktop\AHNS` 是当前仓库根目录；旧的 `AHNS\AHNS` 嵌套目录不要再写入脚本或计划任务。
+
+## 道琼斯与50DMA市场广度（2026-09-28）
+
+新增 `output/dow_jones_analysis.png`。纳斯达克、道琼斯、红利低波512890、中证2000ETF560220、深证成指ETF159943的底部RSI面板叠加紫色虚线 `% Above 50DMA`。不新增上证图。原ETF价格不替换为指数价格。
+
+```powershell
+# 大规模首次建库，1800秒后保存已有进度退出；再次运行自动续跑。
+& F:\anaconda\envs\py310\python.exe .\market_breadth.py --bootstrap --budget 1800
+# 指定市场；小电脑把解释器改为 D:\anaconda\envs\py310\python.exe
+& F:\anaconda\envs\py310\python.exe .\market_breadth.py --bootstrap --market dow dividend shenzhen csi2000 --budget 1800
+# 只读状态 / 日常增量
+& F:\anaconda\envs\py310\python.exe .\market_breadth.py --status
+& F:\anaconda\envs\py310\python.exe .\market_breadth.py --update
+```
+
+`tools/configs/market_breadth_configs.py`维护开关、95%有效覆盖率、30分钟快照复用（可调15–60）和180秒日常预算。日常流程不从零下载数千只股票；未建库的市场提示数据不足，RSI照常出图。`--no-futu`可关闭富途兜底。
+
+纳斯达克现成指标使用StockCharts公开最新数值，按用户确认从启用日开始积累；不插值生成历史、不替换成纳指100。A股用对应指数完整成分（中证2000目前包含北交所）；收盘比较50根完整日线，盘中用前49日加最新价。缺失、过期和不足50日的样本排除，低于95%不发布数值。历史初始回算与成分版本记在缓存及诊断中，图片不加延迟时长/回算说明。
+
+两台电脑同步 `cache/market_breadth/`，日线分片按证券共用；本机锁等放在忽略目录 `cache/market_breadth_local/`。富途默认本机11111端口，支持环境变量 `AHNS_BREADTH_FUTU_HOST/PORT`，不提交本机配置。快照每批200只，至少间隔1秒；历史补齐保留10个未用额度。不要通过分批声称绕过7天股票数量额度。
+
+诊断：`output/market_breadth_diagnostics.json`。`check_project.py`只读检查容量与覆盖率。GitHub已暂停workflow保持原状；`main.py`不修改。回退广度可将 `BREADTH_ENABLED`设为False。
+
+本轮验收：124项测试通过，五个市场来源与样图已验证；用户批准以真实报价回放先合入。开盘现场实测尚待完成。详细证据见 `docs/superpowers/plans/2026-09-27-dow-50dma-breadth.md`。

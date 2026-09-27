@@ -29,10 +29,10 @@ class ConfiguredEtfTests(unittest.TestCase):
                 self.assertTrue(config["kwargs"]["show_boll"])
                 self.assertTrue(config["kwargs"]["show_weekly_boll"])
 
-    def test_configured_rsi_images_hide_bottom_rsi_panel_by_default(self):
-        """主程序的所有 RSI 图默认只显示收盘价和成交量。"""
+    def test_configured_rsi_images_show_bottom_rsi_panel_by_default(self):
+        """主程序所有分析图显示底部RSI，广度在该面板叠加。"""
         self.assertTrue(
-            all(config["kwargs"].get("show_rsi_panel") is False for config in RSI_ANALYSIS_CONFIGS)
+            all(config["kwargs"].get("show_rsi_panel") is True for config in RSI_ANALYSIS_CONFIGS)
         )
 
 

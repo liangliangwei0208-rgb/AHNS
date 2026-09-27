@@ -16,3 +16,7 @@ sent_email_log.json
 .env
 tools/email_local_config.py
 *.log
+
+# 广度本机锁和原子写入临时文件不跨机器同步
+cache/market_breadth_local/
+cache/market_breadth/**/*.tmp

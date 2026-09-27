@@ -243,9 +243,12 @@ def normalize_git_path(path: str) -> str:
     return path.replace("\\", "/").strip()
 
 
+BREADTH_CACHE_PATTERN = re.compile(r"^cache/market_breadth/(prices|members|results|snapshots)/[A-Za-z0-9_.^-]+\.json$")
+
+
 def is_auto_merge_cache_path(path: str) -> bool:
     normalized = normalize_git_path(path)
-    return normalized in CACHE_CONFLICT_EXACT_PATHS or bool(
+    return bool(BREADTH_CACHE_PATTERN.fullmatch(normalized)) or normalized in CACHE_CONFLICT_EXACT_PATHS or bool(
         CACHE_INDEX_DAILY_PATTERN.match(normalized)
     )
 
@@ -1079,7 +1082,10 @@ def merge_a_share_trade_calendar_cache(ours_text: str, theirs_text: str) -> str:
 def merge_cache_conflict_file(repo: Path, path: str) -> None:
     ours_text = git_stage_text(repo, 2, path)
     theirs_text = git_stage_text(repo, 3, path)
-    if CACHE_INDEX_DAILY_PATTERN.match(path):
+    if BREADTH_CACHE_PATTERN.fullmatch(path):
+        from tools.market_breadth import merge_document
+        merged_text = json.dumps(merge_document(json.loads(ours_text or "{}"), json.loads(theirs_text or "{}")), ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
+    elif CACHE_INDEX_DAILY_PATTERN.match(path):
         merged_text = merge_index_daily_csv(ours_text, theirs_text)
     elif path == "cache/a_share_trade_calendar_cache.json":
         merged_text = merge_a_share_trade_calendar_cache(ours_text, theirs_text)

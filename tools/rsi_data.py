@@ -2282,6 +2282,8 @@ def plot_analysis(
     vix_state_positive_threshold: float = 5.0,
     vix_state_max_staleness_days: int = 0,
     dpi: int = 180,
+    breadth_df: Optional[pd.DataFrame] = None,
+    show_breadth: bool = False,
 ):
     """
     输出价格、成交量和可选 RSI 图。曲线按 RSI 阈值连续变色。
@@ -2478,6 +2480,13 @@ def plot_analysis(
         axes[2].axhline(rsi_high, linestyle="--", linewidth=1, color="red")
         axes[2].axhline(rsi_low, linestyle="--", linewidth=1, color="black")
         axes[2].set_ylim(0, 100)
+        if show_breadth:
+            from tools.market_breadth import draw_breadth
+            from matplotlib.lines import Line2D
+            draw_breadth(axes[2], breadth_df)
+            handles, labels = axes[2].get_legend_handles_labels()
+            axes[2].legend([Line2D([0], [0], color="#3267a8", label="RSI"), *handles],
+                           ["RSI", *labels], loc="upper left", fontsize=8)
 
     plt.tight_layout()
 
@@ -2556,6 +2565,7 @@ def rsi_analyze_index(
     save_signal_table: bool = True,
     signal_table_file: str = "output/rsi_signal_table.png",
     signal_table_max_rows: Optional[int] = 80,
+    breadth_key: Optional[str] = None,
 ) -> pd.DataFrame:
     """
     外部调用主函数。
@@ -2770,10 +2780,22 @@ def rsi_analyze_index(
         )
 
     if do_plot:
+        breadth_df = None
+        from tools.configs.market_breadth_configs import BREADTH_ENABLED
+        if not BREADTH_ENABLED:
+            breadth_key = None
+        if breadth_key:
+            try:
+                from tools.breadth_engine import chart_data
+                breadth_df = chart_data(breadth_key, hist["date"])
+            except Exception as error:
+                print(f"[WARN] 广度缓存不可用，继续绘制RSI: {error}")
         plot_analysis(
             df=hist,
             symbol=symbol,
             output_file=output_file,
+            breadth_df=breadth_df,
+            show_breadth=bool(breadth_key),
             output_two_file=output_two_file,
             display_name=plot_title_name,
             symbol_name_map=symbol_name_map,

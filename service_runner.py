@@ -188,7 +188,9 @@ def is_blocked_path(path: str) -> bool:
     normalized = path.replace("\\", "/").strip()
     lower = normalized.lower()
     return (
-        lower == ".env"
+        lower.startswith("cache/market_breadth_local/")
+        or (lower.startswith("cache/market_breadth/") and lower.endswith(".tmp"))
+        or lower == ".env"
         or lower.startswith(".env.")
         or lower == "tools/email_local_config.py"
         or lower == "sent_email_log.json"

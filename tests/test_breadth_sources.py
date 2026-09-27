@@ -1,0 +1,74 @@
+import unittest
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
+import pandas as pd
+from tools.breadth_sources import parse_members, parse_yahoo_history, FutuBreadth, validate_external_breadth, parse_sina_us, parse_stockcharts, parse_tencent_history
+
+class SourceTests(unittest.TestCase):
+    def test_sina_uses_regular_time_not_afterhours(self):
+        fields=["0"]*30;fields[1]="110";fields[25]="Sep 25 04:00PM EDT";fields[26]="100";fields[29]="2026";fields[24]="Sep 25 08:00PM EDT"
+        out=parse_sina_us('var hq_str_gb_aapl="'+','.join(fields)+'";')
+        self.assertEqual(out["US.AAPL"]["time"],"2026-09-25T16:00:00")
+        self.assertEqual(out["US.AAPL"]["price"],110)
+    def test_stockcharts_close_and_intraday_can_be_saved_as_strict_json(self):
+        from tools.market_breadth import BreadthStore
+        payload={"success":True,"symbols":[{"symbol":"$NAA50R","intradayDate":"2026-09-25 15:00","quoteClose":34.6,"perfSummaryQuote":{"endOfDay":{"date":"2026-09-24","price":33.7}}}]}
+        rows=parse_stockcharts(payload,"$NAA50R","2026-09-24",True,pd.Timestamp("2026-09-25 15:10",tz="America/New_York"))
+        with tempfile.TemporaryDirectory() as tmp:
+            store=BreadthStore(Path(tmp));store.save_results("nasdaq_stockcharts",rows,"stockcharts")
+            self.assertEqual(len(store.results("nasdaq_stockcharts")),2)
+    def test_stockcharts_wrong_symbol_and_bad_percent_rejected(self):
+        payload={"success":True,"symbols":[{"symbol":"$NAA50R","intradayDate":"2026-09-25 16:00","quoteClose":34.6,"perfSummaryQuote":{"endOfDay":{"date":"2026-09-25","price":34.6}}}]}
+        rows=parse_stockcharts(payload,"$NAA50R","2026-09-25",False)
+        self.assertEqual(rows[0]["percent"],34.6)
+        with self.assertRaises(ValueError):parse_stockcharts(payload,"$DOWA50R","2026-09-25",False)
+        payload["symbols"][0]["perfSummaryQuote"]["endOfDay"]["price"]=110
+        with self.assertRaises(ValueError):parse_stockcharts(payload,"$NAA50R","2026-09-25",False)
+
+    def test_tencent_single_request_history_accepts_beijing_and_filters_unclosed(self):
+        payload={"data":{"bj920001":{"qfqday":[["2026-09-24","10","11","12","9","100"],["2026-09-28","11","12","13","10","200"]]}}}
+        frame=parse_tencent_history(payload,"bj920001","2026-09-24")
+        self.assertEqual(len(frame),1);self.assertEqual(frame.iloc[-1].close,11.)
+    def test_beijing_eastmoney_fallback_normalizes_chinese_columns(self):
+        from tools.breadth_sources import fetch_prices
+        response=pd.DataFrame({"日期":["2026-09-24"],"收盘":[11.2]})
+        with patch("tools.breadth_sources.get",side_effect=RuntimeError("Tencent unavailable")),patch("akshare.stock_zh_a_hist",return_value=response):
+            frame,source=fetch_prices("BJ.920001","2026-09-24")
+        self.assertEqual(source,"eastmoney_qfq")
+        self.assertEqual(frame.iloc[0].close,11.2)
+
+    def test_cni_sample_code_column_matches_official_file(self):
+        frame=pd.DataFrame({"样本代码":[str(i).zfill(6) for i in range(500)]})
+        self.assertEqual(len(parse_members("shenzhen",frame)),500)
+    def test_component_count_prevents_truncated_list(self):
+        frame=pd.DataFrame({"Constituent Code":["000001","600000"]})
+        with self.assertRaises(ValueError):parse_members("csi2000",frame)
+    def test_csi2000_keeps_beijing_constituents(self):
+        codes=[str(i).zfill(6) for i in range(1961)]+[str(920000+i) for i in range(39)]
+        rows=parse_members("csi2000",pd.DataFrame({"Constituent Code":codes}))
+        self.assertEqual(len(rows),2000)
+        self.assertIn("BJ.920001",rows)
+    def test_dow_ignores_cash_and_demands_30(self):
+        frame=pd.DataFrame({"Ticker":[f"T{i}" for i in range(30)]+["USD"],"Name":["Company"]*30+["US DOLLAR"]})
+        rows=parse_members("dow",frame)
+        self.assertEqual(len(rows),30);self.assertNotIn("US.USD",rows)
+    def test_yahoo_adjustment_and_exclude_unclosed_session(self):
+        payload={"chart":{"result":[{"meta":{"exchangeTimezoneName":"America/New_York"},"timestamp":[1757943000,1758029400],"indicators":{"quote":[{"close":[100,110]}],"adjclose":[{"adjclose":[50,55]}]}}],"error":None}}
+        out=parse_yahoo_history(payload,"2025-09-15")
+        self.assertEqual(len(out),1);self.assertEqual(out.iloc[0].close,50)
+    def test_external_indicator_rejects_missing_dates_out_of_range(self):
+        for rows in [[{"date":"bad","percent":50}],[{"date":"2026-01-01","percent":101}]]:
+            with self.assertRaises(ValueError):validate_external_breadth(rows)
+    def test_futu_reserve_only_blocks_new_symbols(self):
+        f=FutuBreadth();f.used={"US.AAPL"};f.remaining=10
+        self.assertTrue(f.can_history("US.AAPL"));self.assertFalse(f.can_history("US.MSFT"))
+        f.remaining=11;self.assertTrue(f.can_history("US.MSFT"))
+    def test_futu_batches_and_minimum_interval(self):
+        f=FutuBreadth();times=[]
+        with patch("tools.breadth_sources.time.monotonic",side_effect=[10,10.2,11.2]),patch("tools.breadth_sources.time.sleep",side_effect=lambda x: times.append(x)):
+            f.throttle();f.throttle()
+        self.assertAlmostEqual(times[0],.8)
+        self.assertEqual([len(b) for b in f.batches(list(range(450)))],[200,200,50])
+
+if __name__=="__main__":unittest.main()

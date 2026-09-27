@@ -877,8 +877,19 @@ def check_git_status() -> list[CheckItem]:
     return items
 
 
+def check_market_breadth_cache() -> list[CheckItem]:
+    from tools.market_breadth import audit_store
+    report = audit_store(CACHE_DIR / "market_breadth")
+    if not report["files"]:
+        return [make_item("WARN", "50DMA广度", "尚未建库；使用 market_breadth.py --bootstrap 初始化。")]
+    items = [make_item("OK", "50DMA广度容量", f"{report['files']} 个分片，{report['bytes'] / 1024 / 1024:.1f} MB；日线/结果每片最多400行。")]
+    items.extend(make_item("WARN", "50DMA广度", text) for text in report["warnings"][:20])
+    return items
+
+
 def run_checks() -> list[CheckItem]:
     sections = [
+        ("50DMA市场广度", "只读检查分片容量和覆盖率，不联网或改写缓存。", check_market_breadth_cache),
         (
             "Python 环境",
             "确认当前解释器和版本，排查环境不一致问题。",

@@ -335,6 +335,12 @@ def build_stock_analysis(
     配置集中在 `RSI_ANALYSIS_CONFIGS`，后续新增标的只需要复制一项配置；
     `include_realtime=True` 只作用于国内 ETF，用于把盘中行情临时合并到日线末尾。
     """
+    # 大规模建库使用独立入口；日常仅在有界子进程中增量更新广度。
+    try:
+        from tools.breadth_engine import refresh_for_charts
+        refresh_for_charts()
+    except Exception as error:
+        print(f"[WARN] 广度采集异常，继续生成原有市场图: {error}")
     results = [
         _run_rsi_analysis(config, include_realtime=include_realtime)
         for config in RSI_ANALYSIS_CONFIGS
