@@ -61,7 +61,7 @@ result_df, detail_map = estimate_funds_and_save_table(
 5. 限购金额来自公开网页文本解析，可能返回“未知”。
 6. 本版本新增 JSON 文件缓存：
    - 基金持仓默认 75 天更新一次；
-   - 限购金额默认 7 天更新一次；
+   - 限购金额默认 3 天更新一次；
    - CN/HK 行情默认小时级缓存，US 行情默认日级缓存。
 """
 
@@ -258,7 +258,7 @@ def _is_cache_fresh(fetched_at, max_age_days=None, max_age_hours=None) -> bool:
     判断缓存是否仍在有效期内。
 
     max_age_days:
-        日级有效期，例如基金持仓 75 天、限购 7 天。
+        日级有效期，例如基金持仓 75 天、限购 3 天。
     max_age_hours:
         小时级有效期，例如 A股/港股盘中行情 1-2 小时。
     """
@@ -2125,7 +2125,7 @@ def get_fund_purchase_limit(
     获取基金限购金额，带文件缓存。
 
     设计：
-        - 默认 7 天更新一次；
+        - 默认 3 天更新一次；
         - force_refresh=True 时显式提前刷新，成功后 fetched_at 顺延下一次自动刷新时间；
         - GitHub Actions 中配合提交 cache/*.json 回仓库，可跨任务复用；
         - 如果更新失败且旧缓存存在，优先使用旧缓存。
@@ -2212,6 +2212,10 @@ def get_fund_purchase_limit(
             if detail.get("error"):
                 fallback_detail["error"] = detail.get("error")
             return _purchase_limit_return(fallback_detail, return_detail)
+
+        # 无有效旧值时也不能把“未知”写成一次成功抓取，否则会推迟下次重试。
+        if value == "未知":
+            return _purchase_limit_return(detail, return_detail)
 
         cache[fund_code] = _purchase_limit_cache_record(detail)
         _save_json_cache(FUND_PURCHASE_LIMIT_CACHE_FILE, cache)

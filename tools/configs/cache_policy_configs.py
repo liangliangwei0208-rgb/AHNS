@@ -19,8 +19,8 @@ ANCHOR_CACHE_STABLE_RETENTION_DAYS = 300
 # 锚点行情缓存读取侧只复用 traded / closed。
 # pending / missing / stale 仍会写入缓存用于排查，但不会阻止下次运行重新请求接口。
 
-# 基金限购缓存必须严格 7 天有效，不要改成固定每周刷新。
-FUND_PURCHASE_LIMIT_CACHE_DAYS = 7
+# 基金限购按上次成功抓取时间满 72 小时刷新，不按固定星期或自然日整点计算。
+FUND_PURCHASE_LIMIT_CACHE_DAYS = 3
 
 # 基金持仓缓存兼容旧调用参数；实际目标季度确认逻辑仍以持仓披露窗口为准。
 FUND_HOLDINGS_CACHE_DAYS = 75

@@ -21,6 +21,23 @@ AHNS 是一个个人公开数据建模复盘项目，用于生成每日市场 RS
 - 支持 QQ 邮箱自动发送本次运行生成或更新的图片。
 - 支持 GitHub Actions 定时运行、手动触发、缓存自动回推和失败图片 artifact。
 
+
+## 限购每 3 天更新与变化图
+
+`fund_limit_change.py --auto` 已加入 GitHub / 主机 / Service 的共享总流程，放在 RSI 之后、正式估算之前，所有实时窗口与假期流程均检查。每只基金从上次成功抓取起满 72 小时后，在下一次流程运行时刷新；不新增定时任务。单独运行该入口会更新到期缓存并生成变化图，但不会自行发送邮件：
+
+```powershell
+& F:\anaconda\envs\py310\python.exe .\fund_limit_change.py --auto
+```
+
+- 首次先用已有有效限购缓存建立基线，再刷新到期数据；无旧记录的基金仅初始化。金额格式差异不算变化，暂停 / 恢复申购、限购金额调整等真实变化才出图。
+- 手动强刷仍不出图、不发邮件；产生的变化由下一次总流程检测。请求失败或未知不覆盖有效值、不更新成功抓取时间，下次运行重试。
+- 独立状态 `cache/fund_limit_change_state.json` 按基金记录比较基线和最近事件；先持久化待出图事件，图片保存成功再标记完成。无变化或事件已完成不重复出图；绘图失败保留待处理事件。
+- 自动图片输出到 `output/fund_limit_change/latest/<基金代码>.png`，每只基金覆盖最新变化图，不删除旧图片。总流程只把本次新增或更新图片纳入邮件。
+- 1080 像素宽浅色竖图展示完整基金名称、前后限购信息、北京时间检测时间，以及现有缓存中最新披露的前十大持仓。检测时间不是公告生效时间；持仓不联网刷新，缺失则出占位区域。
+- 独立样式入口是 `tools/configs/fund_limit_change_style_configs.py`，控制米白背景、深蓝标题、卡片、字号、边距与水印透明度；复用 `cache/mark.jpg` logo 和“鱼师AHNS”水印。logo 缺失时保留待出图事件并报告失败。
+- 缓存自检只读检查新状态，`sync_repos.py` 按基金合并新状态；优先较新的有效观察，同一变化保留成功出图标识。原限购缓存仍为 key-map，不增加顶层说明字段。
+
 ## 运行环境与分工
 
 本项目现在按三类运行环境维护，Codex 接手时请先判断自己在哪台机器上：
@@ -49,6 +66,7 @@ GitHub 仍是长期主仓和 Actions 运行源；Gitee 是小电脑服务器的�
 ├── futu_night_fund.py           # 富途夜盘观察图手动入口，不写正式估算缓存
 ├── check_project.py             # 运行前自检，只检查不修改
 ├── fund_estimate_breakdown.py    # 基金估算完整拆解查询工具
+├── fund_limit_change.py          # 全天检查限购，满 72 小时刷新，有变化时生成带缓存持仓的竖图
 ├── fund_holding_change.py        # 基金前十大持仓变化解读图；总入口自动检测，亦可手动生成
 ├── fund_region_allocation.py     # 晨星股票地区分布对比图；总入口仅在收盘流程自动检查
 ├── stock_analysis.py            # 市场 RSI 图入口；总入口全天固定运行
@@ -360,7 +378,7 @@ GitHub 仓库需要在 Settings -> Secrets and variables -> Actions -> Secrets �
 - `tools/configs/fund_holding_change_style_configs.py`：维护前十大持仓变化图的竖屏发布尺寸、四边安全边距和 PNG 导出 DPI；不影响 safe 或实时观察图。
 - `tools/configs/fund_region_allocation_configs.py`：维护晨星地区分布直连地址、超时、重试、地区层级及颜色；请求固定不继承环境代理。
 - `tools/configs/fund_region_allocation_style_configs.py`：维护地区图的 1080 竖版尺寸、安全边距、每页基金数、卡片尺寸、字号、鱼师图像水印和 PNG DPI。
-- `tools/configs/cache_policy_configs.py`：维护缓存有效期和容量上限。限购 7 天、A 股交易日历 7 天、VIX 日线 1000 条与 2 小时落后重试、基金池外手动 key 365 天保留、证券/指数/基金历史保留天数、RSI ETF 实时补点新鲜度等都集中在这里。
+- `tools/configs/cache_policy_configs.py`：维护缓存有效期和容量上限。限购 3 天、A 股交易日历 7 天、VIX 日线 1000 条与 2 小时落后重试、基金池外手动 key 365 天保留、证券/指数/基金历史保留天数、RSI ETF 实时补点新鲜度等都集中在这里。
 - `tools/configs/security_mappings.py`：维护美股 / 韩国证券映射。
 - `tools/configs/rsi_configs.py`：维护 RSI 图标的列表。
 - `tools/cache_metadata.py`：维护缓存文件说明，并生成 `cache/README.md`。只有安全容器型 JSON 会内嵌 `_cache_info`，key-map JSON 和 CSV 不改变结构。

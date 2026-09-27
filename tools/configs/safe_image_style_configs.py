@@ -277,6 +277,9 @@ SAFE_WATERMARK_STYLE = {
 #   0.5 表示正中；x_ratio 变大向右，变小向左；y_ratio 变大向下，变小向上。
 # - x_offset_px / y_offset_px：在比例定位基础上的像素微调。
 #   x_offset_px 正数向右、负数向左；y_offset_px 正数向下、负数向上。
+# - placement：默认 overlay 直接叠加在图片上；left_gutter 会在左侧创建专用留白栏，
+#   场景字放在栏内，适合列很多的累计表。
+# - left_gutter_ratio：left_gutter 留白栏占原图宽度的比例。
 # - 如果不同图高度差异较大，优先用 x_ratio/y_ratio 做大方向定位，再用 offset 微调。
 SAFE_SCENE_TEXT_STYLE = {
     "safe_haiwai_afterhours.png": {
@@ -363,7 +366,10 @@ SAFE_SCENE_TEXT_STYLE = {
         "enabled": True,
         "text": "假期观察",
         "layout": "vertical",
-        "font_size": 200,
+        # 累计表的文字和日期列较密集，场景字单独放到左侧留白栏。
+        "placement": "left_gutter",
+        "left_gutter_ratio": 0.10,
+        "font_size": 150,
         "fill_color": "#CC0321",
         "stroke_color": "#f8fafc",
         "stroke_width": 7,

@@ -44,6 +44,14 @@ COMMON_WORKFLOW_STEPS = [
         "always_run": True,
     },
     {
+        "name": "基金限购变化图",
+        "script": "fund_limit_change.py",
+        "required": False,
+        "collect_images": True,
+        "always_run": True,
+        "args": ["--auto"],
+    },
+    {
         "name": "海外基金正式估算",
         "script": "main.py",
         "required": True,

@@ -150,6 +150,15 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "同一基金无地区数据变化时不会重复生成或发送图片。",
         ],
     },
+    "fund_limit_change_state.json": {
+        "purpose": "基金限购变化比较基线、待生成事件及成功出图标识。",
+        "producer": "fund_limit_change.py --auto 在限购检查与出图时写入。",
+        "consumers": ["fund_limit_change.py", "check_project.py", "sync_repos.py"],
+        "refresh_policy": "所有总流程检查；先保存变化事件，成功出图后标记完成；失败下次重试。",
+        "retention_policy": "每只基金保留最新有效基线与最近事件；基金池外超过 365 天的记录在写入时回收。",
+        "data_shape": "基金代码 -> {baseline, event, observations, updated_at}；observations 保留未消费观察，event 包含前后值、检测时间、事件 ID 与成功生成时间。",
+        "notes": ["不在顶层内嵌 _cache_info；检测时间不是公告生效时间；持仓只读缓存。"],
+    },
     "fund_purchase_limit_cache.json": {
         "purpose": "基金限购金额缓存，用于每日基金图展示模型观察限购信息。",
         "producer": "tools/get_top10_holdings.py 解析公开网页限购文本后写入。",
@@ -157,7 +166,7 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "tools/get_top10_holdings.py",
             "kepu/kepu_xiane.py",
         ],
-        "refresh_policy": "默认 7 天刷新一次；新结果为未知且旧值明确时保留旧值。",
+        "refresh_policy": "按上次成功刷新时间满 3 天更新；失败或未知不写入成功时间，保留旧有效值。",
         "retention_policy": "每个基金代码一个 key，更新时覆盖同 key；基金池外且明确超过 365 天的手动 key 在下次写入时回收。",
         "data_shape": "顶层是 fund_code -> {fetched_at, value} 的映射。",
         "notes": [

@@ -392,6 +392,24 @@ def add_scene_text_watermark(
 
     width, height = image.size
     layout = str(scene_style.get("layout", "horizontal") or "horizontal").strip().lower()
+    placement = str(scene_style.get("placement", "overlay") or "overlay").strip().lower()
+    left_gutter_width = 0
+    if placement == "left_gutter":
+        # 累计表已经占满横向空间，大字若直接左移仍会遮住表格。
+        # 为假期图增加独立白色留白栏，再把原图整体右移，确保数据区域不受覆盖。
+        try:
+            gutter_ratio = max(0.0, float(scene_style.get("left_gutter_ratio", 0.0)))
+        except (TypeError, ValueError):
+            gutter_ratio = 0.0
+        left_gutter_width = int(round(width * gutter_ratio))
+        if left_gutter_width > 0:
+            expanded = Image.new("RGBA", (width + left_gutter_width, height), (255, 255, 255, 255))
+            expanded.alpha_composite(image, (left_gutter_width, 0))
+            image = expanded
+            width, height = image.size
+        else:
+            placement = "overlay"
+
     display_text = text
     if layout == "vertical":
         display_text = "\n".join(char for char in text if char not in "\r\n")
@@ -440,7 +458,9 @@ def add_scene_text_watermark(
 
     text_width = math.ceil(bbox[2] - bbox[0])
     text_height = math.ceil(bbox[3] - bbox[1])
-    pad = max(24, font_size // 2) + stroke_width * 2
+    # 左侧栏不需要给旋转文字预留大范围透明边缘，否则会重新侵入表格。
+    pad = (max(8, font_size // 10) if placement == "left_gutter" else max(24, font_size // 2))
+    pad += stroke_width * 2
     text_patch = Image.new(
         "RGBA",
         (text_width + pad * 2, text_height + pad * 2),
@@ -473,8 +493,16 @@ def add_scene_text_watermark(
     text_patch = text_patch.rotate(rotation, expand=True, resample=resample_filter)
 
     overlay = Image.new("RGBA", image.size, (255, 255, 255, 0))
-    center_x = int(width * x_ratio) + x_offset_px
+    center_x = (
+        left_gutter_width // 2
+        if placement == "left_gutter"
+        else int(width * x_ratio) + x_offset_px
+    )
     center_y = int(height * y_ratio) + y_offset_px
+    if placement == "left_gutter" and text_patch.height <= height:
+        # 小数据表高度较低时，不能再按固定比例让竖排字从顶部裁切。
+        half_height = text_patch.height / 2.0
+        center_y = max(half_height, min(center_y, height - half_height))
     x = int(center_x - text_patch.width / 2)
     y = int(center_y - text_patch.height / 2)
 

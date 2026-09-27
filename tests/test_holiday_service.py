@@ -175,7 +175,7 @@ class HolidayServiceTests(unittest.TestCase):
         )
         names = {step.script_path.name for step in selected}
         self.assertEqual(names, {
-            "stock_analysis.py", "main.py", "safe_fund.py",
+            "stock_analysis.py", "fund_limit_change.py", "main.py", "safe_fund.py",
             "safe_holidays.py", "intraday_fund.py",
         })
 

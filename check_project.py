@@ -431,6 +431,7 @@ def check_cache_growth_policy(
             )
 
     state_filenames = (
+        "fund_limit_change_state.json",
         "fund_holding_change_batch_state.json",
         "fund_region_allocation_state.json",
     )

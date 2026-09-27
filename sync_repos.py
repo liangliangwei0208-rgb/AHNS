@@ -35,6 +35,7 @@ CACHE_CONFLICT_EXACT_PATHS = {
     "cache/fund_holding_change_state.json",
     "cache/fund_holdings_cache.json",
     "cache/fund_purchase_limit_cache.json",
+    "cache/fund_limit_change_state.json",
     "cache/fund_region_allocation_cache.json",
     "cache/fund_region_allocation_state.json",
     "cache/futu_night_return_cache.json",
@@ -814,6 +815,72 @@ def choose_purchase_limit_record(ours: Any, theirs: Any) -> Any:
     return merged
 
 
+def merge_fund_limit_change_state_cache(ours_text: str, theirs_text: str) -> str:
+    """按有效观察时间合并限购基线，同一事件优先保留已经成功出图的标记。"""
+    ours, theirs = json.loads(ours_text), json.loads(theirs_text)
+    if not isinstance(ours, dict) or not isinstance(theirs, dict):
+        raise SyncError("限购变化状态不是 JSON object，无法自动合并。")
+
+    def observation_time(record):
+        if not isinstance(record, dict) or not isinstance(record.get("baseline"), dict):
+            return datetime.min
+        baseline = record["baseline"]
+        if not baseline.get("value") or baseline["value"] == "未知":
+            return datetime.min
+        return parse_datetime_like(baseline.get("observed_at")) or datetime.min
+
+    merged = {}
+    for code in sorted(set(ours) | set(theirs)):
+        a, b = ours.get(code), theirs.get(code)
+        if not isinstance(a, dict):
+            merged[code] = b
+            continue
+        if not isinstance(b, dict):
+            merged[code] = a
+            continue
+        # 时间相同时用确定性的内容排序，交换合并方向也产生相同结果。
+        chosen = max((a, b), key=lambda r: (observation_time(r), json.dumps(r, sort_keys=True, ensure_ascii=False)))
+        result = dict(chosen)
+        other = b if chosen is a else a
+        newly_observed = None
+        if (not chosen.get("event") and observation_time(other) > datetime.min
+                and observation_time(chosen) > observation_time(other)
+                and chosen["baseline"]["value"] != other["baseline"]["value"]):
+            # 新机器只初始化了基线，并不等于已经通知了变化。把新值保留为待比较
+            # 观察，旧基线只作为比较起点；下次运行最终仍采用最新观察并生成变化图。
+            newly_observed = dict(chosen["baseline"])
+            result["baseline"] = dict(other["baseline"])
+        ae, be = a.get("event"), b.get("event")
+        # 另一端可能只是从较新的限购缓存初始化，不能让空事件吞掉待重试图片。
+        if not result.get("event"):
+            other_event = be if chosen is a else ae
+            if isinstance(other_event, dict):
+                result["event"] = dict(other_event)
+        if isinstance(ae, dict) and isinstance(be, dict) and ae.get("id") and ae.get("id") == be.get("id"):
+            event = dict(max((ae, be), key=lambda e: (parse_datetime_like(e.get("generated_at")) or datetime.min,
+                                                    json.dumps(e, sort_keys=True, ensure_ascii=False))))
+            # 相同变化两端检测时间可以不同，保留最早实际检测时间。
+            detections = [e["detected_at"] for e in (ae, be) if parse_datetime_like(e.get("detected_at"))]
+            if detections:
+                event["detected_at"] = min(detections, key=parse_datetime_like)
+            result["event"] = event
+        # 未消费的缓存观察属于待处理数据；只保留比合并基线更新的记录，防止重放。
+        queued = {}
+        if newly_observed:
+            queued[(parse_datetime_like(newly_observed["observed_at"]), newly_observed["value"])] = newly_observed
+        for record in (a, b):
+            for item in record.get("observations", []):
+                if not isinstance(item, dict) or not item.get("value") or item["value"] == "未知":
+                    continue
+                observed = parse_datetime_like(item.get("observed_at"))
+                if observed and observed > observation_time(result):
+                    queued[(observed, item["value"])] = item
+        if newly_observed or "observations" in a or "observations" in b:
+            result["observations"] = [queued[key] for key in sorted(queued)]
+        merged[code] = result
+    return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
+
+
 def merge_fund_purchase_limit_cache(ours_text: str, theirs_text: str) -> str:
     ours = json.loads(ours_text)
     theirs = json.loads(theirs_text)
@@ -1034,6 +1101,8 @@ def merge_cache_conflict_file(repo: Path, path: str) -> None:
         merged_text = merge_fund_holdings_cache(ours_text, theirs_text)
     elif path == "cache/fund_purchase_limit_cache.json":
         merged_text = merge_fund_purchase_limit_cache(ours_text, theirs_text)
+    elif path == "cache/fund_limit_change_state.json":
+        merged_text = merge_fund_limit_change_state_cache(ours_text, theirs_text)
     elif path == "cache/fund_region_allocation_cache.json":
         merged_text = merge_fund_region_allocation_cache(ours_text, theirs_text)
     elif path == "cache/fund_region_allocation_state.json":

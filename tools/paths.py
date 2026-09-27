@@ -23,6 +23,7 @@ FUND_HOLDING_CHANGE_BATCH_STATE_CACHE = CACHE_DIR / "fund_holding_change_batch_s
 FUND_REGION_ALLOCATION_CACHE = CACHE_DIR / "fund_region_allocation_cache.json"
 FUND_REGION_ALLOCATION_STATE_CACHE = CACHE_DIR / "fund_region_allocation_state.json"
 FUND_PURCHASE_LIMIT_CACHE = CACHE_DIR / "fund_purchase_limit_cache.json"
+FUND_LIMIT_CHANGE_STATE_CACHE = CACHE_DIR / "fund_limit_change_state.json"
 SECURITY_RETURN_CACHE = CACHE_DIR / "security_return_cache.json"
 PREMARKET_QUOTE_CACHE = CACHE_DIR / "premarket_quote_cache.json"
 AFTERHOURS_QUOTE_CACHE = CACHE_DIR / "afterhours_quote_cache.json"
@@ -84,6 +85,7 @@ __all__ = [
     "FUND_REGION_ALLOCATION_CACHE",
     "FUND_REGION_ALLOCATION_STATE_CACHE",
     "FUND_PURCHASE_LIMIT_CACHE",
+    "FUND_LIMIT_CHANGE_STATE_CACHE",
     "SECURITY_RETURN_CACHE",
     "PREMARKET_QUOTE_CACHE",
     "AFTERHOURS_QUOTE_CACHE",

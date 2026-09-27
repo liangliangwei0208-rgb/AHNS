@@ -18,7 +18,6 @@ import os
 import subprocess
 import sys
 import time
-import traceback
 from dataclasses import dataclass, replace
 from datetime import datetime, time as datetime_time
 from pathlib import Path
@@ -34,18 +33,13 @@ IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 BJ_TZ = ZoneInfo("Asia/Shanghai")
 SCRIPT_OUTPUT_TAIL_LINES = 80
 EMAIL_INLINE_IMAGE_LIMIT = 10
+EMAIL_FAILURE_REASON_LIMIT = 120
 REALTIME_OBSERVATION_SCRIPTS = {
     "premarket_fund.py",
     "intraday_fund.py",
     "afterhours_fund.py",
     "futu_night_fund.py",
 }
-RISK_NOTE = (
-    "个人公开数据建模复盘，不收费、不荐基、不带单、不拉群，不构成任何投资建议。\n"
-    "非实时净值，最终以基金公司公告为准。"
-)
-
-
 @dataclass
 class ImageState:
     mtime_ns: int
@@ -479,40 +473,71 @@ def build_email_text(
     results: list[ScriptResult],
     images: list[Path],
 ) -> str:
+    """生成只供收件人快速浏览的运行摘要。
+
+    子脚本的完整输出仍由控制台和运行日志保留；邮件不再复制诊断细节，避免
+    手机端先看到大段文字而错过图片和整体运行结果。
+    """
+    failed_results = [result for result in results if not result.success]
+    succeeded_count = len(results) - len(failed_results)
+    status = "成功" if not failed_results else "部分完成"
+    elapsed_seconds = max(0.0, (finished_at - started_at).total_seconds())
     lines = [
-        "【AHNS 每日市场图自动生成】",
-        f"开始时间：{started_at.strftime('%Y-%m-%d %H:%M:%S')}",
+        "【AHNS 自动运行摘要】",
+        f"结果：{status}",
         f"完成时间：{finished_at.strftime('%Y-%m-%d %H:%M:%S')}",
-        "",
-        "【运行结果】",
+        f"总耗时：{format_duration(elapsed_seconds)}",
+        f"步骤：成功 {succeeded_count} 项，失败 {len(failed_results)} 项",
+        f"图片：{len(images)} 张",
     ]
 
-    for result in results:
-        status = "成功" if result.success else f"失败(退出码 {result.return_code})"
-        collect_note = "" if result.collect_images else "，不纳入邮件图片"
-        lines.append(
-            f"- {result.step_name}({result.script_name}): {status}，"
-            f"耗时 {format_duration(result.elapsed_seconds)}，"
-            f"生成或更新图片 {len(result.changed_images)} 张{collect_note}"
-        )
+    if failed_results:
+        lines.extend(["", "失败步骤："])
+        for result in failed_results:
+            lines.append(
+                f"- {result.step_name}：退出码 {result.return_code}："
+                f"{compact_failure_reason(result)}"
+            )
 
-    changed_image_logs = format_changed_image_logs(results)
-    if changed_image_logs:
-        lines.extend(["", *changed_image_logs])
-
-    failure_logs = format_failure_logs(results)
-    if failure_logs:
-        lines.extend(["", *failure_logs])
-
-    lines.extend(["", "【本次发送图片】"])
-    if images:
-        for index, image in enumerate(images, start=1):
-            lines.append(f"{index}. {relative_text(image)}")
-    else:
-        lines.append("本次没有纳入邮件发送的图片。")
-
-    lines.extend(["", "【提示】", RISK_NOTE])
     return "\n".join(lines)
+
+
+def compact_email_line(value: object, *, max_length: int = EMAIL_FAILURE_REASON_LIMIT) -> str:
+    """提取诊断中的首行，避免换行和超长内容进入摘要邮件。"""
+    for line in str(value or "").splitlines():
+        text = " ".join(line.split()).strip()
+        if not text:
+            continue
+        for prefix in ("[ERROR]", "[WARN]", "错误：", "异常："):
+            if text.lower().startswith(prefix.lower()):
+                text = text[len(prefix):].strip()
+                break
+        if len(text) > max_length:
+            return text[:max_length - 1].rstrip() + "…"
+        return text
+    return ""
+
+
+def compact_failure_reason(result: ScriptResult) -> str:
+    """为失败步骤选一条最有辨识度的短原因，不暴露完整运行日志。"""
+    monitored_error = compact_email_line(result.error_message)
+    if monitored_error:
+        return monitored_error
+
+    tail_lines = [
+        (str(raw_line), compact_email_line(raw_line))
+        for raw_line in result.output_tail
+    ]
+    tail_lines = [(raw_line, line) for raw_line, line in tail_lines if line]
+    error_markers = ("[error]", "错误", "异常", "失败", "error", "exception")
+    for raw_line, line in reversed(tail_lines):
+        # 前缀会在展示前被去除，因此必须用原始日志判断它是不是错误行。
+        if any(marker in raw_line.lower() for marker in error_markers):
+            return line
+    for _, line in reversed(tail_lines):
+        if not line.lower().startswith("traceback"):
+            return line
+    return "未捕获到子脚本错误输出"
 
 
 def format_changed_image_logs(results: Iterable[ScriptResult]) -> list[str]:
@@ -583,17 +608,11 @@ def build_uncaught_exception_email_text(*, entry_name: str, workflow_label: str,
     finished_at = datetime.now(BJ_TZ)
     return "\n".join(
         [
-            "【AHNS 总入口异常】",
+            "【AHNS 运行异常摘要】",
             f"入口：{entry_name}",
             f"流程：{workflow_label}",
             f"时间：{finished_at.strftime('%Y-%m-%d %H:%M:%S')}",
-            f"错误：{type(exc).__name__}: {exc}",
-            "",
-            "【Traceback】",
-            traceback.format_exc(),
-            "",
-            "【提示】",
-            RISK_NOTE,
+            f"异常原因：{compact_email_line(f'{type(exc).__name__}: {exc}')}",
         ]
     )
 

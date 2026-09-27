@@ -1,6 +1,6 @@
 # AHNS 项目接手说明
 
-更新时间：2026-05-30
+更新时间：2026-09-27
 
 本项目用于生成每日市场分析图、海外/全球基金模型估算表、盘前/盘中/盘后/富途夜盘观察图、安全版公开发布图、海外基金节假日累计观察图、节后补更新观察图，以及面向小白的科普说明图。国内基金收益预估业务线已停用，但 A 股/港股/韩国行情能力仍保留用于海外/全球基金持仓估算。正式主流程只使用完整日线；四个实时观察入口均不写正式基金估算缓存。
 
@@ -95,21 +95,22 @@ Get-ChildItem "C:\Users\Administrator\Desktop\AHNS\logs\diagnostics" -File
 & F:\anaconda\envs\py310\python.exe .\git_main.py --no-send
 ```
 
-`git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、必要性标记、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。`stock_analysis.py` 是 `always_run=True` 的全天固定步骤，无论是否命中实时窗口都会先生成 RSI / 市场分析图；命中盘前、盘中、盘后或富途夜盘实时窗口时，总入口默认只额外运行对应实时观察步骤。若盘后/富途夜盘窗口与 `safe_fund.py` 的 06:00-13:40 收盘窗口重叠，则会同时运行 `close_observation_group=True` 的收盘必要步骤，先刷新收盘观察再生成实时观察。未命中实时窗口时，才运行完整日流程中符合 `run_window_bj` 的步骤。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。邮件成功发出后，即使有子脚本失败，总入口也按退出码 0 结束；`--no-send` 预演仍保留非 0 退出码方便调试。
+`git_main.py` 的运行顺序由 `tools/configs/workflow_configs.py` 维护。想调整每日运行脚本、脚本顺序、必要性标记、某一步生成的图片是否进入邮件候选，优先改这个配置文件，不要直接改总入口主逻辑。`stock_analysis.py` 是 `always_run=True` 的全天固定步骤，无论是否命中实时窗口都会先生成 RSI / 市场分析图，随后运行全天固定的 `fund_limit_change.py --auto` 检查限购变化；命中盘前、盘中、盘后或富途夜盘实时窗口时，总入口默认只额外运行对应实时观察步骤。若盘后/富途夜盘窗口与 `safe_fund.py` 的 06:00-13:40 收盘窗口重叠，则会同时运行 `close_observation_group=True` 的收盘必要步骤，先刷新收盘观察再生成实时观察。未命中实时窗口时，才运行完整日流程中符合 `run_window_bj` 的步骤。子脚本失败不会中断总流程，会在运行结束后统一打印失败日志；失败日志会写入邮件正文，失败步骤已生成/更新的图片也会按 `collect_images` 纳入邮件。邮件成功发出后，即使有子脚本失败，总入口也按退出码 0 结束；`--no-send` 预演仍保留非 0 退出码方便调试。
 
-Service 假期特例：A 股日历核实连续休市区间含工作日休市时（普通周末不算），全天选中 `holiday_observation_group` 的正式估算、收盘观察和 `safe_holidays.py`，同时保留 RSI 与当前实时窗口脚本；`safe_fund.py` 此时不受平日 06:00-13:40 限制。`main.py` 子进程只在 Service 假期/节后首日接收 `AHNS_HOLIDAY_COMPLETE_SESSION=1`，以中美港韩所有开市市场均完整收盘的日期为估值锚点；不要把这个开关全局设置到 GitHub。累计按 `valuation_date` 从假前最后一个 A 股交易日之后统计，闭市零值不计为有效日，无数据仍出占位图并随邮件发送。节后首个 A 股交易日同时运行假期累计图（`safe_holidays.py --first-reopen`）和原有 `sum_holidays.py` 补更新图。日历未核实则按平日窗口运行并将错误写入邮件。
+Service 假期特例：A 股日历核实连续休市区间含工作日休市时（普通周末不算），全天选中 `holiday_observation_group` 的正式估算、收盘观察和 `safe_holidays.py`，同时保留 RSI、限购变化检查与当前实时窗口脚本；`safe_fund.py` 此时不受平日 06:00-13:40 限制。`main.py` 子进程只在 Service 假期/节后首日接收 `AHNS_HOLIDAY_COMPLETE_SESSION=1`，以中美港韩所有开市市场均完整收盘的日期为估值锚点；不要把这个开关全局设置到 GitHub。累计按 `valuation_date` 从假前最后一个 A 股交易日之后统计，闭市零值不计为有效日，无数据仍出占位图并随邮件发送。节后首个 A 股交易日同时运行假期累计图（`safe_holidays.py --first-reopen`）和原有 `sum_holidays.py` 补更新图。日历未核实则按平日窗口运行并将错误写入邮件。
 
 GitHub / 主机 `git_main.py` 当前全天固定步骤、非实时窗口完整日流程和限时步骤：
 
 1. `stock_analysis.py` 全天固定运行，生成 RSI / 市场分析图
-2. `main.py --skip-rsi`，生成正式海外/全球基金估算缓存，避免总入口里重复运行 RSI
-3. `fund_holding_change.py --auto`，检测基金库持仓缓存变动；首次只初始化状态，有变动或手动指定基金时生成持仓变化图并纳入邮件
-4. `fund_region_allocation.py --auto`，直连晨星检查股票地区分布；首次生成基线分页，后续仅在披露日期或权重变化时重绘受影响页并纳入邮件
-5. `safe_holidays.py`
-6. `sum_holidays.py`
-7. `kepu/kepu_sum_holidays.py`
-8. `kepu/kepu_xiane.py --table-only`
-9. `safe_fund.py` 仅在 06:00-13:40 运行，生成收盘观察图 `output/safe_haiwai_fund.png`
+2. `fund_limit_change.py --auto` 全天固定检查限购，成功抓取满 72 小时才刷新；有变化生成单基金竖图并纳入邮件
+3. `main.py --skip-rsi`，生成正式海外/全球基金估算缓存，避免总入口里重复运行 RSI
+4. `fund_holding_change.py --auto`，检测基金库持仓缓存变动；首次只初始化状态，有变动或手动指定基金时生成持仓变化图并纳入邮件
+5. `fund_region_allocation.py --auto`，直连晨星检查股票地区分布；首次生成基线分页，后续仅在披露日期或权重变化时重绘受影响页并纳入邮件
+6. `safe_holidays.py`
+7. `sum_holidays.py`
+8. `kepu/kepu_sum_holidays.py`
+9. `kepu/kepu_xiane.py --table-only`
+10. `safe_fund.py` 仅在 06:00-13:40 运行，生成收盘观察图 `output/safe_haiwai_fund.png`
 
 自动总入口不再运行 `kepu/first_pic.py`，也不自动生成 `output/kepu_xiane.png` 限额科普图；周日限购表格图 `output/xiane.png` 仍由 `kepu/kepu_xiane.py --table-only` 生成。
 
@@ -119,7 +120,7 @@ GitHub / 主机 `git_main.py` 当前全天固定步骤、非实时窗口完整�
 - 17:30-21:00：`premarket_fund.py --force`
 - 22:40-次日 01:30：`intraday_fund.py --force`
 
-GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py` 使用 Service 流程，额外在 11:30-16:30 运行 `futu_night_fund.py --force`。命中富途夜盘窗口且仍处于 06:00-13:40 收盘窗口时，Service 总入口会运行 RSI、收盘必要步骤和夜盘观察；13:41 之后只保留 RSI 与夜盘观察，不再同时跑完整日流程。
+GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py` 使用 Service 流程，额外在 11:30-16:30 运行 `futu_night_fund.py --force`。命中富途夜盘窗口且仍处于 06:00-13:40 收盘窗口时，Service 总入口会运行 RSI、收盘必要步骤和夜盘观察；13:41 之后保留 RSI、限购变化检查与夜盘观察，不再同时跑完整日流程。
 
 `git_main.py` 会扫描 `output/` 中本次新生成或更新的图片，并通过 `tools/email_send.py` 发送邮件。邮件发送保留“正文内嵌图片 + 附件图片”的方式；发送前会打印图片数量、单张大小和总大小。
 
@@ -127,7 +128,24 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 
 `check_project.py` 是只读体检工具：检查 Python 环境、关键目录、`cache/mark.jpg`、核心缓存、缓存容量与保留策略、邮箱配置、依赖导入、Git 状态和总入口配置。缓存自检会报告受管缓存的大小、条目数、配置上限、过期记录和基金池外状态键，但不会清理或改写任何缓存。它不联网、不拉行情、不出图、不写缓存、不发邮件、不删除文件、不提交 Git。
 
-`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py` 是独立实时观察入口；在总入口命中对应窗口时，会和全天固定的 `stock_analysis.py` 一起运行，也可手动用 `--force` 调试。它们不写 `cache/fund_estimate_return_cache.json`。
+`premarket_fund.py`、`intraday_fund.py`、`afterhours_fund.py`、`futu_night_fund.py` 是独立实时观察入口；在总入口命中对应窗口时，会和全天固定的 `stock_analysis.py`、`fund_limit_change.py --auto` 一起运行，也可手动用 `--force` 调试。它们不写 `cache/fund_estimate_return_cache.json`。
+
+
+## 限购每 3 天更新与变化图
+
+`fund_limit_change.py --auto` 已加入 GitHub / 主机 / Service 的共享总流程，放在 RSI 之后、正式估算之前，所有实时窗口与假期流程均检查。每只基金从上次成功抓取起满 72 小时后，在下一次流程运行时刷新；不新增定时任务。单独运行该入口会更新到期缓存并生成变化图，但不会自行发送邮件：
+
+```powershell
+& F:\anaconda\envs\py310\python.exe .\fund_limit_change.py --auto
+```
+
+- 首次先用已有有效限购缓存建立基线，再刷新到期数据；无旧记录的基金仅初始化。金额格式差异不算变化，暂停 / 恢复申购、限购金额调整等真实变化才出图。
+- 手动强刷仍不出图、不发邮件；产生的变化由下一次总流程检测。请求失败或未知不覆盖有效值、不更新成功抓取时间，下次运行重试。
+- 独立状态 `cache/fund_limit_change_state.json` 按基金记录比较基线和最近事件；先持久化待出图事件，图片保存成功再标记完成。无变化或事件已完成不重复出图；绘图失败保留待处理事件。
+- 自动图片输出到 `output/fund_limit_change/latest/<基金代码>.png`，每只基金覆盖最新变化图，不删除旧图片。总流程只把本次新增或更新图片纳入邮件。
+- 1080 像素宽浅色竖图展示完整基金名称、前后限购信息、北京时间检测时间，以及现有缓存中最新披露的前十大持仓。检测时间不是公告生效时间；持仓不联网刷新，缺失则出占位区域。
+- 独立样式入口是 `tools/configs/fund_limit_change_style_configs.py`，控制米白背景、深蓝标题、卡片、字号、边距与水印透明度；复用 `cache/mark.jpg` logo 和“鱼师AHNS”水印。logo 缺失时保留待出图事件并报告失败。
+- 缓存自检只读检查新状态，`sync_repos.py` 按基金合并新状态；优先较新的有效观察，同一变化保留成功出图标识。原限购缓存仍为 key-map，不增加顶层说明字段。
 
 ## 关键文件
 
@@ -198,7 +216,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `tools/configs/fund_holding_change_style_configs.py`：前十大持仓变化图的专属竖屏样式配置。`canvas_width_px` 控制实际导出宽度，四个 `*_margin_px` 独立控制四边安全区，`export_dpi` 写入 PNG 元数据；它不影响 safe 或实时观察图。
 - `tools/configs/fund_region_allocation_configs.py`：晨星地区分布的直连地址、超时、重试、地区层级和配色；直连请求不继承环境代理。
 - `tools/configs/fund_region_allocation_style_configs.py`：地区分布图的 1080 竖版尺寸、顶部安全区、四边边距、每页基金数、卡片高度/间距、字号、鱼师图像水印和导出 DPI。
-- `tools/configs/cache_policy_configs.py`：缓存有效期与容量上限配置。限购缓存 7 天、A 股交易日历 7 天、VIX 日线最多 1000 条且落后后两小时重试、基金池外手动 key 保留 365 天、证券/指数/基金历史保留天数、RSI ETF 实时补点新鲜度等都从这里维护。
+- `tools/configs/cache_policy_configs.py`：缓存有效期与容量上限配置。限购缓存 3 天、A 股交易日历 7 天、VIX 日线最多 1000 条且落后后两小时重试、基金池外手动 key 保留 365 天、证券/指数/基金历史保留天数、RSI ETF 实时补点新鲜度等都从这里维护。
 - `tools/configs/security_mappings.py`：美股 / 韩国证券代码映射；韩国六位数字代码需要配合名称别名匹配，避免误判 A 股。
 - `tools/configs/rsi_configs.py`：市场 RSI 图标的配置。
 - `tools/configs/market_calendar_configs.py`：市场交易日历名称、收盘缓冲、韩国节假日置零策略。
