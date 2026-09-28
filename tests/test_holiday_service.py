@@ -198,9 +198,20 @@ class HolidayServiceTests(unittest.TestCase):
              "market_trade_dates": {}},
             {"fund_code": "000005", "valuation_date": day, "market_status": {"US": "missing"},
              "market_trade_dates": {}},
+            {"fund_code": "000006", "valuation_date": day, "market_status": {"US": "stale"},
+             "market_trade_dates": {"US": "2026-09-24"}, "stage": "partial",
+             "data_status": "stale", "valuation_mode": "last_close", "estimate_return_pct": -0.2},
+            {"fund_code": "000007", "valuation_date": day, "market_status": {"US": "missing"},
+             "market_trade_dates": {}, "stage": "partial",
+             "data_status": "partial", "valuation_mode": "last_close", "estimate_return_pct": 0.3},
+            {"fund_code": "000008", "valuation_date": day, "market_status": {"US": "missing"},
+             "market_trade_dates": {}, "stage": "partial",
+             "data_status": "partial", "effective_valuation_mode": "last_close",
+             "estimate_return_pct": 0.1},
         ])
         filtered = fund_history_io.filter_effective_holiday_fund_days(daily)
-        self.assertEqual(filtered["fund_code"].tolist(), ["000001", "000002", "000003"])
+        self.assertEqual(filtered["fund_code"].tolist(),
+                         ["000001", "000002", "000003", "000006", "000007", "000008"])
 
     def test_holiday_image_uses_all_close_estimates_without_status_marks(self):
         day = "2026-09-25"

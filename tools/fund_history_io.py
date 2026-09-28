@@ -636,6 +636,11 @@ def filter_effective_holiday_fund_days(df: pd.DataFrame) -> pd.DataFrame:
 
     def has_session(row: pd.Series) -> bool:
         anchor_date = _normalize_date_string(row.get("valuation_date"))
+        status = row.get("market_status")
+        statuses = [str(value).lower() for value in status.values()] if isinstance(status, dict) else []
+        if statuses and all(value == "closed" for value in statuses):
+            return False
+
         trade_dates = row.get("market_trade_dates")
         # 汇总状态会被一只缺失/过期股票拉低，实际交易日应优先看有效报价日期。
         if isinstance(trade_dates, dict) and anchor_date:
@@ -647,9 +652,22 @@ def filter_effective_holiday_fund_days(df: pd.DataFrame) -> pd.DataFrame:
         ):
             return True
 
-        status = row.get("market_status")
-        if isinstance(status, dict) and status:
-            return any(str(value).lower() == "traded" for value in status.values())
+        if "traded" in statuses:
+            return True
+        # 部分收盘估算已有数值时，不再因汇总状态被缺失/过期持仓拉低而整只排除。
+        modes = {
+            str(row.get("valuation_mode", "")).lower(),
+            str(row.get("effective_valuation_mode", "")).lower(),
+        }
+        if (
+            str(row.get("stage", "")).lower() == "partial"
+            and str(row.get("data_status", "")).lower() in {"partial", "stale"}
+            and "last_close" in modes
+            and pd.notna(pd.to_numeric(row.get("estimate_return_pct"), errors="coerce"))
+        ):
+            return True
+        if statuses:
+            return False
         return bool(row.get("is_final", False))  # 无市场明细的旧版完整记录仍保留。
 
     return df[df.apply(has_session, axis=1)].copy()
@@ -773,7 +791,7 @@ def get_fund_estimate_records(
         "run_date_bj"：按北京时间运行日期筛选，适合五一假期这种场景。
     include_intraday:
         True：如果某估值日还没有 final，也允许使用 intraday；
-        False：只使用 final。
+        False：默认只使用 final，可通过 include_partial_close 纳入部分收盘估算。
     require_final:
         True：只保留 final 记录。
     include_partial_close:
