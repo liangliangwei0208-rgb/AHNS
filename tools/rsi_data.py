@@ -661,15 +661,13 @@ def draw_vix_state_band(
         # add_artist 不更新 dataLim，价格图的 x/y 自动缩放保持原样。
         axis.add_artist(patch)
         patches.append(patch)
-    # 两种颜色各只在最后一段右端放一个V，避免长历史中标签堆叠。
-    for bottom in (VIX_STATE_BAND_BOTTOM, VIX_STATE_BAND_POSITIVE_BOTTOM):
-        last = [p for p in patches if p.get_y() == bottom]
-        if last:
-            edge = max(p.get_x()+p.get_width() for p in last)
-            axis.text(edge, bottom+VIX_STATE_BAND_HEIGHT/2, "V", transform=axis.get_xaxis_transform(),
-                      ha="right", va="center", fontsize=7, color="white", fontweight="bold",
-                      zorder=3, clip_on=True,
-                      path_effects=[patheffects.withStroke(linewidth=1.2, foreground="#263247")])
+    # 每一段独立状态带都标V，居中放置便于对应具体区间。
+    for band in patches:
+        center = band.get_x() + band.get_width() / 2
+        axis.text(center, band.get_y()+VIX_STATE_BAND_HEIGHT/2, "V", transform=axis.get_xaxis_transform(),
+                  ha="center", va="center", fontsize=7, color="white", fontweight="bold",
+                  zorder=3, clip_on=True,
+                  path_effects=[patheffects.withStroke(linewidth=1.2, foreground="#263247")])
     return patches
 
 
@@ -2496,13 +2494,21 @@ def plot_analysis(
         axes[2].axhline(rsi_high, linestyle="--", linewidth=1, color="red")
         axes[2].axhline(rsi_low, linestyle="--", linewidth=1, color="black")
         axes[2].set_ylim(0, 100)
+        # 右上角逐行显示最新值，与50D采用相同的简短标记。
+        latest_rsi = pd.to_numeric(plot_df[rsi_col], errors="coerce").dropna()
+        rsi_text = f"R: {latest_rsi.iloc[-1]:.1f}" if not latest_rsi.empty else "R: 数据不足"
+        axes[2].text(.99, .91 if show_breadth else .97, rsi_text,
+                     transform=axes[2].transAxes, ha="right", va="top",
+                     fontsize=8, color="#3267a8")
         if show_breadth:
             from tools.market_breadth import draw_breadth
             from matplotlib.lines import Line2D
             draw_breadth(axes[2], breadth_df)
             handles, labels = axes[2].get_legend_handles_labels()
             axes[2].legend([Line2D([0], [0], color="#3267a8", label="R"), *handles],
-                           ["R", *labels], loc="upper left", fontsize=8)
+                           ["R", *labels], loc="upper left", fontsize=8, ncol=max(2, len(handles)+1),
+                           borderpad=.2, labelspacing=.2, handlelength=1.3,
+                           handletextpad=.3, columnspacing=.6)
 
     plt.tight_layout()
 

@@ -122,7 +122,7 @@ class RsiVixStateBandTests(unittest.TestCase):
         self.assertIn(tuple(np.round(plt.matplotlib.colors.to_rgb(VIX_STATE_BAND_POSITIVE_COLOR), 3)), colors)
         plt.close(figure)
 
-    def test_only_rightmost_run_of_each_vix_color_gets_v_label(self):
+    def test_every_vix_color_run_gets_v_label(self):
         dates=pd.date_range("2026-01-02",periods=7,freq="B")
         prices=pd.DataFrame({"date":dates,"close":[100.]*7})
         states=pd.DataFrame({"date":dates,"VIX_MA_SPREAD":[-6,-6,0,6,6,0,-6]})
@@ -130,11 +130,10 @@ class RsiVixStateBandTests(unittest.TestCase):
         patches=draw_vix_state_band(axis,prices,states,-5,5)
         labels=[t for t in axis.texts if t.get_text()=="V"]
         self.assertEqual(len(patches),3)
-        self.assertEqual(len(labels),2)
-        for label in labels:
-            lane=label.get_position()[1]-VIX_STATE_BAND_HEIGHT/2
-            end=max(p.get_x()+p.get_width() for p in patches if np.isclose(p.get_y(),lane))
-            self.assertAlmostEqual(label.get_position()[0],end)
+        self.assertEqual(len(labels),len(patches))
+        for label, band in zip(labels, patches):
+            self.assertAlmostEqual(label.get_position()[0],band.get_x()+band.get_width()/2)
+            self.assertAlmostEqual(label.get_position()[1],band.get_y()+VIX_STATE_BAND_HEIGHT/2)
         plt.close(fig)
 
     def test_negative_band_is_below_positive_band(self):

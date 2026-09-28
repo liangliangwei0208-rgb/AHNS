@@ -218,7 +218,7 @@ GitHub / 主机 `git_main.py` 不包含富途夜盘；小电脑 `service_main.py
 - `tools/configs/fund_region_allocation_style_configs.py`：地区分布图的 1080 竖版尺寸、顶部安全区、四边边距、每页基金数、卡片高度/间距、字号、鱼师图像水印和导出 DPI。
 - `tools/configs/cache_policy_configs.py`：缓存有效期与容量上限配置。限购缓存 3 天、A 股交易日历 7 天、VIX 日线最多 1000 条且落后后两小时重试、基金池外手动 key 保留 365 天、证券/指数/基金历史保留天数、RSI ETF 实时补点新鲜度等都从这里维护。
 - `tools/configs/security_mappings.py`：美股 / 韩国证券代码映射；韩国六位数字代码需要配合名称别名匹配，避免误判 A 股。
-- `tools/configs/rsi_configs.py`：市场 RSI 图标的配置。 价格图VIX状态带最后一段标V；50D极端状态带阈值在 `tools/configs/market_breadth_configs.py` 修改（默认≤30%/≥70%），底部图例为R/50D。
+- `tools/configs/rsi_configs.py`：市场 RSI 图标的配置。价格图每段 VIX 状态带标 V，每段 50D 状态带标 50D（极短段缩写 D）；极端状态带阈值在 `tools/configs/market_breadth_configs.py` 修改（默认≤30%/≥70%）。底部图例紧凑显示 R/50D，右侧逐行显示最新值。
 - `tools/configs/market_calendar_configs.py`：市场交易日历名称、收盘缓冲、韩国节假日置零策略。
 - `tools/configs/workflow_configs.py`：GitHub / Service 两套总入口流程和实时观察窗口。新增脚本时复制一项并改 `name` / `script`；想让某一步无论是否命中实时窗口都运行，设 `always_run=True`；想让某一步只生成不发邮件，改 `collect_images=False`；`required` 只做必要性日志标记，不再控制中断。
 - `tools/cache_metadata.py`：缓存说明维护入口。新增缓存文件时同步补充用途、生产者、消费者、刷新策略、保留策略和注意事项；不要为了说明强行改 key-map 缓存 schema。

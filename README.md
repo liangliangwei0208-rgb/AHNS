@@ -747,7 +747,7 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 & F:\anaconda\envs\py310\python.exe .\market_breadth.py --update
 ```
 
-`tools/configs/market_breadth_configs.py`维护开关、95%有效覆盖率、30分钟快照复用（可调15–60）和180秒日常预算。50D广度≥70%时在价格图顶部显示紫色提示带，≤30%时在底部紧邻VIX带显示琥珀色提示带；阈值可在同一配置的 `BREADTH_BAND_HIGH_THRESHOLD` / `BREADTH_BAND_LOW_THRESHOLD` 修改。VIX状态带最后一段标“V”，底部图例用 `R`、`50D`。日常流程不从零下载数千只股票；未建库的市场提示数据不足，RSI照常出图。`--no-futu`可关闭富途兜底。
+`tools/configs/market_breadth_configs.py`维护开关、95%有效覆盖率、30分钟快照复用（可调15–60）和180秒日常预算。50D广度≥70%时在价格图顶部显示紫色提示带，≤30%时在底部紧邻VIX带显示琥珀色提示带；阈值可在同一配置的 `BREADTH_BAND_HIGH_THRESHOLD` / `BREADTH_BAND_LOW_THRESHOLD` 修改。每段VIX和50D状态带分别标“V”和“50D”（极短色段缩写为“D”以免重叠）；底部图例横向紧凑显示 `R`、`50D`，右侧逐行显示最新50D和R值。日常流程不从零下载数千只股票；未建库的市场提示数据不足，RSI照常出图。`--no-futu`可关闭富途兜底。
 
 纳斯达克现成指标使用StockCharts公开最新数值，按用户确认从启用日开始积累；不插值生成历史、不替换成纳指100。A股用对应指数完整成分（中证2000目前包含北交所）；收盘比较50根完整日线，盘中用前49日加最新价。缺失、过期和不足50日的样本排除，低于95%不发布数值。历史初始回算与成分版本记在缓存及诊断中，图片不加延迟时长/回算说明。
 

@@ -48,6 +48,20 @@ class IntegrationTests(unittest.TestCase):
             self.assertEqual(len(fig.axes),3)
             self.assertIn("R",[t.get_text() for t in axis.get_legend().get_texts()])
             self.assertIn("50D",[t.get_text() for t in axis.get_legend().get_texts()])
+            self.assertEqual(axis.get_legend()._ncols,3)
+            self.assertLess(axis.get_legend().borderpad,.4)
+            labels={t.get_text():t for t in axis.texts}
+            self.assertIn("R: 50.0",labels)
+            self.assertIn("50D: 70.0%",labels)
+            self.assertLess(labels["R: 50.0"].get_position()[1],labels["50D: 70.0%"].get_position()[1])
+    def test_latest_rsi_value_is_shown_without_breadth(self):
+        days=pd.date_range("2026-01-01",periods=12)
+        frame=pd.DataFrame({"date":days,"close":[100.]*12,"volume":[1000.]*12,
+                            "RSI":[42.]*11+[44.6]})
+        with tempfile.TemporaryDirectory() as tmp,patch.object(rsi_data.plt,"close") as close:
+            rsi_data.plot_analysis(frame,"TEST",output_file=str(Path(tmp)/"chart.png"),show_plot=False)
+            axis=close.call_args.args[0].axes[2]
+            self.assertIn("R: 44.6",[t.get_text() for t in axis.texts])
     def test_nasdaq_latest_breadth_label_has_no_parenthetical_suffix(self):
         from tools.market_breadth import draw_breadth
         import matplotlib.pyplot as plt
@@ -76,6 +90,34 @@ class IntegrationTests(unittest.TestCase):
         self.assertGreater(high_patch.get_y(),.90)
         self.assertLess(high_patch.get_y()+high_patch.get_height(),1.0)
         self.assertLess(patches[-1].get_x()+patches[-1].get_width(),__import__('matplotlib').dates.date2num(dates[-1]))
+        plt.close(fig)
+
+    def test_each_separate_50d_band_has_its_own_label(self):
+        from tools.market_breadth import draw_breadth_state_band
+        import matplotlib.pyplot as plt
+        dates=pd.date_range("2026-01-02",periods=7,freq="B")
+        prices=pd.DataFrame({"date":dates,"close":[100.]*7})
+        breadth=pd.DataFrame({"date":dates,"percent":[75,75,50,80,50,20,20]})
+        fig,axis=plt.subplots()
+        patches=draw_breadth_state_band(axis,prices,breadth,30,70)
+        labels=[t for t in axis.texts if t.get_text() in {"50D","D"}]
+        self.assertEqual(len(patches),3)
+        self.assertEqual(len(labels),3)
+        for label, band in zip(labels,patches):
+            self.assertAlmostEqual(label.get_position()[0],band.get_x()+band.get_width()/2)
+        plt.close(fig)
+
+    def test_narrow_50d_band_keeps_a_short_label(self):
+        from tools.market_breadth import draw_breadth_state_band
+        import matplotlib.pyplot as plt
+        dates=pd.date_range("2026-01-02",periods=200,freq="B")
+        prices=pd.DataFrame({"date":dates,"close":[100.]*200})
+        breadth=pd.DataFrame({"date":dates,"percent":[50.]*100+[80]+[50.]*99})
+        fig,axis=plt.subplots()
+        axis.set_xlim(dates[0],dates[-1])
+        patches=draw_breadth_state_band(axis,prices,breadth,30,70)
+        self.assertEqual(len(patches),1)
+        self.assertEqual([label.get_text() for label in axis.texts],["D"])
         plt.close(fig)
 
     def test_actual_conflict_handler_merges_complete_and_intraday_without_regression(self):

@@ -202,7 +202,6 @@ def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_thresh
     states = ["low" if pd.notna(v) and v <= low else "high" if pd.notna(v) and v >= high else None
               for v in aligned["percent"]]
     patches = []
-    last_by_state = {}
     start = 0
     for end in range(1, len(states)+1):
         if end < len(states) and states[end] == states[start]:
@@ -215,21 +214,22 @@ def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_thresh
                               alpha=.72, zorder=2.5, clip_on=True)
             ax.add_artist(patch)
             patches.append(patch)
-            last_by_state[state] = (right[end-1], bottom)
-        start = end
-    for state in ("low", "high"):
-        if state in last_by_state:
-            edge, bottom = last_by_state[state]
-            ax.text(edge, bottom+.013, "50D", transform=ax.get_xaxis_transform(), ha="right", va="center",
-                    fontsize=7, color="white", fontweight="bold", zorder=3, clip_on=True,
+            # 每段都居中标注；过窄色段缩写为D，避免相邻的50D文字挤成一串。
+            center = patch.get_x() + patch.get_width() / 2
+            x_transform = ax.get_xaxis_transform()
+            pixel_width = x_transform.transform((right[end-1], bottom))[0] - x_transform.transform((left[start], bottom))[0]
+            label = "50D" if pixel_width >= 25 else "D"
+            ax.text(center, bottom+.013, label, transform=x_transform, ha="center", va="center",
+                    fontsize=7 if label == "50D" else 6, color="white", fontweight="bold", zorder=3, clip_on=True,
                     path_effects=[patheffects.withStroke(linewidth=1.2, foreground="#263247")])
+        start = end
     return patches
 
 
 def draw_breadth(ax,frame):
     """只负责叠加；NaN自然断线，不把数据缺口画成0。"""
     if frame is None or frame.empty or frame.percent.notna().sum()==0:
-        ax.text(.99,.93,"50DMA：数据不足",transform=ax.transAxes,ha="right",va="top",fontsize=8,color="#7652a0")
+        ax.text(.99,.97,"50D：数据不足",transform=ax.transAxes,ha="right",va="top",fontsize=8,color="#7652a0")
         return
     dates=pd.to_datetime(frame.date)
     ax.plot(dates,frame.percent,color="#8e44ad",linestyle="--",linewidth=1.6,label="50D",zorder=5)
@@ -237,7 +237,7 @@ def draw_breadth(ax,frame):
     if latest.kind!="intraday":
         ax.scatter([pd.Timestamp(latest.date)],[latest.percent],color="#8e44ad",s=15,zorder=6)
     text=f"50D: {latest.percent:.1f}%" if pd.notna(frame.iloc[-1].percent) else "50D：当前数据不足"
-    ax.text(.99,.93,text,transform=ax.transAxes,ha="right",va="top",fontsize=8,color="#7652a0")
+    ax.text(.99,.97,text,transform=ax.transAxes,ha="right",va="top",fontsize=8,color="#7652a0")
     live=frame.loc[frame.kind=="intraday"]
     if not live.empty:
         ax.scatter(pd.to_datetime(live.date),live.percent,facecolors="none",edgecolors="#8e44ad",s=34,zorder=6,label="盘中估算")
