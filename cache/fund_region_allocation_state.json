@@ -236,7 +236,7 @@
         "018036"
       ],
       "output_file": "output/fund_region_allocation/latest/1_海外基金地区分布.png",
-      "last_generated_at": "2026-09-11T08:34:03+08:00"
+      "last_generated_at": "2026-09-28T21:43:28+08:00"
     },
     "2": {
       "signature": "da051ea524583445f757e85d4f4e0bbfe47c70163fbc41889461ef321af8af42",
@@ -250,7 +250,7 @@
         "008254"
       ],
       "output_file": "output/fund_region_allocation/latest/2_海外基金地区分布.png",
-      "last_generated_at": "2026-09-11T08:34:04+08:00"
+      "last_generated_at": "2026-09-28T21:43:28+08:00"
     },
     "3": {
       "signature": "e6eba015cb5a124e642cabf5d7242d9891e8519f9967ce8f05eff0d6dc3d83d1",
@@ -264,7 +264,7 @@
         "519696"
       ],
       "output_file": "output/fund_region_allocation/latest/3_海外基金地区分布.png",
-      "last_generated_at": "2026-09-11T08:34:04+08:00"
+      "last_generated_at": "2026-09-28T21:43:28+08:00"
     },
     "4": {
       "signature": "165b648e1c80bbb5fd712b8fd96b89082d39fc15b4918e45595810115eb77f86",
@@ -278,7 +278,7 @@
         "118001"
       ],
       "output_file": "output/fund_region_allocation/latest/4_海外基金地区分布.png",
-      "last_generated_at": "2026-09-11T08:34:04+08:00"
+      "last_generated_at": "2026-09-28T21:43:28+08:00"
     },
     "5": {
       "signature": "8df20c72bfcceaa7dc17314aee65c04038b031421891cf9c814913a910af229e",
@@ -292,7 +292,7 @@
         "164212"
       ],
       "output_file": "output/fund_region_allocation/latest/5_海外基金地区分布.png",
-      "last_generated_at": "2026-09-11T08:34:04+08:00"
+      "last_generated_at": "2026-09-28T21:43:28+08:00"
     },
     "6": {
       "signature": "cd247f3054daba5d1e4b2b58acf2fd65fdf085c7f1e3169e6487465c891ee1bd",
@@ -301,8 +301,8 @@
         "160140"
       ],
       "output_file": "output/fund_region_allocation/latest/6_海外基金地区分布.png",
-      "last_generated_at": "2026-09-21T12:24:15+08:00"
+      "last_generated_at": "2026-09-28T21:43:28+08:00"
     }
   },
-  "updated_at": "2026-09-21T12:24:15+08:00"
+  "updated_at": "2026-09-28T21:43:28+08:00"
 }
