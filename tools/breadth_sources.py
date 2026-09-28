@@ -5,6 +5,7 @@ import json
 import os
 import re
 import socket
+import threading
 import time
 from datetime import datetime, timezone
 from urllib.parse import quote
@@ -12,6 +13,19 @@ import pandas as pd
 import requests
 from tools.market_breadth import clean_prices, eligible_quote
 from tools.configs.market_breadth_configs import BREADTH_MARKETS, BREADTH_FUTU_RESERVE, BREADTH_FUTU_BATCH_SIZE
+
+
+class SourceHealth:
+    """本轮网络故障熔断；单只证券的空数据不连坐同源其他证券。"""
+    def __init__(self):
+        self.unreachable=set();self.lock=threading.Lock()
+
+    def available(self,source):
+        with self.lock:return source not in self.unreachable
+
+    def failed(self,source,error):
+        if isinstance(error,(requests.ConnectionError,requests.Timeout)):
+            with self.lock:self.unreachable.add(source)
 
 
 def get(url,**kwargs):
@@ -110,19 +124,22 @@ def parse_tencent_history(payload,symbol,complete_day):
     return frame.loc[frame.date<=complete_day].tail(400)
 
 
-def fetch_prices(code,complete_day,start=None,preferred=None):
+def fetch_prices(code,complete_day,start=None,preferred=None,health=None):
     errors=[]
-    # A股前复权日线优先腾讯/新浪；切源时强制取完整窗口，由Store再次核验重叠区。
+    health=health or SourceHealth()
+    # 同源优先复用；失败后仍试国内其他源，换源必须取完整窗口核对复权基准。
     if not code.startswith("US."):
         import akshare as ak
         symbol=code.replace(".","").lower()
-        for source in (["tencent_qfq","eastmoney_qfq"] if code.startswith("BJ.") else ["tencent_qfq","sina_qfq"]):
-            if preferred and preferred!=source:continue
+        sources=["tencent_qfq","eastmoney_qfq"] if code.startswith("BJ.") else ["tencent_qfq","eastmoney_qfq","sina_qfq"]
+        if preferred in sources:sources.remove(preferred);sources.insert(0,preferred)
+        for source in sources:
+            if not health.available(source):continue
             try:
                 begin=(start if preferred==source and start else str((pd.Timestamp(complete_day)-pd.Timedelta(days=700)).date())).replace("-","")
                 if source=="tencent_qfq":
                     # 一次640根覆盖建库窗口；增量请求保留重叠区用于发现复权变化。
-                    param=f"{symbol},day,{start or ''},{complete_day},640,qfq"
+                    param=f"{symbol},day,{start if preferred==source and start else ''},{complete_day},640,qfq"
                     payload=get("https://proxy.finance.qq.com/ifzqgtimg/appstock/app/newfqkline/get",params={"param":param}).json()
                     d=parse_tencent_history(payload,symbol,complete_day)
                 elif source=="eastmoney_qfq":
@@ -134,20 +151,26 @@ def fetch_prices(code,complete_day,start=None,preferred=None):
                 d=clean_prices(d)
                 if d.empty:raise ValueError("空日线")
                 return d.loc[d.date<=complete_day].tail(400),source
-            except Exception as e:errors.append(f"{source}: {str(e)[:120]}")
-    try:return fetch_yahoo_prices(code,complete_day,start if preferred=="yahoo_adjclose" else None)
-    except Exception as e:errors.append(str(e)[:120])
+            except Exception as e:
+                health.failed(source,e);errors.append(f"{source}: {str(e)[:120]}")
+    if health.available("yahoo_adjclose"):
+        try:return fetch_yahoo_prices(code,complete_day,start if preferred=="yahoo_adjclose" else None)
+        except Exception as e:
+            health.failed("yahoo_adjclose",e);errors.append("yahoo_adjclose: "+str(e)[:120])
     raise RuntimeError("; ".join(errors))
 
 
-def fetch_quotes(codes,now):
+def fetch_quotes(codes,now,health=None,errors=None):
     """批量A股报价；返回原始价格/昨收，后续按缓存复权比例换算。"""
-    quotes={}
+    quotes={};health=health or SourceHealth();errors=errors if errors is not None else []
     cn=[c for c in codes if not c.startswith("US.")]
     for start in range(0,len(cn),80):
+        if not health.available("tencent_snapshot"):break
         batch=cn[start:start+80]
         url="https://qt.gtimg.cn/q="+",".join(c.replace(".","").lower() for c in batch)
-        text=get(url).content.decode("gbk",errors="replace")
+        try:text=get(url).content.decode("gbk",errors="replace")
+        except Exception as e:
+            health.failed("tencent_snapshot",e);errors.append("腾讯快照: "+str(e)[:160]);continue
         for line in text.splitlines():
             m=re.search(r'v_(sh|sz|bj)(\d{6})="(.*)"',line)
             if not m:continue
@@ -158,12 +181,40 @@ def fetch_quotes(codes,now):
             code=m[1].upper()+"."+m[2]
             try:quotes[code]=dict(price=float(fields[3]),prev_close=float(fields[4]),time=stamp.isoformat(),source="tencent_snapshot")
             except ValueError:continue
+    # 新浪报价带有逐只日期与时间，可补腾讯失败的沪深批次；北交所仍走腾讯日线。
+    missing=[c for c in cn if c not in quotes and c.startswith(("SH.","SZ."))]
+    for start in range(0,len(missing),80):
+        if not health.available("sina_snapshot_cn"):break
+        batch=missing[start:start+80]
+        url="https://hq.sinajs.cn/list="+",".join(c.replace(".","").lower() for c in batch)
+        try:
+            response=get(url,headers={"User-Agent":"Mozilla/5.0","Referer":"https://finance.sina.com.cn/"})
+            quotes.update(parse_sina_cn(response.content.decode("gbk",errors="replace")))
+        except Exception as e:
+            health.failed("sina_snapshot_cn",e);errors.append("新浪A股快照: "+str(e)[:160])
     us=[c for c in codes if c.startswith("US.")]
     for start in range(0,len(us),80):
+        if not health.available("sina_snapshot_us"):break
         url="https://hq.sinajs.cn/list="+",".join("gb_"+c[3:].lower() for c in us[start:start+80])
-        response=get(url,headers={"User-Agent":"Mozilla/5.0","Referer":"https://finance.sina.com.cn/"})
-        quotes.update(parse_sina_us(response.content.decode("gbk",errors="replace")))
+        try:
+            response=get(url,headers={"User-Agent":"Mozilla/5.0","Referer":"https://finance.sina.com.cn/"})
+            quotes.update(parse_sina_us(response.content.decode("gbk",errors="replace")))
+        except Exception as e:
+            health.failed("sina_snapshot_us",e);errors.append("新浪美股快照: "+str(e)[:160])
     return quotes
+
+
+def parse_sina_cn(text):
+    out={}
+    for market,symbol,record in re.findall(r'hq_str_(sh|sz)(\d{6})="([^"\n]*)"',text):
+        fields=record.split(",")
+        if len(fields)<32:continue
+        try:
+            stamp=pd.Timestamp(fields[30].strip()+" "+fields[31].strip())
+            out[market.upper()+"."+symbol]=dict(price=float(fields[3]),prev_close=float(fields[2]),
+                                                  time=stamp.isoformat(),source="sina_snapshot_cn")
+        except (ValueError,TypeError):continue
+    return out
 
 
 def parse_sina_us(text):
@@ -202,7 +253,9 @@ def fetch_stockcharts(symbol,clock):
 
 class FutuBreadth:
     def __init__(self):
-        self.ctx=None;self.remaining=0;self.used=set();self.last_call=None
+        self.ctx=None;self.remaining=0;self.used=set();self.last_call=None;self.quote_errors=[]
+    @staticmethod
+    def supports_code(code):return code.startswith(("US.","HK.","SH.","SZ."))
     def connect(self):
         if self.ctx is None:
             host=os.environ.get("AHNS_BREADTH_FUTU_HOST","127.0.0.1");port=int(os.environ.get("AHNS_BREADTH_FUTU_PORT","11111"))
@@ -224,7 +277,7 @@ class FutuBreadth:
         used,remaining,details=data
         self.remaining=int(remaining);self.used={d["code"] for d in details or []}
         return dict(used=used,remaining=remaining)
-    def can_history(self,code):return code in self.used or self.remaining>BREADTH_FUTU_RESERVE
+    def can_history(self,code):return self.supports_code(code) and (code in self.used or self.remaining>BREADTH_FUTU_RESERVE)
     def history(self,code,complete_day):
         self.refresh_quota()
         if not self.can_history(code):raise RuntimeError("富途历史额度已达预留线")
@@ -236,9 +289,14 @@ class FutuBreadth:
         return clean_prices(data.rename(columns={"time_key":"date"})).tail(400),"futu_qfq"
     def quotes(self,codes):
         out={}
-        for batch in self.batches(codes):
-            self.throttle();ret,data=self.connect().get_market_snapshot(batch)
-            if ret!=0:continue
-            for row in data.to_dict("records"):
-                out[row["code"]]=dict(price=row.get("last_price"),prev_close=row.get("prev_close_price"),time=row.get("update_time"),source="futu_snapshot")
+        supported=[c for c in dict.fromkeys(codes) if self.supports_code(c)]
+        for batch in self.batches(supported):
+            try:
+                self.throttle();ret,data=self.connect().get_market_snapshot(batch)
+                if ret!=0:raise RuntimeError(str(data))
+                for row in data.to_dict("records"):
+                    out[row["code"]]=dict(price=row.get("last_price"),prev_close=row.get("prev_close_price"),time=row.get("update_time"),source="futu_snapshot")
+            except Exception as e:
+                # 一个批次失败不能丢掉其他批次；诊断保留错误供下次增量重试。
+                self.quote_errors.append(str(e)[:160])
         return out

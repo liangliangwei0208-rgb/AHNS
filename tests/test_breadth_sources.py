@@ -3,7 +3,8 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 import pandas as pd
-from tools.breadth_sources import parse_members, parse_yahoo_history, FutuBreadth, validate_external_breadth, parse_sina_us, parse_stockcharts, parse_tencent_history
+from tools.breadth_sources import parse_members, parse_yahoo_history, FutuBreadth, SourceHealth, validate_external_breadth, parse_sina_us, parse_stockcharts, parse_tencent_history, fetch_prices, fetch_quotes
+import requests
 
 class SourceTests(unittest.TestCase):
     def test_sina_uses_regular_time_not_afterhours(self):
@@ -38,6 +39,38 @@ class SourceTests(unittest.TestCase):
         self.assertEqual(source,"eastmoney_qfq")
         self.assertEqual(frame.iloc[0].close,11.2)
 
+    def test_preferred_tencent_failure_tries_domestic_eastmoney(self):
+        response=pd.DataFrame({"日期":["2026-09-28"],"收盘":[11.2]})
+        with patch("tools.breadth_sources.get",side_effect=RuntimeError("Tencent unavailable")),patch("akshare.stock_zh_a_hist",return_value=response) as eastmoney:
+            frame,source=fetch_prices("SH.600007","2026-09-28","2026-09-18","tencent_qfq")
+        self.assertEqual(source,"eastmoney_qfq")
+        self.assertEqual(frame.iloc[-1].date,"2026-09-28")
+        self.assertTrue(eastmoney.called)
+
+    def test_unreachable_domestic_domain_is_not_retried_per_stock(self):
+        health=SourceHealth();response=pd.DataFrame({"日期":["2026-09-28"],"收盘":[11.2]})
+        with patch("tools.breadth_sources.get",side_effect=requests.ConnectionError("blocked")) as get, \
+             patch("akshare.stock_zh_a_hist",return_value=response):
+            fetch_prices("SH.600007","2026-09-28",health=health)
+            fetch_prices("SH.600015","2026-09-28",health=health)
+        self.assertEqual(get.call_count,1)
+
+    def test_tencent_snapshot_one_batch_error_preserves_other_batch(self):
+        codes=[f"SH.{i:06d}" for i in range(81)]
+        calls=[]
+        class Response:
+            content=b''
+        def fake_get(*args,**kwargs):
+            calls.append(args[0])
+            if len(calls)==1:raise RuntimeError("first batch failed")
+            if "qt.gtimg" in args[0]:
+                line='v_sh000080="'+'~'.join(["0"]*30+["20260928150000"]+["0"]*4)+'";'
+                return type("R",(),{"content":line.encode("gbk")})()
+            return Response()
+        with patch("tools.breadth_sources.get",side_effect=fake_get):
+            out=fetch_quotes(codes,pd.Timestamp("2026-09-28 15:30",tz="Asia/Shanghai"))
+        self.assertIn("SH.000080",out)
+
     def test_cni_sample_code_column_matches_official_file(self):
         frame=pd.DataFrame({"样本代码":[str(i).zfill(6) for i in range(500)]})
         self.assertEqual(len(parse_members("shenzhen",frame)),500)
@@ -70,5 +103,19 @@ class SourceTests(unittest.TestCase):
             f.throttle();f.throttle()
         self.assertAlmostEqual(times[0],.8)
         self.assertEqual([len(b) for b in f.batches(list(range(450)))],[200,200,50])
+
+    def test_futu_skips_beijing_and_keeps_successful_batches_after_failure(self):
+        f=FutuBreadth();calls=[]
+        class Context:
+            def get_market_snapshot(self,codes):
+                calls.append(codes)
+                if len(calls)==2:return 1,"batch failed"
+                return 0,pd.DataFrame([{"code":code,"last_price":11.,"prev_close_price":10.,"update_time":"2026-09-28 15:00:00"} for code in codes])
+        codes=["BJ.920001"]+[f"SH.{i:06d}" for i in range(401)]
+        with patch.object(f,"connect",return_value=Context()),patch.object(f,"throttle"):
+            out=f.quotes(codes)
+        self.assertEqual([len(batch) for batch in calls],[200,200,1])
+        self.assertTrue(all(not code.startswith("BJ.") for batch in calls for code in batch))
+        self.assertEqual(len(out),201)
 
 if __name__=="__main__":unittest.main()

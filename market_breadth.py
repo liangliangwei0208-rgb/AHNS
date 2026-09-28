@@ -8,6 +8,7 @@ import subprocess
 import sys
 import time
 from tools.market_breadth import BreadthStore
+from tools.breadth_sources import FutuBreadth, SourceHealth
 from tools.configs.market_breadth_configs import BREADTH_MARKETS
 
 
@@ -52,14 +53,18 @@ def main(argv=None):
                 print("广度预算已用完，已保存的证券可供下次续跑。",flush=True);return 2
     from tools.breadth_engine import refresh_market
     deadline=time.monotonic()+a.budget;reports=[]
+    source_health=SourceHealth();shared_quotes={};futu=FutuBreadth()
     report_path=Path(__file__).resolve().parent/"output"/"market_breadth_diagnostics.json"
     report_path.parent.mkdir(parents=True,exist_ok=True)
-    for key in a.market:
-        if time.monotonic()>=deadline:break
-        try:report=refresh_market(store,key,bootstrap=a.bootstrap,deadline=deadline,use_futu=not a.no_futu)
-        except Exception as e:report=dict(key=key,errors=[str(e)])
-        reports.append(report);report_path.write_text(json.dumps(reports,ensure_ascii=False,indent=2,allow_nan=False),encoding="utf-8")
-        print(json.dumps(report,ensure_ascii=False),flush=True)
+    try:
+        for key in a.market:
+            if time.monotonic()>=deadline:break
+            try:report=refresh_market(store,key,bootstrap=a.bootstrap,deadline=deadline,use_futu=not a.no_futu,
+                                      source_health=source_health,shared_quotes=shared_quotes,futu=futu)
+            except Exception as e:report=dict(key=key,errors=[str(e)])
+            reports.append(report);report_path.write_text(json.dumps(reports,ensure_ascii=False,indent=2,allow_nan=False),encoding="utf-8")
+            print(json.dumps(report,ensure_ascii=False),flush=True)
+    finally:futu.close()
     return 0 if len(reports)==len(a.market) and all(r.get("latest",{}).get("percent") is not None for r in reports) else 1
 
 if __name__=="__main__":raise SystemExit(main())

@@ -12,7 +12,7 @@ from pathlib import Path
 import pandas as pd
 import pandas_market_calendars as mcal
 from tools.market_breadth import BreadthStore, calculate_history, calculate_intraday, eligible_quote, utc_now
-from tools.breadth_sources import fetch_members, fetch_prices, fetch_quotes, FutuBreadth, fetch_stockcharts
+from tools.breadth_sources import fetch_members, fetch_prices, fetch_quotes, FutuBreadth, SourceHealth, fetch_stockcharts
 from tools.configs.market_breadth_configs import *
 
 @functools.lru_cache(maxsize=16)
@@ -52,7 +52,31 @@ def prepare_quotes(store,members,quotes,now,market,previous_day):
     return out
 
 
-def refresh_market(store,key,now=None,bootstrap=False,refresh_members=True,deadline=None,use_futu=True):
+def prepare_close_quotes(store,members,quotes,now,day,previous_day):
+    """只接受沪深交易日15:00的最终快照，并接续已有前复权价格基准。"""
+    local=pd.Timestamp(now)
+    local=local.tz_localize("Asia/Shanghai") if local.tzinfo is None else local.tz_convert("Asia/Shanghai")
+    completed_at=pd.Timestamp(day,tz="Asia/Shanghai")+pd.Timedelta(hours=15,minutes=15)
+    if local<completed_at:return {}
+    out={}
+    for code in members:
+        if not code.startswith(("SH.","SZ.")):continue
+        quote=quotes.get(code,{})
+        try:
+            stamp=pd.Timestamp(quote["time"])
+            stamp=stamp.tz_localize("Asia/Shanghai") if stamp.tzinfo is None else stamp.tz_convert("Asia/Shanghai")
+            if str(stamp.date())!=day or (stamp.hour,stamp.minute)!=(15,0):continue
+            price=float(quote["price"]);previous=float(quote["prev_close"])
+            if not all(math.isfinite(x) and x>0 for x in (price,previous)):continue
+            history=store.prices(code)
+            if history.empty or history.iloc[-1].date!=previous_day:continue
+            out[code]=float(history.iloc[-1].close)*price/previous
+        except (KeyError,TypeError,ValueError,OverflowError):continue
+    return out
+
+
+def refresh_market(store,key,now=None,bootstrap=False,refresh_members=True,deadline=None,use_futu=True,
+                   source_health=None,shared_quotes=None,futu=None):
     spec=BREADTH_MARKETS[key];clock=market_clock(spec["market"],now)
     deadline=deadline or (time.monotonic()+180)
     report=dict(key=key,time=utc_now(),complete_day=clock["complete_day"],regular_session=clock["regular"],downloaded=0,needs_bootstrap=0,errors=[])
@@ -84,6 +108,8 @@ def refresh_market(store,key,now=None,bootstrap=False,refresh_members=True,deadl
         report["errors"].append("成分名单超过7天未验证，停止发布新值")
         return report
     symbols=member["symbols"];pending=[]
+    source_health=source_health or SourceHealth()
+    shared_quotes=shared_quotes if shared_quotes is not None else {}
     initialized=any(r.get("percent") is not None for r in store.read("results",key).get("rows",[]))
     missing_added=0
     for code in symbols:
@@ -96,32 +122,70 @@ def refresh_market(store,key,now=None,bootstrap=False,refresh_members=True,deadl
     # 已下载上市不足400天的证券也算建库完成，避免每天无限重拉。
     if bootstrap:
         pending=[c for c in pending if not (store.read("prices",c).get("bootstrap_complete") and not store.prices(c).empty and store.prices(c).iloc[-1].date>=clock["complete_day"])]
-    futu=FutuBreadth();failures=[]
+    own_futu=futu is None
+    futu=futu or FutuBreadth();failures=[];snapshot_codes=set();official_current=set()
+    dates=clock["sessions"][-400:]
+    # 先落盘合规的15:00快照，随后仍优先核验正式日线；慢接口触发外层超时时也有可信收盘值。
+    if (spec["market"]=="CN" and not bootstrap and
+            clock["now"]>=pd.Timestamp(clock["complete_day"],tz="Asia/Shanghai")+pd.Timedelta(hours=15,minutes=15)
+            and use_futu and len(clock["sessions"])>=2
+            and time.monotonic()<deadline):
+        previous_day=clock["sessions"][-2]
+        missing=[c for c in symbols if c.startswith(("SH.","SZ."))
+                 and not store.prices(c).empty and store.prices(c).iloc[-1].date==previous_day]
+        to_fetch=[c for c in missing if c not in shared_quotes]
+        quote_errors_start=len(getattr(futu,"quote_errors",[]))
+        try:shared_quotes.update(futu.quotes(to_fetch))
+        except Exception as e:report["errors"].append("富途收盘快照: "+str(e)[:160])
+        quotes={c:shared_quotes[c] for c in missing if c in shared_quotes}
+        values=prepare_close_quotes(store,missing,quotes,clock["now"],clock["complete_day"],previous_day)
+        for code,value in values.items():
+            try:
+                basis=store.read("prices",code).get("basis")
+                if not basis:continue
+                store.save_prices(code,pd.DataFrame([{"date":clock["complete_day"],"close":value}]),basis)
+                snapshot_codes.add(code)
+            except Exception as e:report["errors"].append(f"富途收盘价 {code}: {str(e)[:160]}")
+        report["close_snapshot"]={"received":len(quotes),"eligible":len(snapshot_codes),"total":len(symbols),
+                                  "source":"futu_snapshot_15_clock",
+                                  "errors":list(getattr(futu,"quote_errors",[]))[quote_errors_start:]}
+        if snapshot_codes:
+            interim=calculate_history({c:store.prices(c) for c in symbols},symbols,
+                                      BREADTH_MIN_COVERAGE,dates).iloc[-1].to_dict()
+            report["close_snapshot"]["coverage"]=interim.get("coverage")
+            if pd.notna(interim["percent"]):
+                store.save_results(key,[interim],member["version"],source="futu_close_snapshot")
+    # 先给正式日线一个有界窗口；收盘快照和计算仍有时间完成。
+    daily_deadline=min(deadline,time.monotonic()+45) if spec["market"]=="CN" and not bootstrap else deadline
     def download(code):
         if time.monotonic()>=deadline:return None
         prior=store.read("prices",code);old=store.prices(code)
         begin=None if bootstrap or old.empty else str((pd.Timestamp(old.iloc[-1].date)-pd.Timedelta(days=10)).date())
-        frame,basis=fetch_prices(code,clock["complete_day"],begin,prior.get("basis"))
+        frame,basis=fetch_prices(code,clock["complete_day"],begin,prior.get("basis"),health=source_health)
         try:store.save_prices(code,frame,basis)
         except ValueError:
-            frame,basis=fetch_prices(code,clock["complete_day"],None,prior.get("basis"))
+            frame,basis=fetch_prices(code,clock["complete_day"],None,prior.get("basis"),health=source_health)
             store.save_prices(code,frame,basis)
         if bootstrap:
             doc=store.read("prices",code);doc["bootstrap_complete"]=True;store.write("prices",code,doc)
-        return code
+        return code, (not frame.empty and frame.iloc[-1].date==clock["complete_day"])
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             # 每批只安排4只，达到预算不再排队；外层仍有硬超时。
             for offset in range(0,len(pending),4):
-                if time.monotonic()>=deadline:break
+                if time.monotonic()>=daily_deadline:break
                 jobs={executor.submit(download,c):c for c in pending[offset:offset+4]}
                 for future in concurrent.futures.as_completed(jobs):
                     try:
-                        if future.result():report["downloaded"]+=1
+                        outcome=future.result()
+                        if outcome:
+                            report["downloaded"]+=1
+                            if outcome[1]:official_current.add(outcome[0])
                     except Exception as e:failures.append(jobs[future]);report["errors"].append(f"{jobs[future]}: {str(e)[:180]}")
                 if bootstrap and (offset==0 or offset%100==0):print(f"[BREADTH] {key} 已处理 {min(offset+4,len(pending))}/{len(pending)}",flush=True)
         # 只为少量缺口使用富途，避免建库耗尽整账户额度。
-        for code in failures[:10] if use_futu else []:
+        history_failures=[c for c in failures if FutuBreadth.supports_code(c)]
+        for code in history_failures[:10] if use_futu and (spec["market"]=="US" or bootstrap or clock["regular"]) else []:
             if time.monotonic()>=deadline:break
             try:
                 frame,basis=futu.history(code,clock["complete_day"]);store.save_prices(code,frame,basis);report["downloaded"]+=1
@@ -130,21 +194,27 @@ def refresh_market(store,key,now=None,bootstrap=False,refresh_members=True,deadl
         report["membership"]={k:member[k] for k in ("date","version","source","universe")}
         report["historical_policy"]="初始历史按当期完整名单回算；既有正式日期保留原成分版本"
         prices={c:store.prices(c) for c in symbols}
-        dates=clock["sessions"][-400:]
         out=calculate_history(prices,symbols,BREADTH_MIN_COVERAGE,dates)
         # 预热空值可保留，绘图会自然断开。
-        store.save_results(key,out.to_dict("records"),member["version"])
+        records=out.to_dict("records")
+        if snapshot_codes and snapshot_codes-official_current:
+            store.save_results(key,records[:-1],member["version"])
+            store.save_results(key,records[-1:],member["version"],source="futu_close_snapshot")
+        else:store.save_results(key,records,member["version"])
         if clock["regular"] and time.monotonic()<deadline:
             snapshot=store.read("snapshots",key)
             fetched=pd.to_datetime(snapshot.get("updated_at"),utc=True,errors="coerce")
             age=(clock["now"]-fetched).total_seconds()/60 if pd.notna(fetched) else float("inf")
             quotes=snapshot.get("quotes",{}) if 0<=age<=max(15,min(60,BREADTH_SNAPSHOT_TTL_MINUTES)) else {}
             if not quotes:
-                try:quotes=fetch_quotes(symbols,clock["now"])
+                try:quotes=fetch_quotes(symbols,clock["now"],health=source_health,errors=report["errors"])
                 except Exception as e:report["errors"].append("快照: "+str(e)[:160]);quotes={}
                 missing=[c for c in symbols if c not in quotes or not eligible_quote(quotes[c].get("time"),clock["now"],spec["market"],60)]
                 if missing and use_futu and time.monotonic()<deadline:
-                    try:quotes.update(futu.quotes(missing))
+                    try:
+                        to_fetch=[c for c in missing if c not in shared_quotes]
+                        shared_quotes.update(futu.quotes(to_fetch))
+                        quotes.update({c:shared_quotes[c] for c in missing if c in shared_quotes})
                     except Exception as e:report["errors"].append("Futu快照: "+str(e)[:160])
                 store.write("snapshots",key,dict(type="snapshots",updated_at=utc_now(),quotes=quotes))
             values=prepare_quotes(store,symbols,quotes,clock["now"],spec["market"],clock["complete_day"])
@@ -158,7 +228,8 @@ def refresh_market(store,key,now=None,bootstrap=False,refresh_members=True,deadl
                 live["observed_at"]=min(normalized).isoformat()
             store.save_results(key,[live],member["version"])
         report["latest"]=json.loads(store.results(key).tail(1).to_json(orient="records"))[0]
-    finally:futu.close()
+    finally:
+        if own_futu:futu.close()
     report["needs_bootstrap"]=sum(store.prices(c).empty for c in symbols)
     return report
 
@@ -189,4 +260,14 @@ def chart_data(key,dates,root=None):
         observed=pd.to_datetime(row.get("observed_at"),utc=True,errors="coerce")
         age=(clock["now"]-observed).total_seconds() if pd.notna(observed) else float("inf")
         if row.date!=clock["day"] or not -60<=age<=3600:frame.loc[index,"percent"]=None
+    valid=frame.loc[frame.percent.notna()]
+    if not valid.empty:
+        latest=valid.iloc[-1]
+        current=(latest.kind=="intraday" and latest.date==clock["day"] or
+                 latest.kind=="close" and latest.date==clock["complete_day"])
+        sessions=clock.get("sessions",[])
+        age=sum(latest.date<day<=clock.get("complete_day",clock["day"]) for day in sessions)
+        frame.attrs["breadth_display"]={"current":current,"age_sessions":age,
+                                          "last_valid_date":latest.date,
+                                          "max_age_sessions":BREADTH_FALLBACK_MAX_SESSIONS}
     return frame

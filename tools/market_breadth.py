@@ -272,7 +272,14 @@ def draw_breadth(ax,frame):
     latest=frame.dropna(subset=["percent"]).iloc[-1]
     if latest.kind!="intraday":
         ax.scatter([pd.Timestamp(latest.date)],[latest.percent],color="#8e44ad",s=15,zorder=6)
-    text=f"50D: {latest.percent:.1f}%" if pd.notna(frame.iloc[-1].percent) else "50D：当前数据不足"
+    display=frame.attrs.get("breadth_display",{})
+    if not display or display.get("current"):
+        text=f"50D: {latest.percent:.1f}%" if pd.notna(frame.iloc[-1].percent) else "50D：当前数据不足"
+    elif display.get("age_sessions",float("inf"))<=display.get("max_age_sessions",5) and latest.kind=="close":
+        # 旧收盘值只在右侧注明日期，不补画到今天，也不复用过期盘中值。
+        text=f"50D: {latest.percent:.1f}% · {pd.Timestamp(latest.date):%m-%d}收"
+    else:
+        text="50D：数据不足"
     ax.text(RIGHT_METRIC_LABEL_X,.97,text,transform=ax.transAxes,ha="left",va="top",fontsize=8,color="#7652a0")
     live=frame.loc[frame.kind=="intraday"]
     if not live.empty:
