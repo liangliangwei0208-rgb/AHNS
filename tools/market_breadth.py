@@ -10,7 +10,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from tools.configs.market_breadth_configs import BREADTH_HISTORY_ROWS
+import matplotlib.dates as mdates
+from matplotlib.patches import Rectangle
+from matplotlib import patheffects
+from tools.configs.market_breadth_configs import (BREADTH_HISTORY_ROWS, BREADTH_BAND_LOW_COLOR, BREADTH_BAND_HIGH_COLOR)
 
 
 def utc_now():
@@ -167,17 +170,73 @@ class BreadthStore:
         return pd.DataFrame(self.read("results",key).get("rows",[]),columns=["date","percent","valid","total","coverage","kind","membership_version","source","updated_at","observed_at"])
 
 
+def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_threshold):
+    """只在同日广度达到极端阈值时，在价格图底部或顶部画提示带。"""
+    if (price_df is None or price_df.empty or breadth_df is None or breadth_df.empty
+            or "date" not in price_df or not {"date", "percent"}.issubset(breadth_df.columns)):
+        return []
+    try:
+        low, high = float(low_threshold), float(high_threshold)
+        if not (0 <= low < high <= 100):
+            return []
+    except (TypeError, ValueError):
+        return []
+    dates = pd.to_datetime(price_df["date"], errors="coerce").dt.normalize().dropna().drop_duplicates().sort_values()
+    if dates.empty:
+        return []
+    breadth = breadth_df[["date", "percent"]].copy()
+    breadth["date"] = pd.to_datetime(breadth["date"], errors="coerce").dt.normalize()
+    breadth["percent"] = pd.to_numeric(breadth["percent"], errors="coerce")
+    breadth = breadth.dropna(subset=["date"]).drop_duplicates("date", keep="last")
+    aligned = pd.DataFrame({"date": dates}).merge(breadth, on="date", how="left").sort_values("date")
+    x = mdates.date2num(aligned["date"].to_numpy())
+    if len(x) == 1:
+        left, right = x - .5, x + .5
+    else:
+        middle = (x[:-1] + x[1:]) / 2
+        left = np.r_[x[0] - (middle[0]-x[0]), middle]
+        right = np.r_[middle, x[-1] + (x[-1]-middle[-1])]
+
+    # 低广度带紧邻底部VIX带；高广度带靠近价格图上沿。
+    bands = {"low": (BREADTH_BAND_LOW_COLOR, .091), "high": (BREADTH_BAND_HIGH_COLOR, .958)}
+    states = ["low" if pd.notna(v) and v <= low else "high" if pd.notna(v) and v >= high else None
+              for v in aligned["percent"]]
+    patches = []
+    last_by_state = {}
+    start = 0
+    for end in range(1, len(states)+1):
+        if end < len(states) and states[end] == states[start]:
+            continue
+        state = states[start]
+        if state is not None:
+            color, bottom = bands[state]
+            patch = Rectangle((left[start], bottom), right[end-1]-left[start], .026,
+                              transform=ax.get_xaxis_transform(), facecolor=color, edgecolor="none",
+                              alpha=.72, zorder=2.5, clip_on=True)
+            ax.add_artist(patch)
+            patches.append(patch)
+            last_by_state[state] = (right[end-1], bottom)
+        start = end
+    for state in ("low", "high"):
+        if state in last_by_state:
+            edge, bottom = last_by_state[state]
+            ax.text(edge, bottom+.013, "50D", transform=ax.get_xaxis_transform(), ha="right", va="center",
+                    fontsize=7, color="white", fontweight="bold", zorder=3, clip_on=True,
+                    path_effects=[patheffects.withStroke(linewidth=1.2, foreground="#263247")])
+    return patches
+
+
 def draw_breadth(ax,frame):
     """只负责叠加；NaN自然断线，不把数据缺口画成0。"""
     if frame is None or frame.empty or frame.percent.notna().sum()==0:
         ax.text(.99,.93,"50DMA：数据不足",transform=ax.transAxes,ha="right",va="top",fontsize=8,color="#7652a0")
         return
     dates=pd.to_datetime(frame.date)
-    ax.plot(dates,frame.percent,color="#8e44ad",linestyle="--",linewidth=1.6,label=("% Above 50DMA（纳斯达克市场）" if "source" in frame and frame.source.eq("stockcharts_NAA50R").any() else "% Above 50DMA"),zorder=5)
+    ax.plot(dates,frame.percent,color="#8e44ad",linestyle="--",linewidth=1.6,label="50D",zorder=5)
     latest=frame.dropna(subset=["percent"]).iloc[-1]
     if latest.kind!="intraday":
         ax.scatter([pd.Timestamp(latest.date)],[latest.percent],color="#8e44ad",s=15,zorder=6)
-    text=f"50DMA: {latest.percent:.1f}%" if pd.notna(frame.iloc[-1].percent) else "50DMA：当前数据不足"
+    text=f"50D: {latest.percent:.1f}%" if pd.notna(frame.iloc[-1].percent) else "50D：当前数据不足"
     ax.text(.99,.93,text,transform=ax.transAxes,ha="right",va="top",fontsize=8,color="#7652a0")
     live=frame.loc[frame.kind=="intraday"]
     if not live.empty:

@@ -29,6 +29,7 @@ import matplotlib.dates as mdates
 from matplotlib import font_manager
 from matplotlib.collections import LineCollection
 from matplotlib.patches import Rectangle
+from matplotlib import patheffects
 import time
 import requests
 
@@ -660,6 +661,15 @@ def draw_vix_state_band(
         # add_artist 不更新 dataLim，价格图的 x/y 自动缩放保持原样。
         axis.add_artist(patch)
         patches.append(patch)
+    # 两种颜色各只在最后一段右端放一个V，避免长历史中标签堆叠。
+    for bottom in (VIX_STATE_BAND_BOTTOM, VIX_STATE_BAND_POSITIVE_BOTTOM):
+        last = [p for p in patches if p.get_y() == bottom]
+        if last:
+            edge = max(p.get_x()+p.get_width() for p in last)
+            axis.text(edge, bottom+VIX_STATE_BAND_HEIGHT/2, "V", transform=axis.get_xaxis_transform(),
+                      ha="right", va="center", fontsize=7, color="white", fontweight="bold",
+                      zorder=3, clip_on=True,
+                      path_effects=[patheffects.withStroke(linewidth=1.2, foreground="#263247")])
     return patches
 
 
@@ -2430,6 +2440,12 @@ def plot_analysis(
             vix_state_max_staleness_days,
         )
 
+    if show_breadth:
+        from tools.market_breadth import draw_breadth_state_band
+        from tools.configs.market_breadth_configs import BREADTH_BAND_LOW_THRESHOLD, BREADTH_BAND_HIGH_THRESHOLD
+        draw_breadth_state_band(axes[0], plot_df, breadth_df,
+                                BREADTH_BAND_LOW_THRESHOLD, BREADTH_BAND_HIGH_THRESHOLD)
+
     # 在收盘价曲线上叠加周线/月线极端区间信号。
     if show_weekly_signals:
         _annotate_period_rsi_signals(
@@ -2485,8 +2501,8 @@ def plot_analysis(
             from matplotlib.lines import Line2D
             draw_breadth(axes[2], breadth_df)
             handles, labels = axes[2].get_legend_handles_labels()
-            axes[2].legend([Line2D([0], [0], color="#3267a8", label="RSI"), *handles],
-                           ["RSI", *labels], loc="upper left", fontsize=8)
+            axes[2].legend([Line2D([0], [0], color="#3267a8", label="R"), *handles],
+                           ["R", *labels], loc="upper left", fontsize=8)
 
     plt.tight_layout()
 

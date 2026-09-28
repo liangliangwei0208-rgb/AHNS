@@ -43,9 +43,41 @@ class IntegrationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp,patch.object(rsi_data.plt,"close") as close:
             rsi_data.plot_analysis(frame,"TEST",output_file=str(Path(tmp)/"chart.png"),show_plot=False,breadth_df=breadth,show_breadth=True)
             fig=close.call_args.args[0];axis=fig.axes[2]
-            line=next(x for x in axis.lines if x.get_label()=="% Above 50DMA")
+            line=next(x for x in axis.lines if x.get_label()=="50D")
             self.assertTrue(np.isnan(line.get_ydata()[-2]));self.assertEqual(axis.get_ylim(),(0.,100.))
             self.assertEqual(len(fig.axes),3)
+            self.assertIn("R",[t.get_text() for t in axis.get_legend().get_texts()])
+            self.assertIn("50D",[t.get_text() for t in axis.get_legend().get_texts()])
+    def test_nasdaq_latest_breadth_label_has_no_parenthetical_suffix(self):
+        from tools.market_breadth import draw_breadth
+        import matplotlib.pyplot as plt
+        fig, axis = plt.subplots()
+        frame = pd.DataFrame({"date": ["2026-09-25"], "percent": [34.6],
+                              "kind": ["close"], "source": ["stockcharts_NAA50R"]})
+        draw_breadth(axis, frame)
+        self.assertEqual([label.get_text() for label in axis.texts], ["50D: 34.6%"])
+        plt.close(fig)
+    def test_price_breadth_band_uses_configurable_extremes_and_keeps_gaps(self):
+        from tools.market_breadth import draw_breadth_state_band
+        from tools.configs.market_breadth_configs import BREADTH_BAND_LOW_THRESHOLD,BREADTH_BAND_HIGH_THRESHOLD
+        import matplotlib.pyplot as plt
+        dates=pd.date_range("2026-01-02",periods=6,freq="B")
+        prices=pd.DataFrame({"date":dates,"close":[100.]*6})
+        breadth=pd.DataFrame({"date":dates,"percent":[30,30,50,70,80,None],"kind":["close"]*6})
+        fig,axis=plt.subplots();axis.set_ylim(90,110)
+        patches=draw_breadth_state_band(axis,prices,breadth,30,70)
+        self.assertEqual((BREADTH_BAND_LOW_THRESHOLD,BREADTH_BAND_HIGH_THRESHOLD),(30,70))
+        self.assertEqual(len(patches),2)
+        self.assertEqual([t.get_text() for t in axis.texts],["50D","50D"])
+        self.assertEqual(axis.get_ylim(),(90,110))
+        from tools.rsi_data import VIX_STATE_BAND_POSITIVE_BOTTOM,VIX_STATE_BAND_HEIGHT
+        low_patch,high_patch=patches
+        self.assertAlmostEqual(low_patch.get_y()-(VIX_STATE_BAND_POSITIVE_BOTTOM+VIX_STATE_BAND_HEIGHT),.005,places=3)
+        self.assertGreater(high_patch.get_y(),.90)
+        self.assertLess(high_patch.get_y()+high_patch.get_height(),1.0)
+        self.assertLess(patches[-1].get_x()+patches[-1].get_width(),__import__('matplotlib').dates.date2num(dates[-1]))
+        plt.close(fig)
+
     def test_actual_conflict_handler_merges_complete_and_intraday_without_regression(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);target=root/"cache/market_breadth/results/dow.json";target.parent.mkdir(parents=True)
