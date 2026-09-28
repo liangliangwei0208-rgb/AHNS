@@ -125,7 +125,7 @@ def main(*, include_first_reopen: bool = False) -> None:
         market_group="overseas",
         date_field=window.date_field,
         include_intraday=False,
-        require_final=True,
+        include_partial_close=True,
     )
     daily_df = filter_effective_holiday_fund_days(daily_df)
     summary_df = build_cumulative_dataframe(daily_df)

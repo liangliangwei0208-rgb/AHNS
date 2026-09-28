@@ -634,12 +634,25 @@ def filter_effective_holiday_fund_days(df: pd.DataFrame) -> pd.DataFrame:
     if df is None or df.empty or "market_status" not in df:
         return df
 
-    def has_session(value) -> bool:
-        if not isinstance(value, dict) or not value:
-            return True  # 旧缓存没有市场明细时保留已标为 final 的记录。
-        return any(str(status).lower() == "traded" for status in value.values())
+    def has_session(row: pd.Series) -> bool:
+        anchor_date = _normalize_date_string(row.get("valuation_date"))
+        trade_dates = row.get("market_trade_dates")
+        # 汇总状态会被一只缺失/过期股票拉低，实际交易日应优先看有效报价日期。
+        if isinstance(trade_dates, dict) and anchor_date:
+            if any(_normalize_date_string(value) == anchor_date for value in trade_dates.values()):
+                return True
+        if (
+            str(row.get("residual_benchmark_status", "")).lower() == "traded"
+            and _normalize_date_string(row.get("residual_benchmark_trade_date")) == anchor_date
+        ):
+            return True
 
-    return df[df["market_status"].map(has_session)].copy()
+        status = row.get("market_status")
+        if isinstance(status, dict) and status:
+            return any(str(value).lower() == "traded" for value in status.values())
+        return bool(row.get("is_final", False))  # 无市场明细的旧版完整记录仍保留。
+
+    return df[df.apply(has_session, axis=1)].copy()
 
 
 def detect_a_share_holiday_context(
@@ -708,23 +721,22 @@ def detect_overseas_holiday_estimate_window(
         return _no_holiday_window(context.reason, calendar_source=context.calendar_source)
 
     start_date, end_date = context.start_date, context.end_date
-    fund_df = load_fund_estimate_history(cache_file=cache_file)
-    if not fund_df.empty and "valuation_date" in fund_df:
-        interval_fund_df = fund_df[
-            (fund_df.get("market_group") == "overseas")
-            & (fund_df["valuation_date"] >= start_date)
-            & (fund_df["valuation_date"] <= end_date)
-            & fund_df["is_final"]
-            & fund_df["estimate_return_pct"].notna()
-        ].copy()
+    interval_fund_df = get_fund_estimate_records(
+        start_date=start_date,
+        end_date=end_date,
+        market_group="overseas",
+        date_field="valuation_date",
+        include_intraday=False,
+        include_partial_close=True,
+        cache_file=cache_file,
+    )
+    if not interval_fund_df.empty:
         interval_fund_df = filter_effective_holiday_fund_days(interval_fund_df)
-    else:
-        interval_fund_df = pd.DataFrame()
     valuation_dates = _unique_sorted_dates(interval_fund_df.get("valuation_date", []))
     latest_valuation_date = valuation_dates[-1] if valuation_dates else ""
     reason = (
         f"{context.reason}; A股日历来源: {context.calendar_source}; "
-        f"完整基金估算数据截至: {latest_valuation_date or '暂无'}"
+        f"收盘基金估算数据截至: {latest_valuation_date or '暂无'}"
     )
     return HolidayEstimateWindow(
         should_generate=True,
@@ -749,6 +761,7 @@ def get_fund_estimate_records(
     include_intraday: bool = True,
     require_final: bool = False,
     cache_file: str | Path | None = None,
+    include_partial_close: bool = False,
 ) -> pd.DataFrame:
     """
     按日期区间读取每日预估收益记录。
@@ -763,6 +776,8 @@ def get_fund_estimate_records(
         False：只使用 final。
     require_final:
         True：只保留 final 记录。
+    include_partial_close:
+        True 且 include_intraday=False 时，额外保留有数值的部分/过期收盘估算。
     """
     date_field = str(date_field).strip()
     if date_field not in {"valuation_date", "run_date_bj"}:
@@ -794,8 +809,22 @@ def get_fund_estimate_records(
         code_set = {str(x).strip().zfill(6) for x in fund_codes}
         df = df[df["fund_code"].astype(str).str.zfill(6).isin(code_set)]
 
-    if require_final or not include_intraday:
+    if require_final:
         df = df[df["is_final"] == True]
+    elif not include_intraday:
+        if include_partial_close:
+            stage = df.get("stage", pd.Series("", index=df.index)).astype(str).str.lower()
+            status = df.get("data_status", pd.Series("", index=df.index)).astype(str).str.lower()
+            mode = df.get("valuation_mode", pd.Series("", index=df.index)).astype(str).str.lower()
+            effective_mode = df.get("effective_valuation_mode", pd.Series("", index=df.index)).astype(str).str.lower()
+            partial_close = (
+                stage.eq("partial")
+                & status.isin(("partial", "stale"))
+                & (mode.eq("last_close") | effective_mode.eq("last_close"))
+            )
+            df = df[df["is_final"] | partial_close]
+        else:
+            df = df[df["is_final"] == True]
 
     df = df.dropna(subset=["estimate_return_pct"]).copy()
 

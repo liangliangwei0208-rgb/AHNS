@@ -152,6 +152,113 @@ class HolidayServiceTests(unittest.TestCase):
         filtered = fund_history_io.filter_effective_holiday_fund_days(daily)
         self.assertEqual(filtered["fund_code"].tolist(), ["015205"])
 
+    def test_holiday_reader_accepts_partial_close_but_not_intraday_or_missing_value(self):
+        day = "2026-09-25"
+        records = {}
+        for code, stage, status, value in [
+            ("000001", "final", "complete", 1.0),
+            ("000002", "partial", "partial", 2.0),
+            ("000003", "partial", "stale", -0.5),
+            ("000004", "intraday", "partial", 3.0),
+            ("000005", "partial", "partial", None),
+        ]:
+            records[f"overseas:{code}:{day}"] = {
+                "market_group": "overseas", "fund_code": code,
+                "valuation_date": day, "run_date_bj": day,
+                "stage": stage, "data_status": status,
+                "valuation_mode": "intraday" if stage == "intraday" else "last_close",
+                "is_final": stage == "final", "estimate_return_pct": value,
+            }
+        with TemporaryDirectory() as directory:
+            cache_file = Path(directory) / "estimates.json"
+            cache_file.write_text(json.dumps({"records": records}), encoding="utf-8")
+            selected = fund_history_io.get_fund_estimate_records(
+                start_date=day, end_date=day, cache_file=cache_file,
+                fund_codes=list(code for code in ("000001", "000002", "000003", "000004", "000005")),
+                include_intraday=False, include_partial_close=True,
+            )
+            complete_only = fund_history_io.get_fund_estimate_records(
+                start_date=day, end_date=day, cache_file=cache_file,
+                fund_codes=["000001", "000002", "000003"], include_intraday=False,
+            )
+        self.assertEqual(selected["fund_code"].tolist(), ["000001", "000002", "000003"])
+        self.assertEqual(complete_only["fund_code"].tolist(), ["000001"])
+
+    def test_partial_market_error_does_not_hide_other_traded_holdings(self):
+        day = "2026-09-25"
+        daily = pd.DataFrame([
+            {"fund_code": "000001", "valuation_date": day, "market_status": {"US": "missing"},
+             "market_trade_dates": {"US": day}},
+            {"fund_code": "000002", "valuation_date": day, "market_status": {"US": "stale"},
+             "market_trade_dates": {"US": day}},
+            {"fund_code": "000003", "valuation_date": day, "market_status": {"US": "missing"},
+             "market_trade_dates": {}, "residual_benchmark_status": "traded",
+             "residual_benchmark_trade_date": day},
+            {"fund_code": "000004", "valuation_date": day, "market_status": {"US": "closed"},
+             "market_trade_dates": {}},
+            {"fund_code": "000005", "valuation_date": day, "market_status": {"US": "missing"},
+             "market_trade_dates": {}},
+        ])
+        filtered = fund_history_io.filter_effective_holiday_fund_days(daily)
+        self.assertEqual(filtered["fund_code"].tolist(), ["000001", "000002", "000003"])
+
+    def test_holiday_image_uses_all_close_estimates_without_status_marks(self):
+        day = "2026-09-25"
+        records = {}
+        for code, name, stage, status, value in [
+            ("002891", "基金甲", "final", "complete", 1.0),
+            ("006555", "基金乙", "partial", "partial", 2.0),
+            ("160140", "基金丙", "partial", "stale", -0.5),
+            ("012922", "盘中基金", "intraday", "partial", 4.0),
+        ]:
+            records[f"overseas:{code}:{day}"] = {
+                "market_group": "overseas", "fund_code": code, "fund_name": name,
+                "valuation_date": day, "run_date_bj": day,
+                "stage": stage, "data_status": status,
+                "valuation_mode": "intraday" if stage == "intraday" else "last_close",
+                "is_final": stage == "final", "estimate_return_pct": value,
+                "market_status": {"US": "traded" if stage == "final" else status},
+                "market_trade_dates": {"US": day},
+            }
+        window = fund_history_io.HolidayEstimateWindow(
+            should_generate=True, start_date=day, end_date=day,
+            date_field="valuation_date", date_label="9.25-9.25",
+        )
+        with TemporaryDirectory() as directory:
+            cache_file = Path(directory) / "fund_estimate_return_cache.json"
+            cache_file.write_text(json.dumps({"records": records, "benchmark_records": {}}), encoding="utf-8")
+            with patch.object(fund_history_io, "CACHE_DIR", Path(directory)), \
+                    patch.object(safe_holidays, "detect_overseas_holiday_estimate_window", return_value=window), \
+                    patch.object(safe_holidays, "save_cumulative_estimate_table_image") as save_image, \
+                    patch.object(safe_holidays, "apply_safe_public_watermarks"):
+                safe_holidays.main()
+        image_rows = save_image.call_args.kwargs["summary_df"]
+        self.assertEqual(image_rows["基金名称"].tolist(), ["基金乙***", "基金甲***", "基金丙***"])
+        self.assertEqual(image_rows["区间累计预估收益率"].round(2).tolist(), [2.0, 1.0, -0.5])
+        self.assertEqual(save_image.call_args.kwargs["footnote_text"],
+                         "鱼师AHNS，依据季报持仓及指数估算，最终以基金公司公告为准。")
+
+    def test_holiday_window_reports_partial_close_date(self):
+        day = "2026-09-25"
+        with TemporaryDirectory() as directory:
+            cache_file = Path(directory) / "estimates.json"
+            cache_file.write_text(json.dumps({"records": {
+                f"overseas:012922:{day}": {
+                    "market_group": "overseas", "fund_code": "012922", "fund_name": "测试基金",
+                    "valuation_date": day, "run_date_bj": "2026-09-26",
+                    "stage": "partial", "data_status": "partial", "is_final": False,
+                    "valuation_mode": "last_close", "estimate_return_pct": 0.4,
+                    "market_status": {"US": "missing"}, "market_trade_dates": {"US": day},
+                },
+            }}), encoding="utf-8")
+            with patch.object(fund_history_io, "_load_a_share_trade_dates", return_value=(
+                {"2026-09-24", "2026-09-28"}, "test",
+            )):
+                window = fund_history_io.detect_overseas_holiday_estimate_window(
+                    today=date(2026, 9, 26), cache_file=cache_file,
+                )
+        self.assertEqual(window.overseas_valuation_dates, (day,))
+
     def test_placeholder_png_is_actually_rendered(self):
         window = fund_history_io.HolidayEstimateWindow(
             should_generate=True, start_date="2026-09-25", end_date="2026-09-25",
