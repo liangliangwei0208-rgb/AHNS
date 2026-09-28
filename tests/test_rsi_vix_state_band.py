@@ -12,10 +12,7 @@ import pandas as pd
 from tools.configs.rsi_configs import RSI_ANALYSIS_CONFIGS
 from tools.rsi_data import (
     VIX_STATE_BAND_NEGATIVE_COLOR,
-    VIX_STATE_BAND_HEIGHT,
-    VIX_STATE_BAND_BOTTOM,
     VIX_STATE_BAND_POSITIVE_COLOR,
-    VIX_STATE_BAND_POSITIVE_BOTTOM,
     classify_vix_state_band,
     draw_vix_state_band,
 )
@@ -47,8 +44,8 @@ class RsiVixStateBandTests(unittest.TestCase):
         self.assertEqual(len(axis.collections), 0)
         self.assertEqual(len(axis.patches), 1)
         patch = axis.patches[0]
-        self.assertAlmostEqual(patch.get_y(), VIX_STATE_BAND_BOTTOM)
-        self.assertAlmostEqual(patch.get_height(), VIX_STATE_BAND_HEIGHT)
+        self.assertLess(patch.get_y(),.1)
+        self.assertGreater(patch.get_height(),0)
         np.testing.assert_allclose(patch.get_facecolor()[:3], (0.776, 0.239, 0.239), atol=0.01)
 
         # 唯一色块必须覆盖 2026-01-05；01-08 没有价格日，不可错位涂色。
@@ -127,17 +124,34 @@ class RsiVixStateBandTests(unittest.TestCase):
         prices=pd.DataFrame({"date":dates,"close":[100.]*7})
         states=pd.DataFrame({"date":dates,"VIX_MA_SPREAD":[-6,-6,0,6,6,0,-6]})
         fig,axis=plt.subplots()
+        axis.set_xlim(dates[0]-pd.Timedelta(days=1),dates[-1]+pd.Timedelta(days=1))
         patches=draw_vix_state_band(axis,prices,states,-5,5)
         labels=[t for t in axis.texts if t.get_text()=="V"]
         self.assertEqual(len(patches),3)
         self.assertEqual(len(labels),len(patches))
         for label, band in zip(labels, patches):
-            self.assertAlmostEqual(label.get_position()[0],band.get_x()+band.get_width()/2)
-            self.assertAlmostEqual(label.get_position()[1],band.get_y()+VIX_STATE_BAND_HEIGHT/2)
+            self.assertEqual(label.get_ha(),"right")
+            fig.canvas.draw()
+            text_box=label.get_window_extent(fig.canvas.get_renderer())
+            band_box=band.get_window_extent(fig.canvas.get_renderer())
+            self.assertLessEqual(text_box.x1,band_box.x1)
+            self.assertGreaterEqual(text_box.x0,band_box.x0)
+        plt.close(fig)
+
+    def test_one_day_vix_band_on_long_chart_keeps_color_without_label(self):
+        dates=pd.bdate_range("2026-01-02",periods=200)
+        prices=pd.DataFrame({"date":dates,"close":[100.]*200})
+        states=pd.DataFrame({"date":dates,"VIX_MA_SPREAD":[0.]*100+[6]+[0.]*99})
+        fig,axis=plt.subplots()
+        axis.set_xlim(dates[0],dates[-1])
+        patches=draw_vix_state_band(axis,prices,states,-5,5)
+        self.assertEqual(len(patches),1)
+        self.assertGreater(patches[0].get_y(),.8)
+        self.assertEqual(list(axis.texts),[])
         plt.close(fig)
 
     def test_negative_band_is_below_positive_band(self):
-        """红色风险状态贴底，深青色状态使用其上方独立槽位。"""
+        """红色风险状态贴底，深青色状态位于价格图顶部。"""
         dates = pd.date_range("2026-01-02", periods=2, freq="B")
         price_df = pd.DataFrame({"date": dates, "close": [100.0, 101.0]})
         vix_state_df = pd.DataFrame({"date": dates, "VIX_MA_SPREAD": [-6.0, 6.0]})
@@ -161,8 +175,8 @@ class RsiVixStateBandTests(unittest.TestCase):
                 plt.matplotlib.colors.to_rgb(VIX_STATE_BAND_POSITIVE_COLOR),
             )
         )
-        self.assertAlmostEqual(red_patch.get_y(), VIX_STATE_BAND_BOTTOM)
-        self.assertAlmostEqual(teal_patch.get_y(), VIX_STATE_BAND_POSITIVE_BOTTOM)
+        self.assertLess(red_patch.get_y(),.1)
+        self.assertGreater(teal_patch.get_y(),.8)
         self.assertGreater(teal_patch.get_y(), red_patch.get_y())
         plt.close(figure)
 

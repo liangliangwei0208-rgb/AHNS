@@ -13,7 +13,10 @@ import pandas as pd
 import matplotlib.dates as mdates
 from matplotlib.patches import Rectangle
 from matplotlib import patheffects
+from matplotlib.font_manager import FontProperties
 from tools.configs.market_breadth_configs import (BREADTH_HISTORY_ROWS, BREADTH_BAND_LOW_COLOR, BREADTH_BAND_HIGH_COLOR)
+
+RIGHT_METRIC_LABEL_X = .90
 
 
 def utc_now():
@@ -170,7 +173,45 @@ class BreadthStore:
         return pd.DataFrame(self.read("results",key).get("rows",[]),columns=["date","percent","valid","total","coverage","kind","membership_version","source","updated_at","observed_at"])
 
 
-def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_threshold):
+def price_band_layout(ax, output_dpi=None):
+    """按最终导出像素计算四条状态带，保持两侧间隔恒为约2像素。"""
+    dpi = float(output_dpi or ax.figure.dpi)
+    axes_height_px = ax.get_position().height * ax.figure.get_size_inches()[1] * dpi
+    unit = 1.0 / max(axes_height_px, 1.0)
+    height, gap, edge = 16 * unit, 2 * unit, 5 * unit
+    return {
+        "height": height,
+        "vix_negative": edge,
+        "breadth_low": edge + height + gap,
+        "breadth_high": 1 - edge - height,
+        "vix_positive": 1 - edge - 2 * height - gap,
+    }
+
+
+def add_state_band_label(ax, patch, label, *, output_dpi=None, fontsize=6):
+    """色段够宽才在右端带内标字；太短的色段只保留颜色。"""
+    fig = ax.figure
+    dpi = float(output_dpi or fig.dpi)
+    transform = ax.get_xaxis_transform()
+    y_center = patch.get_y() + patch.get_height() / 2
+    x_left = transform.transform((patch.get_x(), y_center))[0]
+    x_right = transform.transform((patch.get_x() + patch.get_width(), y_center))[0]
+    visible_left = max(x_left, ax.bbox.x0)
+    visible_right = min(x_right, ax.bbox.x1)
+    inset = 2 * fig.dpi / dpi
+    renderer = fig.canvas.get_renderer()
+    font = FontProperties(size=fontsize, weight="bold")
+    label_width = renderer.get_text_width_height_descent(label, font, ismath=False)[0]
+    if visible_right - visible_left < label_width + 2 * inset:
+        return None
+    y_px = transform.transform((patch.get_x(), y_center))[1]
+    label_x = transform.inverted().transform((visible_right - inset, y_px))[0]
+    return ax.text(label_x, y_center, label, transform=transform, ha="right", va="center",
+                   fontsize=fontsize, color="white", fontweight="bold", zorder=3, clip_on=True,
+                   path_effects=[patheffects.withStroke(linewidth=1.2, foreground="#263247")])
+
+
+def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_threshold, *, output_dpi=None):
     """只在同日广度达到极端阈值时，在价格图底部或顶部画提示带。"""
     if (price_df is None or price_df.empty or breadth_df is None or breadth_df.empty
             or "date" not in price_df or not {"date", "percent"}.issubset(breadth_df.columns)):
@@ -197,8 +238,10 @@ def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_thresh
         left = np.r_[x[0] - (middle[0]-x[0]), middle]
         right = np.r_[middle, x[-1] + (x[-1]-middle[-1])]
 
-    # 低广度带紧邻底部VIX带；高广度带靠近价格图上沿。
-    bands = {"low": (BREADTH_BAND_LOW_COLOR, .091), "high": (BREADTH_BAND_HIGH_COLOR, .958)}
+    # 上下极端各占一侧，VIX在同侧紧邻；位置由导出尺寸换算。
+    layout = price_band_layout(ax, output_dpi)
+    bands = {"low": (BREADTH_BAND_LOW_COLOR, layout["breadth_low"]),
+             "high": (BREADTH_BAND_HIGH_COLOR, layout["breadth_high"])}
     states = ["low" if pd.notna(v) and v <= low else "high" if pd.notna(v) and v >= high else None
               for v in aligned["percent"]]
     patches = []
@@ -209,19 +252,12 @@ def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_thresh
         state = states[start]
         if state is not None:
             color, bottom = bands[state]
-            patch = Rectangle((left[start], bottom), right[end-1]-left[start], .026,
+            patch = Rectangle((left[start], bottom), right[end-1]-left[start], layout["height"],
                               transform=ax.get_xaxis_transform(), facecolor=color, edgecolor="none",
-                              alpha=.72, zorder=2.5, clip_on=True)
+                              alpha=.88, zorder=2.5, clip_on=True)
             ax.add_artist(patch)
             patches.append(patch)
-            # 每段都居中标注；过窄色段缩写为D，避免相邻的50D文字挤成一串。
-            center = patch.get_x() + patch.get_width() / 2
-            x_transform = ax.get_xaxis_transform()
-            pixel_width = x_transform.transform((right[end-1], bottom))[0] - x_transform.transform((left[start], bottom))[0]
-            label = "50D" if pixel_width >= 25 else "D"
-            ax.text(center, bottom+.013, label, transform=x_transform, ha="center", va="center",
-                    fontsize=7 if label == "50D" else 6, color="white", fontweight="bold", zorder=3, clip_on=True,
-                    path_effects=[patheffects.withStroke(linewidth=1.2, foreground="#263247")])
+            add_state_band_label(ax, patch, "50D", output_dpi=output_dpi)
         start = end
     return patches
 
@@ -229,7 +265,7 @@ def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_thresh
 def draw_breadth(ax,frame):
     """只负责叠加；NaN自然断线，不把数据缺口画成0。"""
     if frame is None or frame.empty or frame.percent.notna().sum()==0:
-        ax.text(.99,.97,"50D：数据不足",transform=ax.transAxes,ha="right",va="top",fontsize=8,color="#7652a0")
+        ax.text(RIGHT_METRIC_LABEL_X,.97,"50D：数据不足",transform=ax.transAxes,ha="left",va="top",fontsize=8,color="#7652a0")
         return
     dates=pd.to_datetime(frame.date)
     ax.plot(dates,frame.percent,color="#8e44ad",linestyle="--",linewidth=1.6,label="50D",zorder=5)
@@ -237,7 +273,7 @@ def draw_breadth(ax,frame):
     if latest.kind!="intraday":
         ax.scatter([pd.Timestamp(latest.date)],[latest.percent],color="#8e44ad",s=15,zorder=6)
     text=f"50D: {latest.percent:.1f}%" if pd.notna(frame.iloc[-1].percent) else "50D：当前数据不足"
-    ax.text(.99,.97,text,transform=ax.transAxes,ha="right",va="top",fontsize=8,color="#7652a0")
+    ax.text(RIGHT_METRIC_LABEL_X,.97,text,transform=ax.transAxes,ha="left",va="top",fontsize=8,color="#7652a0")
     live=frame.loc[frame.kind=="intraday"]
     if not live.empty:
         ax.scatter(pd.to_datetime(live.date),live.percent,facecolors="none",edgecolors="#8e44ad",s=34,zorder=6,label="盘中估算")

@@ -4,6 +4,7 @@ RSI 图表配置。
 维护影响：
 - 每一项配置对应一张 RSI 分析图及其输出路径。
 - 新增或停用关注标的时，优先改这里；`stock_analysis.py` 只负责执行配置。
+- 单图50D色带阈值可在对应项的 breadth_band_*_threshold 填数字；None 沿用全局值。
 """
 
 RSI_ANALYSIS_CONFIGS = [
@@ -41,13 +42,17 @@ RSI_ANALYSIS_CONFIGS = [
                 'signal_table_file': 'output/dow_jones_rsi_signal_table.png',
                 'return_signals': True,
                 'show_plot': False,
-                'breadth_key': 'dow'}},
+                'breadth_key': 'dow',
+                'breadth_band_low_threshold': None,
+                'breadth_band_high_threshold': None}},
     {
         "name": "纳斯达克综合指数",
         "image": "output/nasdaq_analysis.png",
         "kwargs": {
             "symbol": ".IXIC",
             "breadth_key": "nasdaq",
+            "breadth_band_low_threshold": None,
+            "breadth_band_high_threshold": None,
             "display_name": "纳斯达克综合指数",
             "days": 220,
             "output_file": "output/nasdaq_analysis.png",
@@ -93,6 +98,8 @@ RSI_ANALYSIS_CONFIGS = [
         "kwargs": {
             "symbol": "512890",
             "breadth_key": "dividend",
+            "breadth_band_low_threshold": None,
+            "breadth_band_high_threshold": None,
             "display_name": "红利低波华泰ETF",
             "days": 300,
             "output_file": "output/honglidibo_analysis.png",
@@ -183,6 +190,8 @@ RSI_ANALYSIS_CONFIGS = [
         "kwargs": {
             "symbol": "159943",
             "breadth_key": "shenzhen",
+            "breadth_band_low_threshold": None,
+            "breadth_band_high_threshold": None,
             "display_name": "深证成指ETF：159943",
             "days": 300,
             "output_file": "output/shenzhen_component_analysis.png",
@@ -228,6 +237,8 @@ RSI_ANALYSIS_CONFIGS = [
         "kwargs": {
             "symbol": "560220",
             "breadth_key": "csi2000",
+            "breadth_band_low_threshold": None,
+            "breadth_band_high_threshold": None,
             "display_name": "中证2000ETF：560220",
             "days": 300,
             "output_file": "output/csi_2000_analysis.png",

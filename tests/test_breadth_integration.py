@@ -36,6 +36,11 @@ class IntegrationTests(unittest.TestCase):
             self.assertTrue(mapping[symbol]["kwargs"].get("breadth_key"))
         self.assertEqual(mapping[".DJI"]["image"],"output/dow_jones_analysis.png")
         self.assertNotIn("sh000001",mapping)
+        for symbol in (".IXIC",".DJI","512890","560220","159943"):
+            self.assertIn("breadth_band_low_threshold",mapping[symbol]["kwargs"])
+            self.assertIn("breadth_band_high_threshold",mapping[symbol]["kwargs"])
+            self.assertIsNone(mapping[symbol]["kwargs"]["breadth_band_low_threshold"])
+            self.assertIsNone(mapping[symbol]["kwargs"]["breadth_band_high_threshold"])
     def test_breadth_overlay_shares_rsi_axis_and_keeps_gaps(self):
         days=pd.date_range("2026-01-01",periods=60)
         frame=pd.DataFrame({"date":days,"close":np.arange(60)+100.,"volume":1000.,"RSI":50.})
@@ -54,6 +59,9 @@ class IntegrationTests(unittest.TestCase):
             self.assertIn("R: 50.0",labels)
             self.assertIn("50D: 70.0%",labels)
             self.assertLess(labels["R: 50.0"].get_position()[1],labels["50D: 70.0%"].get_position()[1])
+            self.assertEqual(labels["R: 50.0"].get_ha(),"left")
+            self.assertEqual(labels["50D: 70.0%"].get_ha(),"left")
+            self.assertEqual(labels["R: 50.0"].get_position()[0],labels["50D: 70.0%"].get_position()[0])
     def test_latest_rsi_value_is_shown_without_breadth(self):
         days=pd.date_range("2026-01-01",periods=12)
         frame=pd.DataFrame({"date":days,"close":[100.]*12,"volume":[1000.]*12,
@@ -73,20 +81,17 @@ class IntegrationTests(unittest.TestCase):
         plt.close(fig)
     def test_price_breadth_band_uses_configurable_extremes_and_keeps_gaps(self):
         from tools.market_breadth import draw_breadth_state_band
-        from tools.configs.market_breadth_configs import BREADTH_BAND_LOW_THRESHOLD,BREADTH_BAND_HIGH_THRESHOLD
         import matplotlib.pyplot as plt
         dates=pd.date_range("2026-01-02",periods=6,freq="B")
         prices=pd.DataFrame({"date":dates,"close":[100.]*6})
         breadth=pd.DataFrame({"date":dates,"percent":[30,30,50,70,80,None],"kind":["close"]*6})
-        fig,axis=plt.subplots();axis.set_ylim(90,110)
+        fig,axis=plt.subplots();axis.set_ylim(90,110);axis.set_xlim(dates[0]-pd.Timedelta(days=1),dates[-1]+pd.Timedelta(days=1))
         patches=draw_breadth_state_band(axis,prices,breadth,30,70)
-        self.assertEqual((BREADTH_BAND_LOW_THRESHOLD,BREADTH_BAND_HIGH_THRESHOLD),(30,70))
         self.assertEqual(len(patches),2)
         self.assertEqual([t.get_text() for t in axis.texts],["50D","50D"])
         self.assertEqual(axis.get_ylim(),(90,110))
-        from tools.rsi_data import VIX_STATE_BAND_POSITIVE_BOTTOM,VIX_STATE_BAND_HEIGHT
         low_patch,high_patch=patches
-        self.assertAlmostEqual(low_patch.get_y()-(VIX_STATE_BAND_POSITIVE_BOTTOM+VIX_STATE_BAND_HEIGHT),.005,places=3)
+        self.assertLess(low_patch.get_y(),.2)
         self.assertGreater(high_patch.get_y(),.90)
         self.assertLess(high_patch.get_y()+high_patch.get_height(),1.0)
         self.assertLess(patches[-1].get_x()+patches[-1].get_width(),__import__('matplotlib').dates.date2num(dates[-1]))
@@ -99,15 +104,21 @@ class IntegrationTests(unittest.TestCase):
         prices=pd.DataFrame({"date":dates,"close":[100.]*7})
         breadth=pd.DataFrame({"date":dates,"percent":[75,75,50,80,50,20,20]})
         fig,axis=plt.subplots()
+        axis.set_xlim(dates[0]-pd.Timedelta(days=1),dates[-1]+pd.Timedelta(days=1))
         patches=draw_breadth_state_band(axis,prices,breadth,30,70)
-        labels=[t for t in axis.texts if t.get_text() in {"50D","D"}]
+        labels=[t for t in axis.texts if t.get_text()=="50D"]
         self.assertEqual(len(patches),3)
         self.assertEqual(len(labels),3)
         for label, band in zip(labels,patches):
-            self.assertAlmostEqual(label.get_position()[0],band.get_x()+band.get_width()/2)
+            self.assertEqual(label.get_ha(),"right")
+            fig.canvas.draw()
+            text_box=label.get_window_extent(fig.canvas.get_renderer())
+            band_box=band.get_window_extent(fig.canvas.get_renderer())
+            self.assertLessEqual(text_box.x1,band_box.x1)
+            self.assertGreaterEqual(text_box.x0,band_box.x0)
         plt.close(fig)
 
-    def test_narrow_50d_band_keeps_a_short_label(self):
+    def test_narrow_50d_band_stays_colored_without_letter(self):
         from tools.market_breadth import draw_breadth_state_band
         import matplotlib.pyplot as plt
         dates=pd.date_range("2026-01-02",periods=200,freq="B")
@@ -117,8 +128,72 @@ class IntegrationTests(unittest.TestCase):
         axis.set_xlim(dates[0],dates[-1])
         patches=draw_breadth_state_band(axis,prices,breadth,30,70)
         self.assertEqual(len(patches),1)
-        self.assertEqual([label.get_text() for label in axis.texts],["D"])
+        self.assertEqual(list(axis.texts),[])
         plt.close(fig)
+
+    def test_four_state_bands_use_top_and_bottom_pairs_with_two_pixel_gaps(self):
+        from tools.market_breadth import draw_breadth_state_band
+        from tools.rsi_data import draw_vix_state_band
+        import matplotlib.pyplot as plt
+        dates=pd.date_range("2026-01-02",periods=4,freq="B")
+        prices=pd.DataFrame({"date":dates,"close":[100.]*4})
+        vix=pd.DataFrame({"date":dates,"VIX_MA_SPREAD":[-6,-6,6,6]})
+        breadth=pd.DataFrame({"date":dates,"percent":[20,20,90,90]})
+        fig,axis=plt.subplots(figsize=(12,8),dpi=180)
+        axis.set_xlim(dates[0],dates[-1]);fig.tight_layout()
+        vix_patches=draw_vix_state_band(axis,prices,vix,-5,5,output_dpi=180)
+        breadth_patches=draw_breadth_state_band(axis,prices,breadth,30,80,output_dpi=180)
+        red,teal=vix_patches
+        amber,purple=breadth_patches
+        self.assertLess(red.get_y(),amber.get_y())
+        self.assertLess(teal.get_y(),purple.get_y())
+        self.assertGreater(teal.get_y(),.8)
+        self.assertAlmostEqual((amber.get_y()-red.get_y()-red.get_height())*axis.bbox.height,2,delta=.2)
+        self.assertAlmostEqual((purple.get_y()-teal.get_y()-teal.get_height())*axis.bbox.height,2,delta=.2)
+        self.assertGreaterEqual(amber.get_facecolor()[-1],.8)
+        self.assertGreaterEqual(purple.get_facecolor()[-1],.8)
+        plt.close(fig)
+
+    def test_breadth_threshold_overrides_are_per_chart_with_global_fallback(self):
+        days=pd.date_range("2026-01-01",periods=60)
+        frame=pd.DataFrame({"date":days,"close":[100.]*60,"volume":[1000.]*60,"RSI":[50.]*60})
+        breadth=pd.DataFrame({"date":days,"percent":[50.]*60,"kind":["close"]*60})
+        from tools.configs import market_breadth_configs as config
+        with tempfile.TemporaryDirectory() as tmp,patch.object(config,"BREADTH_BAND_LOW_THRESHOLD",25),patch.object(config,"BREADTH_BAND_HIGH_THRESHOLD",80):
+            with patch("tools.market_breadth.draw_breadth_state_band") as band:
+                rsi_data.plot_analysis(frame,"TEST",output_file=str(Path(tmp)/"default.png"),show_plot=False,breadth_df=breadth,show_breadth=True)
+                self.assertEqual(band.call_args.args[3:5],(25,80))
+                rsi_data.plot_analysis(frame,"TEST",output_file=str(Path(tmp)/"high.png"),show_plot=False,breadth_df=breadth,show_breadth=True,breadth_band_high_threshold=70)
+                self.assertEqual(band.call_args.args[3:5],(25,70))
+                rsi_data.plot_analysis(frame,"TEST",output_file=str(Path(tmp)/"both.png"),show_plot=False,breadth_df=breadth,show_breadth=True,breadth_band_low_threshold=35,breadth_band_high_threshold=75)
+                self.assertEqual(band.call_args.args[3:5],(35,75))
+
+    def test_rsi_entry_passes_single_chart_breadth_thresholds_to_plot(self):
+        days=pd.bdate_range("2024-01-01",periods=500)
+        frame=pd.DataFrame({"date":days,"open":100.,"close":np.arange(500)+100.,
+                            "high":601.,"low":90.,"volume":1000.})
+        with patch.object(rsi_data,"get_index_akshare",return_value=frame),patch.object(rsi_data,"plot_analysis") as plot:
+            rsi_data.rsi_analyze_index(symbol=".DJI",do_print=False,save_signal_table=False,
+                                       breadth_band_low_threshold=22,breadth_band_high_threshold=83)
+        self.assertEqual(plot.call_args.kwargs["breadth_band_low_threshold"],22)
+        self.assertEqual(plot.call_args.kwargs["breadth_band_high_threshold"],83)
+
+    def test_threshold_override_changes_band_only_not_breadth_curve(self):
+        days=pd.bdate_range("2026-01-02",periods=60)
+        frame=pd.DataFrame({"date":days,"close":[100.]*60,"volume":[1000.]*60,"RSI":[50.]*60})
+        breadth=pd.DataFrame({"date":days,"percent":[50.]*58+[75.,85.],"kind":["close"]*60})
+        from tools.configs import market_breadth_configs as config
+        with tempfile.TemporaryDirectory() as tmp,patch.object(config,"BREADTH_BAND_HIGH_THRESHOLD",80),patch.object(rsi_data.plt,"close") as close:
+            rsi_data.plot_analysis(frame,"TEST",output_file=str(Path(tmp)/"default.png"),show_plot=False,breadth_df=breadth,show_breadth=True,show_boll=False)
+            default_fig=close.call_args.args[0]
+            rsi_data.plot_analysis(frame,"TEST",output_file=str(Path(tmp)/"override.png"),show_plot=False,breadth_df=breadth,show_breadth=True,show_boll=False,breadth_band_high_threshold=70)
+            override_fig=close.call_args.args[0]
+        default_band=default_fig.axes[0].patches[0]
+        override_band=override_fig.axes[0].patches[0]
+        self.assertGreater(override_band.get_width(),default_band.get_width())
+        default_line=next(line for line in default_fig.axes[2].lines if line.get_label()=="50D")
+        override_line=next(line for line in override_fig.axes[2].lines if line.get_label()=="50D")
+        np.testing.assert_allclose(default_line.get_ydata(),override_line.get_ydata())
 
     def test_actual_conflict_handler_merges_complete_and_intraday_without_regression(self):
         with tempfile.TemporaryDirectory() as tmp:

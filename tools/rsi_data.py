@@ -29,7 +29,6 @@ import matplotlib.dates as mdates
 from matplotlib import font_manager
 from matplotlib.collections import LineCollection
 from matplotlib.patches import Rectangle
-from matplotlib import patheffects
 import time
 import requests
 
@@ -49,11 +48,7 @@ VIX_STATE_BAND_NEGATIVE_COLOR = "#C63D3D"
 VIX_STATE_BAND_POSITIVE_COLOR = "#00796B"
 VIX_STATE_LONG_WINDOW = 200
 VIX_STATE_SHORT_WINDOW = 20
-VIX_STATE_BAND_BOTTOM = 0.018
-VIX_STATE_BAND_HEIGHT = 0.03
-VIX_STATE_BAND_SLOT_GAP = 0.008
-VIX_STATE_BAND_POSITIVE_BOTTOM = VIX_STATE_BAND_BOTTOM + VIX_STATE_BAND_HEIGHT + VIX_STATE_BAND_SLOT_GAP
-VIX_STATE_BAND_ALPHA = 0.68
+VIX_STATE_BAND_ALPHA = 0.88
 _VIX_STATE_HISTORY_MEMORY_CACHE: dict[int, pd.DataFrame] = {}
 
 # 默认中文名称映射；可在 rsi_analyze_index(display_name=...) 中覆盖。
@@ -560,8 +555,10 @@ def draw_vix_state_band(
     negative_threshold: float = -5.0,
     positive_threshold: float = 5.0,
     max_staleness_days: int = 0,
+    *,
+    output_dpi: int | None = None,
 ) -> list[Rectangle] | None:
-    """在价格图底缘绘制 VIX 极端状态色块带，不参与价格坐标轴自动缩放。"""
+    """负向VIX贴图底，正向VIX靠图顶；色带不参与价格轴自动缩放。"""
     required_state_columns = {"date", "VIX_MA_SPREAD"}
     if (
         price_df is None
@@ -616,14 +613,16 @@ def draw_vix_state_band(
         right_edges[:-1] = midpoints
         right_edges[-1] = x_values[-1] + (x_values[-1] - midpoints[-1])
 
-    # 红色贴近图底，深青色置于其上，避免两种风险状态共用同一视觉槽位。
+    from tools.market_breadth import price_band_layout, add_state_band_label
+    layout = price_band_layout(axis, output_dpi)
+    # VIX正负极端分居两侧，与同侧50D留约2像素间隔。
     state_bands = []
     for index, value in enumerate(data["VIX_MA_SPREAD"]):
         state = classify_vix_state_band(value, negative_threshold, positive_threshold)
         if state == "negative":
-            band = (VIX_STATE_BAND_NEGATIVE_COLOR, VIX_STATE_BAND_BOTTOM)
+            band = (VIX_STATE_BAND_NEGATIVE_COLOR, layout["vix_negative"])
         elif state == "positive":
-            band = (VIX_STATE_BAND_POSITIVE_COLOR, VIX_STATE_BAND_POSITIVE_BOTTOM)
+            band = (VIX_STATE_BAND_POSITIVE_COLOR, layout["vix_positive"])
         else:
             band = None
         state_bands.append(band)
@@ -646,11 +645,11 @@ def draw_vix_state_band(
 
     patches = []
     for start_index, end_index, color, band_bottom in color_runs:
-        # x 使用数据坐标、y 使用 axes fraction，色块永远贴在图底而不挤占价格空间。
+        # x 使用数据坐标、y 使用 axes fraction，顶/底色带不挤占价格坐标空间。
         patch = Rectangle(
             (left_edges[start_index], band_bottom),
             right_edges[end_index] - left_edges[start_index],
-            VIX_STATE_BAND_HEIGHT,
+            layout["height"],
             transform=axis.get_xaxis_transform(),
             facecolor=color,
             edgecolor="none",
@@ -661,13 +660,9 @@ def draw_vix_state_band(
         # add_artist 不更新 dataLim，价格图的 x/y 自动缩放保持原样。
         axis.add_artist(patch)
         patches.append(patch)
-    # 每一段独立状态带都标V，居中放置便于对应具体区间。
+    # 每一段够宽的状态带都在右端标V；短段只保留颜色。
     for band in patches:
-        center = band.get_x() + band.get_width() / 2
-        axis.text(center, band.get_y()+VIX_STATE_BAND_HEIGHT/2, "V", transform=axis.get_xaxis_transform(),
-                  ha="center", va="center", fontsize=7, color="white", fontweight="bold",
-                  zorder=3, clip_on=True,
-                  path_effects=[patheffects.withStroke(linewidth=1.2, foreground="#263247")])
+        add_state_band_label(axis, band, "V", output_dpi=output_dpi)
     return patches
 
 
@@ -2292,6 +2287,8 @@ def plot_analysis(
     dpi: int = 180,
     breadth_df: Optional[pd.DataFrame] = None,
     show_breadth: bool = False,
+    breadth_band_low_threshold: Optional[float] = None,
+    breadth_band_high_threshold: Optional[float] = None,
 ):
     """
     输出价格、成交量和可选 RSI 图。曲线按 RSI 阈值连续变色。
@@ -2428,22 +2425,6 @@ def plot_analysis(
         ],
     )
 
-    if show_vix_state_band:
-        draw_vix_state_band(
-            axes[0],
-            plot_df,
-            vix_state_df,
-            vix_state_negative_threshold,
-            vix_state_positive_threshold,
-            vix_state_max_staleness_days,
-        )
-
-    if show_breadth:
-        from tools.market_breadth import draw_breadth_state_band
-        from tools.configs.market_breadth_configs import BREADTH_BAND_LOW_THRESHOLD, BREADTH_BAND_HIGH_THRESHOLD
-        draw_breadth_state_band(axes[0], plot_df, breadth_df,
-                                BREADTH_BAND_LOW_THRESHOLD, BREADTH_BAND_HIGH_THRESHOLD)
-
     # 在收盘价曲线上叠加周线/月线极端区间信号。
     if show_weekly_signals:
         _annotate_period_rsi_signals(
@@ -2497,8 +2478,9 @@ def plot_analysis(
         # 右上角逐行显示最新值，与50D采用相同的简短标记。
         latest_rsi = pd.to_numeric(plot_df[rsi_col], errors="coerce").dropna()
         rsi_text = f"R: {latest_rsi.iloc[-1]:.1f}" if not latest_rsi.empty else "R: 数据不足"
-        axes[2].text(.99, .91 if show_breadth else .97, rsi_text,
-                     transform=axes[2].transAxes, ha="right", va="top",
+        from tools.market_breadth import RIGHT_METRIC_LABEL_X
+        axes[2].text(RIGHT_METRIC_LABEL_X, .91 if show_breadth else .97, rsi_text,
+                     transform=axes[2].transAxes, ha="left", va="top",
                      fontsize=8, color="#3267a8")
         if show_breadth:
             from tools.market_breadth import draw_breadth
@@ -2511,6 +2493,18 @@ def plot_analysis(
                            handletextpad=.3, columnspacing=.6)
 
     plt.tight_layout()
+
+    # 布局确定后再按导出像素摆放色带，保证上下两侧的间隙都是约2像素。
+    if show_vix_state_band:
+        draw_vix_state_band(axes[0], plot_df, vix_state_df,
+                            vix_state_negative_threshold, vix_state_positive_threshold,
+                            vix_state_max_staleness_days, output_dpi=dpi)
+    if show_breadth:
+        from tools.market_breadth import draw_breadth_state_band
+        from tools.configs.market_breadth_configs import BREADTH_BAND_LOW_THRESHOLD, BREADTH_BAND_HIGH_THRESHOLD
+        low = BREADTH_BAND_LOW_THRESHOLD if breadth_band_low_threshold is None else breadth_band_low_threshold
+        high = BREADTH_BAND_HIGH_THRESHOLD if breadth_band_high_threshold is None else breadth_band_high_threshold
+        draw_breadth_state_band(axes[0], plot_df, breadth_df, low, high, output_dpi=dpi)
 
     output_path = Path(output_file)
     if output_path.parent and str(output_path.parent) != ".":
@@ -2588,6 +2582,8 @@ def rsi_analyze_index(
     signal_table_file: str = "output/rsi_signal_table.png",
     signal_table_max_rows: Optional[int] = 80,
     breadth_key: Optional[str] = None,
+    breadth_band_low_threshold: Optional[float] = None,
+    breadth_band_high_threshold: Optional[float] = None,
 ) -> pd.DataFrame:
     """
     外部调用主函数。
@@ -2818,6 +2814,8 @@ def rsi_analyze_index(
             output_file=output_file,
             breadth_df=breadth_df,
             show_breadth=bool(breadth_key),
+            breadth_band_low_threshold=breadth_band_low_threshold,
+            breadth_band_high_threshold=breadth_band_high_threshold,
             output_two_file=output_two_file,
             display_name=plot_title_name,
             symbol_name_map=symbol_name_map,
