@@ -19,6 +19,16 @@ class BreadthCalculationTests(unittest.TestCase):
         self.assertEqual(out.iloc[-1].percent,50)
         self.assertEqual(out.iloc[-1].valid,2)
 
+    def test_recent_ipo_without_50_days_remains_in_coverage_denominator(self):
+        dates=pd.bdate_range("2026-06-01",periods=50).strftime("%Y-%m-%d")
+        prices={"US.OLD":pd.DataFrame({"date":dates,"close":[10.]*49+[11.]}),
+                "US.NEW":pd.DataFrame({"date":dates[-10:],"close":[20.]*10})}
+        out=calculate_history(prices,["US.OLD","US.NEW"],min_coverage=.95,sessions=dates)
+        self.assertEqual(out.iloc[-1].valid,1)
+        self.assertEqual(out.iloc[-1].total,2)
+        self.assertEqual(out.iloc[-1].coverage,.5)
+        self.assertTrue(pd.isna(out.iloc[-1].percent))
+
     def test_missing_not_below_and_coverage_gate(self):
         data={"A":price([10]*49+[11])}
         out=calculate_history(data,["A","B"])

@@ -251,13 +251,15 @@
 
 ## 50DMA广度缓存
 
-- `market_breadth/prices/<市场.证券>.json`：同一复权基准下最近400个完整交易日，多个指数共用；来源/复权变化须重取窗口。
-- `market_breadth/members/<市场>.json`：按日期保存经验证的完整名单和版本；不把上市目录或ETF前十大持仓当作完整指数成分。
-- `market_breadth/results/<市场>.json`：最近400个广度记录，`kind=close/intraday`区分完整收盘和临时值；缺失值为null，不是0。
-- A股收盘日线未到齐时，15:15之后可用富途15:00快照按昨收比例接续原复权基准；结果的 `source=futu_close_snapshot`，后续正式日线核对修订。图表最多提示5个交易日内的可信旧收盘值和日期，不复活过期盘中点。
-- `market_breadth/results/nasdaq_stockcharts.json`：StockCharts纳斯达克市场口径，从启用时开始积累，不与综合指数自算结果拼接。
+- `market_breadth/prices/<市场.证券>.json`：同一复权基准下最多400个交易日，多个指数共用；`provisional_dates` 记录富途快照接续的临时收盘价，正式日线到达后逐日核对清除。来源/复权基准不兼容须重取窗口。
+- `market_breadth/members/<市场>.json`：`rows` 记录成分版本的发现、验证、生效日；`pending_membership` 保存生效日未核实的变化；`pit_start` 划定启用逐日成分口径的首日。道指及三个A股市场须完整名单；纳指官方上市目录过滤后的名单是**近似上市证券池**，不是精确 COMP 成分。
+- `market_breadth/membership_events/<市场>.json`：每次确认生效的调样事件及增删证券，跨主机按事件ID合并。
+- `market_breadth/results/<市场>.json`：最多400个广度记录，`kind=close/intraday` 区分收盘和盘中；`finality=snapshot_provisional` 不等于已核实正式日线；缺失值为null，不是0。旧结果标记 `current_members_backcast`，启用后结果标记 `point_in_time_membership`；已发布正式值只有显式 `--repair` 可更正。
+- `market_breadth/benchmarks/nasdaq_stockcharts.json`：StockCharts `$NAA50R` 独立参照数据，不与 `results/nasdaq.json` 的自算近似广度拼接。旧 `results/nasdaq_stockcharts.json` 仅作为历史遗留文件保留。
+- A股15:15之后可用富途15:00快照、美股按实际收市时间可用富途常规时段末尾快照，均按昨收比例接续原复权基准；后续正式日线核对。图表最多提示5个交易日内可信旧收盘值与日期，不复活过期盘中点。
+- 美股日线依次尝试 Yahoo、新浪美股前复权和东方财富直连；换源时重取完整窗口，不把不同复权口径拼接。限流或连接故障按本轮来源熔断，未补证券留待续跑。
 - `market_breadth/snapshots/<市场>.json`：最近一批快照，默认30分钟复用；原始报价时间控制有效性，不以文件修改时间替代。
 - 生产者：`market_breadth.py`；读取：RSI绘图、`check_project.py`和`sync_repos.py`。
 - 所有业务分片参加Git三边同步；本机锁、连接配置和临时文件不提交。`market_breadth_local/`仅用于本机协调。
-- 合并价格先校验复权基准与重叠值；不兼容时取较新完整快照。正式收盘结果优先于盘中值，不按后来成分版本回写既有历史。
+- 合并价格先校验复权基准与重叠值；临时价和正式价冲突时正式价优先，不兼容时取较新完整快照。正式收盘结果优先于盘中值，不按后来成分版本回写既有历史。
 - 日线/结果仅裁剪文件内记录，不批量删除分片；停用证券保留但不再主动抓取。体检只读报告容量。

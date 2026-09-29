@@ -733,7 +733,7 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 
 本项目所有内容均为个人公开数据建模复盘和学习记录。模型估算不等于基金净值公告，不构成任何投资建议、收益承诺或交易依据。基金净值、申购规则、限额信息和公告日期均以基金公司公告及销售平台展示为准。
 
-## 道琼斯与50DMA市场广度（2026-09-28）
+## 道琼斯与50DMA市场广度（2026-09-30）
 
 新增 `output/dow_jones_analysis.png`。纳斯达克、道琼斯、红利低波512890、中证2000ETF560220、深证成指ETF159943的底部RSI面板叠加紫色虚线 `% Above 50DMA`。不新增上证图。原ETF价格不替换为指数价格。
 
@@ -741,22 +741,27 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 # 大规模首次建库，1800秒后保存已有进度退出；再次运行自动续跑。
 & F:\anaconda\envs\py310\python.exe .\market_breadth.py --bootstrap --budget 1800
 # 指定市场；小电脑把解释器改为 D:\anaconda\envs\py310\python.exe
-& F:\anaconda\envs\py310\python.exe .\market_breadth.py --bootstrap --market dow dividend shenzhen csi2000 --budget 1800
-# 只读状态 / 日常增量
+& F:\anaconda\envs\py310\python.exe .\market_breadth.py --bootstrap --market nasdaq dow dividend shenzhen csi2000 --budget 1800
+# 只读状态 / 日常增量 / 修复缺口
 & F:\anaconda\envs\py310\python.exe .\market_breadth.py --status
 & F:\anaconda\envs\py310\python.exe .\market_breadth.py --update
+& F:\anaconda\envs\py310\python.exe .\market_breadth.py --repair --market dow
 ```
 
 `tools/configs/market_breadth_configs.py`维护开关、95%有效覆盖率、30分钟快照复用（可调15–60）和180秒日常预算。价格图中，50D达到上限及以上显示顶部紫带、达到下限及以下显示底部黄带；VIX深青带在顶部、红带在底部，同侧色带约隔2像素。全局上下限在该配置的 `BREADTH_BAND_HIGH_THRESHOLD` / `BREADTH_BAND_LOW_THRESHOLD` 修改；如需某张图单独设置，可在 `tools/configs/rsi_configs.py` 对应标的的 `breadth_band_high_threshold` / `breadth_band_low_threshold` 填数字，留 `None` 则沿用全局值。够宽的色段在右端带内标“V”或“50D”，短段只显示颜色。底部图例横向紧凑显示 `R`、`50D`，右侧两行最新值左对齐。日常流程不从零下载数千只股票；未建库的市场提示数据不足，RSI照常出图。`--no-futu`可关闭富途兜底。
 
 A股收盘日线尚未到齐时，该交易日15:15之后（包括次日清晨）可用富途15:00正式时点快照补该日价格，按证券昨收与现价比例接续原复权基准；随后继续核验国内正式日线。北交所股票不送富途快照，由腾讯等国内日线补齐。只有至少50日有效价格且成分覆盖率达到95%才显示新值；未达到时，图右侧显示最近5个交易日内可信收盘值及日期，过期后提示数据不足，旧盘中点不会充当当前值。诊断文件记录快照来源、覆盖率和失败原因。
 
-纳斯达克现成指标使用StockCharts公开最新数值，按用户确认从启用日开始积累；不插值生成历史、不替换成纳指100。A股用对应指数完整成分（中证2000目前包含北交所）；收盘比较50根完整日线，盘中用前49日加最新价。缺失、过期和不足50日的样本排除，低于95%不发布数值。历史初始回算与成分版本记在缓存及诊断中，图片不加延迟时长/回算说明。
+纳斯达克的 `50D估` 使用纳斯达克官方上市目录按 COMP 证券类型过滤得到的**近似上市证券池**，不是精确 COMP 成分，也不替换为纳指100。官方 COMP 公布的成分数量和富途交易所静态池用于交叉核验；StockCharts `$NAA50R` 只存独立 benchmark，不与自算结果拼接。A股用对应指数完整成分（中证2000包含北交所），道指使用30只成分；收盘比较50根完整日线，盘中用前49日加最新价。上市不足50日仍在覆盖率分母，缺失、过期和不足50日的样本不能计为有效样本，低于95%不发布数值。
+
+成分缓存记录发现、验证、生效时间及调样事件。初次启用逐日版本前的旧历史保留并标记为“当前成分回算”；启用后只按当日生效名单计算，不以新名单重写既有正式收盘结果。官方文件出现新名单但没有可信生效日时保持待确认，可在核实官方公告后运行 `--activate-pending --market <市场> --effective-date YYYY-MM-DD --evidence-url <官方HTTPS公告>`。异常缩减或数量不对的名单不启用；`--repair` 才允许用修复后的有效价格更正已发布结果。图片不另加回算说明。
+
+美股收盘优先尝试富途常规时段收盘快照，并按实际交易所日历处理提前收市；快照价格接续原复权基准、标记临时来源，正式日线到达后核对替换。美股建库及增量先试 Yahoo，遇到限流或连接失败依次试新浪美股前复权日线、东方财富美股直连日线；换源时重取整个价格窗口，避免混合复权基准。富途历史只修少量缺口，先查询额度并保留10只余量；快照分批不增加历史额度。国内腾讯、东方财富、新浪及北交所日线链保留。外部网络受限时保留可信旧值与日期，并在诊断中列出缺口，不用推造价格。
 
 两台电脑同步 `cache/market_breadth/`，日线分片按证券共用；本机锁等放在忽略目录 `cache/market_breadth_local/`。富途默认本机11111端口，支持环境变量 `AHNS_BREADTH_FUTU_HOST/PORT`，不提交本机配置。快照每批200只，至少间隔1秒；历史补齐保留10个未用额度。不要通过分批声称绕过7天股票数量额度。
 
 诊断：`output/market_breadth_diagnostics.json`。`check_project.py`只读检查容量与覆盖率。GitHub已暂停workflow保持原状；`main.py`不修改。回退广度可将 `BREADTH_ENABLED`设为False。
 
-本轮验收：124项测试通过，五个市场来源与样图已验证；用户批准以真实报价回放先合入。开盘现场实测尚待完成。详细证据见 `docs/superpowers/plans/2026-09-27-dow-50dma-breadth.md`。
+此前五市场初版验收记录见 `docs/superpowers/plans/2026-09-27-dow-50dma-breadth.md`；本次成分时间口径与数据链重构的验证以本轮测试及 `output/market_breadth_diagnostics.json` 为准。开盘现场实测仍需在可用交易时段观察。
 
 邮件发送规则：12张及以下正文内嵌并附附件，超过12张仅发附件；主流程SMTP响应超时350秒，异常通知180秒。假期图备注不重复截止日期；有数值的收盘估算均参与累计，包括部分持仓行情缺失或过期的记录，盘中记录及全市场休市零值不参与。

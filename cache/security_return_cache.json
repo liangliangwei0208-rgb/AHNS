@@ -28667,18 +28667,6 @@
     "error": "",
     "fetched_at": "2026-09-24T08:17:31+08:00"
   },
-  "SECURITY:HK:06857:2026-09-14": {
-    "market": "HK",
-    "ticker": "06857",
-    "valuation_anchor_date": "2026-09-14",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "daily_fetch_failed",
-    "calendar_is_open": true,
-    "error": "港股日线返回空数据: 06857; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
-    "fetched_at": "2026-09-15T12:54:00+08:00"
-  },
   "SECURITY:HK:06857:2026-09-15": {
     "market": "HK",
     "ticker": "06857",
@@ -29362,18 +29350,6 @@
     "calendar_is_open": true,
     "error": "",
     "fetched_at": "2026-07-21T09:58:15+08:00"
-  },
-  "SECURITY:HK:06976:2026-09-14": {
-    "market": "HK",
-    "ticker": "06976",
-    "valuation_anchor_date": "2026-09-14",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "daily_fetch_failed",
-    "calendar_is_open": true,
-    "error": "港股日线返回空数据: 06976; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
-    "fetched_at": "2026-09-15T12:54:20+08:00"
   },
   "SECURITY:HK:06976:2026-09-15": {
     "market": "HK",
@@ -34511,18 +34487,6 @@
     "error": "",
     "fetched_at": "2026-09-28T21:36:38+08:00"
   },
-  "SECURITY:UNKNOWN:285A:2026-09-14": {
-    "market": "UNKNOWN",
-    "ticker": "285A",
-    "valuation_anchor_date": "2026-09-14",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-09-15T12:54:16+08:00"
-  },
   "SECURITY:UNKNOWN:285A:2026-09-15": {
     "market": "UNKNOWN",
     "ticker": "285A",
@@ -34643,18 +34607,6 @@
     "error": "未配置交易日历: market=UNKNOWN",
     "fetched_at": "2026-09-29T12:28:53+08:00"
   },
-  "SECURITY:UNKNOWN:JP3236330001:2026-09-14": {
-    "market": "UNKNOWN",
-    "ticker": "JP3236330001",
-    "valuation_anchor_date": "2026-09-14",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-09-15T12:54:03+08:00"
-  },
   "SECURITY:UNKNOWN:JP3236330001:2026-09-15": {
     "market": "UNKNOWN",
     "ticker": "JP3236330001",
@@ -34774,18 +34726,6 @@
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
     "fetched_at": "2026-09-29T12:28:45+08:00"
-  },
-  "SECURITY:UNKNOWN:JP3684400009:2026-09-14": {
-    "market": "UNKNOWN",
-    "ticker": "JP3684400009",
-    "valuation_anchor_date": "2026-09-14",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "calendar_failed",
-    "calendar_is_open": null,
-    "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-09-15T12:54:04+08:00"
   },
   "SECURITY:UNKNOWN:JP3684400009:2026-09-15": {
     "market": "UNKNOWN",
@@ -52318,18 +52258,6 @@
     "calendar_is_open": false,
     "error": "",
     "fetched_at": "2026-09-08T12:58:51+08:00"
-  },
-  "SECURITY:US:AVB:2026-09-14": {
-    "market": "US",
-    "ticker": "AVB",
-    "valuation_anchor_date": "2026-09-14",
-    "trade_date": "2026-08-14",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "ak_stock_us_daily_trade_date_older_than_anchor",
-    "calendar_is_open": true,
-    "error": "trade_date=2026-08-14 与 valuation_anchor_date=2026-09-14 不一致",
-    "fetched_at": "2026-09-15T12:54:28+08:00"
   },
   "SECURITY:US:AVB:2026-09-15": {
     "market": "US",
@@ -132959,18 +132887,6 @@
     "error": "",
     "fetched_at": "2026-09-08T12:57:37+08:00"
   },
-  "SECURITY:US:SMSN:2026-09-14": {
-    "market": "US",
-    "ticker": "SMSN",
-    "valuation_anchor_date": "2026-09-14",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "daily_fetch_failed",
-    "calendar_is_open": true,
-    "error": "美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError(\"东方财富美股日线获取失败: SMSN: 105.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 106.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 107.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))\") | yahoo_chart_daily_us_fallback: RuntimeError('Yahoo 美股日线获取失败: SMSN: 403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/SMSN?range=20d&interval=1d&includePrePost=false&events=history')",
-    "fetched_at": "2026-09-15T12:54:08+08:00"
-  },
   "SECURITY:US:SMSN:2026-09-15": {
     "market": "US",
     "ticker": "SMSN",
@@ -157673,11 +157589,11 @@
     "valuation_anchor_date": "2026-09-29",
     "trade_date": "",
     "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "status": "missing",
+    "source": "daily_fetch_failed",
     "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-09-29T12:30:24+08:00"
+    "error": "港股日线返回空数据: 06857; ak_stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06857&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\")) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06857&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\")) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06857&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\"))",
+    "fetched_at": "2026-09-30T00:07:23+08:00"
   },
   "SECURITY:HK:06976:2026-09-29": {
     "market": "HK",
@@ -157685,10 +157601,346 @@
     "valuation_anchor_date": "2026-09-29",
     "trade_date": "",
     "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "status": "missing",
+    "source": "daily_fetch_failed",
+    "calendar_is_open": true,
+    "error": "港股日线返回空数据: 06976; ak_stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06976&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\")) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06976&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\")) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06976&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\"))",
+    "fetched_at": "2026-09-30T00:08:04+08:00"
+  },
+  "SECURITY:CN:300502:2026-09-29": {
+    "market": "CN",
+    "ticker": "300502",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": -1.6987740805604168,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-29T12:31:11+08:00"
+    "fetched_at": "2026-09-30T00:07:15+08:00"
+  },
+  "SECURITY:CN:300308:2026-09-29": {
+    "market": "CN",
+    "ticker": "300308",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": -0.24417177914110022,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:16+08:00"
+  },
+  "SECURITY:CN:688498:2026-09-29": {
+    "market": "CN",
+    "ticker": "688498",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 2.957717273144267,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:17+08:00"
+  },
+  "SECURITY:HK:01888:2026-09-29": {
+    "market": "HK",
+    "ticker": "01888",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 3.5304125903870665,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:20+08:00"
+  },
+  "SECURITY:HK:00522:2026-09-29": {
+    "market": "HK",
+    "ticker": "00522",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 2.7163613392293007,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:21+08:00"
+  },
+  "SECURITY:HK:02513:2026-09-29": {
+    "market": "HK",
+    "ticker": "02513",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": -1.205787781350487,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:24+08:00"
+  },
+  "SECURITY:CN:300408:2026-09-29": {
+    "market": "CN",
+    "ticker": "300408",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 2.6743984767180207,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:25+08:00"
+  },
+  "SECURITY:CN:603986:2026-09-29": {
+    "market": "CN",
+    "ticker": "603986",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 2.527126161055482,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:27+08:00"
+  },
+  "SECURITY:CN:600183:2026-09-29": {
+    "market": "CN",
+    "ticker": "600183",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 0.7805987116331847,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:28+08:00"
+  },
+  "SECURITY:KR:000660:2026-09-29": {
+    "market": "KR",
+    "ticker": "000660",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 1.6467915956842702,
+    "status": "traded",
+    "source": "pykrx_ohlcv_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:32+08:00"
+  },
+  "SECURITY:KR:005930:2026-09-29": {
+    "market": "KR",
+    "ticker": "005930",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 1.8518518518518516,
+    "status": "traded",
+    "source": "pykrx_ohlcv_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:33+08:00"
+  },
+  "SECURITY:HK:02476:2026-09-29": {
+    "market": "HK",
+    "ticker": "02476",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 3.039664964468569,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:34+08:00"
+  },
+  "SECURITY:HK:01347:2026-09-29": {
+    "market": "HK",
+    "ticker": "01347",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 1.3295346628680038,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:36+08:00"
+  },
+  "SECURITY:CN:002384:2026-09-29": {
+    "market": "CN",
+    "ticker": "002384",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 1.741145709531744,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:37+08:00"
+  },
+  "SECURITY:CN:600941:2026-09-29": {
+    "market": "CN",
+    "ticker": "600941",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": -0.3582028451540209,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:38+08:00"
+  },
+  "SECURITY:CN:300750:2026-09-29": {
+    "market": "CN",
+    "ticker": "300750",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": -1.7774581321278071,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:48+08:00"
+  },
+  "SECURITY:CN:688361:2026-09-29": {
+    "market": "CN",
+    "ticker": "688361",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": -1.8048942531281087,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:49+08:00"
+  },
+  "SECURITY:CN:688256:2026-09-29": {
+    "market": "CN",
+    "ticker": "688256",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 2.549019607843128,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:50+08:00"
+  },
+  "SECURITY:HK:00883:2026-09-29": {
+    "market": "HK",
+    "ticker": "00883",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 0.08445945945945166,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:54+08:00"
+  },
+  "SECURITY:HK:01179:2026-09-29": {
+    "market": "HK",
+    "ticker": "01179",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 0.9626955475330989,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:56+08:00"
+  },
+  "SECURITY:HK:00700:2026-09-29": {
+    "market": "HK",
+    "ticker": "00700",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": -1.7735334242837686,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:57+08:00"
+  },
+  "SECURITY:HK:09988:2026-09-29": {
+    "market": "HK",
+    "ticker": "09988",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": -1.392757660167132,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:58+08:00"
+  },
+  "SECURITY:HK:03750:2026-09-29": {
+    "market": "HK",
+    "ticker": "03750",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": -0.4952538175815202,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:07:59+08:00"
+  },
+  "SECURITY:HK:09630:2026-09-29": {
+    "market": "HK",
+    "ticker": "09630",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 3.2154340836012762,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:08:01+08:00"
+  },
+  "SECURITY:HK:00939:2026-09-29": {
+    "market": "HK",
+    "ticker": "00939",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 0.15503875968991832,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:08:02+08:00"
+  },
+  "SECURITY:CN:002353:2026-09-29": {
+    "market": "CN",
+    "ticker": "002353",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": -0.5615942028985521,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:08:06+08:00"
+  },
+  "SECURITY:CN:000811:2026-09-29": {
+    "market": "CN",
+    "ticker": "000811",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": -0.052770448548800086,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:08:08+08:00"
+  },
+  "SECURITY:CN:600549:2026-09-29": {
+    "market": "CN",
+    "ticker": "600549",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "2026-09-29",
+    "return_pct": 0.5747126436781658,
+    "status": "traded",
+    "source": "ak_stock_zh_a_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-30T00:08:09+08:00"
   }
 }

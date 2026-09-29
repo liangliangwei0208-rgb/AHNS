@@ -6,6 +6,7 @@ import math
 import os
 import re
 import uuid
+from urllib.parse import urlparse
 from datetime import datetime, timezone
 from pathlib import Path
 import numpy as np
@@ -52,6 +53,35 @@ def calculate_history(prices, members, min_coverage=.95, sessions=None):
                          "total":len(members),"coverage":coverage.values,"kind":"close"})
 
 
+def calculate_segmented_history(prices, store, key, sessions, min_coverage=.95, calendar_sessions=None):
+    """按交易日有效名单分段计算；成员入指前的真实价格仍用于均线预热。"""
+    pit_start=store.read("members",key).get("pit_start")
+    requested = [str(day)[:10] for day in sessions if not pit_start or str(day)[:10]>=pit_start]
+    if not requested:
+        return pd.DataFrame()
+    all_dates = ([str(day)[:10] for day in calendar_sessions] if calendar_sessions is not None else
+                 sorted(set(requested).union(
+                     str(day)[:10] for frame in prices.values() for day in frame.get("date", []))))
+    versions = {}
+    for day in requested:
+        member = store.members(key, day)
+        if member:
+            versions[member["version"]] = member
+    calculated = {}
+    for version, member in versions.items():
+        frame = calculate_history(prices, member["symbols"], min_coverage, all_dates)
+        calculated[version] = frame.set_index("date")
+    rows = []
+    for day in requested:
+        member = store.members(key, day)
+        if not member:
+            continue
+        row = calculated[member["version"]].loc[day].to_dict()
+        rows.append(dict(date=day, **row, membership_version=member["version"],
+                         membership_policy="point_in_time_membership"))
+    return pd.DataFrame(rows)
+
+
 def calculate_intraday(prices,members,day,quotes,min_coverage=.95,sessions=None):
     # 当天只放一次临时价格；不允许用过期日线向前填充停牌/缺失交易日。
     matrix=price_matrix(prices,sorted(set(members)),sessions)
@@ -94,10 +124,50 @@ def merge_document(a,b):
     if kind=="prices":
         left={r["date"]:r for r in a.get("rows",[])};right={r["date"]:r for r in b.get("rows",[])}
         overlap=set(left)&set(right)
-        same=a.get("basis")==b.get("basis") and bool(overlap) and all(math.isclose(left[d]["close"],right[d]["close"],rel_tol=1e-6,abs_tol=1e-8) for d in overlap)
-        if not same:return newer
-        rows={**left,**right};rows.update({r["date"]:r for r in newer["rows"]})
-        return dict(newer,rows=[rows[d] for d in sorted(rows)[-BREADTH_HISTORY_ROWS:]])
+        provisional_a=set(a.get("provisional_dates",[]));provisional_b=set(b.get("provisional_dates",[]))
+        compatible=(a.get("basis")==b.get("basis") and bool(overlap) and all(
+            math.isclose(left[d]["close"],right[d]["close"],rel_tol=1e-6,abs_tol=1e-8)
+            or d in provisional_a or d in provisional_b for d in overlap))
+        if not compatible:return newer
+        rows={};provisional=set()
+        for day in sorted(set(left)|set(right)):
+            if day in left and day in right:
+                # 同日正式日线优先于临时快照，即使临时文件更新时间更晚。
+                chosen=b if day in provisional_a and day not in provisional_b else a if day in provisional_b and day not in provisional_a else newer
+            else:chosen=a if day in left else b
+            rows[day]=(left if chosen is a else right)[day]
+            if day in (provisional_a if chosen is a else provisional_b):provisional.add(day)
+        kept=sorted(rows)[-BREADTH_HISTORY_ROWS:]
+        return dict(newer,rows=[rows[d] for d in kept],provisional_dates=sorted(provisional.intersection(kept)),
+                    bootstrap_complete=bool(a.get("bootstrap_complete") or b.get("bootstrap_complete")))
+    if kind=="membership_events":
+        combined={}
+        for row in a.get("rows",[])+b.get("rows",[]):
+            ident=row["event_id"]
+            combined[ident]=max((row,combined[ident]),key=lambda r:(r.get("updated_at",""),json.dumps(r,sort_keys=True))) if ident in combined else row
+        return dict(newer,rows=[combined[k] for k in sorted(combined)])
+    if kind=="members":
+        # 同一版本跨主机只合并验证时间，不产生重复的每日成分记录。
+        by_version={}
+        for row in a.get("rows",[])+b.get("rows",[]):
+            version=row["version"]
+            prior=by_version.get(version)
+            if prior is None:
+                by_version[version]=row
+            else:
+                older=min((prior,row),key=lambda r:(r.get("effective_date") or r["date"],r["date"]))
+                latest=max((prior,row),key=lambda r:r.get("last_verified_at",r.get("updated_at","")))
+                by_version[version]=dict(older,last_verified_at=latest.get("last_verified_at",latest.get("updated_at")),
+                                          verified_date=latest.get("verified_date",latest["date"]))
+        pending=max([d.get("pending_membership") for d in (a,b) if d.get("pending_membership")],
+                    key=lambda r:r.get("last_verified_at",""),default=None)
+        out=dict(newer,rows=sorted(by_version.values(),key=lambda r:(r.get("effective_date") or r["date"],r["version"])))
+        if pending and any(r.get("symbols")==pending.get("symbols") for r in out["rows"]):pending=None
+        starts=[d.get("pit_start") for d in (a,b) if d.get("pit_start")]
+        if starts:out["pit_start"]=min(starts)
+        if pending:out["pending_membership"]=pending
+        else:out.pop("pending_membership",None)
+        return out
     rows={}
     for row in a.get("rows",[])+b.get("rows",[]):
         key=row["date"]
@@ -108,10 +178,25 @@ def merge_document(a,b):
                 # 新快照覆盖率下降时留空，不继续展示旧的有效盘中点。
                 rows[key]=max([old,row],key=lambda x:(x.get("updated_at",""),json.dumps(x,sort_keys=True)))
                 continue
+            if old.get("kind")==row.get("kind")=="close" and old.get("finality")!=row.get("finality"):
+                # 官方日线核验结果覆盖快照临时收盘值，包括覆盖率不足时的空值。
+                rows[key]=old if old.get("finality")!="snapshot_provisional" else row
+                continue
+            if {old.get("kind"),row.get("kind")}=={"close","intraday"}:
+                rows[key]=old if old.get("kind")=="close" else row
+                continue
             if old.get("kind")==row.get("kind")=="close" and old.get("percent") is not None and row.get("percent") is not None:
-                # 成分版本不同：保留最早已发布正式值，保证后续成分调整不会改写过去。
-                if old.get("membership_version")!=row.get("membership_version"):
-                    rows[key]=min([old,row],key=lambda x:(x.get("updated_at",""),json.dumps(x,sort_keys=True)))
+                # 已发布正式值不可由未来名单或重复运行改写；快照可被正式日线核对替换。
+                if old.get("finality") != "snapshot_provisional" and row.get("finality") != "snapshot_provisional":
+                    previous_revision=int(old.get("repair_revision") or 0)
+                    incoming_revision=int(row.get("repair_revision") or 0)
+                    if previous_revision!=incoming_revision:
+                        rows[key]=old if previous_revision>incoming_revision else row
+                    elif (old.get("percent")==row.get("percent") and
+                          bool(old.get("membership_policy"))!=bool(row.get("membership_policy"))):
+                        rows[key]=old if old.get("membership_policy") else row
+                    else:
+                        rows[key]=min([old,row],key=lambda x:(x.get("updated_at",""),json.dumps(x,sort_keys=True)))
                     continue
             rows[key]=max([old,row],key=_rank)
         else:
@@ -137,40 +222,137 @@ class BreadthStore:
         os.replace(tmp,path)
     def prices(self,key):
         return pd.DataFrame(self.read("prices",key).get("rows",[]),columns=["date","close"])
-    def save_prices(self,key,frame,basis,updated_at=None):
+    def save_prices(self,key,frame,basis,updated_at=None,provisional=False):
         frame=clean_prices(frame)
+        incoming_dates=set(frame.date)
         old=self.read("prices",key)
+        provisional_dates=set(old.get("provisional_dates",[]))
         if old:
             previous=self.prices(key)
             overlap=previous.merge(frame,on="date",suffixes=("_old","_new"))
-            changed=old.get("basis")!=basis or (not overlap.empty and not np.allclose(overlap.close_old,overlap.close_new,rtol=1e-6,atol=1e-8))
+            official_overlap=overlap.loc[~overlap.date.isin(provisional_dates)] if not provisional else overlap.iloc[0:0]
+            changed=old.get("basis")!=basis or (not official_overlap.empty and not np.allclose(
+                official_overlap.close_old,official_overlap.close_new,rtol=1e-6,atol=1e-8))
             if changed and len(frame)<50:raise ValueError("复权或来源变化，必须重新获取完整窗口")
-            if not changed:frame=clean_prices(pd.concat([previous,frame]))
+            if not changed and not previous.empty:frame=clean_prices(pd.concat([previous,frame]))
+            else:provisional_dates.clear()
+        if provisional:provisional_dates.update(incoming_dates)
+        else:provisional_dates.difference_update(incoming_dates)
         rows=json.loads(frame.tail(BREADTH_HISTORY_ROWS).to_json(orient="records"))
-        self.write("prices",key,dict(type="prices",basis=basis,updated_at=updated_at or utc_now(),rows=rows))
-    def save_members(self,key,members,source,day,universe=None):
+        self.write("prices",key,dict(type="prices",basis=basis,updated_at=updated_at or utc_now(),rows=rows,
+                                      provisional_dates=sorted(provisional_dates.intersection(r["date"] for r in rows)),
+                                      bootstrap_complete=old.get("bootstrap_complete",False)))
+    def establish_pit_start(self,key,day):
+        doc=self.read("members",key)
+        if doc and not doc.get("pit_start"):
+            self.write("members",key,dict(doc,pit_start=day,updated_at=utc_now()))
+        # 旧缓存尚无逐日名单证据，迁移标签即可，绝不重算或改动原数值。
+        results=self.read("results",key)
+        if results and any("membership_policy" not in row for row in results.get("rows",[])):
+            rows=[dict(row,membership_policy=row.get("membership_policy","current_members_backcast"))
+                  for row in results.get("rows",[])]
+            self.write("results",key,dict(results,rows=rows,updated_at=utc_now()))
+    def activate_pending(self,key,effective_date,evidence_url):
+        """仅凭可审计的官方公告地址人工确认无法自动解析的调样生效日。"""
+        allowed={"dow":("spglobal.com",),"nasdaq":("nasdaq.com","nasdaqtrader.com"),
+                 "dividend":("csindex.com.cn",),"csi2000":("csindex.com.cn",),
+                 "shenzhen":("cnindex.com.cn","szse.cn")}
+        host=(urlparse(evidence_url).hostname or "").lower()
+        if urlparse(evidence_url).scheme!="https" or not any(host==d or host.endswith("."+d) for d in allowed[key]):
+            raise ValueError("请提供相应指数公司的 HTTPS 官方公告地址")
+        date=pd.Timestamp(effective_date).strftime("%Y-%m-%d")
+        doc=self.read("members",key)
+        pending=doc.get("pending_membership")
+        if not pending:raise ValueError("没有待确认的成分名单")
+        current=self.members(key,date)
+        if current and (current.get("effective_date") or current["date"])>=date:
+            raise ValueError("生效日期必须晚于当前名单的生效日期")
+        row=self.save_members(key,pending["symbols"],pending["source"],pending["date"],
+                              pending.get("universe"),effective_date=date)
+        doc=self.read("members",key);doc.pop("pending_membership",None)
+        doc["effective_evidence_url"]=evidence_url
+        self.write("members",key,doc)
+        return row
+    def save_members(self,key,members,source,day,universe=None,effective_date="auto"):
         symbols=sorted(set(members))
-        version=hashlib.sha256((source+"|"+"|".join(symbols)).encode()).hexdigest()[:16]
-        row=dict(date=day,symbols=symbols,source=source,universe=universe or key,version=version,updated_at=utc_now())
+        version=hashlib.sha256(((universe or key)+"|"+"|".join(symbols)).encode()).hexdigest()[:16]
+        now=utc_now()
+        if effective_date=="auto":effective_date=day
+        row=dict(date=day,symbols=symbols,source=source,universe=universe or key,version=version,
+                 discovered_at=now,last_verified_at=now,verified_date=day,effective_date=effective_date,updated_at=now)
         old=self.read("members",key)
-        self.write("members",key,merge_document(old,dict(type="members",updated_at=utc_now(),rows=[row])))
+        previous=self.members(key,day)
+        existing=next((r for r in old.get("rows",[]) if r["symbols"]==symbols),None)
+        if existing:
+            existing=dict(existing,last_verified_at=now,verified_date=day,updated_at=now,source=source)
+            doc=dict(old,rows=[existing if r["symbols"]==symbols else r for r in old["rows"]],updated_at=now)
+            if doc.get("pending_membership") and doc["pending_membership"].get("symbols")==symbols:
+                doc.pop("pending_membership",None)
+            self.write("members",key,doc)
+            return existing
+        if effective_date is None:
+            # 官方文件先披露未来名单但无可验证生效日时，保留现行版本。
+            pending=old.get("pending_membership")
+            if pending and pending.get("symbols")==symbols:row["discovered_at"]=pending.get("discovered_at",now)
+            self.write("members",key,dict(old,type="members",updated_at=now,pending_membership=row,
+                                          rows=old.get("rows",[]),pit_start=old.get("pit_start",day)))
+            return row
+        self.write("members",key,merge_document(old,dict(type="members",updated_at=now,rows=[row],pit_start=old.get("pit_start",day))))
+        if previous and previous["version"]!=version:
+            event=dict(event_id=f"{effective_date}:{version}",date=effective_date,old_version=previous["version"],
+                       new_version=version,added=sorted(set(symbols)-set(previous["symbols"])),
+                       removed=sorted(set(previous["symbols"])-set(symbols)),source=source,updated_at=now)
+            prior=self.read("membership_events",key)
+            self.write("membership_events",key,merge_document(prior,dict(type="membership_events",rows=[event],updated_at=now)))
         return row
     def members(self,key,day=None):
         rows=self.read("members",key).get("rows",[])
-        rows=[r for r in rows if day is None or r["date"]<=day]
-        return max(rows,key=lambda r:r["date"]) if rows else {}
-    def save_results(self,key,rows,membership_version,source="self_calculated"):
+        day=day or str(pd.Timestamp.now(tz="UTC").date())
+        rows=[r for r in rows if (r.get("effective_date") or r["date"])<=day]
+        return max(rows,key=lambda r:(r.get("effective_date") or r["date"],r["date"],r.get("updated_at",""))) if rows else {}
+    def save_results(self,key,rows,membership_version,source="self_calculated",finality="official",repair=False):
+        old=self.read("results",key)
+        previous={r.get("date"):r for r in old.get("rows",[]) if r.get("kind")=="close"}
         stamped=[]
         for row in rows:
             # 可选字段经DataFrame往返后可能成为NaN，统一转为JSON null。
             row={k: (None if isinstance(v,(float,np.floating)) and not math.isfinite(v) else v) for k,v in row.items()}
             if row.get("percent") is not None and not math.isfinite(float(row["percent"])):row["percent"]=None
-            row.update(membership_version=membership_version,source=source,updated_at=utc_now())
+            row.update(membership_version=row.get("membership_version",membership_version),source=source,
+                       finality="intraday_snapshot" if row.get("kind")=="intraday" else finality,
+                       updated_at=utc_now())
+            row.setdefault("membership_policy","point_in_time_membership")
+            prior=previous.get(row.get("date")) if row.get("kind")=="close" else None
+            if repair and prior and all(prior.get(field)==row.get(field) for field in
+                    ("kind","percent","valid","total","coverage","membership_version","membership_policy","source","finality")):
+                continue
+            if repair and prior and finality=="official" and row.get("kind")=="close" and row.get("percent") is not None:
+                row["repair_revision"]=int(prior.get("repair_revision") or 0)+1
             stamped.append(row)
-        old=self.read("results",key)
-        self.write("results",key,merge_document(old,dict(type="results",updated_at=utc_now(),rows=stamped,calculation_policy="equal_weight_strict_above_inclusive_SMA50; initial_history_uses_current_members; published_dates_keep_membership_version; min_coverage_95pct")))
+        if not stamped:return
+        if old:
+            old=dict(old,rows=[dict(r,membership_policy=r.get("membership_policy","current_members_backcast"))
+                               for r in old.get("rows",[])])
+            if repair and finality=="official":
+                corrected={r["date"] for r in stamped if r.get("kind")=="close" and r.get("percent") is not None}
+                old["rows"]=[r for r in old["rows"] if not (r.get("date") in corrected and r.get("kind")=="close")]
+        policy="equal_weight_strict_above_inclusive_SMA50; point_in_time_from_activation; published_close_immutable; min_coverage_95pct"
+        self.write("results",key,merge_document(old,dict(type="results",updated_at=utc_now(),rows=stamped,calculation_policy=policy)))
     def results(self,key):
-        return pd.DataFrame(self.read("results",key).get("rows",[]),columns=["date","percent","valid","total","coverage","kind","membership_version","source","updated_at","observed_at"])
+        return pd.DataFrame(self.read("results",key).get("rows",[]),columns=["date","percent","valid","total","coverage","kind","membership_version","membership_policy","source","finality","repair_revision","updated_at","observed_at"])
+
+    def save_benchmark(self,key,rows,source):
+        now=utc_now()
+        stamped=[dict({field:(None if isinstance(value,(float,np.floating)) and not math.isfinite(value)
+                              else value) for field,value in row.items()},source=source,updated_at=now)
+                 for row in rows]
+        prior=self.read("benchmarks",key)
+        doc=merge_document(prior,dict(type="benchmarks",updated_at=now,rows=stamped))
+        doc["rows"]=doc.get("rows",[])[-BREADTH_HISTORY_ROWS:]
+        self.write("benchmarks",key,doc)
+
+    def benchmark(self,key):
+        return pd.DataFrame(self.read("benchmarks",key).get("rows",[]))
 
 
 def price_band_layout(ax, output_dpi=None):
@@ -264,8 +446,9 @@ def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_thresh
 
 def draw_breadth(ax,frame):
     """只负责叠加；NaN自然断线，不把数据缺口画成0。"""
+    metric_label="50D估" if frame is not None and frame.attrs.get("breadth_display",{}).get("approximate") else "50D"
     if frame is None or frame.empty or frame.percent.notna().sum()==0:
-        ax.text(RIGHT_METRIC_LABEL_X,.97,"50D：数据不足",transform=ax.transAxes,ha="left",va="top",fontsize=8,color="#7652a0")
+        ax.text(RIGHT_METRIC_LABEL_X,.97,f"{metric_label}：数据不足",transform=ax.transAxes,ha="left",va="top",fontsize=8,color="#7652a0")
         return
     dates=pd.to_datetime(frame.date)
     ax.plot(dates,frame.percent,color="#8e44ad",linestyle="--",linewidth=1.6,label="50D",zorder=5)
@@ -274,14 +457,15 @@ def draw_breadth(ax,frame):
         ax.scatter([pd.Timestamp(latest.date)],[latest.percent],color="#8e44ad",s=15,zorder=6)
     display=frame.attrs.get("breadth_display",{})
     if not display or display.get("current"):
-        text=f"50D: {latest.percent:.1f}%" if pd.notna(frame.iloc[-1].percent) else "50D：当前数据不足"
+        # 最新盘中点失效时，仍可展示最近已完成交易日的正式收盘值。
+        text=f"{metric_label}: {latest.percent:.1f}%"
     elif display.get("age_sessions",float("inf"))<=display.get("max_age_sessions",5) and latest.kind=="close":
         # 旧收盘值只在右侧注明日期，不补画到今天，也不复用过期盘中值。
-        text=f"50D: {latest.percent:.1f}% · {pd.Timestamp(latest.date):%m-%d}收"
+        text=f"{metric_label}: {latest.percent:.1f}% · {pd.Timestamp(latest.date):%m-%d}收"
     else:
-        text="50D：数据不足"
+        text=f"{metric_label}：数据不足"
     ax.text(RIGHT_METRIC_LABEL_X,.97,text,transform=ax.transAxes,ha="left",va="top",fontsize=8,color="#7652a0")
-    live=frame.loc[frame.kind=="intraday"]
+    live=frame.loc[(frame.kind=="intraday") & frame.percent.notna()]
     if not live.empty:
         ax.scatter(pd.to_datetime(live.date),live.percent,facecolors="none",edgecolors="#8e44ad",s=34,zorder=6,label="盘中估算")
     ax.legend(loc="upper left",fontsize=8)

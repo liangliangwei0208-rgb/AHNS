@@ -13,6 +13,10 @@ BREADTH_BAND_LOW_COLOR = "#D29120"
 BREADTH_BAND_HIGH_COLOR = "#7852AF"
 BREADTH_FUTU_RESERVE = 10
 BREADTH_FUTU_BATCH_SIZE = 200
+# 纳指官方目录只是 COMP 合资格证券近似池；数量与每日变动仅用于拦截残缺目录。
+BREADTH_NASDAQ_PROXY_MIN_MEMBERS = 2800
+BREADTH_NASDAQ_PROXY_MAX_MEMBERS = 4000
+BREADTH_NASDAQ_MAX_DAILY_CHANGE_RATIO = .03
 BREADTH_MARKETS = {
     "nasdaq": {"market":"US", "name":"纳斯达克综合指数", "symbol":".IXIC", "external":"$NAA50R", "universe":"nasdaq_composite"},
     "dow": {"market":"US", "name":"道琼斯工业指数", "symbol":".DJI", "expected":30, "external":"$DOWA50R", "universe":"dow30"},

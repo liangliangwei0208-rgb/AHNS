@@ -79,6 +79,18 @@ class IntegrationTests(unittest.TestCase):
         draw_breadth(axis, frame)
         self.assertEqual([label.get_text() for label in axis.texts], ["50D: 34.6%"])
         plt.close(fig)
+
+    def test_latest_completed_close_remains_visible_when_intraday_expired(self):
+        from tools.market_breadth import draw_breadth
+        import matplotlib.pyplot as plt
+        fig,axis=plt.subplots()
+        frame=pd.DataFrame({"date":["2026-09-28","2026-09-29"],"percent":[36.7,None],
+                            "kind":["close","intraday"]})
+        frame.attrs["breadth_display"]={"current":True,"age_sessions":0,"max_age_sessions":5}
+        draw_breadth(axis,frame)
+        self.assertIn("50D: 36.7%",[text.get_text() for text in axis.texts])
+        self.assertEqual([text.get_text() for text in axis.get_legend().get_texts()],["50D"])
+        plt.close(fig)
     def test_price_breadth_band_uses_configurable_extremes_and_keeps_gaps(self):
         from tools.market_breadth import draw_breadth_state_band
         import matplotlib.pyplot as plt
@@ -212,6 +224,8 @@ class IntegrationTests(unittest.TestCase):
             self.assertTrue(report["warnings"]);self.assertEqual(p.read_bytes(),before)
     def test_sync_whitelist_and_local_state_exclusion(self):
         self.assertTrue(sync_repos.is_auto_merge_cache_path("cache/market_breadth/prices/US.AAPL.json"))
+        self.assertTrue(sync_repos.is_auto_merge_cache_path("cache/market_breadth/membership_events/dow.json"))
+        self.assertTrue(sync_repos.is_auto_merge_cache_path("cache/market_breadth/benchmarks/nasdaq_stockcharts.json"))
         self.assertFalse(sync_repos.is_auto_merge_cache_path("cache/market_breadth_local/refresh.lock"))
         self.assertTrue(service_runner.is_blocked_path("cache/market_breadth_local/refresh.lock"))
         self.assertFalse(service_runner.is_blocked_path("cache/market_breadth/results/dow.json"))

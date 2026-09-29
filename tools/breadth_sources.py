@@ -1,12 +1,15 @@
 """广度数据源适配。免费公开数据优先，富途仅补缺口。"""
 from __future__ import annotations
 import io
+import csv
+import html
 import json
 import os
 import re
 import socket
 import threading
 import time
+import warnings
 from datetime import datetime, timezone
 from urllib.parse import quote
 import pandas as pd
@@ -24,7 +27,8 @@ class SourceHealth:
         with self.lock:return source not in self.unreachable
 
     def failed(self,source,error):
-        if isinstance(error,(requests.ConnectionError,requests.Timeout)):
+        status=getattr(getattr(error,"response",None),"status_code",None)
+        if isinstance(error,(requests.ConnectionError,requests.Timeout)) or status in {403,429,503}:
             with self.lock:self.unreachable.add(source)
 
 
@@ -48,15 +52,85 @@ def parse_members(key,frame):
         if col is None:raise ValueError("成分文件没有证券代码列")
         codes=[str(v).split(".")[0].zfill(6) for v in frame[col].dropna()]
         symbols=[("BJ." if s.startswith(("4","8","9")) else "SH." if s.startswith("6") else "SZ.")+s for s in codes if re.fullmatch(r"[034689]\d{5}",s)]
-    symbols=sorted(set(symbols))
+    if len(symbols)!=len(set(symbols)):
+        raise ValueError(f"{key} 成分文件含重复证券代码")
+    symbols=sorted(symbols)
     if len(symbols)!=spec["expected"]:raise ValueError(f"{key} 成分不完整：{len(symbols)}/{spec['expected']}")
     return symbols
 
 
+def extract_effective_date(frame):
+    """官方文件只有给出唯一、可解析的生效日期时才自动启用新名单。"""
+    column=next((c for c in frame.columns if any(label in str(c).lower()
+        for label in ("生效日期","实施日期","effective date"))),None)
+    if column is None:return None
+    dates=pd.to_datetime(frame[column].dropna(),errors="coerce")
+    if dates.empty or dates.isna().any():return None
+    unique=sorted(set(dates.dt.strftime("%Y-%m-%d")))
+    return unique[0] if len(unique)==1 else None
+
+
+def parse_nasdaq_directory(content):
+    """将纳斯达克官方上市目录筛成 COMP 合资格证券的近似池。
+
+    目录不直接给出 COMP 成分标记，故来源和结果必须明确标为估算口径。
+    """
+    lines=content.splitlines()
+    if not lines or not lines[0].startswith("Symbol|Security Name|Market Category|"):
+        raise ValueError("Nasdaq 上市目录表头异常")
+    stamp=next((line for line in reversed(lines) if line.startswith("File Creation Time:")),None)
+    if not stamp:raise ValueError("Nasdaq 上市目录缺少文件生成时间")
+    match=re.search(r"File Creation Time:\s*(\d{2})(\d{2})(\d{4})",stamp)
+    if not match:raise ValueError("Nasdaq 上市目录时间无法解析")
+    month,day,year=match.groups()
+    source_date=f"{year}-{month}-{day}"
+    try:pd.Timestamp(source_date)
+    except ValueError as error:raise ValueError("Nasdaq 上市目录日期无效") from error
+    required={"Symbol","Security Name","Market Category","Test Issue","ETF","NextShares"}
+    reader=csv.DictReader((line for line in lines if not line.startswith("File Creation Time:")),delimiter="|")
+    if not required.issubset(reader.fieldnames or []):raise ValueError("Nasdaq 上市目录缺少关键字段")
+    excluded={};symbols=[];seen=set()
+    disallowed=re.compile(r"\b(warrants?|rights?|preferred|preference|depositary preferred|"
+                          r"convertible debentures?|notes?|etns?|exchange.traded|closed.end|"
+                          r"structured products?|units?)\b",re.I)
+    eligible_beneficial=re.compile(r"units? of beneficial interest",re.I)
+    for row in reader:
+        symbol=(row.get("Symbol") or "").strip().upper()
+        name=(row.get("Security Name") or "").strip()
+        reason=None
+        if not re.fullmatch(r"[A-Z0-9][A-Z0-9.\-]{0,11}",symbol):reason="bad_symbol"
+        elif symbol in seen:reason="duplicate"
+        elif row.get("Market Category") not in {"Q","G","S"}:reason="other_market"
+        elif row.get("Test Issue")!="N":reason="test_issue"
+        elif row.get("ETF")!="N" or row.get("NextShares")!="N":reason="fund_flag"
+        elif disallowed.search(name) and not eligible_beneficial.search(name):reason="security_type"
+        if reason:excluded[reason]=excluded.get(reason,0)+1
+        else:symbols.append("US."+symbol);seen.add(symbol)
+    if not symbols:raise ValueError("Nasdaq 上市目录过滤后为空")
+    return dict(symbols=sorted(symbols),source_date=source_date,excluded=excluded,raw_count=sum(excluded.values())+len(symbols))
+
+
+def parse_comp_component_count(content):
+    """从 Nasdaq 官方 COMP 总览的公开统计中读取成分总数。"""
+    plain=html.unescape(re.sub(r"<[^>]+>"," ",content))
+    plain=re.sub(r"\s+"," ",plain)
+    match=re.search(r"#\s*of\s*Components\s*:?(\s*[\d,]+)",plain,re.I)
+    if not match:raise ValueError("Nasdaq COMP 官方总览未给出成分数量")
+    count=int(match[1].replace(",",""))
+    if not 1000<=count<=10000:raise ValueError("Nasdaq COMP 官方成分数量异常")
+    return count
+
+
 def fetch_members(key):
     if key=="nasdaq":
-        # 上市目录包含ETF、权证等，不能冒充纳斯达克综合指数完整成分。
-        raise ValueError("纳斯达克完整成分尚未验证；需可用现成广度数据或核实的完整成分文件")
+        url="https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt"
+        parsed=parse_nasdaq_directory(get(url).text)
+        try:
+            overview=get("https://indexes.nasdaq.com/Index/Overview/COMP")
+            parsed["official_comp_count"]=parse_comp_component_count(overview.text)
+        except Exception as error:
+            parsed["official_count_error"]=str(error)[:160]
+        return parsed["symbols"],url,parsed
     if key=="dow":
         url="https://www.ssga.com/library-content/products/fund-data/etfs/us/holdings-daily-us-en-dia.xlsx"
         raw=pd.read_excel(io.BytesIO(get(url).content),header=None)
@@ -77,7 +151,8 @@ def fetch_members(key):
         index=BREADTH_MARKETS[key]["index"]
         url=f"https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/cons/{index}cons.xls"
         frame=pd.read_excel(io.BytesIO(get(url).content),dtype=str)
-    return parse_members(key,frame),url
+    meta={"effective_date":extract_effective_date(frame)} if key!="dow" else {}
+    return parse_members(key,frame),url,meta
 
 
 def validate_external_breadth(rows):
@@ -114,6 +189,46 @@ def fetch_yahoo_prices(code,complete_day,start=None):
     else:params["range"]="2y"
     data=get("https://query1.finance.yahoo.com/v8/finance/chart/"+quote(yahoo_symbol(code),safe=""),params=params).json()
     return parse_yahoo_history(data,complete_day),"yahoo_adjclose"
+
+
+def fetch_eastmoney_us_prices(code,complete_day,start=None):
+    """东方财富美股前复权日线；直连避免继承本机失效的境外代理。"""
+    ticker=code.split(".",1)[1]
+    url="https://63.push2his.eastmoney.com/api/qt/stock/kline/get"
+    base={"fields1":"f1,f2,f3,f4,f5,f6","fields2":"f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61",
+          "klt":"101","fqt":"1","end":"20500000","lmt":"500"}
+    with requests.Session() as session:
+        session.trust_env=False
+        for market in ("105","106","107"):
+            response=session.get(url,params=dict(base,secid=f"{market}.{ticker}"),timeout=(5,10))
+            response.raise_for_status()
+            payload=response.json().get("data") or {}
+            raw=payload.get("klines") or []
+            if not raw:continue
+            rows=[]
+            for item in raw:
+                fields=item.split(",")
+                if len(fields)>=3:rows.append({"date":fields[0],"close":fields[2]})
+            frame=clean_prices(pd.DataFrame(rows,columns=["date","close"]))
+            frame=frame.loc[frame.date<=complete_day]
+            if start:frame=frame.loc[frame.date>=start]
+            if not frame.empty:return frame.tail(400),"eastmoney_us_qfq"
+    raise ValueError(f"东方财富美股日线无有效数据: {code}")
+
+
+def fetch_sina_us_prices(code,complete_day,start=None):
+    """新浪美股前复权日线作为国内可访问回退；每只证券只保留计算窗口。"""
+    import akshare as ak
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore",category=FutureWarning,module=r"akshare\.stock\.stock_us_sina")
+        frame=ak.stock_us_daily(symbol=code.split(".",1)[1],adjust="qfq")
+    if frame.empty or not {"date","close"}.issubset(frame.columns):
+        raise ValueError(f"新浪美股日线为空或缺少字段: {code}")
+    frame=clean_prices(frame)
+    frame=frame.loc[frame.date<=complete_day]
+    if start:frame=frame.loc[frame.date>=start]
+    if frame.empty:raise ValueError(f"新浪美股日线没有目标日期: {code}")
+    return frame.tail(400),"sina_us_qfq"
 
 
 def parse_tencent_history(payload,symbol,complete_day):
@@ -153,11 +268,18 @@ def fetch_prices(code,complete_day,start=None,preferred=None,health=None):
                 return d.loc[d.date<=complete_day].tail(400),source
             except Exception as e:
                 health.failed(source,e);errors.append(f"{source}: {str(e)[:120]}")
-    if health.available("yahoo_adjclose"):
-        try:return fetch_yahoo_prices(code,complete_day,start if preferred=="yahoo_adjclose" else None)
+    us_sources=["yahoo_adjclose","sina_us_qfq","eastmoney_us_qfq"] if code.startswith("US.") else ["yahoo_adjclose"]
+    if preferred in us_sources:us_sources.remove(preferred);us_sources.insert(0,preferred)
+    for source in us_sources:
+        if not health.available(source):continue
+        try:
+            begin=start if preferred==source else None
+            return (fetch_yahoo_prices(code,complete_day,begin) if source=="yahoo_adjclose"
+                    else fetch_sina_us_prices(code,complete_day,begin) if source=="sina_us_qfq"
+                    else fetch_eastmoney_us_prices(code,complete_day,begin))
         except Exception as e:
-            health.failed("yahoo_adjclose",e);errors.append("yahoo_adjclose: "+str(e)[:120])
-    raise RuntimeError("; ".join(errors))
+            health.failed(source,e);errors.append(source+": "+str(e)[:120])
+    raise RuntimeError("; ".join(errors) or "本轮可用日线源已熔断")
 
 
 def fetch_quotes(codes,now,health=None,errors=None):
@@ -253,7 +375,7 @@ def fetch_stockcharts(symbol,clock):
 
 class FutuBreadth:
     def __init__(self):
-        self.ctx=None;self.remaining=0;self.used=set();self.last_call=None;self.quote_errors=[]
+        self.ctx=None;self.remaining=0;self.used=set();self.last_call=None;self.quote_errors=[];self.quota_checked_at=None
     @staticmethod
     def supports_code(code):return code.startswith(("US.","HK.","SH.","SZ."))
     def connect(self):
@@ -276,6 +398,7 @@ class FutuBreadth:
         if ret!=0:raise RuntimeError(str(data))
         used,remaining,details=data
         self.remaining=int(remaining);self.used={d["code"] for d in details or []}
+        self.quota_checked_at=datetime.now(timezone.utc).isoformat()
         return dict(used=used,remaining=remaining)
     def can_history(self,code):return self.supports_code(code) and (code in self.used or self.remaining>BREADTH_FUTU_RESERVE)
     def history(self,code,complete_day):
@@ -300,3 +423,16 @@ class FutuBreadth:
                 # 一个批次失败不能丢掉其他批次；诊断保留错误供下次增量重试。
                 self.quote_errors.append(str(e)[:160])
         return out
+
+    def crosscheck_nasdaq(self,symbols):
+        """富途静态证券表只作交易所交叉核验，不替代官方目录。"""
+        from futu import Market,SecurityType
+        self.throttle()
+        ret,data=self.connect().get_stock_basicinfo(Market.US,SecurityType.STOCK)
+        if ret!=0:raise RuntimeError(str(data))
+        if not {"code","exchange_type"}.issubset(data.columns):raise ValueError("富途静态数据缺少交易所字段")
+        nasdaq={str(r["code"]) for r in data.to_dict("records")
+                if r["exchange_type"]==5 or "NASDAQ" in str(r["exchange_type"]).upper()}
+        proposed=set(symbols)
+        return dict(futu_nasdaq_count=len(nasdaq),nasdaq_overlap=len(proposed&nasdaq),
+                    non_nasdaq=sorted(proposed-nasdaq))

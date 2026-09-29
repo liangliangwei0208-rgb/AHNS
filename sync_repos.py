@@ -243,7 +243,7 @@ def normalize_git_path(path: str) -> str:
     return path.replace("\\", "/").strip()
 
 
-BREADTH_CACHE_PATTERN = re.compile(r"^cache/market_breadth/(prices|members|results|snapshots)/[A-Za-z0-9_.^-]+\.json$")
+BREADTH_CACHE_PATTERN = re.compile(r"^cache/market_breadth/(prices|members|membership_events|results|benchmarks|snapshots)/[A-Za-z0-9_.^-]+\.json$")
 
 
 def is_auto_merge_cache_path(path: str) -> bool:

@@ -4,9 +4,105 @@ from pathlib import Path
 from unittest.mock import patch
 import pandas as pd
 from tools.market_breadth import BreadthStore
-from tools.breadth_engine import refresh_market, market_clock, prepare_quotes, prepare_close_quotes, chart_data
+from tools.breadth_engine import refresh_market, market_clock, prepare_quotes, prepare_close_quotes, prepare_market_close_quotes, chart_data
 
 class EngineTests(unittest.TestCase):
+    def test_repair_fills_pre_activation_day_as_current_member_backcast(self):
+        self.store=BreadthStore(self.store.root/"pre_activation")
+        now=pd.Timestamp("2026-09-29 10:00",tz="America/New_York")
+        sessions=market_clock("US",now)["sessions"][-50:]
+        self.store.save_members("dow",["US.A"],"official","2026-09-29")
+        self.store.save_prices("US.A",pd.DataFrame({"date":sessions,"close":[10.]*49+[11.]}),"yahoo_adjclose")
+        self.store.save_results("dow",[{"date":sessions[-1],"kind":"close","percent":None,
+                                        "valid":0,"total":1,"coverage":0.}],"legacy")
+        refresh_market(self.store,"dow",now,repair=True,refresh_members=False,use_futu=False)
+        row=self.store.results("dow").loc[lambda frame:frame.date==sessions[-1]].iloc[-1]
+        self.assertEqual(row.percent,100.)
+        self.assertEqual(row.membership_policy,"current_members_backcast")
+
+    def test_recent_cached_snapshot_with_stale_quote_still_uses_futu(self):
+        self.store=BreadthStore(self.store.root/"stale_quote")
+        now=pd.Timestamp("2026-09-29 11:30",tz="America/New_York")
+        sessions=market_clock("US",now)["sessions"][-49:]
+        self.store.save_members("dow",["US.A"],"official","2026-09-29")
+        self.store.save_prices("US.A",pd.DataFrame({"date":sessions,"close":[10.]*49}),"yahoo_adjclose")
+        self.store.write("snapshots","dow",{"type":"snapshots","updated_at":now.isoformat(),
+            "quotes":{"US.A":{"time":"2026-09-29 09:35:00","price":10.,"prev_close":10.,"source":"sina_regular"}}})
+        class Futu:
+            quote_errors=[]
+            def __init__(self):self.calls=[]
+            def quotes(self,codes):
+                self.calls.append(codes)
+                return {"US.A":{"time":"2026-09-29 11:29:00","price":11.,"prev_close":10.,"source":"futu_snapshot"}}
+            def close(self):pass
+        futu=Futu()
+        refresh_market(self.store,"dow",now,refresh_members=False,futu=futu)
+        self.assertEqual(futu.calls,[["US.A"]])
+        self.assertEqual(self.store.results("dow").iloc[-1].percent,100.)
+
+    def test_repair_rechecks_provisional_price_on_current_complete_day(self):
+        self.store=BreadthStore(self.store.root/"provisional_repair")
+        now=pd.Timestamp("2026-09-29 08:00",tz="America/New_York")
+        sessions=market_clock("US",now)["sessions"][-50:]
+        self.store.save_members("dow",["US.A"],"official","2026-09-25")
+        self.store.save_prices("US.A",pd.DataFrame({"date":sessions[:-1],"close":[10.]*49}),"yahoo_adjclose")
+        self.store.save_prices("US.A",pd.DataFrame({"date":[sessions[-1]],"close":[11.]}),
+                               "yahoo_adjclose",provisional=True)
+        formal=pd.DataFrame({"date":[sessions[-1]],"close":[12.]})
+        with patch("tools.breadth_engine.fetch_prices",return_value=(formal,"yahoo_adjclose")) as fetch:
+            refresh_market(self.store,"dow",now,repair=True,refresh_members=False,use_futu=False)
+        self.assertTrue(fetch.called)
+        self.assertEqual(self.store.read("prices","US.A").get("provisional_dates"),[])
+
+    def test_nasdaq_chart_reads_self_calculated_result(self):
+        self.store.save_results("nasdaq",[{"date":"2026-09-25","percent":42.,"kind":"close"}],"v1")
+        self.store.save_results("nasdaq_stockcharts",[{"date":"2026-09-25","percent":34.,"kind":"close"}],"external")
+        clock={"day":"2026-09-28","complete_day":"2026-09-25",
+               "now":pd.Timestamp("2026-09-28T11:00:00Z"),"sessions":["2026-09-25"]}
+        with patch("tools.breadth_engine.market_clock",return_value=clock):
+            frame=chart_data("nasdaq",pd.to_datetime(["2026-09-25"]),self.store.root)
+        self.assertEqual(frame.iloc[-1].percent,42.)
+        self.assertTrue(frame.attrs["breadth_display"]["approximate"])
+
+    def test_us_close_snapshot_publishes_without_history_download(self):
+        now=pd.Timestamp("2026-09-28 16:30",tz="America/New_York")
+        clock=market_clock("US",now)
+        previous=clock["sessions"][-2]
+        prior=clock["sessions"][-50:-1]
+        self.store.save_members("dow",["US.A"],"fixture",clock["day"])
+        self.store.save_prices("US.A",pd.DataFrame({"date":prior,"close":[10.]*49}),"yahoo_adjclose")
+        class Futu:
+            quote_errors=[]
+            def quotes(self,codes):
+                return {code:{"price":11.,"prev_close":10.,"time":"2026-09-28 16:00:00","source":"futu_snapshot"} for code in codes}
+            def history(self,*args):raise AssertionError("不应调用历史 K 线")
+            def close(self):pass
+        with patch("tools.breadth_engine.fetch_prices",side_effect=RuntimeError("Yahoo不可用")):
+            report=refresh_market(self.store,"dow",now,refresh_members=False,futu=Futu())
+        self.assertEqual(report["close_snapshot"]["eligible"],1)
+        self.assertEqual(self.store.results("dow").iloc[-1].percent,100.)
+        self.assertEqual(self.store.prices("US.A").iloc[-1].date,clock["complete_day"])
+
+    def test_us_close_snapshot_uses_actual_early_close(self):
+        days=pd.bdate_range("2026-09-01",periods=50).strftime("%Y-%m-%d").tolist()
+        self.store.save_prices("US.A",pd.DataFrame({"date":days[:-1],"close":[10.]*49}),"yahoo_adjclose")
+        schedule=pd.DataFrame({"market_open":[pd.Timestamp("2026-11-27 09:30",tz="America/New_York")],
+                               "market_close":[pd.Timestamp("2026-11-27 13:00",tz="America/New_York")]},
+                              index=pd.DatetimeIndex(["2026-11-27"]))
+        q={"US.A":{"price":12.,"prev_close":10.,"time":"2026-11-27 13:00:00"}}
+        with patch("tools.breadth_engine._schedule",return_value=schedule):
+            result=prepare_market_close_quotes(self.store,["US.A"],q,
+                pd.Timestamp("2026-11-27 13:20",tz="America/New_York"),"2026-11-27",days[-2],"US")
+        self.assertEqual(result["US.A"],12.)
+        q["US.A"]["time"]="2026-11-27 12:00:00"
+        with patch("tools.breadth_engine._schedule",return_value=schedule):
+            self.assertEqual(prepare_market_close_quotes(self.store,["US.A"],q,
+                pd.Timestamp("2026-11-27 13:20",tz="America/New_York"),"2026-11-27",days[-2],"US"),{})
+        q["US.A"]["time"]="2026-11-27 16:00:00"
+        with patch("tools.breadth_engine._schedule",return_value=schedule):
+            self.assertEqual(prepare_market_close_quotes(self.store,["US.A"],q,
+                pd.Timestamp("2026-11-27 16:20",tz="America/New_York"),"2026-11-27",days[-2],"US"),{})
+
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
         self.store=BreadthStore(Path(self.tmp.name))
@@ -14,7 +110,7 @@ class EngineTests(unittest.TestCase):
         self.clock=market_clock("US",self.now)
         self.dates=self.clock["sessions"][-80:]
         self.prices=pd.DataFrame({"date":self.dates,"close":list(range(100,180))})
-        self.store.save_members("dow",["US.A"],"fixture",self.clock["day"])
+        self.store.save_members("dow",["US.A"],"fixture",self.clock["complete_day"])
     def test_restart_skips_completed_symbols_and_reuses_history(self):
         with patch("tools.breadth_engine.fetch_prices",return_value=(self.prices,"fixture")) as fetch:
             one=refresh_market(self.store,"dow",self.now,bootstrap=True,refresh_members=False)
@@ -30,7 +126,7 @@ class EngineTests(unittest.TestCase):
     def test_new_component_gets_bounded_daily_backfill_after_initialization(self):
         self.store.save_prices("US.A",self.prices,"fixture")
         self.store.save_results("dow",[{"date":self.dates[-1],"percent":100,"kind":"close"}],"old")
-        self.store.save_members("dow",["US.A","US.B"],"fixture",self.clock["day"])
+        self.store.save_members("dow",["US.A","US.B"],"fixture",self.clock["complete_day"])
         with patch("tools.breadth_engine.fetch_prices",return_value=(self.prices,"fixture")) as fetch:
             result=refresh_market(self.store,"dow",self.now,refresh_members=False)
         self.assertEqual(fetch.call_count,1)
@@ -78,7 +174,7 @@ class EngineTests(unittest.TestCase):
         clock=market_clock("CN",now)
         sessions=[d for d in clock["sessions"] if d<clock["day"]][-49:]
         symbols=[f"SH.{i:06d}" for i in range(20)]
-        self.store.save_members("dividend",symbols,"fixture",clock["day"])
+        self.store.save_members("dividend",symbols,"fixture",clock["complete_day"])
         for code in symbols:
             self.store.save_prices(code,pd.DataFrame({"date":sessions,"close":[10.]*49}),"tencent_qfq")
         class Futu:
@@ -110,7 +206,7 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(clock["complete_day"],"2026-09-28")
         sessions=[d for d in clock["sessions"] if d<clock["complete_day"]][-49:]
         symbols=[f"SH.{i:06d}" for i in range(20)]
-        self.store.save_members("dividend",symbols,"fixture",clock["day"])
+        self.store.save_members("dividend",symbols,"fixture",clock["complete_day"])
         for code in symbols:
             self.store.save_prices(code,pd.DataFrame({"date":sessions,"close":[10.]*49}),"tencent_qfq")
         class Futu:
