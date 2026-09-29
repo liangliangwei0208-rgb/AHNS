@@ -14944,12 +14944,12 @@
     "ticker": "XAU",
     "valuation_anchor_date": "2026-09-28",
     "trade_date": "2026-09-28",
-    "return_pct": null,
-    "status": "pending",
+    "return_pct": -3.9716507355686548,
+    "status": "traded",
     "source": "ak_futures_foreign_hist_sina",
     "calendar_is_open": null,
-    "error": "外盘期货最终日线未确认：valuation_anchor_date=2026-09-28，北京时间 2026-09-29 05:30 后才视为 final",
-    "fetched_at": "2026-09-28T21:32:39+08:00"
+    "error": "",
+    "fetched_at": "2026-09-29T08:32:04+08:00"
   },
   "SECURITY:HK:00100:2026-05-08": {
     "market": "HK",
@@ -28083,13 +28083,13 @@
     "market": "HK",
     "ticker": "03750",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "2026-09-25",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc_trade_date_older_than_anchor",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.9807928075194039,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
     "calendar_is_open": true,
-    "error": "trade_date=2026-09-25 与 valuation_anchor_date=2026-09-28 不一致",
-    "fetched_at": "2026-09-28T21:40:01+08:00"
+    "error": "",
+    "fetched_at": "2026-09-29T08:34:08+08:00"
   },
   "SECURITY:HK:03986:2026-07-20": {
     "market": "HK",
@@ -28796,8 +28796,8 @@
     "status": "missing",
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
-    "error": "港股日线返回空数据: 06857; ak_stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06857&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\")) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06857&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\")) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06857&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\"))",
-    "fetched_at": "2026-09-28T21:34:48+08:00"
+    "error": "港股日线返回空数据: 06857; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+    "fetched_at": "2026-09-29T08:32:55+08:00"
   },
   "SECURITY:HK:06869:2026-05-08": {
     "market": "HK",
@@ -29492,8 +29492,8 @@
     "status": "missing",
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
-    "error": "港股日线返回空数据: 06976; ak_stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06976&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\")) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06976&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\")) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ProxyError(MaxRetryError(\"HTTPSConnectionPool(host='33.push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?secid=116.06976&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=0&end=20500000&lmt=1000000 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))\"))",
-    "fetched_at": "2026-09-28T21:40:59+08:00"
+    "error": "港股日线返回空数据: 06976; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+    "fetched_at": "2026-09-29T08:34:22+08:00"
   },
   "SECURITY:HK:09630:2026-07-17": {
     "market": "HK",
@@ -30111,13 +30111,13 @@
     "market": "HK",
     "ticker": "09630",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "2026-09-25",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc_trade_date_older_than_anchor",
+    "trade_date": "2026-09-28",
+    "return_pct": -10.888252148997136,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
     "calendar_is_open": true,
-    "error": "trade_date=2026-09-25 与 valuation_anchor_date=2026-09-28 不一致",
-    "fetched_at": "2026-09-28T21:40:33+08:00"
+    "error": "",
+    "fetched_at": "2026-09-29T08:34:20+08:00"
   },
   "SECURITY:HK:09868:2026-06-05": {
     "market": "HK",
@@ -32199,13 +32199,13 @@
     "market": "HK",
     "ticker": "09988",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "2026-09-25",
-    "return_pct": 0.0,
-    "status": "stale",
-    "source": "ak_stock_hk_daily_sina_qfq_close_calc_trade_date_older_than_anchor",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.6457564575645836,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
     "calendar_is_open": true,
-    "error": "trade_date=2026-09-25 与 valuation_anchor_date=2026-09-28 不一致",
-    "fetched_at": "2026-09-28T21:39:37+08:00"
+    "error": "",
+    "fetched_at": "2026-09-29T08:34:00+08:00"
   },
   "SECURITY:KR:000660:2026-05-08": {
     "market": "KR",
@@ -34641,7 +34641,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-09-28T21:39:38+08:00"
+    "fetched_at": "2026-09-29T08:34:01+08:00"
   },
   "SECURITY:UNKNOWN:JP3236330001:2026-09-14": {
     "market": "UNKNOWN",
@@ -34773,7 +34773,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-09-28T21:36:39+08:00"
+    "fetched_at": "2026-09-29T08:33:01+08:00"
   },
   "SECURITY:UNKNOWN:JP3684400009:2026-09-14": {
     "market": "UNKNOWN",
@@ -34905,7 +34905,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-09-28T21:36:59+08:00"
+    "fetched_at": "2026-09-29T08:33:02+08:00"
   },
   "SECURITY:US:.INX:2026-05-08": {
     "market": "US",
@@ -36027,13 +36027,13 @@
     "market": "US",
     "ticker": ".INX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.7712402992676282,
+    "status": "traded",
+    "source": "rsi_module_index_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:05+08:00"
+    "fetched_at": "2026-09-29T08:32:01+08:00"
   },
   "SECURITY:US:.NDX:2026-05-08": {
     "market": "US",
@@ -37155,13 +37155,13 @@
     "market": "US",
     "ticker": ".NDX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.0824713827384258,
+    "status": "traded",
+    "source": "rsi_module_index_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:03+08:00"
+    "fetched_at": "2026-09-29T08:32:00+08:00"
   },
   "SECURITY:US:.SOX:2026-05-08": {
     "market": "US",
@@ -38283,13 +38283,13 @@
     "market": "US",
     "ticker": ".SOX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.6077720920475325,
+    "status": "traded",
+    "source": "rsi_module_index_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:32:36+08:00"
+    "fetched_at": "2026-09-29T08:32:03+08:00"
   },
   "SECURITY:US:AAOI:2026-05-08": {
     "market": "US",
@@ -39963,13 +39963,13 @@
     "market": "US",
     "ticker": "AAPL",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.7828305040021188,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:05+08:00"
+    "fetched_at": "2026-09-29T08:32:26+08:00"
   },
   "SECURITY:US:AEIS:2026-05-08": {
     "market": "US",
@@ -41463,13 +41463,13 @@
     "market": "US",
     "ticker": "ALAB",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -3.6503757336404985,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:37:41+08:00"
+    "fetched_at": "2026-09-29T08:33:12+08:00"
   },
   "SECURITY:US:ALGM:2026-07-20": {
     "market": "US",
@@ -42075,13 +42075,13 @@
     "market": "US",
     "ticker": "ALGM",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.489662676822622,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:04+08:00"
+    "fetched_at": "2026-09-29T08:34:26+08:00"
   },
   "SECURITY:US:ALNY:2026-05-08": {
     "market": "US",
@@ -43215,13 +43215,13 @@
     "market": "US",
     "ticker": "ALNY",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.23441162681668848,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:35+08:00"
+    "fetched_at": "2026-09-29T08:33:25+08:00"
   },
   "SECURITY:US:AMAT:2026-05-08": {
     "market": "US",
@@ -44355,13 +44355,13 @@
     "market": "US",
     "ticker": "AMAT",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.36288659793815015,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:02+08:00"
+    "fetched_at": "2026-09-29T08:32:58+08:00"
   },
   "SECURITY:US:AMD:2026-05-08": {
     "market": "US",
@@ -45495,13 +45495,13 @@
     "market": "US",
     "ticker": "AMD",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -3.6090893233750365,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:01+08:00"
+    "fetched_at": "2026-09-29T08:32:38+08:00"
   },
   "SECURITY:US:AMGN:2026-05-08": {
     "market": "US",
@@ -46635,13 +46635,13 @@
     "market": "US",
     "ticker": "AMGN",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.848990617688905,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:34+08:00"
+    "fetched_at": "2026-09-29T08:33:21+08:00"
   },
   "SECURITY:US:AMZN:2026-05-08": {
     "market": "US",
@@ -47775,13 +47775,13 @@
     "market": "US",
     "ticker": "AMZN",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.4098610165418246,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:02+08:00"
+    "fetched_at": "2026-09-29T08:32:33+08:00"
   },
   "SECURITY:US:APA:2026-05-08": {
     "market": "US",
@@ -48927,13 +48927,13 @@
     "market": "US",
     "ticker": "AR",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.8857142857142795,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:58+08:00"
+    "fetched_at": "2026-09-29T08:33:49+08:00"
   },
   "SECURITY:US:ARGX:2026-05-08": {
     "market": "US",
@@ -50067,13 +50067,13 @@
     "market": "US",
     "ticker": "ARGX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 1.3298731617838566,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:36+08:00"
+    "fetched_at": "2026-09-29T08:33:31+08:00"
   },
   "SECURITY:US:ARM:2026-07-17": {
     "market": "US",
@@ -50691,13 +50691,13 @@
     "market": "US",
     "ticker": "ARM",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -8.697473575663839,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:00+08:00"
+    "fetched_at": "2026-09-29T08:34:02+08:00"
   },
   "SECURITY:US:ASML:2026-05-08": {
     "market": "US",
@@ -51831,13 +51831,13 @@
     "market": "US",
     "ticker": "ASML",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 1.5751746949536516,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:39:43+08:00"
+    "fetched_at": "2026-09-29T08:32:42+08:00"
   },
   "SECURITY:US:AVB:2026-06-24": {
     "market": "US",
@@ -52443,13 +52443,13 @@
     "market": "US",
     "ticker": "AVB",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
+    "trade_date": "2026-08-14",
     "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "status": "stale",
+    "source": "ak_stock_us_daily_trade_date_older_than_anchor",
     "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-09-28T21:42:21+08:00"
+    "error": "trade_date=2026-08-14 与 valuation_anchor_date=2026-09-28 不一致",
+    "fetched_at": "2026-09-29T08:34:44+08:00"
   },
   "SECURITY:US:AVGO:2026-05-08": {
     "market": "US",
@@ -53583,13 +53583,13 @@
     "market": "US",
     "ticker": "AVGO",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.9183413168560972,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:06+08:00"
+    "fetched_at": "2026-09-29T08:32:29+08:00"
   },
   "SECURITY:US:AXTI:2026-05-08": {
     "market": "US",
@@ -54735,13 +54735,13 @@
     "market": "US",
     "ticker": "BE",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -8.947003810183574,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:03+08:00"
+    "fetched_at": "2026-09-29T08:34:23+08:00"
   },
   "SECURITY:US:BIIB:2026-05-08": {
     "market": "US",
@@ -55875,13 +55875,13 @@
     "market": "US",
     "ticker": "BIIB",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.47891036906855255,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:36+08:00"
+    "fetched_at": "2026-09-29T08:33:27+08:00"
   },
   "SECURITY:US:BKNG:2026-05-14": {
     "market": "US",
@@ -56967,13 +56967,13 @@
     "market": "US",
     "ticker": "BKNG",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.04879536444036825,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:03+08:00"
+    "fetched_at": "2026-09-29T08:34:12+08:00"
   },
   "SECURITY:US:BTI:2026-05-08": {
     "market": "US",
@@ -58107,13 +58107,13 @@
     "market": "US",
     "ticker": "BTI",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.7549883156570125,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:46+08:00"
+    "fetched_at": "2026-09-29T08:33:36+08:00"
   },
   "SECURITY:US:C:2026-05-08": {
     "market": "US",
@@ -59751,13 +59751,13 @@
     "market": "US",
     "ticker": "CAT",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.19839820833028599,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:03+08:00"
+    "fetched_at": "2026-09-29T08:33:34+08:00"
   },
   "SECURITY:US:CHRD:2026-05-08": {
     "market": "US",
@@ -61443,13 +61443,13 @@
     "market": "US",
     "ticker": "CNX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -3.3241842025007573,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:57+08:00"
+    "fetched_at": "2026-09-29T08:33:45+08:00"
   },
   "SECURITY:US:COHR:2026-05-08": {
     "market": "US",
@@ -62583,13 +62583,13 @@
     "market": "US",
     "ticker": "COHR",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -4.522867863299862,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:02+08:00"
+    "fetched_at": "2026-09-29T08:33:15+08:00"
   },
   "SECURITY:US:COP:2026-05-08": {
     "market": "US",
@@ -63723,13 +63723,13 @@
     "market": "US",
     "ticker": "COP",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.9897879025922984,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:53+08:00"
+    "fetched_at": "2026-09-29T08:33:52+08:00"
   },
   "SECURITY:US:COST:2026-06-05": {
     "market": "US",
@@ -65703,13 +65703,13 @@
     "market": "US",
     "ticker": "CSCO",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.03748828491094702,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:07+08:00"
+    "fetched_at": "2026-09-29T08:34:19+08:00"
   },
   "SECURITY:US:CTRA:2026-06-19": {
     "market": "US",
@@ -68451,13 +68451,13 @@
     "market": "US",
     "ticker": "DINO",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.5897771952817821,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:58+08:00"
+    "fetched_at": "2026-09-29T08:33:50+08:00"
   },
   "SECURITY:US:DK:2026-07-20": {
     "market": "US",
@@ -69063,13 +69063,13 @@
     "market": "US",
     "ticker": "DK",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.5454009433962348,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:56+08:00"
+    "fetched_at": "2026-09-29T08:33:43+08:00"
   },
   "SECURITY:US:DLR:2026-06-24": {
     "market": "US",
@@ -69891,13 +69891,13 @@
     "market": "US",
     "ticker": "DLR",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.8006270645540603,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:42:20+08:00"
+    "fetched_at": "2026-09-29T08:34:35+08:00"
   },
   "SECURITY:US:DOW:2026-05-08": {
     "market": "US",
@@ -71571,13 +71571,13 @@
     "market": "US",
     "ticker": "DVN",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.680127523910734,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:55+08:00"
+    "fetched_at": "2026-09-29T08:33:58+08:00"
   },
   "SECURITY:US:EOG:2026-05-08": {
     "market": "US",
@@ -72711,13 +72711,13 @@
     "market": "US",
     "ticker": "EOG",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.19950124688279391,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:54+08:00"
+    "fetched_at": "2026-09-29T08:33:55+08:00"
   },
   "SECURITY:US:EQIX:2026-06-24": {
     "market": "US",
@@ -73539,13 +73539,13 @@
     "market": "US",
     "ticker": "EQIX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.2966034441711063,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:42:19+08:00"
+    "fetched_at": "2026-09-29T08:34:32+08:00"
   },
   "SECURITY:US:EQT:2026-05-08": {
     "market": "US",
@@ -74679,13 +74679,13 @@
     "market": "US",
     "ticker": "EQT",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.850029521747698,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:57+08:00"
+    "fetched_at": "2026-09-29T08:33:47+08:00"
   },
   "SECURITY:US:EXE:2026-07-17": {
     "market": "US",
@@ -75303,13 +75303,13 @@
     "market": "US",
     "ticker": "EXE",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.7618608935974223,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:57+08:00"
+    "fetched_at": "2026-09-29T08:33:44+08:00"
   },
   "SECURITY:US:EXR:2026-06-24": {
     "market": "US",
@@ -76131,13 +76131,13 @@
     "market": "US",
     "ticker": "EXR",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.2523434570678615,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:42:21+08:00"
+    "fetched_at": "2026-09-29T08:34:40+08:00"
   },
   "SECURITY:US:FANG:2026-05-08": {
     "market": "US",
@@ -77271,13 +77271,13 @@
     "market": "US",
     "ticker": "FANG",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.7714147961643492,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:55+08:00"
+    "fetched_at": "2026-09-29T08:33:57+08:00"
   },
   "SECURITY:US:FIX:2026-06-18": {
     "market": "US",
@@ -78147,13 +78147,13 @@
     "market": "US",
     "ticker": "FIX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.03677113285229794,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:49+08:00"
+    "fetched_at": "2026-09-29T08:34:27+08:00"
   },
   "SECURITY:US:FUTU:2026-05-08": {
     "market": "US",
@@ -80931,13 +80931,13 @@
     "market": "US",
     "ticker": "GEV",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.8207762914695715,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:04+08:00"
+    "fetched_at": "2026-09-29T08:33:32+08:00"
   },
   "SECURITY:US:GILD:2026-05-08": {
     "market": "US",
@@ -82071,13 +82071,13 @@
     "market": "US",
     "ticker": "GILD",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.8480752666799152,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:34+08:00"
+    "fetched_at": "2026-09-29T08:33:23+08:00"
   },
   "SECURITY:US:GLW:2026-05-08": {
     "market": "US",
@@ -83211,13 +83211,13 @@
     "market": "US",
     "ticker": "GLW",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -3.285696057164733,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:00+08:00"
+    "fetched_at": "2026-09-29T08:32:51+08:00"
   },
   "SECURITY:US:GOOG:2026-05-08": {
     "market": "US",
@@ -84351,13 +84351,13 @@
     "market": "US",
     "ticker": "GOOG",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.5629177905476568,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:44+08:00"
+    "fetched_at": "2026-09-29T08:32:53+08:00"
   },
   "SECURITY:US:GOOGL:2026-05-08": {
     "market": "US",
@@ -85491,13 +85491,13 @@
     "market": "US",
     "ticker": "GOOGL",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.3401953942777425,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:38+08:00"
+    "fetched_at": "2026-09-29T08:32:43+08:00"
   },
   "SECURITY:US:HD:2026-05-14": {
     "market": "US",
@@ -86583,13 +86583,13 @@
     "market": "US",
     "ticker": "HD",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.1289222373806251,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:02+08:00"
+    "fetched_at": "2026-09-29T08:34:09+08:00"
   },
   "SECURITY:US:IBB:2026-05-14": {
     "market": "US",
@@ -87675,13 +87675,13 @@
     "market": "US",
     "ticker": "IBB",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.4481098345807233,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:34+08:00"
+    "fetched_at": "2026-09-29T08:33:19+08:00"
   },
   "SECURITY:US:INSM:2026-05-08": {
     "market": "US",
@@ -89343,13 +89343,13 @@
     "market": "US",
     "ticker": "INTC",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -5.666666666666664,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:07+08:00"
+    "fetched_at": "2026-09-29T08:32:40+08:00"
   },
   "SECURITY:US:JBL:2026-05-08": {
     "market": "US",
@@ -91371,13 +91371,13 @@
     "market": "US",
     "ticker": "KLAC",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.6651766709238061,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:39:07+08:00"
+    "fetched_at": "2026-09-29T08:32:59+08:00"
   },
   "SECURITY:US:KO:2026-06-05": {
     "market": "US",
@@ -92859,13 +92859,13 @@
     "market": "US",
     "ticker": "LITE",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -2.1589762650666255,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:02+08:00"
+    "fetched_at": "2026-09-29T08:32:46+08:00"
   },
   "SECURITY:US:LLY:2026-05-08": {
     "market": "US",
@@ -93999,13 +93999,13 @@
     "market": "US",
     "ticker": "LLY",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.11153735656463937,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:45+08:00"
+    "fetched_at": "2026-09-29T08:33:04+08:00"
   },
   "SECURITY:US:LNG:2026-06-18": {
     "market": "US",
@@ -95367,13 +95367,13 @@
     "market": "US",
     "ticker": "LOW",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.8558748943364392,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:03+08:00"
+    "fetched_at": "2026-09-29T08:34:14+08:00"
   },
   "SECURITY:US:LRCX:2026-05-08": {
     "market": "US",
@@ -96507,13 +96507,13 @@
     "market": "US",
     "ticker": "LRCX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.23476412550361703,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:40+08:00"
+    "fetched_at": "2026-09-29T08:32:35+08:00"
   },
   "SECURITY:US:LYB:2026-05-08": {
     "market": "US",
@@ -98139,13 +98139,13 @@
     "market": "US",
     "ticker": "MAR",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 1.8577962105502444,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:04+08:00"
+    "fetched_at": "2026-09-29T08:34:16+08:00"
   },
   "SECURITY:US:MCD:2026-05-14": {
     "market": "US",
@@ -99231,13 +99231,13 @@
     "market": "US",
     "ticker": "MCD",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.2262156448202943,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:03+08:00"
+    "fetched_at": "2026-09-29T08:34:10+08:00"
   },
   "SECURITY:US:MDLZ:2026-05-08": {
     "market": "US",
@@ -100911,13 +100911,13 @@
     "market": "US",
     "ticker": "META",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -4.794721017481307,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:40+08:00"
+    "fetched_at": "2026-09-29T08:32:31+08:00"
   },
   "SECURITY:US:MKSI:2026-05-08": {
     "market": "US",
@@ -102051,13 +102051,13 @@
     "market": "US",
     "ticker": "MKSI",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.9355110804386113,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:37:42+08:00"
+    "fetched_at": "2026-09-29T08:32:50+08:00"
   },
   "SECURITY:US:MPC:2026-05-08": {
     "market": "US",
@@ -103191,13 +103191,13 @@
     "market": "US",
     "ticker": "MPC",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.0367960967676337,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:53+08:00"
+    "fetched_at": "2026-09-29T08:33:53+08:00"
   },
   "SECURITY:US:MPWR:2026-05-08": {
     "market": "US",
@@ -104331,13 +104331,13 @@
     "market": "US",
     "ticker": "MPWR",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.1869052758162968,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:05+08:00"
+    "fetched_at": "2026-09-29T08:33:18+08:00"
   },
   "SECURITY:US:MRK:2026-05-08": {
     "market": "US",
@@ -105495,13 +105495,13 @@
     "market": "US",
     "ticker": "MRNA",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.8045052292839916,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:46+08:00"
+    "fetched_at": "2026-09-29T08:33:29+08:00"
   },
   "SECURITY:US:MRVL:2026-05-08": {
     "market": "US",
@@ -106635,13 +106635,13 @@
     "market": "US",
     "ticker": "MRVL",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -3.831103136274261,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:01+08:00"
+    "fetched_at": "2026-09-29T08:32:24+08:00"
   },
   "SECURITY:US:MSFT:2026-05-08": {
     "market": "US",
@@ -107775,13 +107775,13 @@
     "market": "US",
     "ticker": "MSFT",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.3464556250847415,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:05+08:00"
+    "fetched_at": "2026-09-29T08:32:27+08:00"
   },
   "SECURITY:US:MTDR:2026-05-08": {
     "market": "US",
@@ -109191,13 +109191,13 @@
     "market": "US",
     "ticker": "MTZ",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -4.115574348132478,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:42:03+08:00"
+    "fetched_at": "2026-09-29T08:34:29+08:00"
   },
   "SECURITY:US:MU:2026-05-08": {
     "market": "US",
@@ -110331,13 +110331,13 @@
     "market": "US",
     "ticker": "MU",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -2.6148501312044936,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:01+08:00"
+    "fetched_at": "2026-09-29T08:32:44+08:00"
   },
   "SECURITY:US:MUR:2026-05-08": {
     "market": "US",
@@ -111483,13 +111483,13 @@
     "market": "US",
     "ticker": "NBIS",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -2.2963805671428084,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:37:44+08:00"
+    "fetched_at": "2026-09-29T08:33:13+08:00"
   },
   "SECURITY:US:NFLX:2026-05-08": {
     "market": "US",
@@ -112623,13 +112623,13 @@
     "market": "US",
     "ticker": "NFLX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -2.6916859933937665,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:32:49+08:00"
+    "fetched_at": "2026-09-29T08:32:28+08:00"
   },
   "SECURITY:US:NIO:2026-05-14": {
     "market": "US",
@@ -113715,13 +113715,13 @@
     "market": "US",
     "ticker": "NIO",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.27932960893854997,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:39:44+08:00"
+    "fetched_at": "2026-09-29T08:34:03+08:00"
   },
   "SECURITY:US:NOK:2026-07-20": {
     "market": "US",
@@ -114327,13 +114327,13 @@
     "market": "US",
     "ticker": "NOK",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -2.598652550529368,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:34:48+08:00"
+    "fetched_at": "2026-09-29T08:32:56+08:00"
   },
   "SECURITY:US:NVDA:2026-05-08": {
     "market": "US",
@@ -115467,13 +115467,13 @@
     "market": "US",
     "ticker": "NVDA",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 1.6839205580486238,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:05+08:00"
+    "fetched_at": "2026-09-29T08:32:23+08:00"
   },
   "SECURITY:US:O:2026-06-24": {
     "market": "US",
@@ -116295,13 +116295,13 @@
     "market": "US",
     "ticker": "O",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.3420957868203067,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:42:20+08:00"
+    "fetched_at": "2026-09-29T08:34:36+08:00"
   },
   "SECURITY:US:ONTO:2026-05-08": {
     "market": "US",
@@ -117435,13 +117435,13 @@
     "market": "US",
     "ticker": "ONTO",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.3824224725351266,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:37:39+08:00"
+    "fetched_at": "2026-09-29T08:33:09+08:00"
   },
   "SECURITY:US:ORLY:2026-05-14": {
     "market": "US",
@@ -119079,13 +119079,13 @@
     "market": "US",
     "ticker": "PARR",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.6584043377227067,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:58+08:00"
+    "fetched_at": "2026-09-29T08:33:51+08:00"
   },
   "SECURITY:US:PBF:2026-05-08": {
     "market": "US",
@@ -120219,13 +120219,13 @@
     "market": "US",
     "ticker": "PBF",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.949925363007198,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:56+08:00"
+    "fetched_at": "2026-09-29T08:33:42+08:00"
   },
   "SECURITY:US:PLD:2026-06-24": {
     "market": "US",
@@ -121047,13 +121047,13 @@
     "market": "US",
     "ticker": "PLD",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.45847425779782514,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:42:19+08:00"
+    "fetched_at": "2026-09-29T08:34:31+08:00"
   },
   "SECURITY:US:PLTR:2026-05-14": {
     "market": "US",
@@ -121587,13 +121587,13 @@
     "market": "US",
     "ticker": "PLTR",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.1546370011071838,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:43+08:00"
+    "fetched_at": "2026-09-29T08:33:35+08:00"
   },
   "SECURITY:US:PONY:2026-05-14": {
     "market": "US",
@@ -122679,13 +122679,13 @@
     "market": "US",
     "ticker": "PONY",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.7256894049346929,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:39:45+08:00"
+    "fetched_at": "2026-09-29T08:34:06+08:00"
   },
   "SECURITY:US:PSA:2026-06-24": {
     "market": "US",
@@ -123507,13 +123507,13 @@
     "market": "US",
     "ticker": "PSA",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.104281696010001,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:42:20+08:00"
+    "fetched_at": "2026-09-29T08:34:37+08:00"
   },
   "SECURITY:US:PSX:2026-05-08": {
     "market": "US",
@@ -124647,13 +124647,13 @@
     "market": "US",
     "ticker": "PSX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.8602150537634357,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:54+08:00"
+    "fetched_at": "2026-09-29T08:33:56+08:00"
   },
   "SECURITY:US:RACE:2026-05-14": {
     "market": "US",
@@ -125739,13 +125739,13 @@
     "market": "US",
     "ticker": "RACE",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -3.2407069749349593,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:39:45+08:00"
+    "fetched_at": "2026-09-29T08:34:05+08:00"
   },
   "SECURITY:US:RCL:2026-07-20": {
     "market": "US",
@@ -126351,13 +126351,13 @@
     "market": "US",
     "ticker": "RCL",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.045323444581779615,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:04+08:00"
+    "fetched_at": "2026-09-29T08:34:17+08:00"
   },
   "SECURITY:US:REGN:2026-05-08": {
     "market": "US",
@@ -127491,13 +127491,13 @@
     "market": "US",
     "ticker": "REGN",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -4.541647632099888,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:35+08:00"
+    "fetched_at": "2026-09-29T08:33:24+08:00"
   },
   "SECURITY:US:RIVN:2026-05-14": {
     "market": "US",
@@ -128583,13 +128583,13 @@
     "market": "US",
     "ticker": "RIVN",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -4.395604395604402,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:39:44+08:00"
+    "fetched_at": "2026-09-29T08:34:04+08:00"
   },
   "SECURITY:US:RPRX:2026-05-08": {
     "market": "US",
@@ -129723,13 +129723,13 @@
     "market": "US",
     "ticker": "RPRX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.2748668613640204,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:36+08:00"
+    "fetched_at": "2026-09-29T08:33:30+08:00"
   },
   "SECURITY:US:RSG:2026-06-05": {
     "market": "US",
@@ -130695,13 +130695,13 @@
     "market": "US",
     "ticker": "RVMD",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.5758403668829524,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:35+08:00"
+    "fetched_at": "2026-09-29T08:33:26+08:00"
   },
   "SECURITY:US:SBUX:2026-05-14": {
     "market": "US",
@@ -131787,13 +131787,13 @@
     "market": "US",
     "ticker": "SBUX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.43221589711153197,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:04+08:00"
+    "fetched_at": "2026-09-29T08:34:15+08:00"
   },
   "SECURITY:US:SM:2026-05-08": {
     "market": "US",
@@ -132939,13 +132939,13 @@
     "market": "US",
     "ticker": "SMCI",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -3.421174294960694,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:32:50+08:00"
+    "fetched_at": "2026-09-29T08:32:34+08:00"
   },
   "SECURITY:US:SMSN:2026-09-07": {
     "market": "US",
@@ -133085,11 +133085,11 @@
     "valuation_anchor_date": "2026-09-28",
     "trade_date": "",
     "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "status": "missing",
+    "source": "daily_fetch_failed",
     "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-09-28T21:37:37+08:00"
+    "error": "美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError('东方财富美股日线获取失败: SMSN: 105.SMSN: empty klines | 106.SMSN: empty klines | 107.SMSN: empty klines') | yahoo_chart_daily_us_fallback: RuntimeError('Yahoo 美股日线获取失败: SMSN: 403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/SMSN?range=20d&interval=1d&includePrePost=false&events=history')",
+    "fetched_at": "2026-09-29T08:33:07+08:00"
   },
   "SECURITY:US:SNDK:2026-05-08": {
     "market": "US",
@@ -134223,13 +134223,13 @@
     "market": "US",
     "ticker": "SNDK",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -3.6511418607267365,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:39:40+08:00"
+    "fetched_at": "2026-09-29T08:32:39+08:00"
   },
   "SECURITY:US:SO:2026-06-05": {
     "market": "US",
@@ -135399,13 +135399,13 @@
     "market": "US",
     "ticker": "SPG",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.14158773557269022,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:42:20+08:00"
+    "fetched_at": "2026-09-29T08:34:34+08:00"
   },
   "SECURITY:US:STM:2026-07-20": {
     "market": "US",
@@ -136011,13 +136011,13 @@
     "market": "US",
     "ticker": "STM",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 1.559792027729645,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:03+08:00"
+    "fetched_at": "2026-09-29T08:33:11+08:00"
   },
   "SECURITY:US:STX:2026-07-20": {
     "market": "US",
@@ -136623,13 +136623,13 @@
     "market": "US",
     "ticker": "STX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.5104545008344008,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:36:38+08:00"
+    "fetched_at": "2026-09-29T08:32:48+08:00"
   },
   "SECURITY:US:T:2026-05-08": {
     "market": "US",
@@ -137775,13 +137775,13 @@
     "market": "US",
     "ticker": "TECH",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.1377220768489118,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:48+08:00"
+    "fetched_at": "2026-09-29T08:33:37+08:00"
   },
   "SECURITY:US:TER:2026-05-08": {
     "market": "US",
@@ -138915,13 +138915,13 @@
     "market": "US",
     "ticker": "TER",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.7329685225161864,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:02+08:00"
+    "fetched_at": "2026-09-29T08:33:16+08:00"
   },
   "SECURITY:US:TJX:2026-05-14": {
     "market": "US",
@@ -140007,13 +140007,13 @@
     "market": "US",
     "ticker": "TJX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.14608642165154784,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:03+08:00"
+    "fetched_at": "2026-09-29T08:34:11+08:00"
   },
   "SECURITY:US:TPL:2026-05-08": {
     "market": "US",
@@ -141147,13 +141147,13 @@
     "market": "US",
     "ticker": "TPL",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.8561292403319043,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:56+08:00"
+    "fetched_at": "2026-09-29T08:33:40+08:00"
   },
   "SECURITY:US:TSEM:2026-05-08": {
     "market": "US",
@@ -142827,13 +142827,13 @@
     "market": "US",
     "ticker": "TSLA",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -3.9396952514041628,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:40:02+08:00"
+    "fetched_at": "2026-09-29T08:32:30+08:00"
   },
   "SECURITY:US:TSM:2026-05-08": {
     "market": "US",
@@ -143967,13 +143967,13 @@
     "market": "US",
     "ticker": "TSM",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.5037615676527274,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:39:37+08:00"
+    "fetched_at": "2026-09-29T08:32:37+08:00"
   },
   "SECURITY:US:TTMI:2026-05-08": {
     "market": "US",
@@ -145647,13 +145647,13 @@
     "market": "US",
     "ticker": "UAL",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -2.175629441179039,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:49+08:00"
+    "fetched_at": "2026-09-29T08:33:38+08:00"
   },
   "SECURITY:US:UMC:2026-07-20": {
     "market": "US",
@@ -146259,13 +146259,13 @@
     "market": "US",
     "ticker": "UMC",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -1.8922254216371726,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:34:16+08:00"
+    "fetched_at": "2026-09-29T08:32:45+08:00"
   },
   "SECURITY:US:UTHR:2026-05-08": {
     "market": "US",
@@ -148479,13 +148479,13 @@
     "market": "US",
     "ticker": "VICR",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 1.1136331394524301,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:41:04+08:00"
+    "fetched_at": "2026-09-29T08:34:25+08:00"
   },
   "SECURITY:US:VLO:2026-05-08": {
     "market": "US",
@@ -149619,13 +149619,13 @@
     "market": "US",
     "ticker": "VLO",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.6172839506172867,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:57+08:00"
+    "fetched_at": "2026-09-29T08:33:48+08:00"
   },
   "SECURITY:US:VRT:2026-06-18": {
     "market": "US",
@@ -151035,13 +151035,13 @@
     "market": "US",
     "ticker": "VRTX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.28126722286625494,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:34+08:00"
+    "fetched_at": "2026-09-29T08:33:20+08:00"
   },
   "SECURITY:US:VTR:2026-06-24": {
     "market": "US",
@@ -151863,13 +151863,13 @@
     "market": "US",
     "ticker": "VTR",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.5196904954382742,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:42:21+08:00"
+    "fetched_at": "2026-09-29T08:34:38+08:00"
   },
   "SECURITY:US:WDC:2026-05-08": {
     "market": "US",
@@ -153003,13 +153003,13 @@
     "market": "US",
     "ticker": "WDC",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.7836956283794105,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:39:42+08:00"
+    "fetched_at": "2026-09-29T08:32:49+08:00"
   },
   "SECURITY:US:WELL:2026-06-24": {
     "market": "US",
@@ -153831,13 +153831,13 @@
     "market": "US",
     "ticker": "WELL",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": 0.687210960798712,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:42:19+08:00"
+    "fetched_at": "2026-09-29T08:34:30+08:00"
   },
   "SECURITY:US:WFC:2026-05-08": {
     "market": "US",
@@ -156399,13 +156399,13 @@
     "market": "US",
     "ticker": "XOP",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "trade_date": "2026-09-28",
+    "return_pct": -0.7493112947658531,
+    "status": "traded",
+    "source": "ak_stock_us_daily",
     "calendar_is_open": true,
     "error": "",
-    "fetched_at": "2026-09-28T21:38:56+08:00"
+    "fetched_at": "2026-09-29T08:32:02+08:00"
   },
   "SECURITY:VIX_LEVEL:VIX:2026-05-08": {
     "market": "VIX_LEVEL",
@@ -157662,7 +157662,7 @@
     "source": "CBOE",
     "calendar_is_open": null,
     "error": "VIX trade_date=2026-09-25 与 valuation_anchor_date=2026-09-28 不一致",
-    "fetched_at": "2026-09-28T21:32:40+08:00",
+    "fetched_at": "2026-09-29T08:32:07+08:00",
     "value": 14.87,
     "display_value": "14.87",
     "value_type": "level"
