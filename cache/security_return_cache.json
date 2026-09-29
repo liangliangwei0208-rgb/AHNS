@@ -28797,7 +28797,7 @@
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
     "error": "港股日线返回空数据: 06857; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
-    "fetched_at": "2026-09-29T08:32:55+08:00"
+    "fetched_at": "2026-09-29T12:28:44+08:00"
   },
   "SECURITY:HK:06869:2026-05-08": {
     "market": "HK",
@@ -29493,7 +29493,7 @@
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
     "error": "港股日线返回空数据: 06976; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
-    "fetched_at": "2026-09-29T08:34:22+08:00"
+    "fetched_at": "2026-09-29T12:28:55+08:00"
   },
   "SECURITY:HK:09630:2026-07-17": {
     "market": "HK",
@@ -34641,7 +34641,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-09-29T08:34:01+08:00"
+    "fetched_at": "2026-09-29T12:28:53+08:00"
   },
   "SECURITY:UNKNOWN:JP3236330001:2026-09-14": {
     "market": "UNKNOWN",
@@ -34773,7 +34773,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-09-29T08:33:01+08:00"
+    "fetched_at": "2026-09-29T12:28:45+08:00"
   },
   "SECURITY:UNKNOWN:JP3684400009:2026-09-14": {
     "market": "UNKNOWN",
@@ -34905,7 +34905,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-09-29T08:33:02+08:00"
+    "fetched_at": "2026-09-29T12:28:46+08:00"
   },
   "SECURITY:US:.INX:2026-05-08": {
     "market": "US",
@@ -52449,7 +52449,7 @@
     "source": "ak_stock_us_daily_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2026-08-14 与 valuation_anchor_date=2026-09-28 不一致",
-    "fetched_at": "2026-09-29T08:34:44+08:00"
+    "fetched_at": "2026-09-29T12:29:00+08:00"
   },
   "SECURITY:US:AVGO:2026-05-08": {
     "market": "US",
@@ -133089,7 +133089,7 @@
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
     "error": "美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError('东方财富美股日线获取失败: SMSN: 105.SMSN: empty klines | 106.SMSN: empty klines | 107.SMSN: empty klines') | yahoo_chart_daily_us_fallback: RuntimeError('Yahoo 美股日线获取失败: SMSN: 403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/SMSN?range=20d&interval=1d&includePrePost=false&events=history')",
-    "fetched_at": "2026-09-29T08:33:07+08:00"
+    "fetched_at": "2026-09-29T12:28:50+08:00"
   },
   "SECURITY:US:SNDK:2026-05-08": {
     "market": "US",
@@ -157656,15 +157656,39 @@
     "market": "VIX_LEVEL",
     "ticker": "VIX",
     "valuation_anchor_date": "2026-09-28",
-    "trade_date": "2026-09-25",
+    "trade_date": "2026-09-28",
     "return_pct": null,
-    "status": "stale",
+    "status": "traded",
     "source": "CBOE",
     "calendar_is_open": null,
-    "error": "VIX trade_date=2026-09-25 与 valuation_anchor_date=2026-09-28 不一致",
-    "fetched_at": "2026-09-29T08:32:07+08:00",
-    "value": 14.87,
-    "display_value": "14.87",
+    "error": "",
+    "fetched_at": "2026-09-29T12:28:34+08:00",
+    "value": 16.07,
+    "display_value": "16.07",
     "value_type": "level"
+  },
+  "SECURITY:HK:06857:2026-09-29": {
+    "market": "HK",
+    "ticker": "06857",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-29T12:30:24+08:00"
+  },
+  "SECURITY:HK:06976:2026-09-29": {
+    "market": "HK",
+    "ticker": "06976",
+    "valuation_anchor_date": "2026-09-29",
+    "trade_date": "",
+    "return_pct": 0.0,
+    "status": "pending",
+    "source": "market_close_not_confirmed",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-09-29T12:31:11+08:00"
   }
 }
