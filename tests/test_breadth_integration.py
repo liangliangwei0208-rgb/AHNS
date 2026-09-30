@@ -8,11 +8,19 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 from tools import rsi_data
-from tools.configs.rsi_configs import RSI_ANALYSIS_CONFIGS
+from tools.configs.rsi_configs import RSI_ANALYSIS_CONFIGS, RSI_NASDAQ100_CONFIG
 import sync_repos
 import service_runner
 
 class IntegrationTests(unittest.TestCase):
+    def test_nasdaq_chart_uses_ndx_price_and_independent_breadth(self):
+        config = RSI_NASDAQ100_CONFIG
+        self.assertEqual(config["name"], "纳斯达克100指数")
+        self.assertEqual(config["kwargs"]["symbol"], ".NDX")
+        self.assertEqual(config["kwargs"]["display_name"], "纳斯达克100指数")
+        self.assertEqual(config["kwargs"]["breadth_key"], "nasdaq100")
+        self.assertEqual(config["kwargs"]["output_file"], "output/nasdaq_analysis.png")
+
     def test_legacy_analysis_entry_accepts_breadth_and_keeps_seven_return_values(self):
         from tools.rsi_module import rsi_analyze_index
         days=pd.bdate_range("2024-01-01",periods=500)
@@ -31,12 +39,13 @@ class IntegrationTests(unittest.TestCase):
 
     def test_five_configurations_and_dow_image(self):
         mapping={c["kwargs"]["symbol"]:c for c in RSI_ANALYSIS_CONFIGS}
-        for symbol in [".IXIC",".DJI","512890","560220","159943"]:
+        for symbol in [".NDX",".DJI","512890","560220","159943"]:
             self.assertIn(symbol,mapping)
             self.assertTrue(mapping[symbol]["kwargs"].get("breadth_key"))
         self.assertEqual(mapping[".DJI"]["image"],"output/dow_jones_analysis.png")
         self.assertNotIn("sh000001",mapping)
-        for symbol in (".IXIC",".DJI","512890","560220","159943"):
+        self.assertNotIn(".IXIC",mapping)
+        for symbol in (".NDX",".DJI","512890","560220","159943"):
             self.assertIn("breadth_band_low_threshold",mapping[symbol]["kwargs"])
             self.assertIn("breadth_band_high_threshold",mapping[symbol]["kwargs"])
             self.assertIsNone(mapping[symbol]["kwargs"]["breadth_band_low_threshold"])
@@ -78,6 +87,20 @@ class IntegrationTests(unittest.TestCase):
                               "kind": ["close"], "source": ["stockcharts_NAA50R"]})
         draw_breadth(axis, frame)
         self.assertEqual([label.get_text() for label in axis.texts], ["50D: 34.6%"])
+        plt.close(fig)
+
+    def test_ndx_backcast_is_labeled_without_changing_latest_formal_label(self):
+        from tools.market_breadth import draw_breadth
+        import matplotlib.pyplot as plt
+        fig, axis = plt.subplots()
+        frame = pd.DataFrame({"date": ["2026-09-28", "2026-09-29"],
+                              "percent": [40., 45.], "kind": ["close", "close"]})
+        frame.attrs["breadth_display"] = {"current": True, "backcast_end": "2026-09-28",
+                                          "backcast_basis_date": "2026-09-29"}
+        draw_breadth(axis, frame)
+        labels = [item.get_text() for item in axis.texts]
+        self.assertIn("50D: 45.0%", labels)
+        self.assertIn("历史50D按2026-09-29成分回算", labels)
         plt.close(fig)
 
     def test_latest_completed_close_remains_visible_when_intraday_expired(self):
@@ -226,6 +249,7 @@ class IntegrationTests(unittest.TestCase):
         self.assertTrue(sync_repos.is_auto_merge_cache_path("cache/market_breadth/prices/US.AAPL.json"))
         self.assertTrue(sync_repos.is_auto_merge_cache_path("cache/market_breadth/membership_events/dow.json"))
         self.assertTrue(sync_repos.is_auto_merge_cache_path("cache/market_breadth/benchmarks/nasdaq_stockcharts.json"))
+        self.assertTrue(sync_repos.is_auto_merge_cache_path("cache/market_breadth/direct_indicators/dow.json"))
         self.assertFalse(sync_repos.is_auto_merge_cache_path("cache/market_breadth_local/refresh.lock"))
         self.assertTrue(service_runner.is_blocked_path("cache/market_breadth_local/refresh.lock"))
         self.assertFalse(service_runner.is_blocked_path("cache/market_breadth/results/dow.json"))

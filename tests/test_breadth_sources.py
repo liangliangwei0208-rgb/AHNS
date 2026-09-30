@@ -5,10 +5,197 @@ import types
 from pathlib import Path
 from unittest.mock import patch
 import pandas as pd
-from tools.breadth_sources import parse_members, parse_nasdaq_directory, parse_comp_component_count, extract_effective_date, parse_yahoo_history, FutuBreadth, SourceHealth, validate_external_breadth, parse_sina_us, parse_stockcharts, parse_tencent_history, fetch_prices, fetch_quotes, fetch_eastmoney_us_prices, fetch_sina_us_prices
+from tools.breadth_sources import parse_members, parse_nasdaq_directory, parse_comp_component_count, parse_ndx_official_list, parse_ndx_api_list, parse_ndx_component_count, parse_ndx_pdf_baseline, parse_ndx_release, apply_ndx_notices, parse_ndx_archive_page, fetch_ndx_notice_archive, parse_spglobal_dow_list, parse_szse_shenzhen_notice, extract_effective_date, parse_yahoo_history, FutuBreadth, SourceHealth, validate_external_breadth, parse_sina_us, parse_stockcharts, parse_tencent_history, fetch_prices, fetch_quotes, fetch_eastmoney_us_prices, fetch_sina_us_prices
 import requests
 
 class SourceTests(unittest.TestCase):
+    def test_ndx_notice_archive_reports_oldest_page_date(self):
+        page=("<table><tr><td>Sep 29, 2026</td><td><a href='/node/111'>Other news</a></td></tr>"
+              "<tr><td>Jun 11, 2026</td><td><a href='/node/110541'>Nasdaq-100 Index June 2026 Quarterly Changes</a></td></tr>"
+              "<tr><td>Apr 30, 2026</td><td><a href='/node/100'>Other older news</a></td></tr></table>")
+        parsed=parse_ndx_archive_page(page)
+        self.assertEqual(parsed["oldest_date"],"2026-04-30")
+        self.assertEqual(parsed["release_urls"],["https://ir.nasdaq.com/node/110541"])
+
+    def test_ndx_archive_does_not_reapply_notices_before_pdf_baseline(self):
+        page=("<table><tr><td>Jun 11, 2026</td><td><a href='/node/new'>Nasdaq-100 June Changes</a></td></tr>"
+              "<tr><td>Apr 10, 2026</td><td><a href='/node/old'>Nasdaq-100 April Changes</a></td></tr></table>")
+        class Reply:
+            def __init__(self,body):self.text=body
+        with patch("tools.breadth_sources.get",side_effect=[Reply(page),Reply("release")]) as get, \
+             patch("tools.breadth_sources.parse_ndx_release",return_value={"added":[],"removed":[],
+                 "effective_date":"2026-06-22","url":"https://ir.nasdaq.com/node/new"}):
+            archive=fetch_ndx_notice_archive("2026-05-01")
+        self.assertEqual(archive["archive_pages"],1)
+        self.assertEqual(get.call_args_list[1].args[0],"https://ir.nasdaq.com/node/new")
+
+    def test_ndx_pdf_baseline_and_dated_official_notices(self):
+        rows="\n".join(f"ISSUER {i} T{i:03d} 0.99" for i in range(101))
+        baseline=parse_ndx_pdf_baseline("Nasdaq 100\nTicker : NDX\nData as of: 05/01/2026\nName Symbol Weight (%)\n"+rows)
+        self.assertEqual(baseline["source_date"],"2026-05-01")
+        self.assertEqual(len(baseline["symbols"]),101)
+        release=("Nasdaq-100 Index® June 2026 Quarterly Changes. The following five companies "
+                 "will be added to the Index: A (Nasdaq: NEW). The following five companies "
+                 "will be removed from the Index: B (Nasdaq: T000). These changes become "
+                 "effective prior to market open on Monday, June 22, 2026.")
+        notice=parse_ndx_release(release,"https://ir.nasdaq.com/n")
+        self.assertEqual(notice["effective_date"],"2026-06-22")
+        self.assertEqual(notice["added"],["US.NEW"])
+        self.assertEqual(notice["removed"],["US.T000"])
+        updated=apply_ndx_notices(baseline["symbols"],[notice],"2026-09-30")
+        self.assertEqual(len(updated),101)
+        self.assertIn("US.NEW",updated)
+        self.assertNotIn("US.T000",updated)
+
+    def test_ndx_single_replacement_and_add_only_notices_ignore_corporate_ticker(self):
+        first=("Nasdaq-100 Index. Nasdaq (Nasdaq: NDAQ) today announced that Lumentum Holdings "
+               "(Nasdaq: LITE) will become a component of the Nasdaq-100 Index replacing CoStar "
+               "(Nasdaq: CSGP) prior to market open on Monday, May 18, 2026.")
+        changed=parse_ndx_release(first,"https://ir.nasdaq.com/one")
+        self.assertEqual(changed["added"],["US.LITE"])
+        self.assertEqual(changed["removed"],["US.CSGP"])
+        second=("Nasdaq-100 Index. Nasdaq (Nasdaq: NDAQ) today announced that Space Exploration "
+                "(Nasdaq: SPCX) will become a component of the Nasdaq-100 Index prior to market open "
+                "on Tuesday, July 7, 2026.")
+        added=parse_ndx_release(second,"https://ir.nasdaq.com/two")
+        self.assertEqual(added["added"],["US.SPCX"])
+        self.assertEqual(added["removed"],[])
+
+    def test_shenzhen_notice_extracts_date_and_exact_adjustment(self):
+        page=("深圳证券交易所和深圳证券信息有限公司决定于2026年10月8日对深证成指实施样本股定期调整。"
+              "<h2>深证成份指数样本股调整名单</h2><table>"
+              "<tr><th>调入名单</th><th>简称</th><th>调出名单</th><th>简称</th></tr>"
+              "<tr><td>000969</td><td>新增</td><td>000401</td><td>剔除</td></tr></table>")
+        notice=parse_szse_shenzhen_notice(page,"https://www.szse.cn/disclosure/notice/t20260929_123.html")
+        self.assertEqual(notice["effective_date"],"2026-10-08")
+        self.assertEqual(notice["added"],["SZ.000969"])
+        self.assertEqual(notice["removed"],["SZ.000401"])
+
+    def test_dow_official_list_must_have_all_30_symbols(self):
+        rows="".join(f"<tr><td>Issuer {i}</td><td>T{i:02d}</td></tr>" for i in range(30))
+        page="<h1>Dow Jones Industrial Average</h1><table><tr><th>Constituent</th><th>Symbol</th></tr>"+rows+"</table>"
+        self.assertEqual(len(parse_spglobal_dow_list(page)),30)
+        with self.assertRaisesRegex(ValueError,"不完整"):
+            parse_spglobal_dow_list(page.replace(rows,rows[:rows.find("<tr>",10)]))
+
+    def test_ndx_official_article_requires_complete_unique_symbol_table(self):
+        rows="".join(f"<tr><td>Issuer {i}</td><td>T{i:03d}</td></tr>" for i in range(101))
+        page=("<h1>Understanding the Nasdaq-100 Index</h1><time datetime='2026-09-29'>"
+              "Sep 29, 2026</time><h2>Nasdaq-100 Company Breakdown</h2>"
+              "<table><tr><th>Company Name</th><th>Security Symbol</th></tr>"+rows+"</table>")
+        parsed=parse_ndx_official_list(page)
+        self.assertEqual(len(parsed["symbols"]),101)
+        self.assertEqual(parsed["source_date"],"2026-09-29")
+        self.assertIn("US.T000",parsed["symbols"])
+        self.assertEqual(parse_ndx_component_count("<dt># of Components</dt><dd>101</dd>"),101)
+        with self.assertRaisesRegex(ValueError,"重复"):
+            parse_ndx_official_list(page.replace("T100","T000"))
+        with self.assertRaisesRegex(ValueError,"不完整"):
+            parse_ndx_official_list(page.replace(rows,rows[:rows.find("<tr>",10)]))
+
+    def test_ndx_json_requires_all_reported_unique_securities(self):
+        rows=[{"symbol":f"T{i:03d}","companyName":f"Issuer {i}"} for i in range(101)]
+        body={"data":{"totalrecords":101,"limit":101,"offset":0,"date":"Sep 29, 2026",
+                      "data":{"rows":rows}}}
+        parsed=parse_ndx_api_list(body)
+        self.assertEqual(len(parsed["symbols"]),101)
+        self.assertEqual(parsed["source_date"],"2026-09-29")
+        with self.assertRaisesRegex(ValueError,"截断"):
+            parse_ndx_api_list({**body,"data":{**body["data"],"data":{"rows":rows[:-1]}}})
+        with self.assertRaisesRegex(ValueError,"重复"):
+            parse_ndx_api_list({**body,"data":{**body["data"],"data":{"rows":rows[:-1]+[rows[0]]}}})
+
+    def test_ndx_fetch_uses_official_json_and_rejects_count_mismatch(self):
+        class Reply:
+            def __init__(self,body):self.text=body
+            def json(self):return {"data":{"totalrecords":101,"limit":101,"offset":0,
+                "date":"Sep 29, 2026","data":{"rows":[{"symbol":f"T{i:03d}",
+                "companyName":f"Issuer {i}"} for i in range(101)]}}}
+        with patch("tools.breadth_sources.get",side_effect=[Reply("api"),Reply("<dt># of Components</dt><dd>101</dd>")]):
+            from tools.breadth_sources import fetch_members
+            symbols,source,meta=fetch_members("nasdaq100",futu=None)
+        self.assertEqual(len(symbols),101)
+        self.assertEqual(source,"https://api.nasdaq.com/api/quote/list-type/nasdaq100")
+        self.assertTrue(meta["official_current"])
+        with patch("tools.breadth_sources.get",side_effect=[Reply("api"),Reply("<dt># of Components</dt><dd>102</dd>")]):
+            with self.assertRaisesRegex(ValueError,"不符"):
+                fetch_members("nasdaq100",futu=None)
+
+    def test_ndx_futu_list_survives_official_network_outage(self):
+        class Futu:
+            def index_members(self,key):
+                self_test.assertEqual(key,"nasdaq100")
+                return [f"US.T{i:03d}" for i in range(101)]
+        self_test=self
+        from tools.breadth_sources import fetch_members
+        with patch("tools.breadth_sources.get",side_effect=requests.ConnectionError("offline")):
+            symbols,source,meta=fetch_members("nasdaq100",futu=Futu())
+        self.assertEqual(len(symbols),101)
+        self.assertEqual(source,"futu_opend:US.NDX")
+        self.assertTrue(meta["futu_verified"])
+
+    def test_ndx_future_official_notice_is_staged_from_current_api_list(self):
+        today=pd.Timestamp.now(tz="America/New_York")
+        effective=str((today+pd.Timedelta(days=7)).date())
+        class Reply:
+            text="<dt># of Components</dt><dd>101</dd>"
+            def json(self):return {"data":{"totalrecords":101,"limit":101,"offset":0,
+                "date":today.strftime("%b %d, %Y"),"data":{"rows":[{"symbol":f"T{i:03d}",
+                "companyName":f"Issuer {i}"} for i in range(101)]}}}
+        notice={"effective_date":effective,"added":["US.NEW"],"removed":["US.T000"],
+                "url":"https://ir.nasdaq.com/notice"}
+        archive={"notices":[notice],"archive_oldest_date":str((today-pd.Timedelta(days=45)).date())}
+        from tools.breadth_sources import fetch_members
+        with patch("tools.breadth_sources.get",return_value=Reply()), \
+             patch("tools.breadth_sources.fetch_ndx_notice_archive",return_value=archive):
+            symbols,_,meta=fetch_members("nasdaq100")
+        self.assertEqual(len(symbols),101)
+        self.assertEqual(meta["future_memberships"][0]["effective_date"],effective)
+        self.assertIn("US.NEW",meta["future_memberships"][0]["symbols"])
+
+    def test_domestic_futu_list_survives_official_file_outage(self):
+        class Futu:
+            def index_members(self,key):
+                return [f"SZ.{i:06d}" for i in range(500)]
+        from tools.breadth_sources import fetch_members
+        with patch("tools.breadth_sources.requests.Session",side_effect=requests.ConnectionError("offline")), \
+             patch("tools.breadth_sources.get",side_effect=requests.ConnectionError("offline")):
+            symbols,source,meta=fetch_members("shenzhen",futu=Futu())
+        self.assertEqual(len(symbols),500)
+        self.assertEqual(source,"futu_opend:SZ.399001")
+
+    def test_domestic_official_file_wins_when_futu_members_disagree(self):
+        class Futu:
+            def index_members(self,key):return [f"SZ.{i:06d}" for i in range(500)]
+        class Reply:
+            content=b"xls"
+        official=[f"SZ.{i:06d}" for i in range(1,501)]
+        from tools.breadth_sources import fetch_members
+        with patch("tools.breadth_sources.requests.Session",side_effect=requests.ConnectionError("direct offline")), \
+             patch("tools.breadth_sources.get",return_value=Reply()), \
+             patch("tools.breadth_sources.pd.read_excel",return_value=pd.DataFrame({"证券代码":["000001"]})), \
+             patch("tools.breadth_sources.parse_members",return_value=official), \
+             patch("tools.breadth_sources.fetch_shenzhen_notices",return_value=[]):
+            symbols,source,meta=fetch_members("shenzhen",futu=Futu())
+        self.assertEqual(symbols,official)
+        self.assertTrue(source.startswith("https://www.cnindex.com.cn/"))
+        self.assertEqual(meta["futu_difference"],2)
+
+    def test_futu_new_index_valuation_api_paginates_complete_list(self):
+        class Context:
+            def get_plate_stock(self,code):return -1,"unknown plate"
+            def get_valuation_plate_stock_list(self,code,next_key=None,num=None):
+                self_test.assertEqual(code,"US.NDX")
+                self_test.assertEqual(num,50)
+                offset=int(next_key or 0)
+                rows=[{"symbol":f"US.T{i:03d}"} for i in range(offset,min(offset+50,101))]
+                return 0,{"count":101,"stock_list":rows,
+                          "next_key":"-1" if offset+50>=101 else str(offset+50)}
+        self_test=self
+        futu=FutuBreadth()
+        with patch.object(futu,"connect",return_value=Context()),patch.object(futu,"throttle"):
+            self.assertEqual(len(futu.index_members("nasdaq100")),101)
+
     def test_eastmoney_us_daily_uses_direct_connection_and_adjusted_close(self):
         class Response:
             def raise_for_status(self):pass

@@ -121,6 +121,10 @@ def merge_document(a,b):
     kind=a["type"]
     newer=max([a,b],key=lambda x:(x.get("updated_at",""),json.dumps(x,sort_keys=True)))
     if kind=="snapshots":return newer
+    if kind=="direct_indicators" and any(a.get(field)!=b.get(field) for field in
+                                          ("source_id","universe","metric")):
+        # 不同授权源或成分口径的逐日值不可在跨主机同步时拼接。
+        return newer
     if kind=="prices":
         left={r["date"]:r for r in a.get("rows",[])};right={r["date"]:r for r in b.get("rows",[])}
         overlap=set(left)&set(right)
@@ -202,7 +206,7 @@ def merge_document(a,b):
         else:
             rows[key]=max([old,row],key=lambda x:(x.get("updated_at",""),json.dumps(x,sort_keys=True)))
     out=dict(newer,rows=[rows[k] for k in sorted(rows)])
-    if kind=="results":out["rows"]=out["rows"][-BREADTH_HISTORY_ROWS:]
+    if kind in {"results","direct_indicators"}:out["rows"]=out["rows"][-BREADTH_HISTORY_ROWS:]
     return out
 
 
@@ -255,6 +259,7 @@ class BreadthStore:
     def activate_pending(self,key,effective_date,evidence_url):
         """仅凭可审计的官方公告地址人工确认无法自动解析的调样生效日。"""
         allowed={"dow":("spglobal.com",),"nasdaq":("nasdaq.com","nasdaqtrader.com"),
+                 "nasdaq100":("nasdaq.com",),
                  "dividend":("csindex.com.cn",),"csi2000":("csindex.com.cn",),
                  "shenzhen":("cnindex.com.cn","szse.cn")}
         host=(urlparse(evidence_url).hostname or "").lower()
@@ -268,23 +273,30 @@ class BreadthStore:
         if current and (current.get("effective_date") or current["date"])>=date:
             raise ValueError("生效日期必须晚于当前名单的生效日期")
         row=self.save_members(key,pending["symbols"],pending["source"],pending["date"],
-                              pending.get("universe"),effective_date=date)
+                              pending.get("universe"),effective_date=date,evidence_url=evidence_url)
         doc=self.read("members",key);doc.pop("pending_membership",None)
         doc["effective_evidence_url"]=evidence_url
         self.write("members",key,doc)
         return row
-    def save_members(self,key,members,source,day,universe=None,effective_date="auto"):
-        symbols=sorted(set(members))
+    def save_members(self,key,members,source,day,universe=None,effective_date="auto",evidence_url=None):
+        # 源适配器通常已校验，但手动调用和模拟响应也不得绕过名单完整性底线。
+        if not members:raise ValueError("成分名单为空")
+        if len(members)!=len(set(members)):raise ValueError("成分名单含重复证券代码")
+        symbols=sorted(members)
         version=hashlib.sha256(((universe or key)+"|"+"|".join(symbols)).encode()).hexdigest()[:16]
         now=utc_now()
         if effective_date=="auto":effective_date=day
         row=dict(date=day,symbols=symbols,source=source,universe=universe or key,version=version,
                  discovered_at=now,last_verified_at=now,verified_date=day,effective_date=effective_date,updated_at=now)
+        if evidence_url:row["effective_evidence_url"]=evidence_url
         old=self.read("members",key)
-        previous=self.members(key,day)
+        # 预告多次未来调样时，增删事件必须相对上一生效版本，而非发现当日版本。
+        before=(pd.Timestamp(effective_date)-pd.Timedelta(days=1)).strftime("%Y-%m-%d") if effective_date else day
+        previous=self.members(key,before)
         existing=next((r for r in old.get("rows",[]) if r["symbols"]==symbols),None)
         if existing:
             existing=dict(existing,last_verified_at=now,verified_date=day,updated_at=now,source=source)
+            if evidence_url:existing["effective_evidence_url"]=evidence_url
             doc=dict(old,rows=[existing if r["symbols"]==symbols else r for r in old["rows"]],updated_at=now)
             if doc.get("pending_membership") and doc["pending_membership"].get("symbols")==symbols:
                 doc.pop("pending_membership",None)
@@ -297,11 +309,13 @@ class BreadthStore:
             self.write("members",key,dict(old,type="members",updated_at=now,pending_membership=row,
                                           rows=old.get("rows",[]),pit_start=old.get("pit_start",day)))
             return row
-        self.write("members",key,merge_document(old,dict(type="members",updated_at=now,rows=[row],pit_start=old.get("pit_start",day))))
+        self.write("members",key,merge_document(old,dict(type="members",updated_at=now,rows=[row],
+                                                      pit_start=old.get("pit_start") or effective_date)))
         if previous and previous["version"]!=version:
             event=dict(event_id=f"{effective_date}:{version}",date=effective_date,old_version=previous["version"],
                        new_version=version,added=sorted(set(symbols)-set(previous["symbols"])),
                        removed=sorted(set(previous["symbols"])-set(symbols)),source=source,updated_at=now)
+            if evidence_url:event["effective_evidence_url"]=evidence_url
             prior=self.read("membership_events",key)
             self.write("membership_events",key,merge_document(prior,dict(type="membership_events",rows=[event],updated_at=now)))
         return row
@@ -465,6 +479,10 @@ def draw_breadth(ax,frame):
     else:
         text=f"{metric_label}：数据不足"
     ax.text(RIGHT_METRIC_LABEL_X,.97,text,transform=ax.transAxes,ha="left",va="top",fontsize=8,color="#7652a0")
+    if display.get("backcast_end") and display.get("backcast_basis_date"):
+        # 回算只用于补足旧图曲线；明确标注采用首次核验名单，避免误认为逐日正式成分。
+        ax.text(.02,.02,f"历史50D按{display['backcast_basis_date']}成分回算",
+                transform=ax.transAxes,ha="left",va="bottom",fontsize=6.5,color="#7652a0")
     live=frame.loc[(frame.kind=="intraday") & frame.percent.notna()]
     if not live.empty:
         ax.scatter(pd.to_datetime(live.date),live.percent,facecolors="none",edgecolors="#8e44ad",s=34,zorder=6,label="盘中估算")

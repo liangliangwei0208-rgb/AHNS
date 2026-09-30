@@ -741,7 +741,8 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 # 大规模首次建库，1800秒后保存已有进度退出；再次运行自动续跑。
 & F:\anaconda\envs\py310\python.exe .\market_breadth.py --bootstrap --budget 1800
 # 指定市场；小电脑把解释器改为 D:\anaconda\envs\py310\python.exe
-& F:\anaconda\envs\py310\python.exe .\market_breadth.py --bootstrap --market nasdaq dow dividend shenzhen csi2000 --budget 1800
+& F:\anaconda\envs\py310\python.exe .\market_breadth.py --bootstrap --market nasdaq100 dow dividend shenzhen csi2000 --budget 1800
+& F:\anaconda\envs\py310\python.exe .\market_breadth.py --bootstrap --market nasdaq100 --budget 1800
 # 只读状态 / 日常增量 / 修复缺口
 & F:\anaconda\envs\py310\python.exe .\market_breadth.py --status
 & F:\anaconda\envs\py310\python.exe .\market_breadth.py --update
@@ -752,9 +753,11 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 
 A股收盘日线尚未到齐时，该交易日15:15之后（包括次日清晨）可用富途15:00正式时点快照补该日价格，按证券昨收与现价比例接续原复权基准；随后继续核验国内正式日线。北交所股票不送富途快照，由腾讯等国内日线补齐。只有至少50日有效价格且成分覆盖率达到95%才显示新值；未达到时，图右侧显示最近5个交易日内可信收盘值及日期，过期后提示数据不足，旧盘中点不会充当当前值。诊断文件记录快照来源、覆盖率和失败原因。
 
-纳斯达克的 `50D估` 使用纳斯达克官方上市目录按 COMP 证券类型过滤得到的**近似上市证券池**，不是精确 COMP 成分，也不替换为纳指100。官方 COMP 公布的成分数量和富途交易所静态池用于交叉核验；StockCharts `$NAA50R` 只存独立 benchmark，不与自算结果拼接。A股用对应指数完整成分（中证2000包含北交所），道指使用30只成分；收盘比较50根完整日线，盘中用前49日加最新价。上市不足50日仍在覆盖率分母，缺失、过期和不足50日的样本不能计为有效样本，低于95%不发布数值。
+纳斯达克图现用 `.NDX` 指数价格、RSI、BOLL 与 Nasdaq-100 成分的 50D 广度，图片路径仍为 `output/nasdaq_analysis.png`。`nasdaq100` 使用独立的成员、结果、快照和 `$NDXA50R` 对照缓存，共同证券的真实价格分片继续复用；旧 `nasdaq` Composite 缓存不改名、不删除。首次切换以 Nasdaq 官方 JSON 的 101 只证券、官方总览 101 只和真实价格 101/101 覆盖完成核验。以后约每15天复核成分：富途完整指数名单可优先使用；富途 NDX 不可用时使用 Nasdaq 官方 JSON，官网不可达但富途名单完整且与 101 只参考数量相差不超过5只时可继续使用富途。当前本机富途 SDK 对 `US.NDX` 和 `US.DJI` 的板块直查返回未知股票，故 NDX 使用 Nasdaq JSON。道指可用富途或 DIA 每日持仓候选，S&P DJI 页面可访问完整表时交叉核验。A股优先尝试富途对应指数，失败时读取原官方成分文件；本机已验证深证成指 500 只和中证2000 2000 只。收盘比较50根完整日线，盘中用前49日加最新价；覆盖率低于95%不发布新数值。
 
-成分缓存记录发现、验证、生效时间及调样事件。初次启用逐日版本前的旧历史保留并标记为“当前成分回算”；启用后只按当日生效名单计算，不以新名单重写既有正式收盘结果。官方文件出现新名单但没有可信生效日时保持待确认，可在核实官方公告后运行 `--activate-pending --market <市场> --effective-date YYYY-MM-DD --evidence-url <官方HTTPS公告>`。异常缩减或数量不对的名单不启用；`--repair` 才允许用修复后的有效价格更正已发布结果。图片不另加回算说明。
+NDX 图在 2026-09-29 正式成分版本之前的 50D 曲线，用首次核验的 101 只名单与真实历史价格回算；图内标注历史口径，缺少完整 50 日窗口或覆盖率不足 95% 的交易日留空。回算仅在绘图读取时生成，不写入正式结果，后来调样也不改变其基线。五市场绘图支持按交易日优先使用经核验且获准自动访问的同口径现成广度，缺口回退成分自算；现阶段没有登记此类直接源。`tools/configs/market_breadth_configs.py` 的 `BREADTH_DIRECT_INDICATOR_SOURCES` 只有确认许可、成分范围和指标定义后才能登记 `source_id`、`universe`、`access_approved=True`；适配器将带 `date`、`percent`、`kind`、`source`（盘中另带 `observed_at`）的记录保存到 `cache/market_breadth/direct_indicators/<市场>.json`。StockCharts 自动对照请求已停用，旧 `$NDXA50R` / `$NAA50R` 缓存只读留存，不参与绘图优先级。
+
+成分缓存记录发现、验证、生效时间、来源证据及调样事件。已知未来生效日的调入证券先下载真实日线，生效前不进入分母，调出证券价格缓存保留。初次启用逐日版本前的旧历史保留并标记为“当前成分回算”；启用后只按当日生效名单计算，不以新名单重写既有正式收盘结果。官方文件自带唯一生效日期，或正式公告中的调入、调出代码与新旧名单完全吻合时，可自动定时切换；深证成指会尝试核对深交所公开指数动态。Nasdaq IR 公告归档会尽力核验未来调样，但本机访问可能超时；中证公告检索尚未自动核验，缺少可信日期时保持待确认，可在核实官方公告后运行 `--activate-pending --market <市场> --effective-date YYYY-MM-DD --evidence-url <官方HTTPS公告>`。异常缩减、重复代码或数量不对的名单不启用；`--repair` 才允许用修复后的有效价格更正已发布结果。
 
 美股收盘优先尝试富途常规时段收盘快照，并按实际交易所日历处理提前收市；快照价格接续原复权基准、标记临时来源，正式日线到达后核对替换。美股建库及增量先试 Yahoo，遇到限流或连接失败依次试新浪美股前复权日线、东方财富美股直连日线；换源时重取整个价格窗口，避免混合复权基准。富途历史只修少量缺口，先查询额度并保留10只余量；快照分批不增加历史额度。国内腾讯、东方财富、新浪及北交所日线链保留。外部网络受限时保留可信旧值与日期，并在诊断中列出缺口，不用推造价格。
 

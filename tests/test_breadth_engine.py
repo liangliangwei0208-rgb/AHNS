@@ -1,12 +1,114 @@
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 import pandas as pd
 from tools.market_breadth import BreadthStore
-from tools.breadth_engine import refresh_market, market_clock, prepare_quotes, prepare_close_quotes, prepare_market_close_quotes, chart_data
+from tools.breadth_engine import refresh_market, market_clock, prepare_quotes, prepare_close_quotes, prepare_market_close_quotes, chart_data, price_download_plan, validate_membership_candidate, match_official_notice, stage_future_memberships
 
 class EngineTests(unittest.TestCase):
+    def test_membership_source_is_checked_every_fifteen_days(self):
+        store=BreadthStore(self.store.root/"member_cadence")
+        symbols=[f"US.T{i:02d}" for i in range(30)]
+        store.save_members("dow",symbols,"futu_opend:US.DJI","2026-09-30")
+        with patch("tools.breadth_engine.fetch_members",return_value=(symbols,"futu_opend:US.DJI",{})) as fetch:
+            refresh_market(store,"dow",pd.Timestamp("2026-10-14 08:00",tz="America/New_York"),
+                           deadline=time.monotonic()-1,use_futu=False)
+            self.assertEqual(fetch.call_count,0)
+            refresh_market(store,"dow",pd.Timestamp("2026-10-15 08:00",tz="America/New_York"),
+                           deadline=time.monotonic()-1,use_futu=False)
+            self.assertEqual(fetch.call_count,1)
+        self.assertEqual(store.read("members","dow")["last_member_check_date"],"2026-10-15")
+
+    def test_future_ndx_notices_stage_versions_in_date_order(self):
+        store=BreadthStore(self.store.root/"future_ndx")
+        current=[f"US.T{i:03d}" for i in range(101)]
+        store.save_members("nasdaq100",current,"https://www.nasdaq.com/NDX","2026-09-30")
+        first=current[1:]+["US.NEW"]
+        second=first[1:]+["US.NEXT"]
+        notices=[{"symbols":first,"effective_date":"2026-10-01","url":"https://ir.nasdaq.com/one",
+                  "added":["US.NEW"],"removed":[current[0]]},
+                 {"symbols":second,"effective_date":"2026-10-08","url":"https://ir.nasdaq.com/two",
+                  "added":["US.NEXT"],"removed":[current[1]]}]
+        stage_future_memberships(store,"nasdaq100",current,"2026-09-30",notices,"https://www.nasdaq.com/NDX")
+        self.assertEqual(store.members("nasdaq100","2026-09-30")["symbols"],current)
+        self.assertEqual(store.members("nasdaq100","2026-10-08")["symbols"],sorted(second))
+        events=store.read("membership_events","nasdaq100")["rows"]
+        self.assertEqual(events[-1]["removed"],[current[1]])
+
+    def test_source_outage_keeps_last_verified_membership_with_stale_diagnostic(self):
+        store=BreadthStore(self.store.root/"stale_official")
+        now=pd.Timestamp("2026-09-29 08:00",tz="America/New_York")
+        dates=market_clock("US",now)["sessions"][-50:]
+        store.save_members("dow",["US.A"],"https://www.spglobal.com/old",dates[0])
+        store.save_prices("US.A",pd.DataFrame({"date":dates,"close":[10.]*50}),"yahoo_adjclose")
+        report=refresh_market(store,"dow",now,refresh_members=False,use_futu=False)
+        self.assertGreater(report["membership_stale_days"],7)
+        self.assertEqual(report["latest"]["percent"],0.)
+
+    def test_five_markets_notice_match_requires_exact_tickers_and_official_host(self):
+        cases={"nasdaq100":("US.A","US.B","https://ir.nasdaq.com/n"),
+               "dow":("US.A","US.B","https://www.spglobal.com/n"),
+               "dividend":("SH.600001","SH.600002","https://www.csindex.com.cn/n"),
+               "csi2000":("SH.600001","SH.600002","https://www.csindex.com.cn/n"),
+               "shenzhen":("SZ.000001","SZ.000002","https://www.cnindex.com.cn/n")}
+        for key,(removed,added,url) in cases.items():
+            with self.subTest(key=key):
+                notice={"added":[added],"removed":[removed],"effective_date":"2026-10-08","url":url}
+                self.assertEqual(match_official_notice(key,[removed],[added],[notice]),("2026-10-08",url))
+                self.assertIsNone(match_official_notice(key,[removed],[added],[dict(notice,added=[removed])]))
+                self.assertIsNone(match_official_notice(key,[removed],[added],[dict(notice,url="https://example.com/n")]))
+
+    def test_ndx_requires_current_official_list_and_matching_count(self):
+        symbols=[f"US.T{i:03d}" for i in range(101)]
+        meta={"official_count":101,"source_date":"2026-08-17"}
+        with self.assertRaisesRegex(ValueError,"过期"):
+            validate_membership_candidate("nasdaq100",symbols,None,meta,"2026-09-30")
+        meta["source_date"]="2026-09-30"
+        meta["official_current"]=True
+        self.assertEqual(validate_membership_candidate("nasdaq100",symbols,None,meta,"2026-09-30"),"2026-09-30")
+        meta["source_date"]="2026-09-29"
+        self.assertEqual(validate_membership_candidate("nasdaq100",symbols,None,meta,"2026-09-30"),"2026-09-29")
+        meta["official_count"]=100
+        with self.assertRaisesRegex(ValueError,"不符"):
+            validate_membership_candidate("nasdaq100",symbols,None,meta,"2026-09-30")
+
+    def test_futu_ndx_can_be_used_without_nasdaq_and_with_five_share_tolerance(self):
+        symbols=[f"US.T{i:03d}" for i in range(96)]
+        meta={"official_count":101,"source_date":"2026-09-30","futu_verified":True}
+        self.assertEqual(validate_membership_candidate("nasdaq100",symbols,None,meta,"2026-09-30"),"2026-09-30")
+        with self.assertRaisesRegex(ValueError,"不符"):
+            validate_membership_candidate("nasdaq100",symbols[:-1],None,meta,"2026-09-30")
+
+    def test_large_membership_replacement_is_rejected(self):
+        old={"symbols":[f"US.A{i:02d}" for i in range(30)]}
+        new=[f"US.B{i:02d}" for i in range(30)]
+        with self.assertRaisesRegex(ValueError,"异常大幅"):
+            validate_membership_candidate("dow",new,old,{},"2026-09-30")
+
+    def test_exact_official_notice_dates_a_future_dow_change(self):
+        before=[f"US.T{i:02d}" for i in range(30)]
+        after=before[1:]+["US.NEW"]
+        url="https://www.spglobal.com/indices/notice"
+        meta={"official_notices":[{"added":["US.NEW"],"removed":[before[0]],
+                                   "effective_date":"2026-10-08","url":url}]}
+        effective=validate_membership_candidate("dow",after,{"symbols":before},meta,"2026-09-30")
+        self.assertEqual(effective,"2026-10-08")
+        self.assertEqual(meta["effective_evidence_url"],url)
+
+    def test_future_and_unknown_date_members_are_prewarmed_without_changing_active_denominator(self):
+        store=BreadthStore(self.store.root/"prewarm")
+        store.save_members("dow",["US.A","US.B"],"official","2026-09-25")
+        store.save_members("dow",["US.B","US.C"],"official","2026-09-29",effective_date="2026-10-01")
+        store.save_members("dow",["US.B","US.D"],"official","2026-09-29",effective_date=None)
+        active=store.members("dow","2026-09-30")
+        plan=price_download_plan(store,"dow",active,"2026-09-30","2026-09-29",False,False,True)
+        self.assertEqual(active["symbols"],["US.A","US.B"])
+        self.assertIn("US.C",plan["pending"])
+        self.assertIn("US.D",plan["pending"])
+        self.assertEqual(plan["prewarm_symbols"],["US.C","US.D"])
+
     def test_repair_fills_pre_activation_day_as_current_member_backcast(self):
         self.store=BreadthStore(self.store.root/"pre_activation")
         now=pd.Timestamp("2026-09-29 10:00",tz="America/New_York")

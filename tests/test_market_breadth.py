@@ -12,6 +12,15 @@ def price(values, start="2026-01-01"):
 
 
 class BreadthCalculationTests(unittest.TestCase):
+    def test_direct_indicator_merge_never_combines_different_sources(self):
+        old={"type":"direct_indicators","source_id":"one","universe":"dow30",
+             "metric":"percent_members_above_sma50","updated_at":"2026-09-29T00:00:00Z",
+             "rows":[{"date":"2026-09-28","percent":40,"kind":"close"}]}
+        new={"type":"direct_indicators","source_id":"two","universe":"dow30",
+             "metric":"percent_members_above_sma50","updated_at":"2026-09-30T00:00:00Z",
+             "rows":[{"date":"2026-09-29","percent":50,"kind":"close"}]}
+        self.assertEqual(merge_document(old,new),new)
+
     def test_strict_above_and_50_day_warmup(self):
         data={"A":price([10]*49+[11]), "B":price([10]*50)}
         out=calculate_history(data, ["A","B"], min_coverage=.95)
@@ -34,6 +43,17 @@ class BreadthCalculationTests(unittest.TestCase):
         out=calculate_history(data,["A","B"])
         self.assertTrue(pd.isna(out.iloc[-1].percent))
         self.assertEqual(out.iloc[-1].coverage,.5)
+
+    def test_exact_95_percent_coverage_publishes_but_90_does_not(self):
+        symbols=[f"US.T{i:02d}" for i in range(20)]
+        rows={code:price([10.]*49+[11.]) for code in symbols[:19]}
+        exact=calculate_history(rows,symbols,min_coverage=.95).iloc[-1]
+        self.assertEqual(exact.coverage,.95)
+        self.assertEqual(exact.percent,100.)
+        below=calculate_history({code:rows[code] for code in symbols[:18]},symbols,
+                                min_coverage=.95).iloc[-1]
+        self.assertEqual(below.coverage,.9)
+        self.assertTrue(pd.isna(below.percent))
 
     def test_missing_session_breaks_window_and_duplicates_do_not_count(self):
         df=price([10]*49+[11]); df=pd.concat([df.iloc[:20],df.iloc[21:],df.iloc[[-1]]])

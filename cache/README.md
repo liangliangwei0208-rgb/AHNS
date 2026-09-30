@@ -252,13 +252,16 @@
 ## 50DMA广度缓存
 
 - `market_breadth/prices/<市场.证券>.json`：同一复权基准下最多400个交易日，多个指数共用；`provisional_dates` 记录富途快照接续的临时收盘价，正式日线到达后逐日核对清除。来源/复权基准不兼容须重取窗口。
-- `market_breadth/members/<市场>.json`：`rows` 记录成分版本的发现、验证、生效日；`pending_membership` 保存生效日未核实的变化；`pit_start` 划定启用逐日成分口径的首日。道指及三个A股市场须完整名单；纳指官方上市目录过滤后的名单是**近似上市证券池**，不是精确 COMP 成分。
+- `market_breadth/members/<市场>.json`：`rows` 记录成分版本的发现、验证、生效日及来源证据；`pending_membership` 保存生效日未核实的变化；`pit_start` 划定逐日成分口径首日。成分约每15天复核，富途指数板块可用时优先；NDX 当前使用 Nasdaq 官方 JSON 的 101 只证券并与总览核对，富途 NDX 可用时允许最多5只差异。国内富途不可用时沿用官方成分文件；道指可用 DIA 持仓候选并与 S&P DJI 核对。旧 `nasdaq` 是独立的 COMP 近似池。
 - `market_breadth/membership_events/<市场>.json`：每次确认生效的调样事件及增删证券，跨主机按事件ID合并。
 - `market_breadth/results/<市场>.json`：最多400个广度记录，`kind=close/intraday` 区分收盘和盘中；`finality=snapshot_provisional` 不等于已核实正式日线；缺失值为null，不是0。旧结果标记 `current_members_backcast`，启用后结果标记 `point_in_time_membership`；已发布正式值只有显式 `--repair` 可更正。
-- `market_breadth/benchmarks/nasdaq_stockcharts.json`：StockCharts `$NAA50R` 独立参照数据，不与 `results/nasdaq.json` 的自算近似广度拼接。旧 `results/nasdaq_stockcharts.json` 仅作为历史遗留文件保留。
+- `market_breadth/benchmarks/nasdaq_stockcharts.json` 和 `nasdaq100_stockcharts.json`：保存既有 StockCharts `$NAA50R`、`$NDXA50R` 独立参照数据；不再自动请求，不参与绘图优先级。旧 `results/nasdaq_stockcharts.json` 仅保留。
+- `market_breadth/direct_indicators/<市场>.json`：预留获准自动使用的同成分口径直接广度，文件需含 `type=direct_indicators`、`source_id`、`universe`、`metric=percent_members_above_sma50` 及逐日 `date/percent/kind/source`；盘中行还需 `observed_at`。只有配置中登记 `access_approved=True` 的来源才会供绘图优先读取，当前无已登记来源；正式自算结果不受其覆盖。
+- NDX 在 `pit_start` 前的历史曲线从首次核验名单和真实价格分片即时回算，缺口及覆盖率不足95%的日期留空，图内标明历史口径；不写入 `results/nasdaq100.json`。
 - A股15:15之后可用富途15:00快照、美股按实际收市时间可用富途常规时段末尾快照，均按昨收比例接续原复权基准；后续正式日线核对。图表最多提示5个交易日内可信旧收盘值与日期，不复活过期盘中点。
 - 美股日线依次尝试 Yahoo、新浪美股前复权和东方财富直连；换源时重取完整窗口，不把不同复权口径拼接。限流或连接故障按本轮来源熔断，未补证券留待续跑。
-- `market_breadth/snapshots/<市场>.json`：最近一批快照，默认30分钟复用；原始报价时间控制有效性，不以文件修改时间替代。
+- `market_breadth/snapshots/<市场>.json`：最近一批快照，`nasdaq100` 与旧 `nasdaq` 分开；默认40分钟复用，原始报价时间控制有效性，不以文件修改时间替代。
+- 新发布值要求有效成分覆盖率至少95%；旧正式收盘值不因阈值改变而追改。未来或待确认调入证券可提前预热真实价格，生效前不进入分母，调出证券分片保留。
 - 生产者：`market_breadth.py`；读取：RSI绘图、`check_project.py`和`sync_repos.py`。
 - 所有业务分片参加Git三边同步；本机锁、连接配置和临时文件不提交。`market_breadth_local/`仅用于本机协调。
 - 合并价格先校验复权基准与重叠值；临时价和正式价冲突时正式价优先，不兼容时取较新完整快照。正式收盘结果优先于盘中值，不按后来成分版本回写既有历史。

@@ -6,6 +6,8 @@ RSI 图表配置。
 - 新增或停用关注标的时，优先改这里；`stock_analysis.py` 只负责执行配置。
 - 单图50D色带阈值可在对应项的 breadth_band_*_threshold 填数字；None 沿用全局值。
 """
+from copy import deepcopy
+from tools.configs.market_breadth_configs import NDX_CUTOVER_READY
 
 RSI_ANALYSIS_CONFIGS = [
     {'name': '道琼斯工业指数',
@@ -16,7 +18,7 @@ RSI_ANALYSIS_CONFIGS = [
                 'output_file': 'output/dow_jones_analysis.png',
                 'daily_rsi_window': 9,
                 'daily_rsi_high': 80,
-                'daily_rsi_low': 32,
+                'daily_rsi_low': 31,
                 'weekly_rsi_window': 9,
                 'weekly_rsi_high': 78,
                 'weekly_rsi_low': 33,
@@ -58,7 +60,7 @@ RSI_ANALYSIS_CONFIGS = [
             "output_file": "output/nasdaq_analysis.png",
             "daily_rsi_window": 9,
             "daily_rsi_high": 80,
-            "daily_rsi_low": 32,
+            "daily_rsi_low": 31,
             "weekly_rsi_window": 9,
             "weekly_rsi_high": 78,
             "weekly_rsi_low": 33,
@@ -280,4 +282,14 @@ RSI_ANALYSIS_CONFIGS = [
 ]
 
 
-__all__ = ["RSI_ANALYSIS_CONFIGS"]
+# 保留原布局参数，只替换图的指数代码、名称和广度命名空间。
+RSI_NASDAQ100_CONFIG = deepcopy(next(config for config in RSI_ANALYSIS_CONFIGS
+                                    if config["image"] == "output/nasdaq_analysis.png"))
+RSI_NASDAQ100_CONFIG["name"] = "纳斯达克100指数"
+RSI_NASDAQ100_CONFIG["kwargs"].update(symbol=".NDX", display_name="纳斯达克100指数",
+                                      breadth_key="nasdaq100")
+if NDX_CUTOVER_READY:
+    RSI_ANALYSIS_CONFIGS = [RSI_NASDAQ100_CONFIG if config["image"] == "output/nasdaq_analysis.png"
+                            else config for config in RSI_ANALYSIS_CONFIGS]
+
+__all__ = ["RSI_ANALYSIS_CONFIGS", "RSI_NASDAQ100_CONFIG"]

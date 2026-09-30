@@ -33,6 +33,7 @@ import time
 import requests
 
 from tools.configs.cache_policy_configs import RSI_CN_ETF_REALTIME_CACHE_MAX_AGE_DAYS
+from tools.configs.market_breadth_configs import NDX_CUTOVER_READY
 from tools.configs.market_calendar_configs import (
     MARKET_CALENDAR_NAMES,
     MARKET_CLOSE_BUFFER_HOURS,
@@ -49,6 +50,7 @@ VIX_STATE_BAND_POSITIVE_COLOR = "#00796B"
 VIX_STATE_LONG_WINDOW = 200
 VIX_STATE_SHORT_WINDOW = 20
 VIX_STATE_BAND_ALPHA = 0.88
+NDX_MIN_INDEX_HISTORY_ROWS = 220  # 图表与指标的最低真实日线长度，长预热请求可接受更多。
 _VIX_STATE_HISTORY_MEMORY_CACHE: dict[int, pd.DataFrame] = {}
 
 # 默认中文名称映射；可在 rsi_analyze_index(display_name=...) 中覆盖。
@@ -354,6 +356,10 @@ def _read_usable_index_cache(
         return None
 
     if cached is None or cached.empty:
+        return None
+    # NDX 图的月线 RSI 需要长历史；日期新鲜不代表预热窗口足够。
+    if symbol.upper() == ".NDX" and len(cached) < NDX_MIN_INDEX_HISTORY_ROWS:
+        print(f"[CACHE] NDX 历史不足: {len(cached)}/{NDX_MIN_INDEX_HISTORY_ROWS} -> {cache_file}")
         return None
 
     latest_date = pd.to_datetime(cached["date"], errors="coerce").max()
@@ -1485,6 +1491,8 @@ def get_index_akshare(
                 source="get_index_akshare",
                 ticker=symbol,
             )
+            if symbol.upper() == ".NDX" and len(df) < NDX_MIN_INDEX_HISTORY_ROWS:
+                raise RuntimeError(f"NDX 真实历史日线不足: {len(df)}/{NDX_MIN_INDEX_HISTORY_ROWS}")
 
             if use_cache:
                 cache_df = df
@@ -1508,6 +1516,8 @@ def get_index_akshare(
     if use_cache and cache_file.exists():
         print(f"[WARN] 联网获取 {symbol} 失败，改用本地缓存: {cache_file}")
         df = _read_cache(cache_file, days=days)
+        if symbol.upper() == ".NDX" and len(df) < NDX_MIN_INDEX_HISTORY_ROWS:
+            raise RuntimeError(f"NDX 真实历史日线不足: 缓存 {len(df)}/{NDX_MIN_INDEX_HISTORY_ROWS}; " + "; ".join(errors[-3:]))
 
         # 即使历史接口失败，只要实时 ETF 接口可用，也尝试合并今天盘中行情
         if include_realtime and _is_cn_etf_symbol(symbol):
@@ -2518,7 +2528,7 @@ def plot_analysis(
     plt.close(fig)
         
 def rsi_analyze_index(
-    symbol: str = ".IXIC",
+    symbol: str = ".NDX" if NDX_CUTOVER_READY else ".IXIC",
     display_name: Optional[str] = None,
     symbol_name_map: Optional[dict] = None,
     days: int = 180,
@@ -2593,7 +2603,7 @@ def rsi_analyze_index(
 
     hist = rsi_analyze_index(
         symbol=".IXIC",
-        days=180,
+        days=220 if NDX_CUTOVER_READY else 180,
         rsi_window=9,
         rsi_high=80,
         rsi_low=30,
@@ -2862,7 +2872,8 @@ analyze_index = rsi_analyze_index
 
 
 def main():
-    symbol = ".IXIC"  # 纳斯达克综合指数
+    # 独立入口与定时入口使用同一道切换开关。
+    symbol = ".NDX" if NDX_CUTOVER_READY else ".IXIC"
 
     hist = rsi_analyze_index(
         symbol=symbol,
@@ -2897,6 +2908,7 @@ def main():
         print_signal_dates_flag=True,
         save_signal_table=True,
         signal_table_file="output/rsi_signal_table.png",
+        breadth_key="nasdaq100" if NDX_CUTOVER_READY else "nasdaq",
     )
 
     return hist

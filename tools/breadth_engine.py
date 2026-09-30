@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 import pandas as pd
 import pandas_market_calendars as mcal
 from tools.market_breadth import BreadthStore, calculate_history, calculate_segmented_history, calculate_intraday, eligible_quote, utc_now
@@ -103,6 +104,115 @@ def prepare_market_close_quotes(store,members,quotes,now,day,previous_day,market
     return out
 
 
+def price_download_plan(store,key,member,day,complete_day,bootstrap,repair,initialized):
+    """调入证券先缓存真实日线；仅当日有效名单进入广度分母。"""
+    symbols=member["symbols"]
+    doc=store.read("members",key)
+    future=set()
+    for row in doc.get("rows",[]):
+        if (row.get("effective_date") or row["date"])>day:
+            future.update(row.get("symbols",[]))
+    future.update(doc.get("pending_membership",{}).get("symbols",[]))
+    prewarm=sorted(future-set(symbols))
+    pending=[];needs_bootstrap=0;missing_added=0
+    for code in symbols:
+        frame=store.prices(code)
+        if frame.empty:
+            needs_bootstrap+=1
+            if bootstrap or repair or (initialized and missing_added<10):
+                pending.append(code);missing_added+=1
+        elif (frame.iloc[-1].date<complete_day or
+              (bootstrap and len(frame)<400 and len(frame)>=50) or
+              (repair and (len(frame)<50 or bool(store.read("prices",code).get("provisional_dates"))))):
+            pending.append(code)
+    future_added=0
+    for code in prewarm:
+        frame=store.prices(code)
+        if frame.empty:
+            if bootstrap or repair or future_added<10:
+                pending.append(code);future_added+=1
+        elif frame.iloc[-1].date<complete_day or (bootstrap and 50<=len(frame)<400):
+            pending.append(code)
+    if bootstrap:
+        pending=[code for code in pending if not (store.read("prices",code).get("bootstrap_complete")
+                 and not store.prices(code).empty and store.prices(code).iloc[-1].date>=complete_day)]
+        pending.sort(reverse=True)
+    return dict(pending=pending,needs_bootstrap=needs_bootstrap,prewarm_symbols=prewarm,
+                prewarm_cached=sum(not store.prices(code).empty for code in prewarm))
+
+
+def match_official_notice(key,before,after,notices):
+    """公告必须同时精确解释调入、调出及生效日，不能仅凭标题或 ETF 差异猜测。"""
+    hosts={"nasdaq100":("nasdaq.com",),"dow":("spglobal.com",),
+           "dividend":("csindex.com.cn",),"csi2000":("csindex.com.cn",),
+           "shenzhen":("cnindex.com.cn","szse.cn")}
+    added=set(after)-set(before);removed=set(before)-set(after)
+    matches=[]
+    for notice in notices:
+        url=str(notice.get("url") or "")
+        parsed=urlparse(url);host=(parsed.hostname or "").lower()
+        if parsed.scheme!="https" or not any(host==suffix or host.endswith("."+suffix)
+                                                  for suffix in hosts.get(key,())):continue
+        if set(notice.get("added",[]))!=added or set(notice.get("removed",[]))!=removed:continue
+        if len(notice.get("added",[]))!=len(added) or len(notice.get("removed",[]))!=len(removed):continue
+        date=str(notice.get("effective_date") or "")
+        try:
+            if pd.Timestamp(date).strftime("%Y-%m-%d")!=date:continue
+        except (ValueError,TypeError):continue
+        matches.append((date,url))
+    if len({date for date,_ in matches})>1:raise ValueError("官方调样公告生效日相互矛盾")
+    return matches[0] if matches else None
+
+
+def stage_future_memberships(store,key,current,day,versions,source):
+    """公告已核实的未来版本提前入库；价格预热由统一下载计划处理。"""
+    previous=list(current);staged=[]
+    for item in sorted(versions,key=lambda row:row["effective_date"]):
+        symbols=item["symbols"];date=item["effective_date"]
+        if date<=day or (staged and date<=staged[-1]["effective_date"]):
+            raise ValueError("未来调样生效日重复或不晚于发现日")
+        expected=BREADTH_MARKETS[key].get("expected")
+        if not symbols or len(symbols)!=len(set(symbols)) or (expected and len(symbols)!=expected):
+            raise ValueError("未来调样名单为空、重复或数量不完整")
+        match=match_official_notice(key,previous,symbols,[item])
+        if match!=(date,item["url"]):raise ValueError("未来调样公告未逐代码核对")
+        ratio=len(set(symbols)^set(previous))/len(previous)
+        if ratio>BREADTH_MAX_MEMBER_CHANGE_RATIO.get(key,1):raise ValueError("未来调样异常大幅")
+        row=store.save_members(key,symbols,source,day,BREADTH_MARKETS[key]["universe"],
+                               effective_date=date,evidence_url=item["url"])
+        staged.append(row);previous=symbols
+    return staged
+
+
+def validate_membership_candidate(key,symbols,member,meta,day):
+    """严格拦截残缺或异常调样；没有官方日期证据的新版本只进 pending。"""
+    if not symbols or len(symbols)!=len(set(symbols)):
+        raise ValueError(f"{key} 成分名单为空或重复")
+    expected=BREADTH_MARKETS[key].get("expected")
+    if expected and len(symbols)!=expected:
+        raise ValueError(f"{key} 成分不完整: {len(symbols)}/{expected}")
+    if key=="nasdaq100":
+        count=meta.get("official_count")
+        tolerance=5 if meta.get("futu_verified") else 0
+        if not isinstance(count,int) or abs(count-len(symbols))>tolerance:
+            raise ValueError(f"NDX 官方总览数量与名单不符: {len(symbols)}/{count}")
+        if not (meta.get("official_current") or meta.get("futu_verified") or
+                meta.get("announcement_coverage_complete")):
+            raise ValueError("NDX 官方完整名单已过期，缺少基线至今全部调样公告核验")
+    if member and set(symbols)!=set(member["symbols"]):
+        ratio=len(set(symbols)^set(member["symbols"]))/len(member["symbols"])
+        limit=BREADTH_MAX_MEMBER_CHANGE_RATIO.get(key)
+        if limit is not None and ratio>limit:
+            raise ValueError(f"{key} 异常大幅调样: {ratio:.1%} > {limit:.0%}")
+        if not meta.get("effective_date"):
+            match=match_official_notice(key,member["symbols"],symbols,meta.get("official_notices",[]))
+            if match:meta["effective_date"],meta["effective_evidence_url"]=match
+        return meta.get("effective_date")
+    if member:return member.get("effective_date")
+    # 首次建库可使用官方名单自身的 as-of 日，避免将已核实的最近收盘日错标为发现日。
+    return meta.get("source_date") if meta.get("official_current") else day
+
+
 def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_members=True,deadline=None,use_futu=True,
                    source_health=None,shared_quotes=None,futu=None):
     spec=BREADTH_MARKETS[key];clock=market_clock(spec["market"],now)
@@ -110,22 +220,22 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
     report=dict(key=key,time=utc_now(),complete_day=clock["complete_day"],regular_session=clock["regular"],downloaded=0,needs_bootstrap=0,errors=[])
     source_health=source_health or SourceHealth()
     shared_quotes=shared_quotes if shared_quotes is not None else {}
-    if key=="nasdaq":
-        # 外部广度只作对照，失败不得阻止自算链路。
-        old_benchmark=store.read("benchmarks","nasdaq_stockcharts")
-        stamp=pd.to_datetime(old_benchmark.get("updated_at"),utc=True,errors="coerce")
-        age=(clock["now"]-stamp).total_seconds()/60 if pd.notna(stamp) else float("inf")
-        if not (0<=age<=max(15,min(60,BREADTH_SNAPSHOT_TTL_MINUTES))):
-            try:store.save_benchmark("nasdaq_stockcharts",fetch_stockcharts(spec["external"],clock),"stockcharts_NAA50R")
-            except Exception as e:report["errors"].append("StockCharts benchmark: "+str(e)[:160])
+    own_futu=futu is None
+    futu=futu or FutuBreadth()
+    # StockCharts 不允许未经批准的脚本自动取数；历史对照缓存仍可只读查看。
     member=store.members(key,clock["day"])
     member_doc=store.read("members",key)
     last_verified=member_doc.get("last_verified_date") or member.get("verified_date") or member.get("date")
-    if refresh_members and (not member or last_verified!=clock["day"]):
+    last_checked=member_doc.get("last_member_check_date") or last_verified
+    check_due=(not last_checked or (pd.Timestamp(clock["day"])-pd.Timestamp(last_checked)).days>=BREADTH_MEMBER_RECHECK_DAYS)
+    if refresh_members and (not member or check_due):
+        member_check_success=False
         try:
-            fetched=fetch_members(key)
+            fetched=fetch_members(key,futu=futu if use_futu else None)
             symbols,source=fetched[:2]
             source_meta=fetched[2] if len(fetched)>2 else {}
+            report["membership_source"]={k:v for k,v in source_meta.items()
+                                         if k not in {"official_notices","future_memberships"}}
             if key=="nasdaq":
                 count=len(symbols)
                 if not BREADTH_NASDAQ_PROXY_MIN_MEMBERS<=count<=BREADTH_NASDAQ_PROXY_MAX_MEMBERS:
@@ -136,48 +246,52 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
                 if member and len(set(symbols)^set(member["symbols"]))>len(member["symbols"])*BREADTH_NASDAQ_MAX_DAILY_CHANGE_RATIO:
                     raise ValueError("membership_anomaly: 纳指近似池单日变化异常")
                 report["membership_source"]={k:v for k,v in source_meta.items() if k!="symbols"}
-            if not member or symbols==member["symbols"]:
-                effective=member.get("effective_date") if member else clock["day"]
-            elif key=="nasdaq":
+            if key=="nasdaq" and member and symbols!=member["symbols"]:
                 effective=source_meta.get("source_date") if source_meta.get("source_date")==clock["day"] else None
             else:
-                # 成分文件可能提前披露调整，未知正式生效日时不得猜测。
-                effective=source_meta.get("effective_date")
-            staged=store.save_members(key,symbols,source,clock["day"],spec["universe"],effective_date=effective)
+                effective=validate_membership_candidate(key,symbols,member,source_meta,clock["day"])
+            staged=store.save_members(key,symbols,source,clock["day"],spec["universe"],effective_date=effective,
+                                      evidence_url=source_meta.get("effective_evidence_url") or
+                                      (source if source_meta.get("effective_date") else None))
+            future=(stage_future_memberships(store,key,symbols,clock["day"],
+                                              source_meta.get("future_memberships",[]),source)
+                    if effective is not None else [])
+            if future:report["future_memberships_staged"]=[{"version":row["version"],
+                 "effective_date":row["effective_date"],"count":len(row["symbols"])} for row in future]
             if effective is None and member:report["errors"].append("pending_membership: 新名单生效日期未核实")
             # 待确认名单不等于现行版本已复核，不能借此延长旧版本有效期。
             if effective is not None or not member or symbols==member["symbols"]:
                 store.write("members",key,dict(store.read("members",key),last_verified_date=clock["day"]))
             member=store.members(key,clock["day"])
-        except Exception as e:report["errors"].append(str(e))
+            member_check_success=True
+        except Exception as e:
+            report["errors"].append(str(e))
+            if member:
+                store.write("members",key,dict(store.read("members",key),
+                                               last_member_check_error=str(e)[:160]))
+        finally:
+            if member:
+                doc=dict(store.read("members",key),last_member_check_date=clock["day"])
+                if member_check_success:doc.pop("last_member_check_error",None)
+                store.write("members",key,doc)
     if not member:
         report["errors"].append("缺少经验证的完整成分名单")
+        if own_futu:futu.close()
         return report
     store.establish_pit_start(key,clock["day"])
     last_verified=store.read("members",key).get("last_verified_date") or member.get("verified_date") or member["date"]
-    if (pd.Timestamp(clock["day"])-pd.Timestamp(last_verified)).days>7:
-        report["errors"].append("成分名单超过7天未验证，停止发布新值")
-        return report
-    symbols=member["symbols"];pending=[]
+    report["membership_stale_days"]=max(0,(pd.Timestamp(clock["day"])-pd.Timestamp(last_verified)).days)
+    if report["membership_stale_days"]>BREADTH_MEMBER_RECHECK_DAYS:
+        # 官方来源暂不可达时沿用最后一版已验证名单，并在诊断中明确标示过期天数。
+        report["errors"].append(f"成分名单已 {report['membership_stale_days']} 天未验证，沿用最后一版")
+    symbols=member["symbols"]
     initialized=any(r.get("percent") is not None for r in store.read("results",key).get("rows",[]))
-    missing_added=0
-    for code in symbols:
-        frame=store.prices(code)
-        if frame.empty:
-            report["needs_bootstrap"]+=1
-            if bootstrap or repair or (initialized and missing_added<10):
-                pending.append(code);missing_added+=1
-        elif (frame.iloc[-1].date<clock["complete_day"] or
-              (bootstrap and len(frame)<400 and len(frame)>=50) or
-              (repair and (len(frame)<50 or bool(store.read("prices",code).get("provisional_dates"))))):
-            pending.append(code)
-    # 已下载上市不足400天的证券也算建库完成，避免每天无限重拉。
-    if bootstrap:
-        pending=[c for c in pending if not (store.read("prices",c).get("bootstrap_complete") and not store.prices(c).empty and store.prices(c).iloc[-1].date>=clock["complete_day"])]
-        # 重跑时从另一端开始，避免少数永久失败的早序代码反复占用预算。
-        pending.sort(reverse=True)
-    own_futu=futu is None
-    futu=futu or FutuBreadth();failures=[];snapshot_codes=set()
+    plan=price_download_plan(store,key,member,clock["day"],clock["complete_day"],bootstrap,repair,initialized)
+    pending=plan["pending"]
+    report["needs_bootstrap"]=plan["needs_bootstrap"]
+    report["prewarm"]={"symbols":plan["prewarm_symbols"],"cached":plan["prewarm_cached"],
+                       "missing":len(plan["prewarm_symbols"])-plan["prewarm_cached"]}
+    failures=[];snapshot_codes=set()
     if use_futu and hasattr(futu,"refresh_quota") and not getattr(futu,"quota_checked_at",None) and time.monotonic()+5<deadline:
         try:futu.refresh_quota()
         except Exception as e:report["errors"].append("富途额度查询不可用: "+str(e)[:160])
@@ -347,8 +461,8 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
         report["futu_quota"]=(dict(checked_at=futu.quota_checked_at,remaining=futu.remaining,
                                    used_count=len(futu.used),reserve=BREADTH_FUTU_RESERVE)
                               if getattr(futu,"quota_checked_at",None) else {"checked":False})
-        if key=="nasdaq":
-            benchmark=store.benchmark("nasdaq_stockcharts")
+        if key in {"nasdaq","nasdaq100"}:
+            benchmark=store.benchmark(key+"_stockcharts")
             same=benchmark.loc[(benchmark.date==clock["complete_day"]) & (benchmark.kind=="close")] if not benchmark.empty else pd.DataFrame()
             latest=report["latest"]
             if not same.empty and latest.get("date")==clock["complete_day"] and latest.get("percent") is not None:
@@ -356,6 +470,8 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
                                      "difference_pp":float(latest["percent"])-float(same.iloc[-1].percent)}
     finally:
         if own_futu:futu.close()
+    report["prewarm"]["cached"]=sum(not store.prices(code).empty for code in plan["prewarm_symbols"])
+    report["prewarm"]["missing"]=len(plan["prewarm_symbols"])-report["prewarm"]["cached"]
     report["needs_bootstrap"]=sum(store.prices(c).empty for c in symbols)
     return report
 
@@ -373,13 +489,69 @@ def refresh_for_charts(root=None):
     except subprocess.TimeoutExpired:print("[WARN] 广度采集已到时间预算，继续使用已保存数据。")
 
 
+def _ndx_chart_backcast(store,dates,clock):
+    """绘图时按首次核验名单回算早期历史，不向正式 results 写入数据。"""
+    doc=store.read("members","nasdaq100")
+    pit_start=doc.get("pit_start")
+    versions=doc.get("rows",[])
+    sessions=clock.get("sessions",[])[-BREADTH_HISTORY_ROWS:]
+    if not pit_start or not versions or not sessions:return pd.DataFrame()
+    baseline=min(versions,key=lambda r:(r.get("effective_date") or r["date"],r["date"],r["version"]))
+    prices={code:store.prices(code) for code in baseline["symbols"]}
+    frame=calculate_history(prices,baseline["symbols"],BREADTH_MIN_COVERAGE,sessions)
+    start=str(pd.to_datetime(dates).min().date())
+    frame=frame.loc[frame.date.between(start,str(pd.Timestamp(pit_start)-pd.Timedelta(days=1))[:10])].copy()
+    if frame.empty:return frame
+    # 临时收盘价会影响其后 50 根均线；这段历史只能留空，不能冒充真实日线。
+    provisional={day for code in baseline["symbols"] for day in store.read("prices",code).get("provisional_dates",[])}
+    affected=set()
+    for index,day in enumerate(sessions):
+        if day in provisional:affected.update(sessions[index:index+50])
+    frame.loc[frame.date.isin(affected),"percent"]=float("nan")
+    frame["membership_version"]=baseline["version"]
+    frame["membership_policy"]="current_members_backcast"
+    frame["source"]="self_calculated_backcast"
+    frame["finality"]="chart_only"
+    return frame
+
+
+def _approved_direct_rows(store,key,clock):
+    """配置登记即表示来源口径与访问许可已核验；缓存自身仍须逐行校验。"""
+    approved=BREADTH_DIRECT_INDICATOR_SOURCES.get(key)
+    if not approved or approved.get("access_approved") is not True or \
+            approved.get("universe")!=BREADTH_MARKETS[key]["universe"]:return []
+    try:doc=store.read("direct_indicators",key)
+    except (OSError,ValueError,TypeError):return []
+    source=approved.get("source_id")
+    if not source or doc.get("type")!="direct_indicators" or doc.get("source_id")!=source or \
+            doc.get("universe")!=approved["universe"] or doc.get("metric")!="percent_members_above_sma50":return []
+    if not isinstance(doc.get("rows"),list):return []
+    rows=[];seen=set()
+    for row in doc.get("rows",[]):
+        try:
+            day=row["date"];kind=row["kind"];percent=float(row["percent"])
+            if str(pd.Timestamp(day).date())!=day or kind not in {"close","intraday"} or \
+                    not math.isfinite(percent) or not 0<=percent<=100 or row.get("source")!=source:continue
+            if kind=="close":
+                if day>clock["complete_day"] or day not in clock.get("sessions",[]):continue
+            else:
+                raw_time=row.get("observed_at")
+                if not raw_time or pd.Timestamp(raw_time).tzinfo is None:continue
+                observed=pd.to_datetime(raw_time,utc=True,errors="coerce")
+                age=(clock["now"]-observed).total_seconds() if pd.notna(observed) else float("inf")
+                if not clock.get("regular") or day!=clock["day"] or not -60<=age<=3600:continue
+            if day in seen:continue
+            seen.add(day)
+            rows.append(dict(row,percent=percent,membership_policy="verified_direct_indicator",
+                             finality="chart_only"))
+        except (KeyError,ValueError,TypeError,OverflowError):continue
+    return sorted(rows,key=lambda row:row["date"])
+
+
 def chart_data(key,dates,root=None):
     project=Path(__file__).resolve().parents[1]
     store=BreadthStore(root or project/"cache"/"market_breadth")
     frame=store.results(key)
-    if frame.empty:
-        frame.attrs["breadth_display"]={"approximate":key=="nasdaq"}
-        return frame
     clock=market_clock(BREADTH_MARKETS[key]["market"])
     start=str(pd.to_datetime(dates).min().date());end=max(str(pd.to_datetime(dates).max().date()),clock["day"])
     frame=frame.loc[frame.date.between(start,end)].copy()
@@ -388,6 +560,30 @@ def chart_data(key,dates,root=None):
         observed=pd.to_datetime(row.get("observed_at"),utc=True,errors="coerce")
         age=(clock["now"]-observed).total_seconds() if pd.notna(observed) else float("inf")
         if row.date!=clock["day"] or not -60<=age<=3600:frame.loc[index,"percent"]=None
+    self_values={row.date:row.percent for row in frame.itertuples() if pd.notna(row.percent)}
+    if key=="nasdaq100":
+        backcast=_ndx_chart_backcast(store,dates,clock)
+        if not backcast.empty:
+            added=backcast.loc[~backcast.date.isin(frame.date)]
+            frame=added if frame.empty else pd.concat([added,frame],ignore_index=True)
+    direct=_approved_direct_rows(store,key,clock)
+    if direct:
+        direct_frame=pd.DataFrame(direct)
+        frame=pd.concat([frame.loc[~frame.date.isin(direct_frame.date)],direct_frame],ignore_index=True)
+    frame=frame.loc[frame.date.between(start,end)].sort_values("date").reset_index(drop=True)
+    source_counts=frame.loc[frame.percent.notna(),"source"].fillna("self_calculated").value_counts().to_dict() if not frame.empty else {}
+    backcast_rows=frame.loc[(frame.get("membership_policy")=="current_members_backcast") & frame.percent.notna()] if not frame.empty else frame
+    direct_difference=None
+    for row in reversed(direct):
+        if row["date"] in self_values:
+            direct_difference=row["percent"]-float(self_values[row["date"]]);break
+    common=dict(approximate=key=="nasdaq",source_counts=source_counts,
+                backcast_start=backcast_rows.iloc[0].date if not backcast_rows.empty else None,
+                backcast_end=backcast_rows.iloc[-1].date if not backcast_rows.empty else None,
+                backcast_basis_date=store.read("members","nasdaq100").get("pit_start") if key=="nasdaq100" and not backcast_rows.empty else None,
+                backcast_valid_rows=len(backcast_rows),
+                backcast_latest_coverage=float(backcast_rows.iloc[-1].coverage) if not backcast_rows.empty else None,
+                difference_pp=direct_difference)
     valid=frame.loc[frame.percent.notna()]
     if not valid.empty:
         latest=valid.iloc[-1]
@@ -395,8 +591,8 @@ def chart_data(key,dates,root=None):
                  latest.kind=="close" and latest.date==clock["complete_day"])
         sessions=clock.get("sessions",[])
         age=sum(latest.date<day<=clock.get("complete_day",clock["day"]) for day in sessions)
-        frame.attrs["breadth_display"]={"current":current,"age_sessions":age,"approximate":key=="nasdaq",
-                                          "last_valid_date":latest.date,
-                                          "max_age_sessions":BREADTH_FALLBACK_MAX_SESSIONS}
-    else:frame.attrs["breadth_display"]={"approximate":key=="nasdaq"}
+        frame.attrs["breadth_display"]=dict(common,current=current,age_sessions=age,
+                                          last_valid_date=latest.date,latest_source=latest.get("source"),
+                                          max_age_sessions=BREADTH_FALLBACK_MAX_SESSIONS)
+    else:frame.attrs["breadth_display"]=common
     return frame

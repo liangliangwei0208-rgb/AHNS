@@ -11,7 +11,7 @@ import threading
 import time
 import warnings
 from datetime import datetime, timezone
-from urllib.parse import quote
+from urllib.parse import quote, urljoin, urlparse
 import pandas as pd
 import requests
 from tools.market_breadth import clean_prices, eligible_quote
@@ -121,7 +121,299 @@ def parse_comp_component_count(content):
     return count
 
 
-def fetch_members(key):
+def parse_ndx_component_count(content):
+    """只接受 Nasdaq 指数总览公布的证券数，不能把 100 家公司误当证券数。"""
+    plain=html.unescape(re.sub(r"<[^>]+>"," ",content))
+    match=re.search(r"#\s*of\s*Components\s*:?\s*([\d,]+)",re.sub(r"\s+"," ",plain),re.I)
+    if not match:raise ValueError("NDX 官方总览未给出成分证券数")
+    count=int(match[1].replace(",",""))
+    if not 100<=count<=110:raise ValueError(f"NDX 官方成分证券数异常: {count}")
+    return count
+
+
+def parse_ndx_api_list(payload):
+    """官方 JSON 必须一次返回全部证券；totalrecords 是完整性校验。"""
+    data=payload.get("data") if isinstance(payload,dict) else None
+    if not isinstance(data,dict):raise ValueError("NDX 官方 JSON 缺少 data")
+    rows=data.get("data",{}).get("rows") if isinstance(data.get("data"),dict) else None
+    count=data.get("totalrecords")
+    if not isinstance(count,int) or not 100<=count<=110 or not isinstance(rows,list):
+        raise ValueError("NDX 官方 JSON 成分数量或 rows 异常")
+    if data.get("offset")!=0 or data.get("limit",0)<count or len(rows)!=count:
+        raise ValueError(f"NDX 官方 JSON 名单截断: {len(rows) if rows is not None else 0}/{count}")
+    codes=[]
+    for row in rows:
+        code=row.get("symbol") if isinstance(row,dict) else None
+        if not isinstance(code,str) or not re.fullmatch(r"[A-Z][A-Z0-9.\-]{0,11}",code):
+            raise ValueError("NDX 官方 JSON 含无效证券代码")
+        codes.append(code)
+    if len(codes)!=len(set(codes)):raise ValueError("NDX 官方 JSON 含重复证券代码")
+    try:source_date=pd.Timestamp(data["date"]).strftime("%Y-%m-%d")
+    except (KeyError,ValueError,TypeError) as error:
+        raise ValueError("NDX 官方 JSON 缺少有效名单日期") from error
+    return {"symbols":sorted("US."+code for code in codes),"source_date":source_date,
+            "official_count":count}
+
+
+def parse_ndx_official_list(content):
+    """解析 Nasdaq 自有网站公开的完整证券表；ETF 持仓不进入此入口。"""
+    if "Nasdaq-100 Company Breakdown" not in content:
+        raise ValueError("NDX 官方文章缺少完整成分表标题")
+    stamp=re.search(r"<time\b[^>]*datetime=[\"'](\d{4}-\d{2}-\d{2})",content,re.I)
+    if not stamp:raise ValueError("NDX 官方名单没有可核验发布日期")
+    source_date=stamp[1]
+    try:pd.Timestamp(source_date)
+    except ValueError as error:raise ValueError("NDX 官方名单日期无效") from error
+    try:tables=pd.read_html(io.StringIO(content),match="Security Symbol")
+    except ValueError as error:raise ValueError("NDX 官方名单没有证券代码表") from error
+    matches=[table for table in tables if {"Company Name","Security Symbol"}.issubset(map(str,table.columns))]
+    if len(matches)!=1:raise ValueError("NDX 官方成分表不唯一或字段异常")
+    raw=matches[0]["Security Symbol"].astype(str).str.strip().str.upper().tolist()
+    if any(not re.fullmatch(r"[A-Z][A-Z0-9.\-]{0,11}",code) for code in raw):
+        raise ValueError("NDX 官方成分表含无效证券代码")
+    if len(set(raw))!=len(raw):raise ValueError("NDX 官方成分表含重复证券代码")
+    if not 100<=len(raw)<=110:raise ValueError(f"NDX 官方成分表不完整: {len(raw)}")
+    return {"symbols":sorted("US."+code for code in raw),"source_date":source_date}
+
+
+def parse_ndx_pdf_baseline(content):
+    """从 Nasdaq 官方名单 PDF 的文本提取有日期的证券基线。"""
+    if not re.search(r"Ticker\s*:\s*NDX\b",content):raise ValueError("不是 Nasdaq NDX 官方名单")
+    stamp=re.search(r"Data\s+as\s+of\s*:\s*(\d{1,2}/\d{1,2}/\d{4})",content,re.I)
+    if not stamp:raise ValueError("NDX PDF 缺少 as-of 日期")
+    source_date=pd.Timestamp(stamp[1]).strftime("%Y-%m-%d")
+    entries=[]
+    for line in content.splitlines():
+        match=re.match(r"^.+\s+([A-Z][A-Z0-9.\-]{0,11})\s+(\d{1,2}(?:\.\d{1,4})?)\s*$",line.strip())
+        if match:entries.append((match[1],float(match[2])))
+    codes=[code for code,_ in entries]
+    if len(codes)!=len(set(codes)):raise ValueError("NDX PDF 成分代码重复")
+    if not 100<=len(codes)<=110:raise ValueError(f"NDX PDF 名单不完整: {len(codes)}")
+    weight=sum(value for _,value in entries)
+    if not 95<=weight<=105:raise ValueError(f"NDX PDF 权重合计异常: {weight:.2f}")
+    return {"symbols":sorted("US."+code for code in codes),"source_date":source_date,
+            "weight_sum":round(weight,4)}
+
+
+def parse_ndx_release(content,url):
+    """官方公告只解析明确写出代码和开市前生效日的调样。"""
+    plain=html.unescape(re.sub(r"<[^>]+>"," ",content))
+    plain=re.sub(r"\s+"," ",plain)
+    if not re.search(r"Nasdaq.100 Index",plain,re.I):raise ValueError("不是 NDX 调样公告")
+    stamp=re.search(r"prior to market open on \w+,\s+([A-Z][a-z]+ \d{1,2}, \d{4})",plain,re.I)
+    if not stamp:raise ValueError("NDX 公告没有明确生效日")
+    effective=pd.Timestamp(stamp[1]).strftime("%Y-%m-%d")
+    add_section=re.search(r"following\s+\w+\s+companies will be added to the Index:\s*(.*?)(?:The following|For additional|$)",plain,re.I)
+    remove_section=re.search(r"following\s+\w+\s+companies will be removed from the Index:\s*(.*?)(?:For additional|$)",plain,re.I)
+    ticker_pattern=r"\(Nasdaq:\s*([A-Z][A-Z0-9.\-]{0,11})\)"
+    if add_section:
+        added=re.findall(ticker_pattern,add_section[1],re.I)
+        removed=re.findall(ticker_pattern,remove_section[1],re.I) if remove_section else []
+    else:
+        entry=re.search(r"\(Nasdaq:\s*([A-Z][A-Z0-9.\-]{0,11})\)\s+will become a component of the Nasdaq.100",plain,re.I)
+        if not entry:raise ValueError("NDX 公告未列调入代码")
+        added=[entry[1]]
+        replacement=re.search(r"\breplacing\s+.{0,120}?\(Nasdaq:\s*([A-Z][A-Z0-9.\-]{0,11})\)",plain[entry.end():stamp.start()],re.I)
+        removed=[replacement[1]] if replacement else []
+    if not added or len(set(added))!=len(added) or len(set(removed))!=len(removed):
+        raise ValueError("NDX 公告代码缺失或重复")
+    return {"added":sorted("US."+code.upper() for code in added),
+            "removed":sorted("US."+code.upper() for code in removed),
+            "effective_date":effective,"url":url}
+
+
+def apply_ndx_notices(baseline,notices,day):
+    """只把已生效且逐项可核对的官方公告叠加到历史基线。"""
+    symbols=set(baseline)
+    for notice in sorted(notices,key=lambda row:(row["effective_date"],row["url"])):
+        if notice["effective_date"]>day:continue
+        added=set(notice["added"]);removed=set(notice["removed"])
+        if not removed.issubset(symbols) or added.intersection(symbols-removed):
+            raise ValueError(f"NDX 公告增删与基线不一致: {notice['url']}")
+        symbols=(symbols-removed)|added
+        if not 100<=len(symbols)<=110:raise ValueError("NDX 公告更新后成分数量异常")
+    return sorted(symbols)
+
+
+def parse_ndx_archive_page(content):
+    """IR 归档每页必须给出日期；扫描到基线日以前才算公告覆盖完整。"""
+    dates=[];urls=[];release_dates={}
+    for row in re.findall(r"<tr\b[^>]*>.*?</tr>",content,re.I|re.S):
+        plain=html.unescape(re.sub(r"<[^>]+>"," ",row))
+        stamp=re.search(r"\b([A-Z][a-z]{2} \d{1,2}, \d{4})\b",plain)
+        if not stamp:continue
+        published=pd.Timestamp(stamp[1]).strftime("%Y-%m-%d")
+        dates.append(published)
+        for href,title in re.findall(r"<a\b[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>",row,re.I|re.S):
+            label=html.unescape(re.sub(r"<[^>]+>"," ",title))
+            if not re.search(r"Nasdaq.100",label,re.I) or not re.search(r"join|changes|remove|add|component|replac",label,re.I):
+                continue
+            url=urljoin("https://ir.nasdaq.com",href)
+            host=(urlparse(url).hostname or "").lower()
+            if host=="ir.nasdaq.com":
+                urls.append(url);release_dates[url]=published
+    if not dates:raise ValueError("Nasdaq IR 公告归档缺少可解析日期")
+    return {"oldest_date":min(dates),"release_urls":list(dict.fromkeys(urls)),
+            "release_dates":release_dates}
+
+
+def fetch_ndx_notice_archive(source_date,max_pages=30):
+    """遍历 Nasdaq IR 官方归档直到基线日前；任何缺页都拒绝声称覆盖完整。"""
+    urls=[];oldest=None
+    for page in range(max_pages):
+        archive=f"https://ir.nasdaq.com/news-and-events/press-releases?NumberPerPage=100&mobile=1&page={page}"
+        parsed=parse_ndx_archive_page(get(archive).text)
+        if oldest and parsed["oldest_date"]>=oldest:
+            raise ValueError("Nasdaq IR 公告归档分页未推进")
+        oldest=parsed["oldest_date"]
+        urls.extend(url for url in parsed["release_urls"]
+                    if parsed["release_dates"][url]>=source_date)
+        if oldest<=source_date:break
+    else:raise ValueError("Nasdaq IR 公告归档未覆盖 PDF 基线日期")
+    notices=[]
+    for url in dict.fromkeys(urls):
+        notices.append(parse_ndx_release(get(url).text,url))
+    return {"notices":notices,"archive_oldest_date":oldest,"archive_pages":page+1}
+
+
+def extract_ndx_pdf_text(payload):
+    try:from pypdf import PdfReader
+    except ImportError as error:raise RuntimeError("NDX 官方 PDF 基线解析需要 pypdf 依赖") from error
+    reader=PdfReader(io.BytesIO(payload))
+    return "\n".join(page.extract_text() or "" for page in reader.pages)
+
+
+def parse_spglobal_dow_list(content):
+    """只认 S&P DJI 页面完整的30只正式成分；前十展示或 DIA 持仓均不够。"""
+    if "Dow Jones Industrial Average" not in content:
+        raise ValueError("道指官方页面标题异常")
+    try:tables=pd.read_html(io.StringIO(content),match="Symbol")
+    except ValueError as error:raise ValueError("道指官方页面未公开完整成分表") from error
+    matches=[table for table in tables if {"Constituent","Symbol"}.issubset(map(str,table.columns))]
+    if len(matches)!=1:raise ValueError("道指官方成分表不唯一或缺失")
+    raw=matches[0]["Symbol"].astype(str).str.strip().str.upper().tolist()
+    if len(raw)!=30:raise ValueError(f"道指官方成分不完整: {len(raw)}/30")
+    if len(set(raw))!=30 or any(not re.fullmatch(r"[A-Z][A-Z0-9.\-]{0,11}",code) for code in raw):
+        raise ValueError("道指官方成分代码重复或无效")
+    return sorted("US."+code for code in raw)
+
+
+def parse_szse_shenzhen_notice(content,url):
+    """深交所公告须同时列出逐只调入调出和明确实施日。"""
+    plain=html.unescape(re.sub(r"<[^>]+>"," ",content))
+    match=re.search(r"决定于\s*(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日",plain)
+    if not match:raise ValueError("深证成指公告未给出明确实施日")
+    effective=f"{int(match[1]):04d}-{int(match[2]):02d}-{int(match[3]):02d}"
+    pd.Timestamp(effective)
+    heading=re.search(r"深证成份?指数样本股调整名单",content)
+    if not heading:raise ValueError("公告没有深证成指专属调整表")
+    table=re.search(r"<table\b[^>]*>.*?</table>",content[heading.end():],re.I|re.S)
+    if not table:raise ValueError("深证成指公告缺少调整表")
+    added=[];removed=[]
+    for row in re.findall(r"<tr\b[^>]*>.*?</tr>",table[0],re.I|re.S):
+        cells=[html.unescape(re.sub(r"<[^>]+>","",cell)).strip() for cell in
+               re.findall(r"<t[dh]\b[^>]*>.*?</t[dh]>",row,re.I|re.S)]
+        if len(cells)<3:continue
+        if re.fullmatch(r"\d{6}",cells[0]) and re.fullmatch(r"\d{6}",cells[2]):
+            added.append("SZ."+cells[0]);removed.append("SZ."+cells[2])
+    if not added or len(added)!=len(removed) or len(added)!=len(set(added)) or len(removed)!=len(set(removed)):
+        raise ValueError("深证成指公告调样代码不完整或重复")
+    return {"added":sorted(added),"removed":sorted(removed),"effective_date":effective,"url":url}
+
+
+def fetch_shenzhen_notices():
+    """从深交所公开指数动态中寻找可逐代码核对的成分调整公告。"""
+    index="https://www.szse.cn/marketServices/message/index/dynamic/"
+    page=get(index).text
+    candidates=[]
+    for href,label in re.findall(r"<a\b[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>",page,re.I|re.S):
+        title=html.unescape(re.sub(r"<[^>]+>","",label))
+        url=urljoin(index,href)
+        host=(urlparse(url).hostname or "").lower()
+        if "调整深证成指" in title and (host=="szse.cn" or host.endswith(".szse.cn")) and url.endswith(".html"):
+            candidates.append(url)
+    notices=[]
+    for url in list(dict.fromkeys(candidates))[:3]:
+        try:notices.append(parse_szse_shenzhen_notice(get(url).text,url))
+        except (ValueError,requests.RequestException):continue
+    return notices
+
+
+def fetch_members(key,futu=None):
+    if key=="nasdaq100":
+        # 先试本机富途；官方接口不可达时，经数量校验的富途名单仍可独立使用。
+        futu_symbols=None;futu_error=None
+        if futu is not None:
+            try:futu_symbols=futu.index_members("nasdaq100")
+            except Exception as error:futu_error=str(error)[:160]
+        url="https://api.nasdaq.com/api/quote/list-type/nasdaq100"
+        official=None;official_error=None
+        try:official=parse_ndx_api_list(get(url).json())
+        except Exception as error:official_error=str(error)[:160]
+        overview_url="https://indexes.nasdaq.com/Index/Overview/NDX"
+        count_error=None
+        try:overview_count=parse_ndx_component_count(get(overview_url).text)
+        except Exception as error:overview_count=None;count_error=str(error)[:160]
+        if official is not None and overview_count is not None and len(official["symbols"])!=overview_count:
+            # 两个 Nasdaq 官方入口互相矛盾时，不能将其中一方冒充已核实名单。
+            official_error=f"NDX 官方 JSON 名单 {len(official['symbols'])} 与总览 {overview_count} 不符"
+            official=None
+        today=str(pd.Timestamp.now(tz="America/New_York").date())
+        if futu_symbols is not None:
+            difference=len(set(futu_symbols)^set(official["symbols"])) if official else None
+            reference=overview_count or (official or {}).get("official_count") or 101
+            if (len(futu_symbols)!=len(set(futu_symbols)) or
+                    any(not re.fullmatch(r"US\.[A-Z][A-Z0-9.\-]{0,11}",code) for code in futu_symbols) or
+                    abs(len(futu_symbols)-reference)>5 or not 95<=len(futu_symbols)<=110):
+                futu_error="富途 NDX 名单数量或代码异常";futu_symbols=None
+            elif difference is not None and difference>5:
+                futu_error=f"富途与 Nasdaq 官方名单差异 {difference} 只，超过 5 只";futu_symbols=None
+        def attach_ndx_notices(symbols,meta):
+            # 公告归档只负责可逐代码验证的生效日；不可达时不撤销已核实的现行名单。
+            lookback=str((pd.Timestamp(today)-pd.Timedelta(days=45)).date())
+            try:
+                archive=fetch_ndx_notice_archive(lookback)
+                meta["official_notices"]=archive["notices"]
+                meta["archive_oldest_date"]=archive["archive_oldest_date"]
+                future=[];current=symbols
+                for notice in sorted((item for item in archive["notices"]
+                                      if item["effective_date"]>today),
+                                     key=lambda item:item["effective_date"]):
+                    current=apply_ndx_notices(current,[notice],notice["effective_date"])
+                    future.append(dict(notice,symbols=current))
+                meta["future_memberships"]=future
+            except Exception as error:meta["notice_error"]=str(error)[:160]
+            return meta
+        if futu_symbols is not None:
+            meta={"source_date":today,"official_count":overview_count or (official or {}).get("official_count") or 101,
+                  "futu_verified":True,"futu_official_difference":difference,
+                  "overview_url":overview_url,"official_api_url":url,
+                  "official_error":official_error,"overview_error":count_error}
+            return sorted(futu_symbols),"futu_opend:US.NDX",attach_ndx_notices(sorted(futu_symbols),meta)
+        if official is None:
+            raise ValueError(f"NDX 成分来源不可用：富途={futu_error}; Nasdaq={official_error}")
+        age=(pd.Timestamp(today)-pd.Timestamp(official["source_date"])).days
+        official["official_current"]=0<=age<=7
+        official.update(overview_url=overview_url,official_api_url=url,effective_evidence_url=url,
+                        futu_error=futu_error,overview_error=count_error)
+        return official["symbols"],url,attach_ndx_notices(official["symbols"],official)
+    futu_candidate=None
+    if key in {"dow","dividend","csi2000","shenzhen"} and futu is not None:
+        # 先读富途，再与同轮官方文件核对；官网不可达时保留完整富途名单。
+        try:
+            symbols=futu.index_members(key)
+            expected=BREADTH_MARKETS[key]["expected"]
+            if len(symbols)!=expected or len(symbols)!=len(set(symbols)):
+                raise ValueError(f"富途 {key} 成分不完整: {len(symbols)}/{expected}")
+            futu_candidate=sorted(symbols)
+        except Exception:
+            pass
+    def futu_result(extra=None):
+        code=FutuBreadth.INDEX_CODES[key]
+        meta={"source_date":str(pd.Timestamp.now().date()),"futu_verified":True,
+              "effective_date":None}
+        meta.update(extra or {})
+        return futu_candidate,f"futu_opend:{code}",meta
     if key=="nasdaq":
         url="https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt"
         parsed=parse_nasdaq_directory(get(url).text)
@@ -132,27 +424,61 @@ def fetch_members(key):
             parsed["official_count_error"]=str(error)[:160]
         return parsed["symbols"],url,parsed
     if key=="dow":
-        url="https://www.ssga.com/library-content/products/fund-data/etfs/us/holdings-daily-us-en-dia.xlsx"
-        raw=pd.read_excel(io.BytesIO(get(url).content),header=None)
-        headers=raw.index[raw.iloc[:,0].eq("Name")]
-        if len(headers)!=1:raise ValueError("DIA持仓文件格式变化")
-        index=int(headers[0]);frame=raw.iloc[index+1:].copy();frame.columns=raw.iloc[index]
+        url="https://www.spglobal.com/spdji/en/indices/equity/dow-jones-industrial-average/"
+        candidate_url="https://www.ssga.com/library-content/products/fund-data/etfs/us/holdings-daily-us-en-dia.xlsx"
+        symbols=None;candidate_error=None
+        try:
+            raw=pd.read_excel(io.BytesIO(get(candidate_url).content),header=None)
+            headers=raw.index[raw.iloc[:,0].eq("Name")]
+            if len(headers)!=1:raise ValueError("DIA持仓文件格式变化")
+            index=int(headers[0]);frame=raw.iloc[index+1:].copy();frame.columns=raw.iloc[index]
+            symbols=parse_members("dow",frame)
+        except Exception as error:candidate_error=str(error)[:160]
+        meta={"effective_date":None,"official_url":url,"candidate_url":candidate_url,
+              "source_date":str(pd.Timestamp.now(tz="America/New_York").date()),
+              "candidate_error":candidate_error}
+        try:
+            official=parse_spglobal_dow_list(get(url).text)
+            meta["official_match"]=symbols==official if symbols else None
+            if symbols!=official:symbols=official;candidate_url=url
+        except Exception as error:meta["official_check_error"]=str(error)[:160]
+        if futu_candidate is not None:
+            if symbols is None:return futu_result(meta)
+            meta["futu_difference"]=len(set(futu_candidate)^set(symbols))
+            if futu_candidate==symbols:return futu_result(meta)
+        if symbols is None:raise ValueError(f"道指成分来源不可用: DIA={candidate_error}; S&P={meta.get('official_check_error')}")
+        return symbols,candidate_url,meta
     elif key=="shenzhen":
         url="https://www.cnindex.com.cn/sample-detail/download?indexcode=399001"
         # 国证官网在本机直连稳定，代理链路偶发超时；失败后才使用环境代理。
         try:
-            with requests.Session() as session:
-                session.trust_env=False
-                response=session.get(url,timeout=(5,12));response.raise_for_status()
-                content=response.content
-        except requests.RequestException:content=get(url).content
-        frame=pd.read_excel(io.BytesIO(content),dtype=str)
+            try:
+                with requests.Session() as session:
+                    session.trust_env=False
+                    response=session.get(url,timeout=(5,12));response.raise_for_status()
+                    content=response.content
+            except requests.RequestException:content=get(url).content
+            frame=pd.read_excel(io.BytesIO(content),dtype=str)
+        except Exception:
+            if futu_candidate is not None:return futu_result()
+            raise
     else:
         index=BREADTH_MARKETS[key]["index"]
         url=f"https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/cons/{index}cons.xls"
-        frame=pd.read_excel(io.BytesIO(get(url).content),dtype=str)
-    meta={"effective_date":extract_effective_date(frame)} if key!="dow" else {}
-    return parse_members(key,frame),url,meta
+        try:frame=pd.read_excel(io.BytesIO(get(url).content),dtype=str)
+        except Exception:
+            if futu_candidate is not None:return futu_result()
+            raise
+    meta={"effective_date":extract_effective_date(frame)}
+    if meta["effective_date"]:meta["effective_evidence_url"]=url
+    if key=="shenzhen" and not meta["effective_date"]:
+        try:meta["official_notices"]=fetch_shenzhen_notices()
+        except Exception as error:meta["notice_error"]=str(error)[:160]
+    official_symbols=parse_members(key,frame)
+    if futu_candidate is not None:
+        meta["futu_difference"]=len(set(futu_candidate)^set(official_symbols))
+        if futu_candidate==official_symbols:return futu_result(meta)
+    return official_symbols,url,meta
 
 
 def validate_external_breadth(rows):
@@ -374,6 +700,8 @@ def fetch_stockcharts(symbol,clock):
 
 
 class FutuBreadth:
+    INDEX_CODES={"nasdaq100":"US.NDX","dow":"US.DJI","dividend":"SH.H30269",
+                 "csi2000":"SH.932000","shenzhen":"SZ.399001"}
     def __init__(self):
         self.ctx=None;self.remaining=0;self.used=set();self.last_call=None;self.quote_errors=[];self.quota_checked_at=None
     @staticmethod
@@ -385,6 +713,40 @@ class FutuBreadth:
             from futu import OpenQuoteContext
             self.ctx=OpenQuoteContext(host=host,port=port)
         return self.ctx
+    def index_members(self,key):
+        """读取富途指数板块，校验行数后才作为成分来源。"""
+        code=self.INDEX_CODES[key]
+        ctx=self.connect()
+        self.throttle();ret,data=ctx.get_plate_stock(code)
+        if ret==0 and isinstance(data,pd.DataFrame):
+            if "code" not in data.columns:raise ValueError("富途成分缺少 code 字段")
+            symbols=[str(value).strip().upper() for value in data["code"]]
+        elif hasattr(ctx,"get_valuation_plate_stock_list"):
+            # 新版 OpenAPI 可按指数代码分页获取成分；旧版 SDK 没有该方法。
+            symbols=[];next_key=None;seen_keys=set();total=None
+            for _ in range(100):
+                if next_key in seen_keys:raise ValueError("富途指数成分分页未推进")
+                seen_keys.add(next_key)
+                self.throttle();ret,page=ctx.get_valuation_plate_stock_list(code,next_key=next_key,num=50)
+                if ret!=0 or not isinstance(page,dict):
+                    raise RuntimeError(f"富途指数成分 {code} 分页不可用: {str(page)[:100]}")
+                if total is None:total=page.get("count")
+                elif total!=page.get("count"):raise ValueError("富途指数成分分页总数不一致")
+                symbols.extend(str(row.get("symbol","")).strip().upper()
+                               for row in page.get("stock_list",[]))
+                next_key=page.get("next_key")
+                if next_key=="-1":break
+                if not next_key:raise ValueError("富途指数成分分页截断")
+            else:raise ValueError("富途指数成分分页超过限制")
+            if not isinstance(total,int) or len(symbols)!=total:
+                raise ValueError("富途指数成分分页总数与证券列表不符")
+        else:raise RuntimeError(f"富途指数成分 {code} 不可用: {str(data)[:100]}")
+        prefix="US." if key in {"nasdaq100","dow"} else ("SZ.","SH.","BJ.")
+        if any(not value.startswith(prefix) for value in symbols):
+            raise ValueError("富途指数成分市场代码异常")
+        if not symbols or len(symbols)!=len(set(symbols)):
+            raise ValueError("富途指数成分为空或重复")
+        return sorted(symbols)
     def close(self):
         if self.ctx is not None:self.ctx.close();self.ctx=None
     def throttle(self):
