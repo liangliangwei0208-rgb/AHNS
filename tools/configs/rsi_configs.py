@@ -191,7 +191,7 @@ RSI_ANALYSIS_CONFIGS = [
         "use_realtime_param": True,
         "kwargs": {
             "symbol": "159943",
-            # 整个沪深市场的宏观估值；None 沿用全局 0.765 / 0.60 / 0.55。
+            # 整个沪深市场的宏观估值；None 沿用全局 0.775 / 0.60 / 0.55。
             "show_mc_gdp": True,
             "mc_gdp_over_threshold": None,
             "mc_gdp_low_threshold": None,

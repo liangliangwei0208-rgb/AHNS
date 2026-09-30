@@ -37,7 +37,7 @@ EMBEDDED_CACHE_INFO_FILENAMES = {
 
 _INFO_BY_NAME: dict[str, dict[str, Any]] = {
     "a_share_mc_gdp.json": {
-        "purpose": "仅用于159943、560220走势图的沪深市价总值/中国名义GDP(TTM)估值背景。",
+        "purpose": "仅用于159943、560220走势图的沪深市价总值/中国名义GDP(TTM)右轴阶梯曲线及最新状态。",
         "producer": "tools/a_share_valuation.py，stock_analysis整轮共享一次加载。",
         "consumers": ["tools/rsi_data.py"],
         "refresh_policy": "市值48小时，GDP96小时；失败24小时退避；宏观子进程总预算15秒。",

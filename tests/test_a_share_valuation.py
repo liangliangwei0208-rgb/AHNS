@@ -55,7 +55,7 @@ class ValuationTests(unittest.TestCase):
         self.assertEqual(len(result), 2)
 
     def test_state_boundaries_and_overrides(self):
-        cases = { .766: "OVER", .765: "OVER", .764: "NEUTRAL", .601: "NEUTRAL",
+        cases = { .776: "OVER", .775: "OVER", .774: "NEUTRAL", .601: "NEUTRAL",
                   .60: "LOW", .599: "LOW", .551: "LOW", .55: "DEEP LOW", .549: "DEEP LOW" }
         for value, expected in cases.items():
             self.assertEqual(valuation.classify_ratio(value), expected)

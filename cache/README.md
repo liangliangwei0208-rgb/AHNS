@@ -36,7 +36,7 @@
 - 注意：不要在 CSV 文件头部添加说明行，避免 pandas.read_csv() 把说明当成数据。
 
 ### `a_share_mc_gdp.json`
-- 用途：仅用于159943、560220走势图的沪深市价总值/中国名义GDP(TTM)估值背景。
+- 用途：仅用于159943、560220走势图的沪深市价总值/中国名义GDP(TTM)右轴阶梯曲线及最新状态。
 - 生成：tools/a_share_valuation.py，stock_analysis整轮共享一次加载。
 - 读取：tools/rsi_data.py
 - 刷新：市值48小时，GDP96小时；失败24小时退避；宏观子进程总预算15秒。

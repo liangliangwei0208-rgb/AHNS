@@ -3,7 +3,7 @@ rsi_module.py
 功能：
 1. 获取美股指数历史数据
 2. 计算 Wilder RSI
-3. 绘制收盘价、成交量、RSI 图
+3. 绘制 Price/RSI 两行图及可选 MC/GDP 右轴阶梯线
 4. 提供统一外部调用入口 analyze_index()
 5. 保留脚本直接运行入口 main()
 
@@ -2274,6 +2274,121 @@ def _align_right_metric_labels(ax):
         text.set_ha("left")
 
 
+def _draw_mc_gdp_curve(ax, aligned, *, over=None, low=None, deep_low=None):
+    """直接读取已有对齐结果；缺口断线，右轴保留 ratio 原始量纲。"""
+    from tools.a_share_valuation import classify_ratio
+    from tools.configs.a_share_valuation_configs import (
+        MC_GDP_OVER_THRESHOLD, MC_GDP_LOW_THRESHOLD, MC_GDP_DEEP_LOW_THRESHOLD,
+        MC_GDP_LINE_COLORS, MC_GDP_AXIS_COLOR, MC_GDP_LINE_WIDTH, MC_GDP_LINE_ALPHA,
+    )
+    from matplotlib.ticker import MaxNLocator
+
+    dates = pd.to_datetime(aligned["date"], errors="coerce")
+    ratios = pd.to_numeric(aligned["ratio"], errors="coerce").to_numpy(dtype=float)
+    valid = dates.notna().to_numpy() & np.isfinite(ratios)
+    x_limits = ax.get_xlim()
+    valid &= (mdates.date2num(dates) >= x_limits[0]) & (mdates.date2num(dates) <= x_limits[1])
+    if dates[valid].nunique() < 2:
+        return None, []
+
+    thresholds = dict(over=MC_GDP_OVER_THRESHOLD if over is None else over,
+                      low=MC_GDP_LOW_THRESHOLD if low is None else low,
+                      deep_low=MC_GDP_DEEP_LOW_THRESHOLD if deep_low is None else deep_low)
+    states = [classify_ratio(value, **thresholds) if usable else None
+              for value, usable in zip(ratios, valid)]
+    mc_ax = ax.twinx()
+    # Axes 的层级优先于单条线：把右轴置后，左轴背景透明，RSI/50D仍在前景。
+    mc_ax.set_zorder(ax.get_zorder() - 1)
+    mc_ax.patch.set_visible(False)
+    ax.patch.set_visible(False)
+    ax.spines["right"].set_visible(False)  # 避免前景黑边框盖住右轴的中性棕灰边框。
+    mc_ax.grid(False)
+    mc_ax.tick_params(axis="y", colors=MC_GDP_AXIS_COLOR, labelsize=8)
+    mc_ax.spines["right"].set_color(MC_GDP_AXIS_COLOR)
+    mc_ax.set_ylabel("MC/GDP", color=MC_GDP_AXIS_COLOR, fontsize=8)
+    mc_ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
+    values = [*ratios[valid], *thresholds.values()]
+    minimum, maximum = min(values), max(values)
+    padding = max((maximum - minimum) * .08, .03)
+    mc_ax.set_ylim(max(0, minimum - padding), maximum + padding)
+
+    regimes = []
+    start = 0
+    for end in range(1, len(states) + 1):
+        if end < len(states) and states[end] == states[start]:
+            continue
+        state = states[start]
+        if state is not None:
+            run_dates = dates.iloc[start:end].tolist()
+            run_ratios = ratios[start:end].tolist()
+            # 延伸旧状态的水平段到下次观测；竖直跳变单独用新状态色。
+            if end < len(states) and states[end] is not None:
+                run_dates.append(dates.iloc[end])
+                run_ratios.append(ratios[end-1])
+            mc_ax.step(run_dates, run_ratios, where="post", color=MC_GDP_LINE_COLORS[state],
+                       linewidth=MC_GDP_LINE_WIDTH, alpha=MC_GDP_LINE_ALPHA, zorder=2,
+                       label="MC/GDP" if not regimes else "_nolegend_")
+            if start > 0 and states[start-1] is not None and ratios[start-1] != ratios[start]:
+                mc_ax.step([dates.iloc[start], dates.iloc[start]], [ratios[start-1], ratios[start]],
+                           where="post", color=MC_GDP_LINE_COLORS[state],
+                           linewidth=MC_GDP_LINE_WIDTH, alpha=MC_GDP_LINE_ALPHA,
+                           zorder=2, label="_nolegend_")
+            regimes.append((state, run_dates, run_ratios))
+        start = end
+    # twinx 的自动缩放不能改变 Price/RSI 的共同日期范围。
+    ax.set_xlim(x_limits)
+    return mc_ax, regimes
+
+
+def _label_mc_gdp_regimes(mc_ax, regimes, primary_ax):
+    """布局完成后少量标注英文状态；遇到曲线或文字遮挡就换位/省略。"""
+    from tools.configs.a_share_valuation_configs import MC_GDP_LINE_COLORS, MC_GDP_REGIME_LABEL_MIN_WIDTH_PX
+    from matplotlib.collections import LineCollection, PathCollection
+
+    renderer = mc_ax.figure.canvas.get_renderer()
+    obstacles = [text.get_window_extent(renderer) for text in primary_ax.texts]
+    if primary_ax.get_legend() is not None:
+        obstacles.append(primary_ax.get_legend().get_window_extent(renderer))
+    paths = [line.get_transform().transform_path(line.get_path())
+             for line in [*primary_ax.lines, *mc_ax.lines]]
+    for collection in primary_ax.collections:
+        if isinstance(collection, LineCollection):
+            paths.extend(collection.get_transform().transform_path(path) for path in collection.get_paths())
+        elif isinstance(collection, PathCollection):
+            # scatter 的 path 是标记本身，位置保存在 offsets 中。
+            offsets = collection.get_offset_transform().transform(collection.get_offsets())
+            radius = np.sqrt(max(collection.get_sizes(), default=0)) * mc_ax.figure.dpi / 144 + 2
+            from matplotlib.transforms import Bbox
+            obstacles.extend(Bbox.from_extents(x-radius, y-radius, x+radius, y+radius) for x, y in offsets)
+
+    for state, dates, ratios in regimes:
+        if state == "NEUTRAL":
+            continue
+        x = mdates.date2num(dates)
+        width = mc_ax.transData.transform((x[-1], 0))[0] - mc_ax.transData.transform((x[0], 0))[0]
+        if width < MC_GDP_REGIME_LABEL_MIN_WIDTH_PX:
+            continue
+        placed = False
+        for fraction in (.5, .35, .65):
+            midpoint = x[0] + (x[-1] - x[0]) * fraction
+            value = ratios[max(0, np.searchsorted(x, midpoint, side="right") - 1)]
+            for offset in (6, -6, 12, -12):
+                text = mc_ax.annotate(state, (midpoint, value), xytext=(0, offset),
+                                      textcoords="offset points", ha="center",
+                                      va="bottom" if offset > 0 else "top", fontsize=6.5,
+                                      color=MC_GDP_LINE_COLORS[state], alpha=.9, zorder=3, clip_on=True)
+                box = text.get_window_extent(renderer)
+                fits = mc_ax.bbox.contains(box.x0, box.y0) and mc_ax.bbox.contains(box.x1, box.y1)
+                if fits and not any(box.overlaps(other) for other in obstacles) and not any(
+                        path.intersects_bbox(box, filled=False) for path in paths):
+                    obstacles.append(box)
+                    placed = True
+                    break
+                text.remove()
+            if placed:
+                break
+
+
 def plot_analysis(
     df: pd.DataFrame,
     symbol: str,
@@ -2497,15 +2612,15 @@ def plot_analysis(
                              deep_low=mc_gdp_deep_low_threshold)
     if show_mc_gdp:
         try:
-            from tools.a_share_valuation import align_valuation, draw_valuation_background, classify_ratio
-            classify_ratio(np.nan, **mc_gdp_thresholds)  # 先检查单图阈值，避免画出半套背景。
+            from tools.a_share_valuation import align_valuation, classify_ratio
+            classify_ratio(np.nan, **mc_gdp_thresholds)  # 单图阈值无效时估值图层整体降级。
             mc_gdp_aligned = align_valuation(mc_gdp_df, plot_df["date"])
-            draw_valuation_background(axes[0], mc_gdp_aligned, **mc_gdp_thresholds)
         except Exception as error:
             print(f"[WARN] MC/GDP unavailable，保留价格/RSI/50D: {error}")
             mc_gdp_aligned = pd.DataFrame({"date": plot_df["date"], "ratio": np.nan, "basis": None})
             mc_gdp_thresholds = None
 
+    mc_ax, mc_gdp_regimes = None, []
     if show_rsi_panel:
         _plot_segmented_by_rsi(
             ax=axes[1],
@@ -2542,13 +2657,29 @@ def plot_analysis(
                            borderpad=.2, labelspacing=.2, handlelength=1.3,
                            handletextpad=.3, columnspacing=.6)
         if show_mc_gdp:
-            from tools.a_share_valuation import classify_ratio, MC_GDP_STATE_COLORS
-            latest = mc_gdp_aligned.ratio.iloc[-1]
-            state = classify_ratio(latest, **mc_gdp_thresholds) if mc_gdp_thresholds is not None else None
+            from tools.a_share_valuation import classify_ratio
+            from tools.configs.a_share_valuation_configs import MC_GDP_LINE_COLORS
+            if mc_gdp_thresholds is not None:
+                mc_ax, mc_gdp_regimes = _draw_mc_gdp_curve(axes[1], mc_gdp_aligned, **mc_gdp_thresholds)
+            numeric_ratios = pd.to_numeric(mc_gdp_aligned.ratio, errors="coerce")
+            latest = numeric_ratios.iloc[-1] if not numeric_ratios.empty else np.nan
+            state = classify_ratio(latest, **mc_gdp_thresholds) if mc_ax is not None and np.isfinite(latest) else None
             text = f"MC/GDP: {latest:.2f} · {state}" if state else "MC/GDP: N/A"
             axes[1].text(RIGHT_METRIC_LABEL_X, .85, text, transform=axes[1].transAxes,
                          ha="left", va="top", fontsize=8,
-                         color=MC_GDP_STATE_COLORS.get(state, "#777777"))
+                         color=MC_GDP_LINE_COLORS.get(state, "#777777"))
+            if mc_ax is not None:
+                from matplotlib.lines import Line2D
+                handles_left, labels_left = axes[1].get_legend_handles_labels()
+                handles_right, labels_right = mc_ax.get_legend_handles_labels()
+                # 一个图例合并两个轴，保留盘中估算；MC/GDP只占一个项目。
+                entries = {label: handle for handle, label in zip(handles_left + handles_right, labels_left + labels_right)}
+                order = [label for label in ("50D", "MC/GDP") if label in entries]
+                order += [label for label in entries if label not in order and label != "R"]
+                axes[1].legend([Line2D([0], [0], color="#3267a8"), *[entries[label] for label in order]],
+                               ["R", *order], loc="upper left", fontsize=8, ncol=3,
+                               borderpad=.2, labelspacing=.2, handlelength=1.3,
+                               handletextpad=.3, columnspacing=.6)
             if mc_gdp_aligned.basis.eq("historical revised series").any():
                 axes[1].text(.02, .02, "MC/GDP history: historical revised series",
                              transform=axes[1].transAxes, ha="left", va="bottom",
@@ -2557,6 +2688,11 @@ def plot_analysis(
     plt.tight_layout()
     if show_rsi_panel:
         _align_right_metric_labels(axes[1])
+        if mc_ax is not None:
+            # 仅给文字留极小白色衬底，历史阶梯线从其后经过时仍可清楚读数。
+            for text in axes[1].texts:
+                if text.get_text().startswith(("50D", "R:", "MC/GDP:")):
+                    text.set_bbox(dict(facecolor="white", edgecolor="none", alpha=.97, pad=.6))
 
     # 布局确定后再按导出像素摆放色带，保证上下两侧的间隙都是约2像素。
     if show_vix_state_band:
@@ -2569,10 +2705,9 @@ def plot_analysis(
         low = BREADTH_BAND_LOW_THRESHOLD if breadth_band_low_threshold is None else breadth_band_low_threshold
         high = BREADTH_BAND_HIGH_THRESHOLD if breadth_band_high_threshold is None else breadth_band_high_threshold
         draw_breadth_state_band(axes[0], plot_df, breadth_df, low, high, output_dpi=dpi)
-    if show_mc_gdp and mc_gdp_thresholds is not None:
-        from tools.a_share_valuation import draw_regime_labels
+    if mc_ax is not None:
         fig.canvas.draw()
-        draw_regime_labels(axes[0], mc_gdp_aligned, **mc_gdp_thresholds)
+        _label_mc_gdp_regimes(mc_ax, mc_gdp_regimes, axes[1])
 
     output_path = Path(output_file)
     if output_path.parent and str(output_path.parent) != ".":
