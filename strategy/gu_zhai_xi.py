@@ -49,7 +49,7 @@ from matplotlib.lines import Line2D
 # ============================================================
 
 DISPLAY_YEARS = 10          # 图中显示最近多少年
-WINDOW = 600               # 滚动窗口：当前用户参数
+WINDOW = 500               # 滚动窗口：当前用户参数
 STD_MULT = 1.95            # 标准差倍数：1.0=±1σ, 2.0=±2σ
 
 INDEX_SYMBOL = "sz399001"  # 深证成指
