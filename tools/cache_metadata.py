@@ -30,12 +30,68 @@ BREADTH_CACHE_DOCUMENTATION = (BREADTH_CACHE_DOCUMENTATION
 CACHE_INFO_VERSION = 1
 CACHE_README_FILENAME = "README.md"
 
+SERVICE_DAILY_CACHE_DOCUMENTATION = """## Service每日出图本机状态
+
+- `service_daily_steps/*.json`：`tools/service_daily_step.py` 记录步骤最近成功出图的北京时间日期、启动及完成时间。仅 `once_per_day=True` 的Service步骤读取，目前为十年MC/GDP图。
+- `service_daily_steps/*.lock`：操作系统持有的进程锁，任务退出后自动释放；文件保留不代表仍被锁定。
+- 11:30–23:50窗口内成功更新指定PNG才标记完成；失败或没有新PNG可在后续触发重试。日期按北京时间判断，已启动任务允许完成。
+- 该目录仅供本机协调，由Git忽略，不与GitHub/Gitee同步，也不承载行情或基金估算数据。不自动删除状态文件。
+"""
+
 EMBEDDED_CACHE_INFO_FILENAMES = {
     "fund_estimate_return_cache.json",
     "a_share_trade_calendar_cache.json",
 }
 
 _INFO_BY_NAME: dict[str, dict[str, Any]] = {
+    "sz399001_daily.csv": {
+        "purpose": "股债利差策略图的深证成指正式日线主轴。",
+        "producer": "strategy/gu_zhai_xi_data.py，富途优先、腾讯/东方财富/新浪依次回退。",
+        "consumers": ["strategy/gu_zhai_xi.py", "tools/equity_bond_spread.py（ETF Price状态带）"],
+        "refresh_policy": "覆盖最新完整交易日且展示期无缺口时直接读缓存；只补缺日，失败一小时退避。",
+        "retention_policy": "保留已核实历史，按日期合并；不删除旧价格。",
+        "data_shape": "CSV：date,close；盘中当天值须在收盘后重新核验。",
+    },
+    "gu_zhai_xi_csi2000_daily.csv": {
+        "purpose": "股债利差策略图中证2000原始指数日线；绘图时才按共同起点等比映射。",
+        "producer": "strategy/gu_zhai_xi_data.py，富途 SH.932000 优先。",
+        "consumers": ["strategy/gu_zhai_xi.py"],
+        "refresh_policy": "仅启用本指数时检查；缓存已齐则零请求，缺口按日期分段补齐，失败一小时退避。",
+        "retention_policy": "保留已核实历史，不覆盖其他指数缓存。",
+        "data_shape": "CSV：date,close；close 为真实指数点位。",
+    },
+    "gu_zhai_xi_shanghai_daily.csv": {
+        "purpose": "股债利差策略图上证指数原始日线；绘图时才按共同起点等比映射。",
+        "producer": "strategy/gu_zhai_xi_data.py，富途 SH.000001 优先。",
+        "consumers": ["strategy/gu_zhai_xi.py"],
+        "refresh_policy": "仅启用本指数时检查；缓存已齐则零请求，缺口按日期分段补齐，失败一小时退避。",
+        "retention_policy": "保留已核实历史，不覆盖其他指数缓存。",
+        "data_shape": "CSV：date,close；close 为真实指数点位。",
+    },
+    "gu_zhai_xi_pe.csv": {
+        "purpose": "股债利差策略图的全A等权 PE(TTM) 原始观测。",
+        "producer": "strategy/gu_zhai_xi_data.py。",
+        "consumers": ["strategy/gu_zhai_xi.py", "tools/equity_bond_spread.py（ETF Price状态带）"],
+        "refresh_policy": "缓存缺口时最多请求一次全量源并合并；无新值或失败后一小时再试。",
+        "retention_policy": "按观测日期保留旧值，不混入其他 PE 口径。",
+        "data_shape": "CSV：date,pe_ttm。",
+    },
+    "gu_zhai_xi_cn10y.csv": {
+        "purpose": "股债利差策略图的中国10年期国债收益率观测。",
+        "producer": "strategy/gu_zhai_xi_data.py。",
+        "consumers": ["strategy/gu_zhai_xi.py", "tools/equity_bond_spread.py（ETF Price状态带）"],
+        "refresh_policy": "缓存缺口时按日期分段请求东方财富，失败后一小时再试。",
+        "retention_policy": "逐段保存有效历史，不用空值覆盖旧值。",
+        "data_shape": "CSV：date,cn10y；数值单位为百分比。",
+    },
+    "gu_zhai_xi_refresh_state.json": {
+        "purpose": "股债利差策略各数据源检查、失败退避和指数当日收盘核验状态。",
+        "producer": "strategy/gu_zhai_xi_data.py。",
+        "consumers": ["strategy/gu_zhai_xi_data.py"],
+        "refresh_policy": "每次实际请求后更新；缓存完整时不为了刷新时间而请求。",
+        "retention_policy": "按数据源保留最近检查状态和指数正式日核验记录。",
+        "data_shape": "JSON key-map；不内嵌 _cache_info，避免被业务遍历误读。",
+    },
     "a_share_mc_gdp.json": {
         "purpose": "仅用于159943、560220走势图的沪深市价总值/中国名义GDP(TTM)右轴阶梯曲线及最新状态。",
         "producer": "tools/a_share_valuation.py，stock_analysis整轮共享一次加载。",
@@ -401,6 +457,8 @@ def build_cache_readme(cache_dir: str | Path) -> str:
     ]
 
     lines.extend(BREADTH_CACHE_DOCUMENTATION.splitlines())
+    lines.append("")
+    lines.extend(SERVICE_DAILY_CACHE_DOCUMENTATION.splitlines())
     lines.append("")
 
     if not files:

@@ -30,6 +30,9 @@ from __future__ import annotations
 # - required: True 表示日志中标为必要步骤；失败也会继续运行后续步骤，并在最后汇总。
 # - collect_images: True 表示收集这一步本次新生成/更新的图片用于邮件发送。
 # - always_run: True 表示全天固定步骤；命中实时观察窗口时也会保留。
+# - independent_window: True 表示窗口内每次都运行（含实时/假期），启动前再检查时间。
+# - once_per_day: True 表示窗口内每天成功出图一次；失败或没有新图片可再次触发。
+# - daily_required_images: 每日完成必须更新的PNG文件名；配合本机进程锁与成功日期使用。
 # - close_observation_group: True 表示收盘观察必要步骤。早间盘后/富途夜盘窗口与
 #   safe_fund.py 的 06:00-13:40 收盘窗口重叠时，会和实时观察一起运行。
 # - run_window_bj: 可选，北京时间闭区间；支持跨午夜窗口，例如 ("22:40", "02:00")。
@@ -151,7 +154,29 @@ FUTU_NIGHT_WORKFLOW_STEPS = [
 ]
 
 GITHUB_WORKFLOW_STEPS = [*COMMON_WORKFLOW_STEPS]
-SERVICE_WORKFLOW_STEPS = [*COMMON_WORKFLOW_STEPS, *FUTU_NIGHT_WORKFLOW_STEPS]
+SERVICE_STRATEGY_WORKFLOW_STEPS = [
+    {
+        "name": "全A股债利差图",
+        "script": "strategy/gu_zhai_xi.py",
+        "required": False,
+        "collect_images": True,
+        "run_window_bj": ("11:30", "23:50"),
+        "independent_window": True,
+        "args": ["--no-show"],
+    },
+    {
+        "name": "A股十年宏观估值图",
+        "script": "strategy/gdp.py",
+        "required": False,
+        "collect_images": True,
+        "run_window_bj": ("11:30", "23:50"),
+        "independent_window": True,
+        "once_per_day": True,
+        "daily_required_images": ["a_share_market_cap_gdp_10y.png"],
+        "args": ["--no-show"],
+    },
+]
+SERVICE_WORKFLOW_STEPS = [*COMMON_WORKFLOW_STEPS, *FUTU_NIGHT_WORKFLOW_STEPS, *SERVICE_STRATEGY_WORKFLOW_STEPS]
 
 # 兼容旧导入路径；git_main.py 默认使用 GitHub Actions 流程。
 WORKFLOW_STEPS = GITHUB_WORKFLOW_STEPS
@@ -159,6 +184,7 @@ WORKFLOW_STEPS = GITHUB_WORKFLOW_STEPS
 __all__ = [
     "COMMON_WORKFLOW_STEPS",
     "FUTU_NIGHT_WORKFLOW_STEPS",
+    "SERVICE_STRATEGY_WORKFLOW_STEPS",
     "GITHUB_WORKFLOW_STEPS",
     "SERVICE_WORKFLOW_STEPS",
     "WORKFLOW_STEPS",

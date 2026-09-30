@@ -296,13 +296,15 @@ def build_change_summary_text(
 
 
 
-def _run_rsi_analysis(config: dict, include_realtime: bool, mc_gdp_df=None) -> StockAnalysisResult:
+def _run_rsi_analysis(config: dict, include_realtime: bool, mc_gdp_df=None, ebs_state_df=None) -> StockAnalysisResult:
     """按配置运行一次 RSI 分析，并统一封装返回结构。"""
     kwargs = dict(config["kwargs"])
     if config.get("use_realtime_param"):
         kwargs["include_realtime"] = include_realtime
     if kwargs.get("show_mc_gdp"):
         kwargs["mc_gdp_df"] = mc_gdp_df
+    if kwargs.get("show_ebs_state_band"):
+        kwargs["ebs_state_df"] = ebs_state_df
 
     (
         hist,
@@ -351,8 +353,16 @@ def build_stock_analysis(
             mc_gdp_df = load_valuation()
         except Exception as error:
             print(f"[WARN] MC/GDP unavailable，继续生成市场图: {error}")
+    ebs_state_df = pd.DataFrame()
+    if any(config["kwargs"].get("show_ebs_state_band") for config in RSI_ANALYSIS_CONFIGS):
+        try:
+            from tools.equity_bond_spread import load_ebs_states
+            ebs_state_df = load_ebs_states()
+        except Exception as error:
+            print(f"[WARN] EBS unavailable，继续生成市场图: {error}")
+    # 即使加载失败也传入共享空表，避免每张ETF再次请求。
     results = [
-        _run_rsi_analysis(config, include_realtime=include_realtime, mc_gdp_df=mc_gdp_df)
+        _run_rsi_analysis(config, include_realtime=include_realtime, mc_gdp_df=mc_gdp_df, ebs_state_df=ebs_state_df)
         for config in RSI_ANALYSIS_CONFIGS
     ]
 

@@ -191,6 +191,7 @@ RSI_ANALYSIS_CONFIGS = [
         "use_realtime_param": True,
         "kwargs": {
             "symbol": "159943",
+            "show_ebs_state_band": True,  # 全A股债利差只显示在第一行极端状态带。
             # 整个沪深市场的宏观估值；None 沿用全局 0.775 / 0.60 / 0.55。
             "show_mc_gdp": True,
             "mc_gdp_over_threshold": None,
@@ -243,6 +244,7 @@ RSI_ANALYSIS_CONFIGS = [
         "use_realtime_param": True,
         "kwargs": {
             "symbol": "560220",
+            "show_ebs_state_band": True,
             "show_mc_gdp": True,
             "mc_gdp_over_threshold": None,
             "mc_gdp_low_threshold": None,

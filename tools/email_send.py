@@ -185,12 +185,18 @@ def build_message(
     sender_email: str | None = None,
     embed_images: bool = True,
     attach_images: bool = True,
+    image_names: Sequence[str] | None = None,
 ) -> EmailMessage:
     """构建邮件对象，不发送。"""
     resolved_sender = _resolve_sender_email(sender_email)
     receivers = _resolve_receivers(to_email, sender_email=resolved_sender)
     images = [Path(x) for x in _to_list(image_paths)]
     _check_files(images)
+    names = [path.name for path in images] if image_names is None else list(image_names)
+    if len(names) != len(images):
+        raise ValueError("image_names必须与image_paths一一对应")
+    if any(not isinstance(name, str) or not name or any(c in name for c in "\\/\r\n") for name in names):
+        raise ValueError("邮件图片名须为有效文件名，不能包含路径或换行")
 
     msg = EmailMessage()
     msg["Subject"] = subject
@@ -211,15 +217,16 @@ def build_message(
 
         related_images = []
 
-        for image_path in images:
+        for image_path, display_name in zip(images, names):
             maintype, subtype = _guess_mime(image_path)
             if maintype != "image":
                 continue
 
             cid = make_msgid(domain="qq_email_sender")
-            related_images.append((image_path, cid, maintype, subtype))
+            related_images.append((image_path, display_name, cid, maintype, subtype))
 
             html_parts.append(
+                f"<p style='font-size:14px;color:#444;margin-bottom:4px;'>{_escape_html(Path(display_name).stem)}</p>"
                 f"<p><img src='cid:{cid[1:-1]}' "
                 f"style='max-width: 100%; height: auto;'></p>"
             )
@@ -229,18 +236,18 @@ def build_message(
 
         html_part = msg.get_payload()[-1]
 
-        for image_path, cid, maintype, subtype in related_images:
+        for image_path, display_name, cid, maintype, subtype in related_images:
             with image_path.open("rb") as f:
                 html_part.add_related(
                     f.read(),
                     maintype=maintype,
                     subtype=subtype,
                     cid=cid,
-                    filename=image_path.name,
+                    filename=display_name,
                 )
 
     if attach_images and images:
-        for image_path in images:
+        for image_path, display_name in zip(images, names):
             maintype, subtype = _guess_mime(image_path)
 
             with image_path.open("rb") as f:
@@ -248,7 +255,7 @@ def build_message(
                     f.read(),
                     maintype=maintype,
                     subtype=subtype,
-                    filename=image_path.name,
+                    filename=display_name,
                 )
 
     return msg
@@ -263,7 +270,8 @@ def send_email(
     auth_code: str | None = None,
     embed_images: bool = True,
     attach_images: bool = True,
-    timeout: int = 120,
+    timeout: int = 240,
+    image_names: Sequence[str] | None = None,
 ) -> bool:
     """发送邮件。成功返回 True；失败时抛出异常。"""
     resolved_sender = _resolve_sender_email(sender_email)
@@ -278,6 +286,7 @@ def send_email(
         sender_email=resolved_sender,
         embed_images=embed_images,
         attach_images=attach_images,
+        image_names=image_names,
     )
 
     context = ssl.create_default_context()

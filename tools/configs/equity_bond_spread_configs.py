@@ -1,0 +1,9 @@
+"""全A股债利差的共享参数；仅用于策略图和ETF价格状态带。"""
+
+EBS_WINDOW = 500
+EBS_STD_MULTIPLIER = 1.95
+EBS_HISTORY_YEARS = 3  # 展示300个交易日前还需500日预热。
+EBS_HISTORY_ROWS = 1200  # 完成滚动计算后才裁剪状态结果。
+EBS_HIGH_COLOR = "#2F9E44"
+EBS_LOW_COLOR = "#D9534F"
+EBS_BAND_ALPHA = .88

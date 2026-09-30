@@ -2,10 +2,10 @@
 """
 A股总市值 / GDP + 深证成指（近10年）
 口径：
-1. 蓝线：
+1. 按估值状态分色的月度阶梯线（左轴）：
    (上海市场市价总值 + 深圳市场市价总值) / 中国名义GDP(TTM)
-2. 上方指数曲线：
-   深证成指 399001 / 10000
+2. 按同一估值状态分色的细虚线指数曲线（右轴）：
+   深证成指 399001 的真实点位；月度复核CSV仍保留原缩放列。
 3. 估值阈值：
    高估、低估、极度低估均可在脚本顶部直接修改。
 
@@ -26,6 +26,7 @@ A股总市值 / GDP + 深证成指（近10年）
 from __future__ import annotations
 
 import re
+import argparse
 from pathlib import Path
 
 import akshare as ak
@@ -34,7 +35,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib import font_manager
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+from matplotlib.lines import Line2D
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter, FuncFormatter
 
 
 # ============================================================
@@ -46,6 +48,18 @@ LOOKBACK_YEARS = 10 #近十年
 HIGH_VALUATION_THRESHOLD = 0.765 #高估阈值
 LOW_VALUATION_THRESHOLD = 0.60  #低估阈值
 EXTREME_LOW_THRESHOLD = 0.55    #极端低估阈值
+
+# 仅供本独立十年图使用，不改动RSI图的阈值或全局Matplotlib样式。
+VALUATION_COLORS = {"OVER": "#C43C39", "NEUTRAL": "#6B7280",
+                    "LOW": "#2E8B57", "DEEP LOW": "#14532D"}
+VALUATION_BACKGROUND_ALPHAS = {"OVER": .05, "LOW": .05, "DEEP LOW": .07}
+# 指数同样映射估值状态，使用较浅配色与细虚线，和MC/GDP深色实线阶梯区分。
+INDEX_STATE_COLORS = {"OVER": "#E27A63", "NEUTRAL": "#A1A8B2",
+                      "LOW": "#6DAD78", "DEEP LOW": "#347A50", "UNKNOWN": "#C2C7CD"}
+INDEX_AXIS_COLOR = "#516A7A"
+INDEX_LINESTYLE = (0, (3, 1.8))
+PUBLICATION_FIGSIZE = (7.2, 4.2)
+PUBLICATION_DPI = 600
 
 SHENZHEN_COMPONENT_SYMBOL = "sz399001"
 SHENZHEN_COMPONENT_SCALE = 10000.0
@@ -387,190 +401,227 @@ def build_market_cap_gdp_ratio() -> pd.DataFrame:
 # 5. 绘图
 # ============================================================
 
+def _valuation_state(value: float) -> str:
+    """边界严格对应脚本阈值：高估含上界、低估及极端低估含各自上界。"""
+    if value >= HIGH_VALUATION_THRESHOLD:
+        return "OVER"
+    if value <= EXTREME_LOW_THRESHOLD:
+        return "DEEP LOW"
+    if value <= LOW_VALUATION_THRESHOLD:
+        return "LOW"
+    return "NEUTRAL"
+
+
+def _draw_ratio_steps(ax, frame: pd.DataFrame) -> None:
+    """相邻观测之间持平；跳变由新状态着色，NaN处结束整段，绝不补线。"""
+    xs, ys, state, previous = [], [], None, None
+
+    def finish():
+        if xs:
+            line, = ax.step(xs, ys, where="post", color=VALUATION_COLORS[state],
+                            linewidth=1.8, solid_capstyle="butt", zorder=4)
+            line.set_gid("mc-gdp-curve")
+
+    for date, value in frame[["date", "market_cap_to_gdp"]].itertuples(index=False, name=None):
+        if not np.isfinite(value):
+            finish()
+            xs, ys, state, previous = [], [], None, None
+            continue
+        next_state = _valuation_state(value)
+        if previous is None:
+            xs, ys, state = [date], [value], next_state
+        else:
+            xs.append(date)
+            ys.append(previous)
+            if state != next_state:
+                finish()
+                xs, ys, state = [date], [previous], next_state
+            xs.append(date)
+            ys.append(value)
+        previous = value
+    finish()
+
+
+def _place_endpoint_labels(fig, annotations, obstacles) -> None:
+    """以实际字体边界尝试放置端点值；放不下时底部摘要仍保留完整数值。"""
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    occupied = [artist.get_window_extent(renderer).expanded(1.03, 1.12) for artist in obstacles]
+    for annotation in annotations:
+        area = annotation.axes.bbox
+        for offset, align in [((-6, 8), "right"), ((-6, -14), "right"),
+                              ((-40, 8), "right"), ((-40, -14), "right"),
+                              ((6, 8), "left"), ((6, -14), "left")]:
+            annotation.set_position(offset)
+            annotation.set_ha(align)
+            box = annotation.get_window_extent(renderer)
+            if (box.x0 >= area.x0+2 and box.x1 <= area.x1-2 and
+                    box.y0 >= area.y0+2 and box.y1 <= area.y1-2 and
+                    not any(box.overlaps(other) for other in occupied)):
+                occupied.append(box.expanded(1.03, 1.12))
+                break
+        else:
+            annotation.set_visible(False)
+
+
+def _draw_index_by_valuation(ax, frame: pd.DataFrame, ratio: pd.DataFrame) -> pd.DataFrame:
+    """只映射已出现的月度观测；缺少估值时为未分类灰色，不倒用未来月份。"""
+    aligned = pd.merge_asof(frame, ratio[["date", "market_cap_to_gdp"]], on="date", direction="backward")
+    aligned["valuation_state"] = aligned["market_cap_to_gdp"].map(
+        lambda value: _valuation_state(value) if np.isfinite(value) else "UNKNOWN")
+
+    def draw(start, end, state):
+        segment = aligned.iloc[start:end]
+        line, = ax.plot(segment["date"], segment["close"], color=INDEX_STATE_COLORS[state],
+                        linewidth=1., alpha=.95, linestyle=INDEX_LINESTYLE, zorder=2)
+        line.set_gid("shenzhen-index-curve")
+
+    start, state = None, None
+    for position, row in enumerate(aligned.itertuples()):
+        if not np.isfinite(row.close):
+            if start is not None:
+                draw(start, position, state)
+            start, state = None, None
+        elif start is None:
+            start, state = position, row.valuation_state
+        elif row.valuation_state != state:
+            # 原段连到本日真实收盘点，新状态自该观测日开始，连接处不虚构价格。
+            draw(start, position+1, state)
+            start, state = position, row.valuation_state
+    if start is not None:
+        draw(start, len(aligned), state)
+    return aligned
+
+
 def plot_chart(ratio: pd.DataFrame, index_df: pd.DataFrame) -> None:
-    setup_chinese_font()
-
-    latest_available = max(
-        ratio["date"].max(),
-        index_df["date"].max(),
-    )
+    """单绘图区双纵轴；只读输入，仅输出原路径的高分辨率PNG。"""
+    ratio = ratio[["date", "market_cap_to_gdp"]].copy()
+    index_df = index_df[["date", "close"]].copy()
+    for frame, column in ((ratio, "market_cap_to_gdp"), (index_df, "close")):
+        frame["date"] = pd.to_datetime(frame["date"], errors="coerce")
+        frame[column] = pd.to_numeric(frame[column], errors="coerce")
+        frame.loc[~np.isfinite(frame[column]), column] = np.nan
+        frame.dropna(subset=["date"], inplace=True)
+        frame.sort_values("date", inplace=True)
+        frame.drop_duplicates("date", keep="last", inplace=True)
+    latest_available = max(ratio["date"].max(), index_df["date"].max())
     start = latest_available - pd.DateOffset(years=LOOKBACK_YEARS)
+    ratio_history = ratio  # 映射指数时允许读取展示起点之前的最后已知观测。
+    ratio = ratio.loc[ratio["date"].between(start, latest_available)]
+    index_df = index_df.loc[index_df["date"].between(start, latest_available)]
+    valid_ratio = ratio.dropna(subset=["market_cap_to_gdp"])
+    valid_index = index_df.dropna(subset=["close"])
+    if valid_ratio.empty or valid_index.empty:
+        raise RuntimeError("最近10年缺少有效的MC/GDP或深证成指数据")
+    if not 0 < EXTREME_LOW_THRESHOLD < LOW_VALUATION_THRESHOLD < HIGH_VALUATION_THRESHOLD:
+        raise ValueError("估值阈值须满足：0 < 极端低估 < 低估 < 高估")
 
-    ratio = ratio.loc[ratio["date"] >= start].copy()
-    index_df = index_df.loc[index_df["date"] >= start].copy()
+    # 用rc_context隔离字体与边框，其他市场图不继承此处样式。
+    with plt.rc_context({"font.family": "sans-serif", "font.size": 8.5,
+                         "axes.unicode_minus": False, "axes.linewidth": .65,
+                         "axes.edgecolor": "#9AA2AB", "text.color": "#26313D",
+                         "axes.labelcolor": "#26313D", "xtick.color": "#53606C",
+                         "ytick.color": "#53606C", "xtick.labelsize": 8,
+                         "ytick.labelsize": 8, "path.simplify": False}):
+        setup_chinese_font()
+        chinese_font = plt.rcParams["font.sans-serif"][0]
+        installed = {font.name for font in font_manager.fontManager.ttflist}
+        plt.rcParams["font.sans-serif"] = (["Arial"] if "Arial" in installed else []) + [chinese_font, "DejaVu Sans"]
+        # 显式字体族才会逐字回退：单写sans-serif会只选Arial，中文将变成缺字方框。
+        plt.rcParams["font.family"] = plt.rcParams["font.sans-serif"]
+        fig, ax = plt.subplots(figsize=PUBLICATION_FIGSIZE, facecolor="white")
+        try:
+            fig.subplots_adjust(left=.105, right=.895, bottom=.235, top=.795)
+            index_ax = ax.twinx()
+            # 价格线居后；两轴背景透明，浅色区间不会完全遮挡指数曲线。
+            ax.set_zorder(2)
+            index_ax.set_zorder(1)
+            ax.patch.set_visible(False)
+            index_ax.patch.set_visible(False)
 
-    index_df["scaled_close"] = (
-        index_df["close"] / SHENZHEN_COMPONENT_SCALE
-    )
+            values = np.r_[valid_ratio["market_cap_to_gdp"].to_numpy(),
+                           HIGH_VALUATION_THRESHOLD, LOW_VALUATION_THRESHOLD, EXTREME_LOW_THRESHOLD]
+            padding = max(np.ptp(values)*.08, .04)
+            low = max(0., np.floor((values.min()-padding)/.05)*.05)
+            high = np.ceil((values.max()+padding)/.05)*.05
+            ax.set_ylim(low, high)
+            index_min, index_max = valid_index["close"].min(), valid_index["close"].max()
+            index_padding = max((index_max-index_min)*.05, abs(index_max)*.005, 1.)
+            index_ax.set_ylim(index_min-index_padding, index_max+index_padding)
+            ax.set_xlim(start, latest_available)
 
-    if ratio.empty:
-        raise RuntimeError("最近10年没有可用的总市值/GDP数据")
-    if index_df.empty:
-        raise RuntimeError("最近10年没有可用的深证成指数据")
+            regimes = [(HIGH_VALUATION_THRESHOLD, high, "OVER", "高估"),
+                       (EXTREME_LOW_THRESHOLD, LOW_VALUATION_THRESHOLD, "LOW", "低估"),
+                       (low, EXTREME_LOW_THRESHOLD, "DEEP LOW", "极端低估")]
+            for bottom, top, state, label in regimes:
+                ax.axhspan(bottom, top, color=VALUATION_COLORS[state],
+                           alpha=VALUATION_BACKGROUND_ALPHAS[state], linewidth=0, zorder=.1)
+                ax.text(.012, (bottom+top)/2, label, transform=ax.get_yaxis_transform(),
+                        color=VALUATION_COLORS[state], fontsize=7.5, va="center", zorder=5,
+                        bbox=dict(facecolor="white", edgecolor="none", alpha=.65, pad=.7))
+            for level, state, label in [(HIGH_VALUATION_THRESHOLD, "OVER", f"{HIGH_VALUATION_THRESHOLD:.3f}"),
+                                        (LOW_VALUATION_THRESHOLD, "LOW", f"{LOW_VALUATION_THRESHOLD:.2f}"),
+                                        (EXTREME_LOW_THRESHOLD, "DEEP LOW", f"{EXTREME_LOW_THRESHOLD:.2f}")]:
+                ax.axhline(level, color=VALUATION_COLORS[state], linewidth=.6,
+                           alpha=.45, linestyle=(0, (3, 3)), zorder=1)
+                ax.annotate(label, (.993, level), xycoords=ax.get_yaxis_transform(),
+                            xytext=(0, 2), textcoords="offset points", ha="right", va="bottom",
+                            color=VALUATION_COLORS[state], fontsize=7, zorder=5,
+                            bbox=dict(facecolor="white", edgecolor="none", alpha=.7, pad=.5))
 
-    fig, ax = plt.subplots(figsize=(13.2, 6.5))
+            mapped_index = _draw_index_by_valuation(index_ax, index_df, ratio_history)
+            _draw_ratio_steps(ax, ratio)
+            ax.set_ylabel("MC/GDP", fontsize=9, labelpad=6)
+            index_ax.set_ylabel("深证成指（点）", fontsize=9, labelpad=7, color=INDEX_AXIS_COLOR)
+            index_ax.tick_params(axis="y", colors=INDEX_AXIS_COLOR, width=.65, length=3)
+            ax.tick_params(width=.65, length=3)
+            ax.yaxis.set_major_locator(MultipleLocator(.10))
+            ax.yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
+            index_ax.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:,.0f}"))
+            ax.xaxis.set_major_locator(mdates.YearLocator(2))
+            ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+            ax.grid(axis="y", color="#D8DEE5", linewidth=.5, alpha=.55, zorder=.5)
+            index_ax.grid(False)
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+            for side in ("top", "bottom", "left"):
+                index_ax.spines[side].set_visible(False)
+            index_ax.spines["right"].set_color(INDEX_AXIS_COLOR)
+            index_ax.spines["right"].set_alpha(.55)
 
-    # 先画估值线，再画深证成指；不强制指定颜色，
-    # 保持 Matplotlib 默认配色体系，避免硬编码主题。
-    ax.plot(
-        ratio["date"],
-        ratio["market_cap_to_gdp"],
-        linewidth=2.15,
-        label="沪深总市值 / GDP(TTM)",
-        zorder=3,
-    )
-    ax.plot(
-        index_df["date"],
-        index_df["scaled_close"],
-        linewidth=1.55,
-        alpha=0.88,
-        label="深证成指 ÷ 10000",
-        zorder=2,
-    )
-
-    thresholds = [
-        (HIGH_VALUATION_THRESHOLD, "高估"),
-        (LOW_VALUATION_THRESHOLD, "低估"),
-        (EXTREME_LOW_THRESHOLD, "极度低估"),
-    ]
-
-    for level, label in thresholds:
-        ax.axhline(
-            y=level,
-            linewidth=1.0,
-            alpha=0.52,
-            zorder=1,
-        )
-        ax.text(
-            0.985,
-            level,
-            f"{label}  {level:.2f}",
-            transform=ax.get_yaxis_transform(),
-            ha="right",
-            va="bottom",
-            fontsize=9,
-            alpha=0.82,
-        )
-
-    # 最新值标记
-    ratio_last = ratio.iloc[-1]
-    index_last = index_df.iloc[-1]
-
-    ax.scatter(
-        [ratio_last["date"]],
-        [ratio_last["market_cap_to_gdp"]],
-        s=30,
-        zorder=5,
-    )
-    ax.annotate(
-        f'{ratio_last["market_cap_to_gdp"]:.2f}',
-        xy=(ratio_last["date"], ratio_last["market_cap_to_gdp"]),
-        xytext=(-9, 11),
-        textcoords="offset points",
-        ha="right",
-        fontsize=9.5,
-    )
-
-    ax.scatter(
-        [index_last["date"]],
-        [index_last["scaled_close"]],
-        s=26,
-        zorder=5,
-    )
-    ax.annotate(
-        f'{index_last["scaled_close"]:.2f}',
-        xy=(index_last["date"], index_last["scaled_close"]),
-        xytext=(-9, -15),
-        textcoords="offset points",
-        ha="right",
-        fontsize=9.5,
-    )
-
-    ax.set_title(
-        "A股总市值 / GDP 与深证成指｜近10年",
-        fontsize=16.5,
-        pad=20,
-    )
-
-    ax.text(
-        0.0,
-        1.015,
-        "沪市市价总值 + 深市市价总值 ÷ 中国名义GDP(TTM)   ｜   深证成指 399001 ÷ 10000",
-        transform=ax.transAxes,
-        fontsize=9.5,
-        alpha=0.72,
-        va="bottom",
-    )
-
-    ax.legend(
-        loc="upper left",
-        ncol=2,
-        frameon=False,
-        fontsize=10,
-    )
-
-    ax.set_ylabel("总市值/GDP ｜ 深证成指÷10000")
-    ax.set_xlabel("")
-
-    ax.xaxis.set_major_locator(mdates.YearLocator(2))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
-
-    ax.yaxis.set_major_locator(MultipleLocator(0.2))
-    ax.yaxis.set_major_formatter(FormatStrFormatter("%.1f"))
-
-    ax.grid(
-        axis="y",
-        alpha=0.16,
-        linewidth=0.8,
-    )
-
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-
-    all_values = pd.concat(
-        [
-            ratio["market_cap_to_gdp"],
-            index_df["scaled_close"],
-            pd.Series(
-                [
-                    HIGH_VALUATION_THRESHOLD,
-                    LOW_VALUATION_THRESHOLD,
-                    EXTREME_LOW_THRESHOLD,
-                ]
-            ),
-        ],
-        ignore_index=True,
-    ).dropna()
-
-    y_min = max(0.0, float(all_values.min()) - 0.12)
-    y_max = float(all_values.max()) + 0.15
-
-    ax.set_ylim(y_min, y_max)
-    ax.set_xlim(start, latest_available)
-
-    ax.text(
-        0.995,
-        0.015,
-        (
-            f"最新：总市值/GDP {ratio_last['market_cap_to_gdp']:.2f}"
-            f"（{ratio_last['date']:%Y-%m}）"
-            f"   ｜   深证成指÷10000 {index_last['scaled_close']:.2f}"
-            f"（{index_last['date']:%Y-%m-%d}）"
-        ),
-        transform=ax.transAxes,
-        ha="right",
-        va="bottom",
-        fontsize=8.8,
-        alpha=0.68,
-    )
-
-    fig.tight_layout()
-    fig.savefig(
-        OUTPUT_PNG,
-        dpi=220,
-        bbox_inches="tight",
-    )
-    plt.close(fig)
+            fig.text(.105, .952, "A股宏观估值与深证成指｜近10年", fontsize=12, fontweight="medium", va="top")
+            fig.text(.105, .890, "MC/GDP =（沪市市价总值 + 深市市价总值）/ 中国名义 GDP(TTM)",
+                     fontsize=8, color="#637080", va="top")
+            index_proxy = Line2D([], [], color=INDEX_STATE_COLORS["NEUTRAL"], linewidth=1., linestyle=INDEX_LINESTYLE)
+            fig.legend([Line2D([], [], color=VALUATION_COLORS["NEUTRAL"], linewidth=1.8, drawstyle="steps-post"), index_proxy],
+                       ["MC/GDP", "深证成指"], loc="lower left", bbox_to_anchor=(.105, .802),
+                       ncol=2, frameon=False, fontsize=8.5, handlelength=2, columnspacing=1.8, borderaxespad=0)
+            ratio_last, index_last = valid_ratio.iloc[-1], valid_index.iloc[-1]
+            latest_color = VALUATION_COLORS[_valuation_state(ratio_last["market_cap_to_gdp"])]
+            index_state = mapped_index.loc[mapped_index["date"].eq(index_last["date"]), "valuation_state"].iloc[-1]
+            annotations = []
+            for axis, date, value, color, text in [
+                (ax, ratio_last["date"], ratio_last["market_cap_to_gdp"], latest_color, f"{ratio_last['market_cap_to_gdp']:.3f}"),
+                (index_ax, index_last["date"], index_last["close"], INDEX_STATE_COLORS[index_state], f"{index_last['close']:,.0f}")]:
+                axis.scatter([date], [value], s=13, color=color, zorder=6, clip_on=True)
+                annotations.append(axis.annotate(text, (date, value), xytext=(-6, 8),
+                                                 textcoords="offset points", ha="right", fontsize=8,
+                                                 color=color, zorder=6,
+                                                 bbox=dict(facecolor="white", edgecolor="none", alpha=.8, pad=.6)))
+            fig.text(.105, .112, f"最新 MC/GDP：{ratio_last['market_cap_to_gdp']:.3f}（{ratio_last['date']:%Y-%m}）"
+                     f"    深证成指：{index_last['close']:,.2f}（{index_last['date']:%Y-%m-%d}）", fontsize=8)
+            fig.text(.105, .073, "指数颜色按MC/GDP月度观测日期映射；实线阶梯对应左轴，细虚线对应右轴。",
+                     fontsize=6.8, color="#7B8490")
+            fig.text(.105, .034, "MC/GDP history: historical revised series；历史修订数据，非严格无前视回测信号。",
+                     fontsize=6.8, color="#7B8490")
+            obstacles = fig.texts + fig.legends + [text for text in ax.texts if text not in annotations]
+            _place_endpoint_labels(fig, annotations, obstacles)
+            output = Path(OUTPUT_PNG)
+            output.parent.mkdir(parents=True, exist_ok=True)
+            # 固定纸面尺寸，不用bbox_inches=tight改变出版物排版尺寸。
+            fig.savefig(output, format="png", dpi=PUBLICATION_DPI, facecolor="white")
+        finally:
+            plt.close(fig)
 
 
 # ============================================================
@@ -653,5 +704,15 @@ def main() -> None:
     print("=" * 72)
 
 
-if __name__ == "__main__":
+def _run_cli(argv=None) -> None:
+    """Service无界面入口；数据获取和main计算流程保持原样。"""
+    parser = argparse.ArgumentParser(description="生成十年MC/GDP与深证成指出版图")
+    parser.add_argument("--no-show", action="store_true", help="使用Agg后端，无界面出图，供Service调用")
+    args = parser.parse_args(argv)
+    if args.no_show:
+        plt.switch_backend("Agg")
     main()
+
+
+if __name__ == "__main__":
+    _run_cli()

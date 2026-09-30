@@ -369,19 +369,23 @@ class BreadthStore:
         return pd.DataFrame(self.read("benchmarks",key).get("rows",[]))
 
 
-def price_band_layout(ax, output_dpi=None):
-    """按最终导出像素计算四条状态带，保持两侧间隔恒为约2像素。"""
+def price_band_layout(ax, output_dpi=None, *, include_ebs=False):
+    """按导出像素计算状态带；EBS图三层，其余图保留原两层位置。"""
     dpi = float(output_dpi or ax.figure.dpi)
     axes_height_px = ax.get_position().height * ax.figure.get_size_inches()[1] * dpi
     unit = 1.0 / max(axes_height_px, 1.0)
     height, gap, edge = 16 * unit, 2 * unit, 5 * unit
-    return {
+    layout = {
         "height": height,
         "vix_negative": edge,
         "breadth_low": edge + height + gap,
         "breadth_high": 1 - edge - height,
         "vix_positive": 1 - edge - 2 * height - gap,
     }
+    if include_ebs:
+        layout.update(ebs_high=edge + 2*(height+gap), ebs_low=1-edge-height,
+                      breadth_high=1-edge-2*height-gap, vix_positive=1-edge-3*height-2*gap)
+    return layout
 
 
 def add_state_band_label(ax, patch, label, *, output_dpi=None, fontsize=6):
@@ -407,7 +411,7 @@ def add_state_band_label(ax, patch, label, *, output_dpi=None, fontsize=6):
                    path_effects=[patheffects.withStroke(linewidth=1.2, foreground="#263247")])
 
 
-def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_threshold, *, output_dpi=None):
+def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_threshold, *, output_dpi=None, include_ebs=False):
     """只在同日广度达到极端阈值时，在价格图底部或顶部画提示带。"""
     if (price_df is None or price_df.empty or breadth_df is None or breadth_df.empty
             or "date" not in price_df or not {"date", "percent"}.issubset(breadth_df.columns)):
@@ -435,7 +439,7 @@ def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_thresh
         right = np.r_[middle, x[-1] + (x[-1]-middle[-1])]
 
     # 上下极端各占一侧，VIX在同侧紧邻；位置由导出尺寸换算。
-    layout = price_band_layout(ax, output_dpi)
+    layout = price_band_layout(ax, output_dpi, include_ebs=include_ebs)
     bands = {"low": (BREADTH_BAND_LOW_COLOR, layout["breadth_low"]),
              "high": (BREADTH_BAND_HIGH_COLOR, layout["breadth_high"])}
     states = ["low" if pd.notna(v) and v <= low else "high" if pd.notna(v) and v >= high else None

@@ -20,3 +20,6 @@ tools/email_local_config.py
 # 广度本机锁和原子写入临时文件不跨机器同步
 cache/market_breadth_local/
 cache/market_breadth/**/*.tmp
+
+# 小电脑每日出图的成功状态和操作系统锁，仅供当前机器使用
+cache/service_daily_steps/

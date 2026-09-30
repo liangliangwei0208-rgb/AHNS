@@ -32,7 +32,7 @@ from tools.paths import OUTPUT_DIR, PROJECT_ROOT, relative_path_str
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 BJ_TZ = ZoneInfo("Asia/Shanghai")
 SCRIPT_OUTPUT_TAIL_LINES = 80
-EMAIL_INLINE_IMAGE_LIMIT = 12  # 12张以内正文内嵌并附附件，13张起仅附件
+EMAIL_INLINE_IMAGE_LIMIT = 16  # 16张以内正文内嵌并附附件，17张起仅附件
 EMAIL_FAILURE_REASON_LIMIT = 120
 REALTIME_OBSERVATION_SCRIPTS = {
     "premarket_fund.py",
@@ -64,6 +64,9 @@ class WorkflowStep:
     close_observation_group: bool = False
     holiday_observation_group: bool = False
     first_reopen_group: bool = False
+    independent_window: bool = False
+    once_per_day: bool = False
+    daily_required_images: tuple[str, ...] = ()
     run_window_start_bj: datetime_time | None = None
     run_window_end_bj: datetime_time | None = None
 
@@ -254,6 +257,9 @@ def resolve_workflow_steps(
                 close_observation_group=close_observation_group,
                 holiday_observation_group=holiday_observation_group,
                 first_reopen_group=first_reopen_group,
+                independent_window=bool(item.get("independent_window", False)),
+                once_per_day=bool(item.get("once_per_day", False)),
+                daily_required_images=tuple(item.get("daily_required_images") or ()),
                 run_window_start_bj=run_window_start_bj,
                 run_window_end_bj=run_window_end_bj,
             )
@@ -275,6 +281,21 @@ def time_in_closed_window(current: datetime_time, start: datetime_time, end: dat
     if start <= end:
         return start <= current <= end
     return current >= start or current <= end
+
+
+def step_matches_window(step: WorkflowStep, current: datetime_time) -> bool:
+    """独立窗口以分钟为单位，23:50整分钟都允许启动。其他步骤沿用旧规则。"""
+    if not step.has_run_window:
+        return False
+    if step.independent_window:
+        current = current.replace(second=0, microsecond=0)
+    return time_in_closed_window(current, step.run_window_start_bj, step.run_window_end_bj)
+
+
+def step_can_start(step: WorkflowStep, current_time: datetime | None = None) -> bool:
+    """前序步骤可能耗时较长，独立限时步骤须按实际启动时刻复核。"""
+    return not step.independent_window or step_matches_window(
+        step, coerce_beijing_datetime(current_time or datetime.now(BJ_TZ)).time())
 
 
 def select_workflow_steps_for_time(
@@ -299,7 +320,7 @@ def select_workflow_steps_for_time(
         if step.has_run_window
         and step.run_window_start_bj is not None
         and step.run_window_end_bj is not None
-        and time_in_closed_window(current, step.run_window_start_bj, step.run_window_end_bj)
+        and step_matches_window(step, current)
     ]
     matching_realtime_steps = [
         step
@@ -313,6 +334,7 @@ def select_workflow_steps_for_time(
             or step.holiday_observation_group
             or (service_first_reopen and step.first_reopen_group)
             or step in matching_realtime_steps
+            or (step.independent_window and step in matching_window_steps)
         ]
         if service_first_reopen:
             chosen = [
@@ -331,6 +353,7 @@ def select_workflow_steps_for_time(
             for step in steps
             if step.always_run
             or step in matching_realtime_steps
+            or (step.independent_window and step in matching_window_steps)
             or (
                 close_window_active
                 and step.close_observation_group
@@ -391,15 +414,61 @@ def stream_script_output(
 
 
 def run_script(step: WorkflowStep, *, extra_env: dict[str, str] | None = None) -> ScriptResult:
+    """只为已配置每日一次的Service图加本机去重；其它步骤原样执行。"""
+    if not step.once_per_day or not step_can_start(step):
+        return _run_script(step, extra_env=extra_env)
+    from tools.service_daily_step import DailyStepGuard
+    started_at = coerce_beijing_datetime(datetime.now(BJ_TZ))
+    result = None
+    try:
+        with DailyStepGuard(relative_text(step.script_path)) as guard:
+            if not guard.acquired or guard.completed(started_at.date().isoformat()):
+                note = f"{step.name} 跳过：已有任务正在运行或北京时间当天已成功出图"
+                log(note)
+                return ScriptResult(step.name, step.script_path.name, step.script_path, 0, 0., [], step.collect_images, [note])
+            result = _run_script(step, extra_env=extra_env)
+            changed_names = {image.name for image in result.changed_images}
+            if result.success and changed_names and set(step.daily_required_images).issubset(changed_names):
+                try:
+                    guard.mark_success(started_at, coerce_beijing_datetime(datetime.now(BJ_TZ)))
+                except OSError as error:
+                    result.return_code = 1
+                    result.error_message = f"每日出图状态保存失败: {error}"
+                    log(result.error_message)
+            elif result.success and not any("跳过" in line for line in result.output_tail):
+                log(f"{step.name} 未更新所需图片，不记录每日完成状态，后续触发可重试")
+            return result
+    except OSError as error:
+        # 本机协调文件不可写时只让这个可选步骤失败，不阻断其余业务与邮件。
+        if result is None:
+            result = ScriptResult(step.name, step.script_path.name, step.script_path,
+                                  1, 0., [], step.collect_images, [])
+        result.return_code = 1
+        result.error_message = f"每日出图本机状态不可用: {error}"
+        log(result.error_message)
+        return result
+
+
+
+def _run_script(step: WorkflowStep, *, extra_env: dict[str, str] | None = None) -> ScriptResult:
     """运行一个配置步骤，并记录它本次生成或更新的图片。
 
     注意：有些脚本本来就不是每天都出图，例如 safe_holidays.py 和
     sum_holidays.py。只要退出码是 0，即使没有检测到新图片，也表示这一步正常完成。
     """
     script_path = step.script_path
+    if not step_can_start(step):
+        note = f"{step.name} 跳过：实际启动时间已不在 {step.run_window_text}"
+        log(note)
+        return ScriptResult(step.name, script_path.name, script_path, 0, 0.0, [], step.collect_images, [note])
     arg_text = "" if not step.args else " " + " ".join(step.args)
     log(f"开始运行 {step.name}: {relative_text(script_path)}{arg_text}")
     before = snapshot_images()
+    # 扫描大量图片也可能跨过窗口末尾，必须紧邻子进程启动再次复核。
+    if not step_can_start(step):
+        note = f"{step.name} 跳过：图片扫描后已不在 {step.run_window_text}"
+        log(note)
+        return ScriptResult(step.name, script_path.name, script_path, 0, 0.0, [], step.collect_images, [note])
     started = time.perf_counter()
     output_tail: list[str] = []
     error_message = ""
@@ -773,6 +842,10 @@ def main(
             log(f"[WARN] {step.name} 是{required_note}，失败已记录，继续运行后续步骤")
 
     images = unique_images(results)
+    from tools.email_image_names import build_image_names
+    image_names = build_image_names(images, {
+        image.resolve(): result.step_name for result in results for image in result.changed_images
+    })
     finished_at = datetime.now(BJ_TZ)
     has_failures = any(not result.success for result in results)
     email_text = build_email_text(
@@ -784,12 +857,12 @@ def main(
 
     image_total_size = total_file_size(images)
     log(f"本次共检测到新建或更新图片 {len(images)} 张，总大小 {format_file_size(image_total_size)}")
-    for image in images:
+    for image, display_name in zip(images, image_names):
         try:
             size_text = format_file_size(image.stat().st_size)
         except OSError:
             size_text = "大小未知"
-        log(f"待发送图片: {relative_text(image)} ({size_text})")
+        log(f"待发送图片: {display_name} ← {relative_text(image)} ({size_text})")
 
     if not images and not has_failures:
         log("本次没有可发送图片，跳过邮件发送")
@@ -815,10 +888,11 @@ def main(
             subject=subject,
             text=email_text,
             image_paths=images,
+            image_names=image_names,
             to_email=args.receiver,
             embed_images=embed_images,
             attach_images=attach_images,
-            timeout=350,  # 图片邮件较大，允许等待SMTP响应350秒
+            timeout=450,  # 图片邮件较大，允许等待SMTP响应450秒
         )
     except Exception as exc:
         log(

@@ -23,6 +23,13 @@ INDEX_FILE = "sz399001_daily.csv"
 PE_FILE = "gu_zhai_xi_pe.csv"
 BOND_FILE = "gu_zhai_xi_cn10y.csv"
 
+# 三条指数使用各自的日线缓存；仅共用股债利差的状态判定，不混用点位。
+INDEX_SPECS = {
+    "shenzhen": {"file": INDEX_FILE, "column": "index_close", "futu": "SZ.399001", "quote": "sz399001", "secid": "0.399001", "state": "index"},
+    "csi2000": {"file": "gu_zhai_xi_csi2000_daily.csv", "column": "csi2000_close", "futu": "SH.932000", "quote": "sh932000", "secid": "1.932000", "state": "csi2000_index"},
+    "shanghai": {"file": "gu_zhai_xi_shanghai_daily.csv", "column": "shanghai_close", "futu": "SH.000001", "quote": "sh000001", "secid": "1.000001", "state": "shanghai_index"},
+}
+
 
 def required_trade_dates(years: int, window: int, now: datetime | None = None) -> pd.DatetimeIndex:
     """只把收盘缓冲期已过的上交所交易日作为正式日线目标。"""
@@ -100,7 +107,7 @@ class MarketDataCache:
         except (OSError, ValueError):
             self.state = {}
         self._futu_ctx = None
-        self._sina_history = None
+        self._sina_history = {}
         self.pe_columns = tuple(pe_columns)
 
     def __enter__(self):
@@ -171,20 +178,22 @@ class MarketDataCache:
         present = set(pd.DatetimeIndex(frame["date"]))
         return [day for day in self.dates if day not in present]
 
-    def _index_missing(self, frame: pd.DataFrame) -> list[pd.Timestamp]:
+    def _index_missing(self, frame: pd.DataFrame, *, symbol: str = "shenzhen") -> list[pd.Timestamp]:
+        spec = INDEX_SPECS[symbol]
+        state_key = spec["state"]
         missing = self._missing(frame)
-        if self.target.date() == self.now.date() or self.state.get("index_pending_date") == self.target.date().isoformat():
+        if self.target.date() == self.now.date() or self.state.get(f"{state_key}_pending_date") == self.target.date().isoformat():
             # 共享指数 CSV 只有日期和收盘价，盘中写入的当日值不能凭日期认作正式收盘。
-            final = self.state.get("index_final") or {}
-            today = frame.loc[frame["date"] == self.target, "index_close"]
-            cache_path = self.cache_dir / INDEX_FILE
+            final = self.state.get(f"{state_key}_final") or {}
+            today = frame.loc[frame["date"] == self.target, spec["column"]]
+            cache_path = self.cache_dir / spec["file"]
             try:
                 written_at = pd.Timestamp.fromtimestamp(cache_path.stat().st_mtime, tz=BEIJING)
                 ready_at = self.target.tz_localize(BEIJING) + pd.Timedelta(hours=15 + MARKET_CLOSE_BUFFER_HOURS)
                 written_after_close = ready_at <= written_at <= self.now
             except OSError:
                 written_after_close = False
-            pending = self.state.get("index_pending_date") == self.target.date().isoformat()
+            pending = self.state.get(f"{state_key}_pending_date") == self.target.date().isoformat()
             verified = (
                 len(today) == 1 and (
                     (written_after_close and not pending) or (
@@ -218,31 +227,40 @@ class MarketDataCache:
             description += f"（{gaps[0].date()} ~ {gaps[-1].date()}）"
         print(f"[{name}] 最近有效日={latest}，目标日={self.target.date()}，{description}")
 
-    def load_index(self) -> pd.DataFrame:
-        whole = self._cache(INDEX_FILE, "close")
+    def load_index(self, symbol: str = "shenzhen") -> pd.DataFrame:
+        """按指数独立缓存补缺口，富途优先；三个指数复用同一 OpenD 连接。"""
+        spec = INDEX_SPECS[symbol]
+        filename, column, state_key = spec["file"], spec["column"], spec["state"]
+        whole = self._cache(filename, "close")
         if self.target.date() < self.now.date() and any(whole["date"].dt.date == self.now.date()):
             today = self.now.date().isoformat()
-            if self.state.get("index_pending_date") != today:
-                self.state["index_pending_date"] = today
+            if self.state.get(f"{state_key}_pending_date") != today:
+                self.state[f"{state_key}_pending_date"] = today
                 self._save_state()
-        current = whole.loc[whole["date"] <= self.target].rename(columns={"close": "index_close"}).copy()
+        current = whole.loc[whole["date"] <= self.target].rename(columns={"close": column}).copy()
+        if symbol == "shenzhen":
+            fetchers = (self._fetch_index_futu, self._fetch_index_tencent, self._fetch_index_eastmoney, self._fetch_index_sina)
+        else:
+            fetchers = tuple((lambda start, end, fn=fn: fn(start, end, symbol=symbol)) for fn in (
+                self._fetch_index_futu, self._fetch_index_tencent, self._fetch_index_eastmoney, self._fetch_index_sina,
+            ))
         sources = (
-            ("index_futu", self._fetch_index_futu),
-            ("index_tencent", self._fetch_index_tencent),
-            ("index_eastmoney", self._fetch_index_eastmoney),
-            ("index_sina", self._fetch_index_sina),
+            (f"{state_key}_futu", fetchers[0]),
+            (f"{state_key}_tencent", fetchers[1]),
+            (f"{state_key}_eastmoney", fetchers[2]),
+            (f"{state_key}_sina", fetchers[3]),
         )
-        for start, end in self._segments(self._index_missing(current))[: self.MAX_BATCHES_PER_RUN]:
-            remaining = {day for day in self.dates if start <= day <= end and day in self._index_missing(current)}
+        for start, end in self._segments(self._index_missing(current, symbol=symbol))[: self.MAX_BATCHES_PER_RUN]:
+            remaining = {day for day in self.dates if start <= day <= end and day in self._index_missing(current, symbol=symbol)}
             for key, fetch in sources:
                 if not remaining:
                     break
-                if key == "index_sina" and self._sina_history is not None:
-                    part = self._sina_history
+                if key.endswith("_sina") and symbol in self._sina_history:
+                    part = self._sina_history[symbol]
                 else:
                     part = self._attempt(key, fetch, min(remaining), max(remaining))
-                    if key == "index_sina" and not part.empty:
-                        self._sina_history = part
+                    if key.endswith("_sina") and not part.empty:
+                        self._sina_history[symbol] = part
                 if part.empty:
                     continue
                 try:
@@ -257,24 +275,24 @@ class MarketDataCache:
                     continue
                 fresh = part.rename(columns={"index_close": "close"})
                 whole = _normalise(pd.concat([whole, fresh], ignore_index=True), "close", positive=True)
-                self._save(INDEX_FILE, "close", whole)
-                current = whole.loc[whole["date"] <= self.target].rename(columns={"close": "index_close"}).copy()
+                self._save(filename, "close", whole)
+                current = whole.loc[whole["date"] <= self.target].rename(columns={"close": column}).copy()
                 if self.target in set(part["date"]) and (
                     self.target.date() == self.now.date()
-                    or self.state.get("index_pending_date") == self.target.date().isoformat()
+                    or self.state.get(f"{state_key}_pending_date") == self.target.date().isoformat()
                 ):
-                    self.state["index_final"] = {
+                    self.state[f"{state_key}_final"] = {
                         "date": self.target.date().isoformat(),
                         "close": float(part.loc[part["date"] == self.target, "index_close"].iloc[-1]),
                         "verified_at": self.now.isoformat(),
                     }
-                    self.state.pop("index_pending_date", None)
+                    self.state.pop(f"{state_key}_pending_date", None)
                     self._save_state()
                 remaining -= set(part["date"])
-        if self.target in self._index_missing(current):
+        if self.target in self._index_missing(current, symbol=symbol):
             # 已知来源均未核实当日收盘值时，旧缓存仍留在磁盘供后续重试，但不进入正式图。
             current = current.loc[current["date"] != self.target].copy()
-        self._status("INDEX", current)
+        self._status(symbol.upper(), current)
         return current.reset_index(drop=True)
 
     def load_pe(self) -> pd.DataFrame:
@@ -330,7 +348,7 @@ class MarketDataCache:
     def load_all(self) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         return self.load_index(), self.load_pe(), self.load_bond()
 
-    def _fetch_index_futu(self, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    def _fetch_index_futu(self, start: pd.Timestamp, end: pd.Timestamp, *, symbol: str = "shenzhen") -> pd.DataFrame:
         import futu
 
         if self._futu_ctx is None:
@@ -342,7 +360,7 @@ class MarketDataCache:
         page = None
         for _ in range(4):
             ret, data, page = self._futu_ctx.request_history_kline(
-                "SZ.399001", start=start.strftime("%Y-%m-%d"), end=end.strftime("%Y-%m-%d"),
+                INDEX_SPECS[symbol]["futu"], start=start.strftime("%Y-%m-%d"), end=end.strftime("%Y-%m-%d"),
                 ktype=futu.KLType.K_DAY, autype=futu.AuType.NONE,
                 fields=[futu.KL_FIELD.DATE_TIME, futu.KL_FIELD.CLOSE],
                 max_count=self.MAX_BATCH_DAYS, page_req_key=page,
@@ -356,35 +374,36 @@ class MarketDataCache:
             raise RuntimeError("富途分页未取完，拒绝截断结果")
         return pd.concat(all_pages, ignore_index=True) if all_pages else pd.DataFrame()
 
-    def _fetch_index_tencent(self, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    def _fetch_index_tencent(self, start: pd.Timestamp, end: pd.Timestamp, *, symbol: str = "shenzhen") -> pd.DataFrame:
+        quote = INDEX_SPECS[symbol]["quote"]
         count = min(320, max(2, len(self.dates[(self.dates >= start) & (self.dates <= end)]) + 10))
         response = requests.get(
             "https://proxy.finance.qq.com/ifzqgtimg/appstock/app/newfqkline/get",
-            params={"_var": "kline_dayqfq", "param": f"sz399001,day,,{end:%Y-%m-%d},{count},qfq"}, timeout=8,
+            params={"_var": "kline_dayqfq", "param": f"{quote},day,,{end:%Y-%m-%d},{count},qfq"}, timeout=8,
         )
         response.raise_for_status()
         text = response.text
-        data = json.loads(text[text.index("{"):].rstrip("; \n"))["data"]["sz399001"]
+        data = json.loads(text[text.index("{"):].rstrip("; \n"))["data"][quote]
         rows = data.get("day") or data.get("qfqday") or []
         return pd.DataFrame({"date": [row[0] for row in rows], "index_close": [row[2] for row in rows]})
 
-    def _fetch_index_eastmoney(self, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    def _fetch_index_eastmoney(self, start: pd.Timestamp, end: pd.Timestamp, *, symbol: str = "shenzhen") -> pd.DataFrame:
         response = requests.get(
             "https://push2his.eastmoney.com/api/qt/stock/kline/get",
-            params={"secid": "0.399001", "fields1": "f1,f2,f3,f4,f5", "fields2": "f51,f52,f53,f54,f55,f56,f57,f58", "klt": "101", "fqt": "0", "beg": start.strftime("%Y%m%d"), "end": end.strftime("%Y%m%d")},
+            params={"secid": INDEX_SPECS[symbol]["secid"], "fields1": "f1,f2,f3,f4,f5", "fields2": "f51,f52,f53,f54,f55,f56,f57,f58", "klt": "101", "fqt": "0", "beg": start.strftime("%Y%m%d"), "end": end.strftime("%Y%m%d")},
             timeout=8,
         )
         response.raise_for_status()
         rows = (response.json().get("data") or {}).get("klines") or []
         return pd.DataFrame({"date": [row.split(",")[0] for row in rows], "index_close": [row.split(",")[2] for row in rows]})
 
-    def _fetch_index_sina(self, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    def _fetch_index_sina(self, start: pd.Timestamp, end: pd.Timestamp, *, symbol: str = "shenzhen") -> pd.DataFrame:
         """新浪只公开完整压缩日线，最后回退时下载一次并仅合并缺口。"""
         from akshare.index.cons import zh_sina_index_stock_hist_url
         from akshare.stock.cons import hk_js_decode
         import py_mini_racer
 
-        response = requests.get(zh_sina_index_stock_hist_url.format("sz399001"), params={"d": "2020_2_4"}, timeout=8)
+        response = requests.get(zh_sina_index_stock_hist_url.format(INDEX_SPECS[symbol]["quote"]), params={"d": "2020_2_4"}, timeout=8)
         response.raise_for_status()
         encoded = response.text.split("=", 1)[1].split(";", 1)[0].replace('"', "")
         decoder = py_mini_racer.MiniRacer()

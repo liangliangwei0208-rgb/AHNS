@@ -363,8 +363,9 @@ class GuZhaiXiCacheTests(unittest.TestCase):
         index = pd.DataFrame({"date": dates, "index_close": range(100, 400)})
         pe = pd.DataFrame({"date": dates, "pe_ttm": [20.0] * 300})
         bond = pd.DataFrame({"date": dates, "cn10y": [2.0] * 300})
-        with patch.object(gu_zhai_xi, "_load_chart_sources", return_value=(index, pe, bond)):
-            result = gu_zhai_xi.build_indicator(years=1, window=250, sigma_mult=1.25)
+        with patch.object(gu_zhai_xi, "_load_chart_sources", return_value=(index, pe, bond, {})):
+            result = gu_zhai_xi.build_indicator(years=1, window=250, sigma_mult=1.25,
+                                                visible_indices=("shenzhen",))
         self.assertAlmostEqual(result.iloc[-1]["spread"], 3.0)
         self.assertAlmostEqual(result.iloc[-1]["mean"], 3.0)
         self.assertAlmostEqual(result.iloc[-1]["upper"], 3.0)

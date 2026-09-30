@@ -40,23 +40,24 @@ class EmailSummaryTests(unittest.TestCase):
             error_message=error_message,
         )
 
-    def test_twelve_images_inline_and_thirteen_attachments_only(self):
-        self.assertEqual(git_main.choose_email_image_send_options(12)[:2], (True, True))
-        self.assertEqual(git_main.choose_email_image_send_options(13)[:2], (False, True))
+    def test_sixteen_images_inline_and_seventeen_attachments_only(self):
+        self.assertEqual(git_main.choose_email_image_send_options(16)[:2], (True, True))
+        self.assertEqual(git_main.choose_email_image_send_options(17)[:2], (False, True))
 
     def test_exception_email_uses_180_second_response_timeout(self):
         with patch.object(git_main, "send_email", return_value=True) as send, patch.object(git_main, "log"):
             self.assertTrue(git_main.send_uncaught_exception_email(entry_name="service_main.py", workflow_label="Service", exc=RuntimeError("fixture")))
         self.assertEqual(send.call_args.kwargs["timeout"], 180)
 
-    def test_main_email_uses_350_second_timeout_and_image_count_boundary(self):
+    def test_main_email_uses_450_second_timeout_and_image_count_boundary(self):
         # 子流程和SMTP均模拟，绝不联网发邮件。
         steps=[{"name":"fixture", "script":"stock_analysis.py", "always_run":True}]
-        for count in (12, 13):
+        for count in (16, 17):
             with self.subTest(count=count), patch.object(git_main, "run_script", return_value=self._result(name="fixture", script="stock_analysis.py", images=[Path(f"output/fixture_{i}.png") for i in range(count)])), patch.object(git_main, "send_email", return_value=True) as send, patch.object(git_main, "log"):
                 self.assertEqual(git_main.main([], workflow_steps=steps), 0)
-            self.assertEqual(send.call_args.kwargs["timeout"], 350)
-            self.assertEqual(send.call_args.kwargs["embed_images"], count<=12)
+            self.assertEqual(send.call_args.kwargs["timeout"], 450)
+            self.assertEqual(send.call_args.kwargs["embed_images"], count<=16)
+            self.assertEqual(len(send.call_args.kwargs["image_names"]), count)
             self.assertTrue(send.call_args.kwargs["attach_images"])
 
     def test_success_email_contains_only_overall_summary(self):
