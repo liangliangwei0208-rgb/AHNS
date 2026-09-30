@@ -296,11 +296,13 @@ def build_change_summary_text(
 
 
 
-def _run_rsi_analysis(config: dict, include_realtime: bool) -> StockAnalysisResult:
+def _run_rsi_analysis(config: dict, include_realtime: bool, mc_gdp_df=None) -> StockAnalysisResult:
     """按配置运行一次 RSI 分析，并统一封装返回结构。"""
     kwargs = dict(config["kwargs"])
     if config.get("use_realtime_param"):
         kwargs["include_realtime"] = include_realtime
+    if kwargs.get("show_mc_gdp"):
+        kwargs["mc_gdp_df"] = mc_gdp_df
 
     (
         hist,
@@ -341,8 +343,16 @@ def build_stock_analysis(
         refresh_for_charts()
     except Exception as error:
         print(f"[WARN] 广度采集异常，继续生成原有市场图: {error}")
+    # 两张国内 ETF 使用同一市场估值，整轮只加载/刷新一次。
+    mc_gdp_df = pd.DataFrame()
+    if any(config["kwargs"].get("show_mc_gdp") for config in RSI_ANALYSIS_CONFIGS):
+        try:
+            from tools.a_share_valuation import load_valuation
+            mc_gdp_df = load_valuation()
+        except Exception as error:
+            print(f"[WARN] MC/GDP unavailable，继续生成市场图: {error}")
     results = [
-        _run_rsi_analysis(config, include_realtime=include_realtime)
+        _run_rsi_analysis(config, include_realtime=include_realtime, mc_gdp_df=mc_gdp_df)
         for config in RSI_ANALYSIS_CONFIGS
     ]
 

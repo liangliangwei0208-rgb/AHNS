@@ -31,7 +31,7 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(len(result[0]),180)
     def test_collection_failure_does_not_stop_existing_price_charts(self):
         import stock_analysis
-        with patch("tools.breadth_engine.refresh_for_charts",side_effect=RuntimeError("OpenD unavailable")),patch.object(stock_analysis,"_run_rsi_analysis") as run,patch.object(stock_analysis,"build_change_summary_text",return_value="ok"):
+        with patch("tools.breadth_engine.refresh_for_charts",side_effect=RuntimeError("OpenD unavailable")),patch("tools.a_share_valuation.load_valuation",return_value=pd.DataFrame()),patch.object(stock_analysis,"_run_rsi_analysis") as run,patch.object(stock_analysis,"build_change_summary_text",return_value="ok"):
             text,images=stock_analysis.build_stock_analysis()
         self.assertEqual(text,"ok")
         self.assertEqual(run.call_count,len(RSI_ANALYSIS_CONFIGS))
@@ -56,10 +56,10 @@ class IntegrationTests(unittest.TestCase):
         breadth=pd.DataFrame({"date":days,"percent":[60.]*58+[None,70.],"kind":["close"]*59+["intraday"]})
         with tempfile.TemporaryDirectory() as tmp,patch.object(rsi_data.plt,"close") as close:
             rsi_data.plot_analysis(frame,"TEST",output_file=str(Path(tmp)/"chart.png"),show_plot=False,breadth_df=breadth,show_breadth=True)
-            fig=close.call_args.args[0];axis=fig.axes[2]
+            fig=close.call_args.args[0];axis=fig.axes[1]
             line=next(x for x in axis.lines if x.get_label()=="50D")
             self.assertTrue(np.isnan(line.get_ydata()[-2]));self.assertEqual(axis.get_ylim(),(0.,100.))
-            self.assertEqual(len(fig.axes),3)
+            self.assertEqual(len(fig.axes),2)
             self.assertIn("R",[t.get_text() for t in axis.get_legend().get_texts()])
             self.assertIn("50D",[t.get_text() for t in axis.get_legend().get_texts()])
             self.assertEqual(axis.get_legend()._ncols,3)
@@ -77,7 +77,7 @@ class IntegrationTests(unittest.TestCase):
                             "RSI":[42.]*11+[44.6]})
         with tempfile.TemporaryDirectory() as tmp,patch.object(rsi_data.plt,"close") as close:
             rsi_data.plot_analysis(frame,"TEST",output_file=str(Path(tmp)/"chart.png"),show_plot=False)
-            axis=close.call_args.args[0].axes[2]
+            axis=close.call_args.args[0].axes[1]
             self.assertIn("R: 44.6",[t.get_text() for t in axis.texts])
     def test_nasdaq_latest_breadth_label_has_no_parenthetical_suffix(self):
         from tools.market_breadth import draw_breadth
@@ -226,8 +226,8 @@ class IntegrationTests(unittest.TestCase):
         default_band=default_fig.axes[0].patches[0]
         override_band=override_fig.axes[0].patches[0]
         self.assertGreater(override_band.get_width(),default_band.get_width())
-        default_line=next(line for line in default_fig.axes[2].lines if line.get_label()=="50D")
-        override_line=next(line for line in override_fig.axes[2].lines if line.get_label()=="50D")
+        default_line=next(line for line in default_fig.axes[1].lines if line.get_label()=="50D")
+        override_line=next(line for line in override_fig.axes[1].lines if line.get_label()=="50D")
         np.testing.assert_allclose(default_line.get_ydata(),override_line.get_ydata())
 
     def test_actual_conflict_handler_merges_complete_and_intraday_without_regression(self):

@@ -381,10 +381,24 @@ GitHub 仓库需要在 Settings -> Secrets and variables -> Actions -> Secrets �
 - `tools/configs/cache_policy_configs.py`：维护缓存有效期和容量上限。限购 3 天、A 股交易日历 7 天、VIX 日线 1000 条与 2 小时落后重试、基金池外手动 key 365 天保留、证券/指数/基金历史保留天数、RSI ETF 实时补点新鲜度等都集中在这里。
 - `tools/configs/security_mappings.py`：维护美股 / 韩国证券映射。
 - `tools/configs/rsi_configs.py`：维护 RSI 图标的列表。
+- `tools/configs/a_share_valuation_configs.py`：维护走势图 MC/GDP 阈值、透明度与刷新频率，默认阈值为 `0.765 / 0.60 / 0.55`。
 - `tools/cache_metadata.py`：维护缓存文件说明，并生成 `cache/README.md`。只有安全容器型 JSON 会内嵌 `_cache_info`，key-map JSON 和 CSV 不改变结构。
 - `tools/paths.py`：集中维护常用缓存和输出图片路径。
 
 旧导入路径会尽量保留兼容，例如 `tools/fund_universe.py` 仍可导入基金池，但真实配置已移动到 `tools/configs/fund_universe_configs.py`。
+
+### 走势图两行布局与 MC/GDP
+
+统一分析图只显示 Price + RSI/50D 两行；关闭 `show_rsi_panel` 时仅显示 Price。成交量子图已移除，但行情 `volume`、成交量历史、`volume_ratio_20` 和邮件成交量摘要仍保留。日周月 RSI、日周 BOLL、信号标记及 VIX/50D 边缘色带保持原有口径。
+
+仅 `159943` 和 `560220` 在 RSI 配置中开启 `show_mc_gdp`。两张图使用相同的沪深市场级 MC/GDP，仍分别使用 ETF 自身价格和深证成指/中证2000成分广度，展示窗口保持300日。
+
+- 数据：AKShare `macro_china_stock_market_cap()` 的上海、深圳市价总值相加，不含北交所；`macro_china_gdp()` 的年内累计名义GDP转单季，再求连续四季度TTM。两者都是亿元，比例不额外缩放。
+- 状态：`ratio >= 0.765` 为 OVER；`0.60 < ratio < 0.765` 为 NEUTRAL；`0.55 < ratio <= 0.60` 为 LOW；`ratio <= 0.55` 为 DEEP LOW。单图阈值 `None` 沿用全局。
+- 视觉：合并连续状态后绘制浅色 Price 背景；RSI 右侧显示第三行 `MC/GDP: x.xx · STATE`，三行按最长文本实际宽度统一左对齐并保留6pt右内边距，不增加折线、纵轴、面板或图例项目。
+- 缓存：`cache/a_share_mc_gdp.json`，市值48小时、GDP96小时，失败24小时后重试；每轮共享刷新一次，网络子进程硬预算15秒。源失败用可信旧值并打印数据期/缓存年龄；无有效数据则N/A，不影响其它图层。
+- 日期限制：当前两个接口没有真实发布日期或历史版本。初始化旧历史明确标记 `historical revised series`，仅作按统计期回顾的估值环境，不能用于声称严格无前视的回测。此基线固定；后续新增/修订按首次成功观测时间向后匹配，不倒填旧状态、不插值。
+- 边界：模块导入不联网；参考 `strategy/gdp.py` 的CSV只读校验，不改参考脚本及其缓存。该指标不参与任何基金收益预估或benchmark业务。
 
 ## 实时观察图
 

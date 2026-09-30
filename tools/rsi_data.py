@@ -2257,6 +2257,23 @@ def _expand_price_ylim_for_period_markers(ax, signal_specs: list[dict]) -> None:
         ax.set_ylim(desired_bottom, desired_top)
 
 
+def _align_right_metric_labels(ax):
+    """按最长标注的实际宽度统一左对齐，右侧保留6pt内边距。"""
+    labels = [text for text in ax.texts if text.get_text().startswith(("50D", "R:", "MC/GDP:"))]
+    if not labels:
+        return
+    from tools.market_breadth import RIGHT_METRIC_LABEL_X
+    ax.figure.canvas.draw()
+    renderer = ax.figure.canvas.get_renderer()
+    width = max(text.get_window_extent(renderer).width for text in labels)
+    padding = 6 * ax.figure.dpi / 72
+    left_pixel = ax.bbox.x1 - padding - width
+    left = min(RIGHT_METRIC_LABEL_X, ax.transAxes.inverted().transform((left_pixel, ax.bbox.y0))[0])
+    for text in labels:
+        text.set_x(max(.02, left))
+        text.set_ha("left")
+
+
 def plot_analysis(
     df: pd.DataFrame,
     symbol: str,
@@ -2299,9 +2316,14 @@ def plot_analysis(
     show_breadth: bool = False,
     breadth_band_low_threshold: Optional[float] = None,
     breadth_band_high_threshold: Optional[float] = None,
+    show_mc_gdp: bool = False,
+    mc_gdp_df: Optional[pd.DataFrame] = None,
+    mc_gdp_over_threshold: Optional[float] = None,
+    mc_gdp_low_threshold: Optional[float] = None,
+    mc_gdp_deep_low_threshold: Optional[float] = None,
 ):
     """
-    输出价格、成交量和可选 RSI 图。曲线按 RSI 阈值连续变色。
+    输出价格和可选 RSI/50D 两行图。成交量数据仍参与摘要与量化计算。
 
     output_two_file:
         兼容旧调用参数，当前不再生成第二张简版 RSI 图。
@@ -2336,9 +2358,15 @@ def plot_analysis(
             std_multiplier=boll_std_multiplier,
         )
 
-    panel_count = 3 if show_rsi_panel else 2
-    figure_height = 8 if show_rsi_panel else 6
-    fig, axes = plt.subplots(panel_count, 1, figsize=(12, figure_height), sharex=True)
+    panel_count = 2 if show_rsi_panel else 1
+    figure_height = 6.6 if show_rsi_panel else 4.2
+    fig, axes = plt.subplots(panel_count, 1, figsize=(12, figure_height), sharex=True,
+                             gridspec_kw={"height_ratios": [1.25, 1.0] if show_rsi_panel else [1]})
+    # 单行 subplots 返回标量 Axes，统一为数组，避免价格单图索引失败。
+    axes = np.atleast_1d(axes)
+    for ax in axes:
+        ax.set_axisbelow(True)
+        ax.grid(True, color="#e6e6e6", linewidth=.45, alpha=.55)
 
     # 关闭日线信号时，价格和 RSI 曲线统一使用蓝色。
     daily_color_by_rsi = bool(show_daily_signals)
@@ -2464,11 +2492,23 @@ def plot_analysis(
             marker_fontsize=18,
         )
 
-    _plot_volume_bar(axes[1], plot_df)
+    mc_gdp_aligned = None
+    mc_gdp_thresholds = dict(over=mc_gdp_over_threshold, low=mc_gdp_low_threshold,
+                             deep_low=mc_gdp_deep_low_threshold)
+    if show_mc_gdp:
+        try:
+            from tools.a_share_valuation import align_valuation, draw_valuation_background, classify_ratio
+            classify_ratio(np.nan, **mc_gdp_thresholds)  # 先检查单图阈值，避免画出半套背景。
+            mc_gdp_aligned = align_valuation(mc_gdp_df, plot_df["date"])
+            draw_valuation_background(axes[0], mc_gdp_aligned, **mc_gdp_thresholds)
+        except Exception as error:
+            print(f"[WARN] MC/GDP unavailable，保留价格/RSI/50D: {error}")
+            mc_gdp_aligned = pd.DataFrame({"date": plot_df["date"], "ratio": np.nan, "basis": None})
+            mc_gdp_thresholds = None
 
     if show_rsi_panel:
         _plot_segmented_by_rsi(
-            ax=axes[2],
+            ax=axes[1],
             df=plot_df,
             y_col=rsi_col,
             rsi_col=rsi_col,
@@ -2482,27 +2522,41 @@ def plot_analysis(
         )
 
         # RSI 子图固定 0-100，便于和阈值线对照。
-        axes[2].axhline(rsi_high, linestyle="--", linewidth=1, color="red")
-        axes[2].axhline(rsi_low, linestyle="--", linewidth=1, color="black")
-        axes[2].set_ylim(0, 100)
+        axes[1].axhline(rsi_high, linestyle="--", linewidth=1, color="red")
+        axes[1].axhline(rsi_low, linestyle="--", linewidth=1, color="black")
+        axes[1].set_ylim(0, 100)
         # 右上角逐行显示最新值，与50D采用相同的简短标记。
         latest_rsi = pd.to_numeric(plot_df[rsi_col], errors="coerce").dropna()
         rsi_text = f"R: {latest_rsi.iloc[-1]:.1f}" if not latest_rsi.empty else "R: 数据不足"
         from tools.market_breadth import RIGHT_METRIC_LABEL_X
-        axes[2].text(RIGHT_METRIC_LABEL_X, .91 if show_breadth else .97, rsi_text,
-                     transform=axes[2].transAxes, ha="left", va="top",
+        axes[1].text(RIGHT_METRIC_LABEL_X, .91 if show_breadth else .97, rsi_text,
+                     transform=axes[1].transAxes, ha="left", va="top",
                      fontsize=8, color="#3267a8")
         if show_breadth:
             from tools.market_breadth import draw_breadth
             from matplotlib.lines import Line2D
-            draw_breadth(axes[2], breadth_df)
-            handles, labels = axes[2].get_legend_handles_labels()
-            axes[2].legend([Line2D([0], [0], color="#3267a8", label="R"), *handles],
+            draw_breadth(axes[1], breadth_df)
+            handles, labels = axes[1].get_legend_handles_labels()
+            axes[1].legend([Line2D([0], [0], color="#3267a8", label="R"), *handles],
                            ["R", *labels], loc="upper left", fontsize=8, ncol=max(2, len(handles)+1),
                            borderpad=.2, labelspacing=.2, handlelength=1.3,
                            handletextpad=.3, columnspacing=.6)
+        if show_mc_gdp:
+            from tools.a_share_valuation import classify_ratio, MC_GDP_STATE_COLORS
+            latest = mc_gdp_aligned.ratio.iloc[-1]
+            state = classify_ratio(latest, **mc_gdp_thresholds) if mc_gdp_thresholds is not None else None
+            text = f"MC/GDP: {latest:.2f} · {state}" if state else "MC/GDP: N/A"
+            axes[1].text(RIGHT_METRIC_LABEL_X, .85, text, transform=axes[1].transAxes,
+                         ha="left", va="top", fontsize=8,
+                         color=MC_GDP_STATE_COLORS.get(state, "#777777"))
+            if mc_gdp_aligned.basis.eq("historical revised series").any():
+                axes[1].text(.02, .02, "MC/GDP history: historical revised series",
+                             transform=axes[1].transAxes, ha="left", va="bottom",
+                             fontsize=6.5, color="#777777")
 
     plt.tight_layout()
+    if show_rsi_panel:
+        _align_right_metric_labels(axes[1])
 
     # 布局确定后再按导出像素摆放色带，保证上下两侧的间隙都是约2像素。
     if show_vix_state_band:
@@ -2515,6 +2569,10 @@ def plot_analysis(
         low = BREADTH_BAND_LOW_THRESHOLD if breadth_band_low_threshold is None else breadth_band_low_threshold
         high = BREADTH_BAND_HIGH_THRESHOLD if breadth_band_high_threshold is None else breadth_band_high_threshold
         draw_breadth_state_band(axes[0], plot_df, breadth_df, low, high, output_dpi=dpi)
+    if show_mc_gdp and mc_gdp_thresholds is not None:
+        from tools.a_share_valuation import draw_regime_labels
+        fig.canvas.draw()
+        draw_regime_labels(axes[0], mc_gdp_aligned, **mc_gdp_thresholds)
 
     output_path = Path(output_file)
     if output_path.parent and str(output_path.parent) != ".":
@@ -2594,6 +2652,11 @@ def rsi_analyze_index(
     breadth_key: Optional[str] = None,
     breadth_band_low_threshold: Optional[float] = None,
     breadth_band_high_threshold: Optional[float] = None,
+    show_mc_gdp: bool = False,
+    mc_gdp_df: Optional[pd.DataFrame] = None,
+    mc_gdp_over_threshold: Optional[float] = None,
+    mc_gdp_low_threshold: Optional[float] = None,
+    mc_gdp_deep_low_threshold: Optional[float] = None,
 ) -> pd.DataFrame:
     """
     外部调用主函数。
@@ -2818,6 +2881,10 @@ def rsi_analyze_index(
                 breadth_df = chart_data(breadth_key, hist["date"])
             except Exception as error:
                 print(f"[WARN] 广度缓存不可用，继续绘制RSI: {error}")
+        if show_mc_gdp and mc_gdp_df is None:
+            # 独立入口也可加载；总入口会传入共享数据，包括空表，避免重复请求。
+            from tools.a_share_valuation import load_valuation
+            mc_gdp_df = load_valuation(cache_dir)
         plot_analysis(
             df=hist,
             symbol=symbol,
@@ -2826,6 +2893,11 @@ def rsi_analyze_index(
             show_breadth=bool(breadth_key),
             breadth_band_low_threshold=breadth_band_low_threshold,
             breadth_band_high_threshold=breadth_band_high_threshold,
+            show_mc_gdp=show_mc_gdp,
+            mc_gdp_df=mc_gdp_df,
+            mc_gdp_over_threshold=mc_gdp_over_threshold,
+            mc_gdp_low_threshold=mc_gdp_low_threshold,
+            mc_gdp_deep_low_threshold=mc_gdp_deep_low_threshold,
             output_two_file=output_two_file,
             display_name=plot_title_name,
             symbol_name_map=symbol_name_map,

@@ -36,6 +36,21 @@ EMBEDDED_CACHE_INFO_FILENAMES = {
 }
 
 _INFO_BY_NAME: dict[str, dict[str, Any]] = {
+    "a_share_mc_gdp.json": {
+        "purpose": "仅用于159943、560220走势图的沪深市价总值/中国名义GDP(TTM)估值背景。",
+        "producer": "tools/a_share_valuation.py，stock_analysis整轮共享一次加载。",
+        "consumers": ["tools/rsi_data.py"],
+        "refresh_policy": "市值48小时，GDP96小时；失败24小时退避；宏观子进程总预算15秒。",
+        "retention_policy": "保留来源历史、固定初始化修订历史及后续观测；不批量删除文件。",
+        "data_shape": "version/unit/sources/history/observations/historical_cutoff容器；金额亿元，比例不缩放。",
+        "notes": [
+            "上海市价总值+深圳市价总值，不含北交所；累计名义GDP转单季后，连续四季求TTM。",
+            "初始化历史是historical revised series，统计期不是发布日期，不承诺无前视回测。",
+            "后续新值或修订使用首次成功观测时间available_at；不回写历史基线或旧观测。",
+            "来源异常继续用可信旧值，无值则N/A；不参与基金收益预估、benchmark或实时基金观察。",
+            "strategy/gdp.py旧CSV只读校验迁入；不更新其文件，不相信旧派生ratio。",
+        ],
+    },
     "fund_estimate_return_cache.json": {
         "purpose": "海外/全球基金每日估算收益和海外基准结果缓存，供 safe 图、节假日累计图和拆解工具只读复用。",
         "producer": "tools/get_top10_holdings.py 在海外基金估算表生成后写入。",

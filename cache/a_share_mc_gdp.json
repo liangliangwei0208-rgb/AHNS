@@ -1,0 +1,3606 @@
+{
+  "version": 1,
+  "unit": "亿元",
+  "sources": {
+    "cap": {
+      "rows": [
+        {
+          "period_date": "2008-01-31T00:00:00.000",
+          "sse_market_cap_yi": 225354.97,
+          "szse_market_cap_yi": 52499.85,
+          "market_cap_yi": 277854.82
+        },
+        {
+          "period_date": "2008-02-29T00:00:00.000",
+          "sse_market_cap_yi": 225846.35,
+          "szse_market_cap_yi": 55786.67,
+          "market_cap_yi": 281633.02
+        },
+        {
+          "period_date": "2008-03-31T00:00:00.000",
+          "sse_market_cap_yi": 181350.15,
+          "szse_market_cap_yi": 45438.99,
+          "market_cap_yi": 226789.14
+        },
+        {
+          "period_date": "2008-04-30T00:00:00.000",
+          "sse_market_cap_yi": 194727.31,
+          "szse_market_cap_yi": 45516.94,
+          "market_cap_yi": 240244.25
+        },
+        {
+          "period_date": "2008-05-31T00:00:00.000",
+          "sse_market_cap_yi": 181247.11,
+          "szse_market_cap_yi": 43619.59,
+          "market_cap_yi": 224866.7
+        },
+        {
+          "period_date": "2008-06-30T00:00:00.000",
+          "sse_market_cap_yi": 144508.33,
+          "szse_market_cap_yi": 33526.77,
+          "market_cap_yi": 178035.1
+        },
+        {
+          "period_date": "2008-07-31T00:00:00.000",
+          "sse_market_cap_yi": 146667.15,
+          "szse_market_cap_yi": 35217.45,
+          "market_cap_yi": 181884.6
+        },
+        {
+          "period_date": "2008-08-31T00:00:00.000",
+          "sse_market_cap_yi": 127029.73,
+          "szse_market_cap_yi": 28405.56,
+          "market_cap_yi": 155435.29
+        },
+        {
+          "period_date": "2008-09-30T00:00:00.000",
+          "sse_market_cap_yi": 121615.05,
+          "szse_market_cap_yi": 26548.93,
+          "market_cap_yi": 148163.98
+        },
+        {
+          "period_date": "2008-10-31T00:00:00.000",
+          "sse_market_cap_yi": 91719.66,
+          "szse_market_cap_yi": 20348.14,
+          "market_cap_yi": 112067.8
+        },
+        {
+          "period_date": "2008-11-30T00:00:00.000",
+          "sse_market_cap_yi": 99152.56,
+          "szse_market_cap_yi": 23331.68,
+          "market_cap_yi": 122484.24
+        },
+        {
+          "period_date": "2008-12-31T00:00:00.000",
+          "sse_market_cap_yi": 97251.91,
+          "szse_market_cap_yi": 24114.53,
+          "market_cap_yi": 121366.44
+        },
+        {
+          "period_date": "2009-01-31T00:00:00.000",
+          "sse_market_cap_yi": 106478.69,
+          "szse_market_cap_yi": 26616.8,
+          "market_cap_yi": 133095.49
+        },
+        {
+          "period_date": "2009-02-28T00:00:00.000",
+          "sse_market_cap_yi": 111624.52,
+          "szse_market_cap_yi": 28764.68,
+          "market_cap_yi": 140389.2
+        },
+        {
+          "period_date": "2009-03-31T00:00:00.000",
+          "sse_market_cap_yi": 127267.07,
+          "szse_market_cap_yi": 34207.17,
+          "market_cap_yi": 161474.24
+        },
+        {
+          "period_date": "2009-04-30T00:00:00.000",
+          "sse_market_cap_yi": 132959.05,
+          "szse_market_cap_yi": 36294.26,
+          "market_cap_yi": 169253.31
+        },
+        {
+          "period_date": "2009-05-31T00:00:00.000",
+          "sse_market_cap_yi": 141337.38,
+          "szse_market_cap_yi": 38449.26,
+          "market_cap_yi": 179786.64
+        },
+        {
+          "period_date": "2009-06-30T00:00:00.000",
+          "sse_market_cap_yi": 159107.69127578,
+          "szse_market_cap_yi": 42340.37,
+          "market_cap_yi": 201448.06127578
+        },
+        {
+          "period_date": "2009-07-31T00:00:00.000",
+          "sse_market_cap_yi": 186119.25484451,
+          "szse_market_cap_yi": 49615.549,
+          "market_cap_yi": 235734.80384451
+        },
+        {
+          "period_date": "2009-08-31T00:00:00.000",
+          "sse_market_cap_yi": 146363.14917487,
+          "szse_market_cap_yi": 40732.247,
+          "market_cap_yi": 187095.39617487
+        },
+        {
+          "period_date": "2009-09-30T00:00:00.000",
+          "sse_market_cap_yi": 153562.13542291,
+          "szse_market_cap_yi": 43339.555,
+          "market_cap_yi": 196901.69042291
+        },
+        {
+          "period_date": "2009-10-31T00:00:00.000",
+          "sse_market_cap_yi": 165927.44366454,
+          "szse_market_cap_yi": 49964.568,
+          "market_cap_yi": 215892.01166454
+        },
+        {
+          "period_date": "2009-11-30T00:00:00.000",
+          "sse_market_cap_yi": 178652.42606219,
+          "szse_market_cap_yi": 57250.614,
+          "market_cap_yi": 235903.04006219
+        },
+        {
+          "period_date": "2009-12-31T00:00:00.000",
+          "sse_market_cap_yi": 184655.22570837,
+          "szse_market_cap_yi": 59283.893,
+          "market_cap_yi": 243939.11870837
+        },
+        {
+          "period_date": "2010-01-31T00:00:00.000",
+          "sse_market_cap_yi": 169410.78594739,
+          "szse_market_cap_yi": 56950.832,
+          "market_cap_yi": 226361.61794739
+        },
+        {
+          "period_date": "2010-02-28T00:00:00.000",
+          "sse_market_cap_yi": 174852.63138063,
+          "szse_market_cap_yi": 61744.368,
+          "market_cap_yi": 236596.99938063
+        },
+        {
+          "period_date": "2010-03-31T00:00:00.000",
+          "sse_market_cap_yi": 179578.57240765,
+          "szse_market_cap_yi": 65374.007,
+          "market_cap_yi": 244952.57940765
+        },
+        {
+          "period_date": "2010-04-30T00:00:00.000",
+          "sse_market_cap_yi": 165860.99,
+          "szse_market_cap_yi": 62044.52,
+          "market_cap_yi": 227905.51
+        },
+        {
+          "period_date": "2010-05-31T00:00:00.000",
+          "sse_market_cap_yi": 149971.17105674,
+          "szse_market_cap_yi": 59668.26,
+          "market_cap_yi": 209639.43105674
+        },
+        {
+          "period_date": "2010-06-30T00:00:00.000",
+          "sse_market_cap_yi": 139065.89,
+          "szse_market_cap_yi": 56072.838,
+          "market_cap_yi": 195138.728
+        },
+        {
+          "period_date": "2010-07-31T00:00:00.000",
+          "sse_market_cap_yi": 161367.0,
+          "szse_market_cap_yi": 64555.052,
+          "market_cap_yi": 225922.052
+        },
+        {
+          "period_date": "2010-08-31T00:00:00.000",
+          "sse_market_cap_yi": 163401.11,
+          "szse_market_cap_yi": 71720.248,
+          "market_cap_yi": 235121.358
+        },
+        {
+          "period_date": "2010-09-30T00:00:00.000",
+          "sse_market_cap_yi": 165191.88,
+          "szse_market_cap_yi": 73548.481,
+          "market_cap_yi": 238740.361
+        },
+        {
+          "period_date": "2010-10-31T00:00:00.000",
+          "sse_market_cap_yi": 187015.4194,
+          "szse_market_cap_yi": 83118.167,
+          "market_cap_yi": 270133.5864
+        },
+        {
+          "period_date": "2010-11-30T00:00:00.000",
+          "sse_market_cap_yi": 178723.8301,
+          "szse_market_cap_yi": 85591.749,
+          "market_cap_yi": 264315.5791
+        },
+        {
+          "period_date": "2010-12-31T00:00:00.000",
+          "sse_market_cap_yi": 179007.2382,
+          "szse_market_cap_yi": 86415.354,
+          "market_cap_yi": 265422.5922
+        },
+        {
+          "period_date": "2011-01-31T00:00:00.000",
+          "sse_market_cap_yi": 179868.1708,
+          "szse_market_cap_yi": 81421.683,
+          "market_cap_yi": 261289.8538
+        },
+        {
+          "period_date": "2011-02-28T00:00:00.000",
+          "sse_market_cap_yi": 187914.3473,
+          "szse_market_cap_yi": 88943.371,
+          "market_cap_yi": 276857.7183
+        },
+        {
+          "period_date": "2011-03-31T00:00:00.000",
+          "sse_market_cap_yi": 190187.1702,
+          "szse_market_cap_yi": 87475.008,
+          "market_cap_yi": 277662.1782
+        },
+        {
+          "period_date": "2011-04-30T00:00:00.000",
+          "sse_market_cap_yi": 189910.2923,
+          "szse_market_cap_yi": 84727.077,
+          "market_cap_yi": 274637.3693
+        },
+        {
+          "period_date": "2011-05-31T00:00:00.000",
+          "sse_market_cap_yi": 179410.6669,
+          "szse_market_cap_yi": 78780.697,
+          "market_cap_yi": 258191.3639
+        },
+        {
+          "period_date": "2011-06-30T00:00:00.000",
+          "sse_market_cap_yi": 181250.6958,
+          "szse_market_cap_yi": 82963.641,
+          "market_cap_yi": 264214.3368
+        },
+        {
+          "period_date": "2011-07-31T00:00:00.000",
+          "sse_market_cap_yi": 177654.9785,
+          "szse_market_cap_yi": 85725.712,
+          "market_cap_yi": 263380.6905
+        },
+        {
+          "period_date": "2011-08-31T00:00:00.000",
+          "sse_market_cap_yi": 169769.7807,
+          "szse_market_cap_yi": 84847.422,
+          "market_cap_yi": 254617.2027
+        },
+        {
+          "period_date": "2011-09-30T00:00:00.000",
+          "sse_market_cap_yi": 156629.1495,
+          "szse_market_cap_yi": 74967.121,
+          "market_cap_yi": 231596.2705
+        },
+        {
+          "period_date": "2011-10-31T00:00:00.000",
+          "sse_market_cap_yi": 165015.1574,
+          "szse_market_cap_yi": 77967.756,
+          "market_cap_yi": 242982.9134
+        },
+        {
+          "period_date": "2011-11-30T00:00:00.000",
+          "sse_market_cap_yi": 156401.7271,
+          "szse_market_cap_yi": 75313.684,
+          "market_cap_yi": 231715.4111
+        },
+        {
+          "period_date": "2011-12-31T00:00:00.000",
+          "sse_market_cap_yi": 148376.2238,
+          "szse_market_cap_yi": 66381.872,
+          "market_cap_yi": 214758.0958
+        },
+        {
+          "period_date": "2012-01-31T00:00:00.000",
+          "sse_market_cap_yi": 155020.9216,
+          "szse_market_cap_yi": 65898.36,
+          "market_cap_yi": 220919.2816
+        },
+        {
+          "period_date": "2012-02-29T00:00:00.000",
+          "sse_market_cap_yi": 164763.61,
+          "szse_market_cap_yi": 74046.911,
+          "market_cap_yi": 238810.521
+        },
+        {
+          "period_date": "2012-03-31T00:00:00.000",
+          "sse_market_cap_yi": 154942.35,
+          "szse_market_cap_yi": 69762.5549,
+          "market_cap_yi": 224704.9049
+        },
+        {
+          "period_date": "2012-04-30T00:00:00.000",
+          "sse_market_cap_yi": 164410.8645,
+          "szse_market_cap_yi": 73767.0651,
+          "market_cap_yi": 238177.9296
+        },
+        {
+          "period_date": "2012-05-31T00:00:00.000",
+          "sse_market_cap_yi": 162995.0807,
+          "szse_market_cap_yi": 76312.9658,
+          "market_cap_yi": 239308.0465
+        },
+        {
+          "period_date": "2012-06-30T00:00:00.000",
+          "sse_market_cap_yi": 153189.31,
+          "szse_market_cap_yi": 73019.96920497,
+          "market_cap_yi": 226209.27920497
+        },
+        {
+          "period_date": "2012-07-31T00:00:00.000",
+          "sse_market_cap_yi": 145228.16,
+          "szse_market_cap_yi": 67963.8535,
+          "market_cap_yi": 213192.0135
+        },
+        {
+          "period_date": "2012-08-31T00:00:00.000",
+          "sse_market_cap_yi": 142246.6544,
+          "szse_market_cap_yi": 67318.3118,
+          "market_cap_yi": 209564.9662
+        },
+        {
+          "period_date": "2012-09-30T00:00:00.000",
+          "sse_market_cap_yi": 145002.93,
+          "szse_market_cap_yi": 68944.4457,
+          "market_cap_yi": 213947.3757
+        },
+        {
+          "period_date": "2012-10-31T00:00:00.000",
+          "sse_market_cap_yi": 144324.72,
+          "szse_market_cap_yi": 68459.2802,
+          "market_cap_yi": 212784.0002
+        },
+        {
+          "period_date": "2012-11-30T00:00:00.000",
+          "sse_market_cap_yi": 138226.31,
+          "szse_market_cap_yi": 61151.7702,
+          "market_cap_yi": 199378.0802
+        },
+        {
+          "period_date": "2012-12-31T00:00:00.000",
+          "sse_market_cap_yi": 158698.44,
+          "szse_market_cap_yi": 71659.1818,
+          "market_cap_yi": 230357.6218
+        },
+        {
+          "period_date": "2013-01-31T00:00:00.000",
+          "sse_market_cap_yi": 167496.85,
+          "szse_market_cap_yi": 76411.4341,
+          "market_cap_yi": 243908.2841
+        },
+        {
+          "period_date": "2013-02-28T00:00:00.000",
+          "sse_market_cap_yi": 166305.89,
+          "szse_market_cap_yi": 79210.331,
+          "market_cap_yi": 245516.221
+        },
+        {
+          "period_date": "2013-03-31T00:00:00.000",
+          "sse_market_cap_yi": 157311.6812,
+          "szse_market_cap_yi": 76373.2918,
+          "market_cap_yi": 233684.973
+        },
+        {
+          "period_date": "2013-04-30T00:00:00.000",
+          "sse_market_cap_yi": 153372.452,
+          "szse_market_cap_yi": 75269.4409,
+          "market_cap_yi": 228641.8929
+        },
+        {
+          "period_date": "2013-05-31T00:00:00.000",
+          "sse_market_cap_yi": 162317.72,
+          "szse_market_cap_yi": 85437.0264,
+          "market_cap_yi": 247754.7464
+        },
+        {
+          "period_date": "2013-06-30T00:00:00.000",
+          "sse_market_cap_yi": 139774.5222,
+          "szse_market_cap_yi": 73038.3968,
+          "market_cap_yi": 212812.919
+        },
+        {
+          "period_date": "2013-07-31T00:00:00.000",
+          "sse_market_cap_yi": 141092.00341419,
+          "szse_market_cap_yi": 77439.8271,
+          "market_cap_yi": 218531.83051419
+        },
+        {
+          "period_date": "2013-08-31T00:00:00.000",
+          "sse_market_cap_yi": 148444.65,
+          "szse_market_cap_yi": 81747.4611,
+          "market_cap_yi": 230192.1111
+        },
+        {
+          "period_date": "2013-09-30T00:00:00.000",
+          "sse_market_cap_yi": 154176.0,
+          "szse_market_cap_yi": 87100.4163,
+          "market_cap_yi": 241276.4163
+        },
+        {
+          "period_date": "2013-10-31T00:00:00.000",
+          "sse_market_cap_yi": 151969.82135539,
+          "szse_market_cap_yi": 84224.692,
+          "market_cap_yi": 236194.51335539
+        },
+        {
+          "period_date": "2013-11-30T00:00:00.000",
+          "sse_market_cap_yi": 157701.32,
+          "szse_market_cap_yi": 89983.2859,
+          "market_cap_yi": 247684.6059
+        },
+        {
+          "period_date": "2013-12-31T00:00:00.000",
+          "sse_market_cap_yi": 151165.27327707,
+          "szse_market_cap_yi": 87911.9244,
+          "market_cap_yi": 239077.19767707
+        },
+        {
+          "period_date": "2014-01-31T00:00:00.000",
+          "sse_market_cap_yi": 146312.12,
+          "szse_market_cap_yi": 91513.5612,
+          "market_cap_yi": 237825.6812
+        },
+        {
+          "period_date": "2014-02-28T00:00:00.000",
+          "sse_market_cap_yi": 148812.1,
+          "szse_market_cap_yi": 92871.3598,
+          "market_cap_yi": 241683.4598
+        },
+        {
+          "period_date": "2014-03-31T00:00:00.000",
+          "sse_market_cap_yi": 147741.56,
+          "szse_market_cap_yi": 88883.5018,
+          "market_cap_yi": 236625.0618
+        },
+        {
+          "period_date": "2014-04-30T00:00:00.000",
+          "sse_market_cap_yi": 147495.35,
+          "szse_market_cap_yi": 88780.3536,
+          "market_cap_yi": 236275.7036
+        },
+        {
+          "period_date": "2014-05-31T00:00:00.000",
+          "sse_market_cap_yi": 148663.67,
+          "szse_market_cap_yi": 91059.9424,
+          "market_cap_yi": 239723.6124
+        },
+        {
+          "period_date": "2014-06-30T00:00:00.000",
+          "sse_market_cap_yi": 149421.28,
+          "szse_market_cap_yi": 94708.388,
+          "market_cap_yi": 244129.668
+        },
+        {
+          "period_date": "2014-07-31T00:00:00.000",
+          "sse_market_cap_yi": 161470.57,
+          "szse_market_cap_yi": 100518.8879,
+          "market_cap_yi": 261989.4579
+        },
+        {
+          "period_date": "2014-08-31T00:00:00.000",
+          "sse_market_cap_yi": 163342.43,
+          "szse_market_cap_yi": 105359.4051,
+          "market_cap_yi": 268701.8351
+        },
+        {
+          "period_date": "2014-09-30T00:00:00.000",
+          "sse_market_cap_yi": 176124.14,
+          "szse_market_cap_yi": 117424.0285,
+          "market_cap_yi": 293548.1685
+        },
+        {
+          "period_date": "2014-10-31T00:00:00.000",
+          "sse_market_cap_yi": 180974.34,
+          "szse_market_cap_yi": 119512.3194,
+          "market_cap_yi": 300486.6594
+        },
+        {
+          "period_date": "2014-11-30T00:00:00.000",
+          "sse_market_cap_yi": 201252.15,
+          "szse_market_cap_yi": 126574.7734,
+          "market_cap_yi": 327826.9234
+        },
+        {
+          "period_date": "2014-12-31T00:00:00.000",
+          "sse_market_cap_yi": 243974.02,
+          "szse_market_cap_yi": 128572.936,
+          "market_cap_yi": 372546.956
+        },
+        {
+          "period_date": "2015-01-31T00:00:00.000",
+          "sse_market_cap_yi": 244996.24,
+          "szse_market_cap_yi": 140428.5265,
+          "market_cap_yi": 385424.7665
+        },
+        {
+          "period_date": "2015-02-28T00:00:00.000",
+          "sse_market_cap_yi": 255115.63,
+          "szse_market_cap_yi": 152477.0623,
+          "market_cap_yi": 407592.6923
+        },
+        {
+          "period_date": "2015-03-31T00:00:00.000",
+          "sse_market_cap_yi": 292210.37,
+          "szse_market_cap_yi": 184807.7844,
+          "market_cap_yi": 477018.1544
+        },
+        {
+          "period_date": "2015-04-30T00:00:00.000",
+          "sse_market_cap_yi": 348418.9,
+          "szse_market_cap_yi": 215072.455,
+          "market_cap_yi": 563491.355
+        },
+        {
+          "period_date": "2015-05-31T00:00:00.000",
+          "sse_market_cap_yi": 360625.68,
+          "szse_market_cap_yi": 266839.7766,
+          "market_cap_yi": 627465.4565999999
+        },
+        {
+          "period_date": "2015-06-30T00:00:00.000",
+          "sse_market_cap_yi": 346690.84,
+          "szse_market_cap_yi": 237882.814,
+          "market_cap_yi": 584573.6540000001
+        },
+        {
+          "period_date": "2015-07-31T00:00:00.000",
+          "sse_market_cap_yi": 300012.99,
+          "szse_market_cap_yi": 204832.6489,
+          "market_cap_yi": 504845.6389
+        },
+        {
+          "period_date": "2015-08-31T00:00:00.000",
+          "sse_market_cap_yi": 263124.83,
+          "szse_market_cap_yi": 174902.3642,
+          "market_cap_yi": 438027.1942
+        },
+        {
+          "period_date": "2015-09-30T00:00:00.000",
+          "sse_market_cap_yi": 251074.57,
+          "szse_market_cap_yi": 168453.5927,
+          "market_cap_yi": 419528.1627
+        },
+        {
+          "period_date": "2015-10-31T00:00:00.000",
+          "sse_market_cap_yi": 278486.09,
+          "szse_market_cap_yi": 198135.9227,
+          "market_cap_yi": 476622.0127
+        },
+        {
+          "period_date": "2015-11-30T00:00:00.000",
+          "sse_market_cap_yi": 284894.29,
+          "szse_market_cap_yi": 218741.8778,
+          "market_cap_yi": 503636.1677999999
+        },
+        {
+          "period_date": "2015-12-31T00:00:00.000",
+          "sse_market_cap_yi": 295194.2,
+          "szse_market_cap_yi": 236109.9961,
+          "market_cap_yi": 531304.1961000001
+        },
+        {
+          "period_date": "2016-01-31T00:00:00.000",
+          "sse_market_cap_yi": 229463.81,
+          "szse_market_cap_yi": 174336.4771,
+          "market_cap_yi": 403800.2871
+        },
+        {
+          "period_date": "2016-02-29T00:00:00.000",
+          "sse_market_cap_yi": 226320.64,
+          "szse_market_cap_yi": 170706.8067,
+          "market_cap_yi": 397027.4467
+        },
+        {
+          "period_date": "2016-03-31T00:00:00.000",
+          "sse_market_cap_yi": 254081.52,
+          "szse_market_cap_yi": 200074.6146,
+          "market_cap_yi": 454156.1346
+        },
+        {
+          "period_date": "2016-04-30T00:00:00.000",
+          "sse_market_cap_yi": 249670.57,
+          "szse_market_cap_yi": 198236.6484,
+          "market_cap_yi": 447907.2184
+        },
+        {
+          "period_date": "2016-05-31T00:00:00.000",
+          "sse_market_cap_yi": 248543.79,
+          "szse_market_cap_yi": 200097.6279,
+          "market_cap_yi": 448641.4179
+        },
+        {
+          "period_date": "2016-06-30T00:00:00.000",
+          "sse_market_cap_yi": 250920.44,
+          "szse_market_cap_yi": 212000.0742,
+          "market_cap_yi": 462920.5142
+        },
+        {
+          "period_date": "2016-07-31T00:00:00.000",
+          "sse_market_cap_yi": 256919.86,
+          "szse_market_cap_yi": 209543.8541,
+          "market_cap_yi": 466463.7141
+        },
+        {
+          "period_date": "2016-08-31T00:00:00.000",
+          "sse_market_cap_yi": 270601.32,
+          "szse_market_cap_yi": 221033.8787,
+          "market_cap_yi": 491635.1987
+        },
+        {
+          "period_date": "2016-09-30T00:00:00.000",
+          "sse_market_cap_yi": 265741.24,
+          "szse_market_cap_yi": 219266.3008,
+          "market_cap_yi": 485007.5408
+        },
+        {
+          "period_date": "2016-10-31T00:00:00.000",
+          "sse_market_cap_yi": 278042.22,
+          "szse_market_cap_yi": 226855.4302,
+          "market_cap_yi": 504897.6502
+        },
+        {
+          "period_date": "2016-11-30T00:00:00.000",
+          "sse_market_cap_yi": 295302.89,
+          "szse_market_cap_yi": 235367.5448,
+          "market_cap_yi": 530670.4348
+        },
+        {
+          "period_date": "2016-12-31T00:00:00.000",
+          "sse_market_cap_yi": 284607.63,
+          "szse_market_cap_yi": 223078.2546,
+          "market_cap_yi": 507685.8846
+        },
+        {
+          "period_date": "2017-01-31T00:00:00.000",
+          "sse_market_cap_yi": 294122.4,
+          "szse_market_cap_yi": 223125.3603,
+          "market_cap_yi": 517247.7603
+        },
+        {
+          "period_date": "2017-02-28T00:00:00.000",
+          "sse_market_cap_yi": 303722.14,
+          "szse_market_cap_yi": 234489.7309,
+          "market_cap_yi": 538211.8709
+        },
+        {
+          "period_date": "2017-03-31T00:00:00.000",
+          "sse_market_cap_yi": 304479.78,
+          "szse_market_cap_yi": 235108.3714,
+          "market_cap_yi": 539588.1514000001
+        },
+        {
+          "period_date": "2017-04-30T00:00:00.000",
+          "sse_market_cap_yi": 300302.72,
+          "szse_market_cap_yi": 227178.1092,
+          "market_cap_yi": 527480.8292
+        },
+        {
+          "period_date": "2017-05-31T00:00:00.000",
+          "sse_market_cap_yi": 297775.27,
+          "szse_market_cap_yi": 215837.5048,
+          "market_cap_yi": 513612.7748
+        },
+        {
+          "period_date": "2017-06-30T00:00:00.000",
+          "sse_market_cap_yi": 307464.99,
+          "szse_market_cap_yi": 226856.7263,
+          "market_cap_yi": 534321.7163
+        },
+        {
+          "period_date": "2017-07-31T00:00:00.000",
+          "sse_market_cap_yi": 316976.04,
+          "szse_market_cap_yi": 225201.257,
+          "market_cap_yi": 542177.297
+        },
+        {
+          "period_date": "2017-08-31T00:00:00.000",
+          "sse_market_cap_yi": 327100.64,
+          "szse_market_cap_yi": 234872.1338,
+          "market_cap_yi": 561972.7738000001
+        },
+        {
+          "period_date": "2017-09-30T00:00:00.000",
+          "sse_market_cap_yi": 327809.44,
+          "szse_market_cap_yi": 241491.4973,
+          "market_cap_yi": 569300.9373
+        },
+        {
+          "period_date": "2017-10-31T00:00:00.000",
+          "sse_market_cap_yi": 334498.47,
+          "szse_market_cap_yi": 244622.6167,
+          "market_cap_yi": 579121.0867
+        },
+        {
+          "period_date": "2017-11-30T00:00:00.000",
+          "sse_market_cap_yi": 330215.13,
+          "szse_market_cap_yi": 233801.2846,
+          "market_cap_yi": 564016.4146
+        },
+        {
+          "period_date": "2017-12-31T00:00:00.000",
+          "sse_market_cap_yi": 331324.82,
+          "szse_market_cap_yi": 235761.2565,
+          "market_cap_yi": 567086.0765
+        },
+        {
+          "period_date": "2018-01-31T00:00:00.000",
+          "sse_market_cap_yi": 351041.77,
+          "szse_market_cap_yi": 234531.3323,
+          "market_cap_yi": 585573.1023
+        },
+        {
+          "period_date": "2018-02-28T00:00:00.000",
+          "sse_market_cap_yi": 334105.65,
+          "szse_market_cap_yi": 227540.3588,
+          "market_cap_yi": 561646.0088
+        },
+        {
+          "period_date": "2018-03-31T00:00:00.000",
+          "sse_market_cap_yi": 325666.71,
+          "szse_market_cap_yi": 233851.8805,
+          "market_cap_yi": 559518.5905
+        },
+        {
+          "period_date": "2018-04-30T00:00:00.000",
+          "sse_market_cap_yi": 317966.5,
+          "szse_market_cap_yi": 224566.1194,
+          "market_cap_yi": 542532.6194
+        },
+        {
+          "period_date": "2018-05-31T00:00:00.000",
+          "sse_market_cap_yi": 320700.9,
+          "szse_market_cap_yi": 223519.2273,
+          "market_cap_yi": 544220.1273
+        },
+        {
+          "period_date": "2018-06-30T00:00:00.000",
+          "sse_market_cap_yi": 299581.98,
+          "szse_market_cap_yi": 204635.4358,
+          "market_cap_yi": 504217.4158
+        },
+        {
+          "period_date": "2018-07-31T00:00:00.000",
+          "sse_market_cap_yi": 305437.18,
+          "szse_market_cap_yi": 200770.9569,
+          "market_cap_yi": 506208.1369
+        },
+        {
+          "period_date": "2018-08-31T00:00:00.000",
+          "sse_market_cap_yi": 290651.26,
+          "szse_market_cap_yi": 185050.9407,
+          "market_cap_yi": 475702.2007
+        },
+        {
+          "period_date": "2018-09-30T00:00:00.000",
+          "sse_market_cap_yi": 301557.14,
+          "szse_market_cap_yi": 185058.5786,
+          "market_cap_yi": 486615.7186
+        },
+        {
+          "period_date": "2018-10-31T00:00:00.000",
+          "sse_market_cap_yi": 278622.02,
+          "szse_market_cap_yi": 167911.8113,
+          "market_cap_yi": 446533.8313
+        },
+        {
+          "period_date": "2018-11-30T00:00:00.000",
+          "sse_market_cap_yi": 279653.98,
+          "szse_market_cap_yi": 173969.0676,
+          "market_cap_yi": 453623.0476
+        },
+        {
+          "period_date": "2018-12-31T00:00:00.000",
+          "sse_market_cap_yi": 269515.02,
+          "szse_market_cap_yi": 165409.0173,
+          "market_cap_yi": 434924.0373
+        },
+        {
+          "period_date": "2019-01-31T00:00:00.000",
+          "sse_market_cap_yi": 281023.82,
+          "szse_market_cap_yi": 167861.9181,
+          "market_cap_yi": 448885.7381
+        },
+        {
+          "period_date": "2019-02-28T00:00:00.000",
+          "sse_market_cap_yi": 320193.59,
+          "szse_market_cap_yi": 204668.5423,
+          "market_cap_yi": 524862.1323
+        },
+        {
+          "period_date": "2019-03-31T00:00:00.000",
+          "sse_market_cap_yi": 337193.46,
+          "szse_market_cap_yi": 225662.4501,
+          "market_cap_yi": 562855.9101
+        },
+        {
+          "period_date": "2019-04-30T00:00:00.000",
+          "sse_market_cap_yi": 336590.16,
+          "szse_market_cap_yi": 218667.9404,
+          "market_cap_yi": 555258.1004
+        },
+        {
+          "period_date": "2019-05-31T00:00:00.000",
+          "sse_market_cap_yi": 318321.46,
+          "szse_market_cap_yi": 204644.4653,
+          "market_cap_yi": 522965.9253
+        },
+        {
+          "period_date": "2019-06-30T00:00:00.000",
+          "sse_market_cap_yi": 327971.84,
+          "szse_market_cap_yi": 208324.6582,
+          "market_cap_yi": 536296.4982
+        },
+        {
+          "period_date": "2019-07-31T00:00:00.000",
+          "sse_market_cap_yi": 330361.41,
+          "szse_market_cap_yi": 210141.9049,
+          "market_cap_yi": 540503.3149
+        },
+        {
+          "period_date": "2019-08-31T00:00:00.000",
+          "sse_market_cap_yi": 325976.92,
+          "szse_market_cap_yi": 213732.6817,
+          "market_cap_yi": 539709.6017
+        },
+        {
+          "period_date": "2019-09-30T00:00:00.000",
+          "sse_market_cap_yi": 329091.66,
+          "szse_market_cap_yi": 216744.4483,
+          "market_cap_yi": 545836.1083
+        },
+        {
+          "period_date": "2019-10-31T00:00:00.000",
+          "sse_market_cap_yi": 332673.18,
+          "szse_market_cap_yi": 220020.8811,
+          "market_cap_yi": 552694.0611
+        },
+        {
+          "period_date": "2019-11-30T00:00:00.000",
+          "sse_market_cap_yi": 329076.0,
+          "szse_market_cap_yi": 217810.567,
+          "market_cap_yi": 546886.567
+        },
+        {
+          "period_date": "2019-12-31T00:00:00.000",
+          "sse_market_cap_yi": 355519.7,
+          "szse_market_cap_yi": 237414.8651,
+          "market_cap_yi": 592934.5651
+        },
+        {
+          "period_date": "2020-01-31T00:00:00.000",
+          "sse_market_cap_yi": 354226.4,
+          "szse_market_cap_yi": 242953.161,
+          "market_cap_yi": 597179.561
+        },
+        {
+          "period_date": "2020-02-29T00:00:00.000",
+          "sse_market_cap_yi": 346830.35,
+          "szse_market_cap_yi": 249809.7947,
+          "market_cap_yi": 596640.1447
+        },
+        {
+          "period_date": "2020-03-31T00:00:00.000",
+          "sse_market_cap_yi": 330896.73,
+          "szse_market_cap_yi": 231956.9144,
+          "market_cap_yi": 562853.6444
+        },
+        {
+          "period_date": "2020-04-30T00:00:00.000",
+          "sse_market_cap_yi": 347423.31,
+          "szse_market_cap_yi": 246570.4323,
+          "market_cap_yi": 593993.7423
+        },
+        {
+          "period_date": "2020-05-31T00:00:00.000",
+          "sse_market_cap_yi": 349401.77,
+          "szse_market_cap_yi": 250708.1368,
+          "market_cap_yi": 600109.9068
+        },
+        {
+          "period_date": "2020-06-30T00:00:00.000",
+          "sse_market_cap_yi": 372015.47,
+          "szse_market_cap_yi": 276758.9251,
+          "market_cap_yi": 648774.3951
+        },
+        {
+          "period_date": "2020-07-31T00:00:00.000",
+          "sse_market_cap_yi": 420925.54,
+          "szse_market_cap_yi": 317248.9982,
+          "market_cap_yi": 738174.5382
+        },
+        {
+          "period_date": "2020-08-31T00:00:00.000",
+          "sse_market_cap_yi": 433279.0,
+          "szse_market_cap_yi": 326196.5557,
+          "market_cap_yi": 759475.5557
+        },
+        {
+          "period_date": "2020-09-30T00:00:00.000",
+          "sse_market_cap_yi": 413729.0,
+          "szse_market_cap_yi": 307958.4034,
+          "market_cap_yi": 721687.4034
+        },
+        {
+          "period_date": "2020-10-31T00:00:00.000",
+          "sse_market_cap_yi": 416867.0,
+          "szse_market_cap_yi": 318941.6294,
+          "market_cap_yi": 735808.6294
+        },
+        {
+          "period_date": "2020-11-30T00:00:00.000",
+          "sse_market_cap_yi": 441857.0,
+          "szse_market_cap_yi": 327665.5123,
+          "market_cap_yi": 769522.5123000001
+        },
+        {
+          "period_date": "2020-12-31T00:00:00.000",
+          "sse_market_cap_yi": 455322.0,
+          "szse_market_cap_yi": 341916.5785,
+          "market_cap_yi": 797238.5785000001
+        },
+        {
+          "period_date": "2021-01-31T00:00:00.000",
+          "sse_market_cap_yi": 457015.0,
+          "szse_market_cap_yi": 344614.4823,
+          "market_cap_yi": 801629.4823
+        },
+        {
+          "period_date": "2021-02-28T00:00:00.000",
+          "sse_market_cap_yi": 461069.0,
+          "szse_market_cap_yi": 339721.8537,
+          "market_cap_yi": 800790.8537
+        },
+        {
+          "period_date": "2021-03-31T00:00:00.000",
+          "sse_market_cap_yi": 453444.0,
+          "szse_market_cap_yi": 330286.4132,
+          "market_cap_yi": 783730.4132000001
+        },
+        {
+          "period_date": "2021-04-30T00:00:00.000",
+          "sse_market_cap_yi": 457628.0,
+          "szse_market_cap_yi": 345643.8973,
+          "market_cap_yi": 803271.8973000001
+        },
+        {
+          "period_date": "2021-05-31T00:00:00.000",
+          "sse_market_cap_yi": 486277.0,
+          "szse_market_cap_yi": 364242.5036,
+          "market_cap_yi": 850519.5035999999
+        },
+        {
+          "period_date": "2021-06-30T00:00:00.000",
+          "sse_market_cap_yi": 491818.0,
+          "szse_market_cap_yi": 371916.9179,
+          "market_cap_yi": 863734.9179
+        },
+        {
+          "period_date": "2021-07-31T00:00:00.000",
+          "sse_market_cap_yi": 469545.0,
+          "szse_market_cap_yi": 360890.8713,
+          "market_cap_yi": 830435.8713
+        },
+        {
+          "period_date": "2021-08-31T00:00:00.000",
+          "sse_market_cap_yi": 496678.0,
+          "szse_market_cap_yi": 370639.7324,
+          "market_cap_yi": 867317.7324
+        },
+        {
+          "period_date": "2021-09-30T00:00:00.000",
+          "sse_market_cap_yi": 499887.0,
+          "szse_market_cap_yi": 367039.5687,
+          "market_cap_yi": 866926.5687
+        },
+        {
+          "period_date": "2021-10-31T00:00:00.000",
+          "sse_market_cap_yi": 498061.0,
+          "szse_market_cap_yi": 369195.8912,
+          "market_cap_yi": 867256.8912
+        },
+        {
+          "period_date": "2021-11-30T00:00:00.000",
+          "sse_market_cap_yi": 506720.0,
+          "szse_market_cap_yi": 390844.5079,
+          "market_cap_yi": 897564.5079000001
+        },
+        {
+          "period_date": "2021-12-31T00:00:00.000",
+          "sse_market_cap_yi": 519698.0,
+          "szse_market_cap_yi": 396389.8439,
+          "market_cap_yi": 916087.8439
+        },
+        {
+          "period_date": "2022-01-31T00:00:00.000",
+          "sse_market_cap_yi": 481718.78,
+          "szse_market_cap_yi": 357508.0286,
+          "market_cap_yi": 839226.8086000001
+        },
+        {
+          "period_date": "2022-02-28T00:00:00.000",
+          "sse_market_cap_yi": 497027.31,
+          "szse_market_cap_yi": 367780.3963,
+          "market_cap_yi": 864807.7063
+        },
+        {
+          "period_date": "2022-03-31T00:00:00.000",
+          "sse_market_cap_yi": 467389.93,
+          "szse_market_cap_yi": 337716.9247,
+          "market_cap_yi": 805106.8547
+        },
+        {
+          "period_date": "2022-04-30T00:00:00.000",
+          "sse_market_cap_yi": 438841.79,
+          "szse_market_cap_yi": 300157.1772,
+          "market_cap_yi": 738998.9672
+        },
+        {
+          "period_date": "2022-05-31T00:00:00.000",
+          "sse_market_cap_yi": 460824.63,
+          "szse_market_cap_yi": 320033.4402,
+          "market_cap_yi": 780858.0702
+        },
+        {
+          "period_date": "2022-06-30T00:00:00.000",
+          "sse_market_cap_yi": 493943.54,
+          "szse_market_cap_yi": 354322.4532,
+          "market_cap_yi": 848265.9931999999
+        },
+        {
+          "period_date": "2022-07-31T00:00:00.000",
+          "sse_market_cap_yi": 477054.93,
+          "szse_market_cap_yi": 348843.5869,
+          "market_cap_yi": 825898.5168999999
+        },
+        {
+          "period_date": "2022-08-31T00:00:00.000",
+          "sse_market_cap_yi": 473612.98,
+          "szse_market_cap_yi": 338013.0587,
+          "market_cap_yi": 811626.0386999999
+        },
+        {
+          "period_date": "2022-09-30T00:00:00.000",
+          "sse_market_cap_yi": 450179.65,
+          "szse_market_cap_yi": 309662.685,
+          "market_cap_yi": 759842.335
+        },
+        {
+          "period_date": "2022-10-31T00:00:00.000",
+          "sse_market_cap_yi": 433846.91,
+          "szse_market_cap_yi": 306441.9386,
+          "market_cap_yi": 740288.8485999999
+        },
+        {
+          "period_date": "2022-11-30T00:00:00.000",
+          "sse_market_cap_yi": 471285.05,
+          "szse_market_cap_yi": 329690.8975,
+          "market_cap_yi": 800975.9475
+        },
+        {
+          "period_date": "2022-12-31T00:00:00.000",
+          "sse_market_cap_yi": 463786.76,
+          "szse_market_cap_yi": 324219.1478,
+          "market_cap_yi": 788005.9077999999
+        },
+        {
+          "period_date": "2023-01-31T00:00:00.000",
+          "sse_market_cap_yi": 490684.18,
+          "szse_market_cap_yi": 352156.6665,
+          "market_cap_yi": 842840.8465
+        },
+        {
+          "period_date": "2023-02-28T00:00:00.000",
+          "sse_market_cap_yi": 495958.72,
+          "szse_market_cap_yi": 353658.4522,
+          "market_cap_yi": 849617.1721999999
+        },
+        {
+          "period_date": "2023-03-31T00:00:00.000",
+          "sse_market_cap_yi": 497442.63,
+          "szse_market_cap_yi": 351412.269,
+          "market_cap_yi": 848854.899
+        },
+        {
+          "period_date": "2023-04-30T00:00:00.000",
+          "sse_market_cap_yi": 508485.52,
+          "szse_market_cap_yi": 341054.6162,
+          "market_cap_yi": 849540.1362000001
+        },
+        {
+          "period_date": "2023-05-31T00:00:00.000",
+          "sse_market_cap_yi": 492967.44,
+          "szse_market_cap_yi": 332208.6918,
+          "market_cap_yi": 825176.1318
+        },
+        {
+          "period_date": "2023-06-30T00:00:00.000",
+          "sse_market_cap_yi": 493395.5,
+          "szse_market_cap_yi": 339219.2397,
+          "market_cap_yi": 832614.7397
+        },
+        {
+          "period_date": "2023-07-31T00:00:00.000",
+          "sse_market_cap_yi": 506802.57,
+          "szse_market_cap_yi": 343813.9355,
+          "market_cap_yi": 850616.5055
+        },
+        {
+          "period_date": "2023-08-31T00:00:00.000",
+          "sse_market_cap_yi": 483241.42,
+          "szse_market_cap_yi": 325423.3483,
+          "market_cap_yi": 808664.7683
+        },
+        {
+          "period_date": "2023-09-30T00:00:00.000",
+          "sse_market_cap_yi": 481674.1,
+          "szse_market_cap_yi": 319946.1919,
+          "market_cap_yi": 801620.2919
+        },
+        {
+          "period_date": "2023-10-31T00:00:00.000",
+          "sse_market_cap_yi": 467972.89,
+          "szse_market_cap_yi": 314424.7792,
+          "market_cap_yi": 782397.6692
+        },
+        {
+          "period_date": "2023-11-30T00:00:00.000",
+          "sse_market_cap_yi": 470469.47,
+          "szse_market_cap_yi": 316264.9671,
+          "market_cap_yi": 786734.4371
+        },
+        {
+          "period_date": "2023-12-31T00:00:00.000",
+          "sse_market_cap_yi": 463127.23,
+          "szse_market_cap_yi": 310003.4788,
+          "market_cap_yi": 773130.7087999999
+        },
+        {
+          "period_date": "2024-01-31T00:00:00.000",
+          "sse_market_cap_yi": 433127.91,
+          "szse_market_cap_yi": 261045.1714,
+          "market_cap_yi": 694173.0814
+        },
+        {
+          "period_date": "2024-02-29T00:00:00.000",
+          "sse_market_cap_yi": 468558.64,
+          "szse_market_cap_yi": 288706.5421,
+          "market_cap_yi": 757265.1821000001
+        },
+        {
+          "period_date": "2024-03-31T00:00:00.000",
+          "sse_market_cap_yi": 473022.85,
+          "szse_market_cap_yi": 295922.8318,
+          "market_cap_yi": 768945.6817999999
+        },
+        {
+          "period_date": "2024-04-30T00:00:00.000",
+          "sse_market_cap_yi": 482871.91,
+          "szse_market_cap_yi": 297333.5468,
+          "market_cap_yi": 780205.4568
+        },
+        {
+          "period_date": "2024-05-31T00:00:00.000",
+          "sse_market_cap_yi": 480119.34,
+          "szse_market_cap_yi": 291482.9265,
+          "market_cap_yi": 771602.2665
+        },
+        {
+          "period_date": "2024-06-30T00:00:00.000",
+          "sse_market_cap_yi": 461499.75,
+          "szse_market_cap_yi": 271650.1652,
+          "market_cap_yi": 733149.9151999999
+        },
+        {
+          "period_date": "2024-07-31T00:00:00.000",
+          "sse_market_cap_yi": 457332.58,
+          "szse_market_cap_yi": 269609.4041,
+          "market_cap_yi": 726941.9841
+        },
+        {
+          "period_date": "2024-08-31T00:00:00.000",
+          "sse_market_cap_yi": 442360.33,
+          "szse_market_cap_yi": 258376.6494,
+          "market_cap_yi": 700736.9794000001
+        },
+        {
+          "period_date": "2024-09-30T00:00:00.000",
+          "sse_market_cap_yi": 519544.13,
+          "szse_market_cap_yi": 323216.4251,
+          "market_cap_yi": 842760.5551
+        },
+        {
+          "period_date": "2024-10-31T00:00:00.000",
+          "sse_market_cap_yi": 511459.11,
+          "szse_market_cap_yi": 334114.3552,
+          "market_cap_yi": 845573.4652
+        },
+        {
+          "period_date": "2024-11-30T00:00:00.000",
+          "sse_market_cap_yi": 519637.6,
+          "szse_market_cap_yi": 338651.4651,
+          "market_cap_yi": 858289.0651
+        },
+        {
+          "period_date": "2024-12-31T00:00:00.000",
+          "sse_market_cap_yi": 524308.99,
+          "szse_market_cap_yi": 330411.5313,
+          "market_cap_yi": 854720.5212999999
+        },
+        {
+          "period_date": "2025-01-31T00:00:00.000",
+          "sse_market_cap_yi": 509659.92,
+          "szse_market_cap_yi": 324178.4093,
+          "market_cap_yi": 833838.3293
+        },
+        {
+          "period_date": "2025-02-28T00:00:00.000",
+          "sse_market_cap_yi": 520923.77,
+          "szse_market_cap_yi": 343584.5056,
+          "market_cap_yi": 864508.2756
+        },
+        {
+          "period_date": "2025-03-31T00:00:00.000",
+          "sse_market_cap_yi": 524049.34,
+          "szse_market_cap_yi": 341128.3394,
+          "market_cap_yi": 865177.6794
+        },
+        {
+          "period_date": "2025-04-30T00:00:00.000",
+          "sse_market_cap_yi": 515570.32,
+          "szse_market_cap_yi": 325948.535,
+          "market_cap_yi": 841518.855
+        },
+        {
+          "period_date": "2025-05-31T00:00:00.000",
+          "sse_market_cap_yi": 526655.78,
+          "szse_market_cap_yi": 334744.4432,
+          "market_cap_yi": 861400.2232
+        },
+        {
+          "period_date": "2025-06-30T00:00:00.000",
+          "sse_market_cap_yi": 548595.47,
+          "szse_market_cap_yi": 350945.3424,
+          "market_cap_yi": 899540.8123999999
+        },
+        {
+          "period_date": "2025-07-31T00:00:00.000",
+          "sse_market_cap_yi": 572912.11,
+          "szse_market_cap_yi": 367762.6816,
+          "market_cap_yi": 940674.7916
+        },
+        {
+          "period_date": "2025-08-31T00:00:00.000",
+          "sse_market_cap_yi": 619625.6,
+          "szse_market_cap_yi": 413250.1286,
+          "market_cap_yi": 1032875.7286
+        },
+        {
+          "period_date": "2025-09-30T00:00:00.000",
+          "sse_market_cap_yi": 624328.59,
+          "szse_market_cap_yi": 427290.6856,
+          "market_cap_yi": 1051619.2756
+        },
+        {
+          "period_date": "2025-10-31T00:00:00.000",
+          "sse_market_cap_yi": 638481.52,
+          "szse_market_cap_yi": 425782.545,
+          "market_cap_yi": 1064264.065
+        },
+        {
+          "period_date": "2025-11-30T00:00:00.000",
+          "sse_market_cap_yi": 628829.71,
+          "szse_market_cap_yi": 417348.9845,
+          "market_cap_yi": 1046178.6945
+        },
+        {
+          "period_date": "2025-12-31T00:00:00.000",
+          "sse_market_cap_yi": 647771.04,
+          "szse_market_cap_yi": 432408.3645,
+          "market_cap_yi": 1080179.4045000002
+        },
+        {
+          "period_date": "2026-01-31T00:00:00.000",
+          "sse_market_cap_yi": 672864.14,
+          "szse_market_cap_yi": 462613.6993,
+          "market_cap_yi": 1135477.8393
+        },
+        {
+          "period_date": "2026-02-28T00:00:00.000",
+          "sse_market_cap_yi": 682245.08,
+          "szse_market_cap_yi": 477047.0501,
+          "market_cap_yi": 1159292.1301
+        },
+        {
+          "period_date": "2026-03-31T00:00:00.000",
+          "sse_market_cap_yi": 639452.66,
+          "szse_market_cap_yi": 438619.4565,
+          "market_cap_yi": 1078072.1165
+        },
+        {
+          "period_date": "2026-04-30T00:00:00.000",
+          "sse_market_cap_yi": 681311.47,
+          "szse_market_cap_yi": 482100.5961,
+          "market_cap_yi": 1163412.0661
+        },
+        {
+          "period_date": "2026-05-31T00:00:00.000",
+          "sse_market_cap_yi": 678675.08,
+          "szse_market_cap_yi": 487168.9133,
+          "market_cap_yi": 1165843.9933
+        },
+        {
+          "period_date": "2026-06-30T00:00:00.000",
+          "sse_market_cap_yi": 687173.02,
+          "szse_market_cap_yi": 495324.8326,
+          "market_cap_yi": 1182497.8526
+        },
+        {
+          "period_date": "2026-07-31T00:00:00.000",
+          "sse_market_cap_yi": 673143.48,
+          "szse_market_cap_yi": 424903.0372,
+          "market_cap_yi": 1098046.5172000001
+        },
+        {
+          "period_date": "2026-08-31T00:00:00.000",
+          "sse_market_cap_yi": 706966.48,
+          "szse_market_cap_yi": 450602.1948,
+          "market_cap_yi": 1157568.6748
+        }
+      ],
+      "source": "https://data.eastmoney.com/cjsj/gpjytj.html",
+      "unit": "亿元",
+      "seed": "a_share_market_cap_monthly.csv",
+      "last_attempt_at": "2026-09-30T10:55:59.345933+00:00",
+      "last_success_at": "2026-09-30T10:55:59.345933+00:00",
+      "error": null
+    },
+    "gdp": {
+      "rows": [
+        {
+          "period_date": "2006-03-31T00:00:00.000",
+          "gdp_ytd_yi": 47831.7,
+          "year": 2006,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 47831.7,
+          "gdp_ttm_yi": null
+        },
+        {
+          "period_date": "2006-06-30T00:00:00.000",
+          "gdp_ytd_yi": 101247.0,
+          "year": 2006,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 53415.3,
+          "gdp_ttm_yi": null
+        },
+        {
+          "period_date": "2006-09-30T00:00:00.000",
+          "gdp_ytd_yi": 158067.6,
+          "year": 2006,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 56820.6,
+          "gdp_ttm_yi": null
+        },
+        {
+          "period_date": "2006-12-31T00:00:00.000",
+          "gdp_ytd_yi": 222578.4,
+          "year": 2006,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 64510.8,
+          "gdp_ttm_yi": 222578.4
+        },
+        {
+          "period_date": "2007-03-31T00:00:00.000",
+          "gdp_ytd_yi": 58080.6,
+          "year": 2007,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 58080.6,
+          "gdp_ttm_yi": 232827.3
+        },
+        {
+          "period_date": "2007-06-30T00:00:00.000",
+          "gdp_ytd_yi": 123831.6,
+          "year": 2007,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 65751.0,
+          "gdp_ttm_yi": 245163.0
+        },
+        {
+          "period_date": "2007-09-30T00:00:00.000",
+          "gdp_ytd_yi": 194325.7,
+          "year": 2007,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 70494.1,
+          "gdp_ttm_yi": 258836.5
+        },
+        {
+          "period_date": "2007-12-31T00:00:00.000",
+          "gdp_ytd_yi": 274179.7,
+          "year": 2007,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 79854.0,
+          "gdp_ttm_yi": 274179.7
+        },
+        {
+          "period_date": "2008-03-31T00:00:00.000",
+          "gdp_ytd_yi": 70609.6,
+          "year": 2008,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 70609.6,
+          "gdp_ttm_yi": 286708.7
+        },
+        {
+          "period_date": "2008-06-30T00:00:00.000",
+          "gdp_ytd_yi": 150574.5,
+          "year": 2008,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 79964.9,
+          "gdp_ttm_yi": 300922.6
+        },
+        {
+          "period_date": "2008-09-30T00:00:00.000",
+          "gdp_ytd_yi": 234242.9,
+          "year": 2008,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 83668.4,
+          "gdp_ttm_yi": 314096.9
+        },
+        {
+          "period_date": "2008-12-31T00:00:00.000",
+          "gdp_ytd_yi": 324317.8,
+          "year": 2008,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 90074.9,
+          "gdp_ttm_yi": 324317.8
+        },
+        {
+          "period_date": "2009-03-31T00:00:00.000",
+          "gdp_ytd_yi": 75341.3,
+          "year": 2009,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 75341.3,
+          "gdp_ttm_yi": 329049.5
+        },
+        {
+          "period_date": "2009-06-30T00:00:00.000",
+          "gdp_ytd_yi": 160697.0,
+          "year": 2009,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 85355.7,
+          "gdp_ttm_yi": 334440.3
+        },
+        {
+          "period_date": "2009-09-30T00:00:00.000",
+          "gdp_ytd_yi": 252027.0,
+          "year": 2009,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 91330.0,
+          "gdp_ttm_yi": 342101.9
+        },
+        {
+          "period_date": "2009-12-31T00:00:00.000",
+          "gdp_ytd_yi": 354521.6,
+          "year": 2009,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 102494.6,
+          "gdp_ttm_yi": 354521.6
+        },
+        {
+          "period_date": "2010-03-31T00:00:00.000",
+          "gdp_ytd_yi": 89125.0,
+          "year": 2010,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 89125.0,
+          "gdp_ttm_yi": 368305.3
+        },
+        {
+          "period_date": "2010-06-30T00:00:00.000",
+          "gdp_ytd_yi": 190200.0,
+          "year": 2010,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 101075.0,
+          "gdp_ttm_yi": 384024.6
+        },
+        {
+          "period_date": "2010-09-30T00:00:00.000",
+          "gdp_ytd_yi": 297992.9,
+          "year": 2010,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 107792.9,
+          "gdp_ttm_yi": 400487.5
+        },
+        {
+          "period_date": "2010-12-31T00:00:00.000",
+          "gdp_ytd_yi": 419253.3,
+          "year": 2010,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 121260.4,
+          "gdp_ttm_yi": 419253.3
+        },
+        {
+          "period_date": "2011-03-31T00:00:00.000",
+          "gdp_ytd_yi": 106218.9,
+          "year": 2011,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 106218.9,
+          "gdp_ttm_yi": 436347.2
+        },
+        {
+          "period_date": "2011-06-30T00:00:00.000",
+          "gdp_ytd_yi": 226995.8,
+          "year": 2011,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 120776.9,
+          "gdp_ttm_yi": 456049.1
+        },
+        {
+          "period_date": "2011-09-30T00:00:00.000",
+          "gdp_ytd_yi": 355557.3,
+          "year": 2011,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 128561.5,
+          "gdp_ttm_yi": 476817.7
+        },
+        {
+          "period_date": "2011-12-31T00:00:00.000",
+          "gdp_ytd_yi": 495707.6,
+          "year": 2011,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 140150.3,
+          "gdp_ttm_yi": 495707.6
+        },
+        {
+          "period_date": "2012-03-31T00:00:00.000",
+          "gdp_ytd_yi": 119377.5,
+          "year": 2012,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 119377.5,
+          "gdp_ttm_yi": 508866.2
+        },
+        {
+          "period_date": "2012-06-30T00:00:00.000",
+          "gdp_ytd_yi": 252868.7,
+          "year": 2012,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 133491.2,
+          "gdp_ttm_yi": 521580.5
+        },
+        {
+          "period_date": "2012-09-30T00:00:00.000",
+          "gdp_ytd_yi": 393252.7,
+          "year": 2012,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 140384.0,
+          "gdp_ttm_yi": 533403.0
+        },
+        {
+          "period_date": "2012-12-31T00:00:00.000",
+          "gdp_ytd_yi": 547510.6,
+          "year": 2012,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 154257.9,
+          "gdp_ttm_yi": 547510.6
+        },
+        {
+          "period_date": "2013-03-31T00:00:00.000",
+          "gdp_ytd_yi": 131879.7,
+          "year": 2013,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 131879.7,
+          "gdp_ttm_yi": 560012.8
+        },
+        {
+          "period_date": "2013-06-30T00:00:00.000",
+          "gdp_ytd_yi": 277993.6,
+          "year": 2013,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 146113.9,
+          "gdp_ttm_yi": 572635.5
+        },
+        {
+          "period_date": "2013-09-30T00:00:00.000",
+          "gdp_ytd_yi": 432965.7,
+          "year": 2013,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 154972.1,
+          "gdp_ttm_yi": 587223.6
+        },
+        {
+          "period_date": "2013-12-31T00:00:00.000",
+          "gdp_ytd_yi": 603660.4,
+          "year": 2013,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 170694.7,
+          "gdp_ttm_yi": 603660.4
+        },
+        {
+          "period_date": "2014-03-31T00:00:00.000",
+          "gdp_ytd_yi": 143539.4,
+          "year": 2014,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 143539.4,
+          "gdp_ttm_yi": 615320.1
+        },
+        {
+          "period_date": "2014-06-30T00:00:00.000",
+          "gdp_ytd_yi": 303001.7,
+          "year": 2014,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 159462.3,
+          "gdp_ttm_yi": 628668.5
+        },
+        {
+          "period_date": "2014-09-30T00:00:00.000",
+          "gdp_ytd_yi": 471603.5,
+          "year": 2014,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 168601.8,
+          "gdp_ttm_yi": 642298.2
+        },
+        {
+          "period_date": "2014-12-31T00:00:00.000",
+          "gdp_ytd_yi": 655782.9,
+          "year": 2014,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 184179.4,
+          "gdp_ttm_yi": 655782.9
+        },
+        {
+          "period_date": "2015-03-31T00:00:00.000",
+          "gdp_ytd_yi": 154171.4,
+          "year": 2015,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 154171.4,
+          "gdp_ttm_yi": 666414.9
+        },
+        {
+          "period_date": "2015-06-30T00:00:00.000",
+          "gdp_ytd_yi": 326058.4,
+          "year": 2015,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 171887.0,
+          "gdp_ttm_yi": 678839.6000000001
+        },
+        {
+          "period_date": "2015-09-30T00:00:00.000",
+          "gdp_ytd_yi": 506177.1,
+          "year": 2015,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 180118.7,
+          "gdp_ttm_yi": 690356.5
+        },
+        {
+          "period_date": "2015-12-31T00:00:00.000",
+          "gdp_ytd_yi": 702511.5,
+          "year": 2015,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 196334.4,
+          "gdp_ttm_yi": 702511.5
+        },
+        {
+          "period_date": "2016-03-31T00:00:00.000",
+          "gdp_ytd_yi": 165735.3,
+          "year": 2016,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 165735.3,
+          "gdp_ttm_yi": 714075.3999999999
+        },
+        {
+          "period_date": "2016-06-30T00:00:00.000",
+          "gdp_ytd_yi": 350737.5,
+          "year": 2016,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 185002.2,
+          "gdp_ttm_yi": 727190.6
+        },
+        {
+          "period_date": "2016-09-30T00:00:00.000",
+          "gdp_ytd_yi": 545575.1,
+          "year": 2016,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 194837.6,
+          "gdp_ttm_yi": 741909.5
+        },
+        {
+          "period_date": "2016-12-31T00:00:00.000",
+          "gdp_ytd_yi": 761193.0,
+          "year": 2016,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 215617.9,
+          "gdp_ttm_yi": 761193.0
+        },
+        {
+          "period_date": "2017-03-31T00:00:00.000",
+          "gdp_ytd_yi": 185274.4,
+          "year": 2017,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 185274.4,
+          "gdp_ttm_yi": 780732.1
+        },
+        {
+          "period_date": "2017-06-30T00:00:00.000",
+          "gdp_ytd_yi": 390940.0,
+          "year": 2017,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 205665.6,
+          "gdp_ttm_yi": 801395.5
+        },
+        {
+          "period_date": "2017-09-30T00:00:00.000",
+          "gdp_ytd_yi": 607695.3,
+          "year": 2017,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 216755.3,
+          "gdp_ttm_yi": 823313.2000000001
+        },
+        {
+          "period_date": "2017-12-31T00:00:00.000",
+          "gdp_ytd_yi": 847382.9,
+          "year": 2017,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 239687.6,
+          "gdp_ttm_yi": 847382.9
+        },
+        {
+          "period_date": "2018-03-31T00:00:00.000",
+          "gdp_ytd_yi": 205735.3,
+          "year": 2018,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 205735.3,
+          "gdp_ttm_yi": 867843.8
+        },
+        {
+          "period_date": "2018-06-30T00:00:00.000",
+          "gdp_ytd_yi": 433777.7,
+          "year": 2018,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 228042.4,
+          "gdp_ttm_yi": 890220.6000000001
+        },
+        {
+          "period_date": "2018-09-30T00:00:00.000",
+          "gdp_ytd_yi": 672574.5,
+          "year": 2018,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 238796.8,
+          "gdp_ttm_yi": 912262.1
+        },
+        {
+          "period_date": "2018-12-31T00:00:00.000",
+          "gdp_ytd_yi": 936010.1,
+          "year": 2018,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 263435.6,
+          "gdp_ttm_yi": 936010.1
+        },
+        {
+          "period_date": "2019-03-31T00:00:00.000",
+          "gdp_ytd_yi": 221453.9,
+          "year": 2019,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 221453.9,
+          "gdp_ttm_yi": 951728.7000000001
+        },
+        {
+          "period_date": "2019-06-30T00:00:00.000",
+          "gdp_ytd_yi": 467647.8,
+          "year": 2019,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 246193.9,
+          "gdp_ttm_yi": 969880.2
+        },
+        {
+          "period_date": "2019-09-30T00:00:00.000",
+          "gdp_ytd_yi": 723671.0,
+          "year": 2019,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 256023.2,
+          "gdp_ttm_yi": 987106.6
+        },
+        {
+          "period_date": "2019-12-31T00:00:00.000",
+          "gdp_ytd_yi": 1005872.4,
+          "year": 2019,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 282201.4,
+          "gdp_ttm_yi": 1005872.4
+        },
+        {
+          "period_date": "2020-03-31T00:00:00.000",
+          "gdp_ytd_yi": 209671.1,
+          "year": 2020,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 209671.1,
+          "gdp_ttm_yi": 994089.6
+        },
+        {
+          "period_date": "2020-06-30T00:00:00.000",
+          "gdp_ytd_yi": 463121.1,
+          "year": 2020,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 253450.0,
+          "gdp_ttm_yi": 1001345.7
+        },
+        {
+          "period_date": "2020-09-30T00:00:00.000",
+          "gdp_ytd_yi": 733031.4,
+          "year": 2020,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 269910.3,
+          "gdp_ttm_yi": 1015232.8
+        },
+        {
+          "period_date": "2020-12-31T00:00:00.000",
+          "gdp_ytd_yi": 1034867.6,
+          "year": 2020,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 301836.2,
+          "gdp_ttm_yi": 1034867.6
+        },
+        {
+          "period_date": "2021-03-31T00:00:00.000",
+          "gdp_ytd_yi": 255055.2,
+          "year": 2021,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 255055.2,
+          "gdp_ttm_yi": 1080251.7
+        },
+        {
+          "period_date": "2021-06-30T00:00:00.000",
+          "gdp_ytd_yi": 543034.4,
+          "year": 2021,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 287979.2,
+          "gdp_ttm_yi": 1114780.9
+        },
+        {
+          "period_date": "2021-09-30T00:00:00.000",
+          "gdp_ytd_yi": 840996.2,
+          "year": 2021,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 297961.7999999999,
+          "gdp_ttm_yi": 1142832.4
+        },
+        {
+          "period_date": "2021-12-31T00:00:00.000",
+          "gdp_ytd_yi": 1173823.0,
+          "year": 2021,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 332826.8,
+          "gdp_ttm_yi": 1173823.0
+        },
+        {
+          "period_date": "2022-03-31T00:00:00.000",
+          "gdp_ytd_yi": 277175.8,
+          "year": 2022,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 277175.8,
+          "gdp_ttm_yi": 1195943.6
+        },
+        {
+          "period_date": "2022-06-30T00:00:00.000",
+          "gdp_ytd_yi": 576287.3,
+          "year": 2022,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 299111.5000000001,
+          "gdp_ttm_yi": 1207075.9
+        },
+        {
+          "period_date": "2022-09-30T00:00:00.000",
+          "gdp_ytd_yi": 891687.0,
+          "year": 2022,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 315399.7,
+          "gdp_ttm_yi": 1224513.8
+        },
+        {
+          "period_date": "2022-12-31T00:00:00.000",
+          "gdp_ytd_yi": 1234029.4,
+          "year": 2022,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 342342.3999999999,
+          "gdp_ttm_yi": 1234029.4
+        },
+        {
+          "period_date": "2023-03-31T00:00:00.000",
+          "gdp_ytd_yi": 292368.8,
+          "year": 2023,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 292368.8,
+          "gdp_ttm_yi": 1249222.4
+        },
+        {
+          "period_date": "2023-06-30T00:00:00.000",
+          "gdp_ytd_yi": 608606.3,
+          "year": 2023,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 316237.5000000001,
+          "gdp_ttm_yi": 1266348.4
+        },
+        {
+          "period_date": "2023-09-30T00:00:00.000",
+          "gdp_ytd_yi": 937047.0,
+          "year": 2023,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 328440.7,
+          "gdp_ttm_yi": 1279389.4
+        },
+        {
+          "period_date": "2023-12-31T00:00:00.000",
+          "gdp_ytd_yi": 1294271.7,
+          "year": 2023,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 357224.7,
+          "gdp_ttm_yi": 1294271.7
+        },
+        {
+          "period_date": "2024-03-31T00:00:00.000",
+          "gdp_ytd_yi": 304761.8,
+          "year": 2024,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 304761.8,
+          "gdp_ttm_yi": 1306664.7
+        },
+        {
+          "period_date": "2024-06-30T00:00:00.000",
+          "gdp_ytd_yi": 633599.4,
+          "year": 2024,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 328837.6,
+          "gdp_ttm_yi": 1319264.7999999998
+        },
+        {
+          "period_date": "2024-09-30T00:00:00.000",
+          "gdp_ytd_yi": 974553.8,
+          "year": 2024,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 340954.4,
+          "gdp_ttm_yi": 1331778.5
+        },
+        {
+          "period_date": "2024-12-31T00:00:00.000",
+          "gdp_ytd_yi": 1348066.2,
+          "year": 2024,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 373512.3999999999,
+          "gdp_ttm_yi": 1348066.2
+        },
+        {
+          "period_date": "2025-03-31T00:00:00.000",
+          "gdp_ytd_yi": 318466.4,
+          "year": 2025,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 318466.4,
+          "gdp_ttm_yi": 1361770.7999999998
+        },
+        {
+          "period_date": "2025-06-30T00:00:00.000",
+          "gdp_ytd_yi": 659861.6,
+          "year": 2025,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 341395.2,
+          "gdp_ttm_yi": 1374328.4
+        },
+        {
+          "period_date": "2025-09-30T00:00:00.000",
+          "gdp_ytd_yi": 1013967.9,
+          "year": 2025,
+          "quarter": 3,
+          "gdp_single_quarter_yi": 354106.3,
+          "gdp_ttm_yi": 1387480.2999999998
+        },
+        {
+          "period_date": "2025-12-31T00:00:00.000",
+          "gdp_ytd_yi": 1401879.2,
+          "year": 2025,
+          "quarter": 4,
+          "gdp_single_quarter_yi": 387911.2999999999,
+          "gdp_ttm_yi": 1401879.2
+        },
+        {
+          "period_date": "2026-03-31T00:00:00.000",
+          "gdp_ytd_yi": 334192.9,
+          "year": 2026,
+          "quarter": 1,
+          "gdp_single_quarter_yi": 334192.9,
+          "gdp_ttm_yi": 1417605.6999999997
+        },
+        {
+          "period_date": "2026-06-30T00:00:00.000",
+          "gdp_ytd_yi": 695704.0,
+          "year": 2026,
+          "quarter": 2,
+          "gdp_single_quarter_yi": 361511.1,
+          "gdp_ttm_yi": 1437721.6
+        }
+      ],
+      "source": "https://data.eastmoney.com/cjsj/gdp.html",
+      "unit": "亿元",
+      "seed": "china_nominal_gdp_quarterly.csv",
+      "last_attempt_at": "2026-09-30T10:55:59.345933+00:00",
+      "last_success_at": "2026-09-30T10:55:59.345933+00:00",
+      "error": null
+    }
+  },
+  "history": [
+    {
+      "available_at": "2008-01-31T00:00:00+08:00",
+      "period_date": "2008-01-31",
+      "gdp_period": "2007-12-31",
+      "ratio": 1.013404055807195,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2008-02-29T00:00:00+08:00",
+      "period_date": "2008-02-29",
+      "gdp_period": "2007-12-31",
+      "ratio": 1.0271840694260006,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2008-03-31T00:00:00+08:00",
+      "period_date": "2008-03-31",
+      "gdp_period": "2008-03-31",
+      "ratio": 0.7910089229939656,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2008-04-30T00:00:00+08:00",
+      "period_date": "2008-04-30",
+      "gdp_period": "2008-03-31",
+      "ratio": 0.8379384720449711,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2008-05-31T00:00:00+08:00",
+      "period_date": "2008-05-31",
+      "gdp_period": "2008-03-31",
+      "ratio": 0.7843037201173176,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2008-06-30T00:00:00+08:00",
+      "period_date": "2008-06-30",
+      "gdp_period": "2008-06-30",
+      "ratio": 0.591630871194121,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2008-07-31T00:00:00+08:00",
+      "period_date": "2008-07-31",
+      "gdp_period": "2008-06-30",
+      "ratio": 0.6044231971942288,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2008-08-31T00:00:00+08:00",
+      "period_date": "2008-08-31",
+      "gdp_period": "2008-06-30",
+      "ratio": 0.516529134069691,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2008-09-30T00:00:00+08:00",
+      "period_date": "2008-09-30",
+      "gdp_period": "2008-09-30",
+      "ratio": 0.47171423850410493,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2008-10-31T00:00:00+08:00",
+      "period_date": "2008-10-31",
+      "gdp_period": "2008-09-30",
+      "ratio": 0.35679371556994033,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2008-11-30T00:00:00+08:00",
+      "period_date": "2008-11-30",
+      "gdp_period": "2008-09-30",
+      "ratio": 0.3899568572628383,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2008-12-31T00:00:00+08:00",
+      "period_date": "2008-12-31",
+      "gdp_period": "2008-12-31",
+      "ratio": 0.37422071807344526,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-01-31T00:00:00+08:00",
+      "period_date": "2009-01-31",
+      "gdp_period": "2008-12-31",
+      "ratio": 0.41038601643203054,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-02-28T00:00:00+08:00",
+      "period_date": "2009-02-28",
+      "gdp_period": "2008-12-31",
+      "ratio": 0.4328754080102912,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-03-31T00:00:00+08:00",
+      "period_date": "2009-03-31",
+      "gdp_period": "2009-03-31",
+      "ratio": 0.49072932795825547,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-04-30T00:00:00+08:00",
+      "period_date": "2009-04-30",
+      "gdp_period": "2009-03-31",
+      "ratio": 0.5143703606904129,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-05-31T00:00:00+08:00",
+      "period_date": "2009-05-31",
+      "gdp_period": "2009-03-31",
+      "ratio": 0.5463817449958137,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-06-30T00:00:00+08:00",
+      "period_date": "2009-06-30",
+      "gdp_period": "2009-06-30",
+      "ratio": 0.6023438601023262,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-07-31T00:00:00+08:00",
+      "period_date": "2009-07-31",
+      "gdp_period": "2009-06-30",
+      "ratio": 0.7048636299049785,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-08-31T00:00:00+08:00",
+      "period_date": "2009-08-31",
+      "gdp_period": "2009-06-30",
+      "ratio": 0.5594283828081424,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-09-30T00:00:00+08:00",
+      "period_date": "2009-09-30",
+      "gdp_period": "2009-09-30",
+      "ratio": 0.5755644456312871,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-10-31T00:00:00+08:00",
+      "period_date": "2009-10-31",
+      "gdp_period": "2009-09-30",
+      "ratio": 0.631075161127547,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-11-30T00:00:00+08:00",
+      "period_date": "2009-11-30",
+      "gdp_period": "2009-09-30",
+      "ratio": 0.6895695114882144,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2009-12-31T00:00:00+08:00",
+      "period_date": "2009-12-31",
+      "gdp_period": "2009-12-31",
+      "ratio": 0.6880797071556994,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-01-31T00:00:00+08:00",
+      "period_date": "2010-01-31",
+      "gdp_period": "2009-12-31",
+      "ratio": 0.6384988050019802,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-02-28T00:00:00+08:00",
+      "period_date": "2010-02-28",
+      "gdp_period": "2009-12-31",
+      "ratio": 0.6673697720551584,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-03-31T00:00:00+08:00",
+      "period_date": "2010-03-31",
+      "gdp_period": "2010-03-31",
+      "ratio": 0.6650802456756664,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-04-30T00:00:00+08:00",
+      "period_date": "2010-04-30",
+      "gdp_period": "2010-03-31",
+      "ratio": 0.6187950865762725,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-05-31T00:00:00+08:00",
+      "period_date": "2010-05-31",
+      "gdp_period": "2010-03-31",
+      "ratio": 0.569200147423184,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-06-30T00:00:00+08:00",
+      "period_date": "2010-06-30",
+      "gdp_period": "2010-06-30",
+      "ratio": 0.5081412180365529,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-07-31T00:00:00+08:00",
+      "period_date": "2010-07-31",
+      "gdp_period": "2010-06-30",
+      "ratio": 0.5883009890512223,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-08-31T00:00:00+08:00",
+      "period_date": "2010-08-31",
+      "gdp_period": "2010-06-30",
+      "ratio": 0.6122559804762508,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-09-30T00:00:00+08:00",
+      "period_date": "2010-09-30",
+      "gdp_period": "2010-09-30",
+      "ratio": 0.5961243759168513,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-10-31T00:00:00+08:00",
+      "period_date": "2010-10-31",
+      "gdp_period": "2010-09-30",
+      "ratio": 0.6745119046162489,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-11-30T00:00:00+08:00",
+      "period_date": "2010-11-30",
+      "gdp_period": "2010-09-30",
+      "ratio": 0.6599845915290738,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2010-12-31T00:00:00+08:00",
+      "period_date": "2010-12-31",
+      "gdp_period": "2010-12-31",
+      "ratio": 0.6330840859213274,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-01-31T00:00:00+08:00",
+      "period_date": "2011-01-31",
+      "gdp_period": "2010-12-31",
+      "ratio": 0.6232267075774955,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-02-28T00:00:00+08:00",
+      "period_date": "2011-02-28",
+      "gdp_period": "2010-12-31",
+      "ratio": 0.6603590676567126,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-03-31T00:00:00+08:00",
+      "period_date": "2011-03-31",
+      "gdp_period": "2011-03-31",
+      "ratio": 0.6363331269227808,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-04-30T00:00:00+08:00",
+      "period_date": "2011-04-30",
+      "gdp_period": "2011-03-31",
+      "ratio": 0.6294010120839552,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-05-31T00:00:00+08:00",
+      "period_date": "2011-05-31",
+      "gdp_period": "2011-03-31",
+      "ratio": 0.5917108300454317,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-06-30T00:00:00+08:00",
+      "period_date": "2011-06-30",
+      "gdp_period": "2011-06-30",
+      "ratio": 0.579355022956958,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-07-31T00:00:00+08:00",
+      "period_date": "2011-07-31",
+      "gdp_period": "2011-06-30",
+      "ratio": 0.5775270480744289,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-08-31T00:00:00+08:00",
+      "period_date": "2011-08-31",
+      "gdp_period": "2011-06-30",
+      "ratio": 0.5583109421770595,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-09-30T00:00:00+08:00",
+      "period_date": "2011-09-30",
+      "gdp_period": "2011-09-30",
+      "ratio": 0.4857124022451348,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-10-31T00:00:00+08:00",
+      "period_date": "2011-10-31",
+      "gdp_period": "2011-09-30",
+      "ratio": 0.5095928976629852,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-11-30T00:00:00+08:00",
+      "period_date": "2011-11-30",
+      "gdp_period": "2011-09-30",
+      "ratio": 0.48596226838894613,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2011-12-31T00:00:00+08:00",
+      "period_date": "2011-12-31",
+      "gdp_period": "2011-12-31",
+      "ratio": 0.43323543112915763,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-01-31T00:00:00+08:00",
+      "period_date": "2012-01-31",
+      "gdp_period": "2011-12-31",
+      "ratio": 0.4456645038325013,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-02-29T00:00:00+08:00",
+      "period_date": "2012-02-29",
+      "gdp_period": "2011-12-31",
+      "ratio": 0.48175682801716174,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-03-31T00:00:00+08:00",
+      "period_date": "2012-03-31",
+      "gdp_period": "2012-03-31",
+      "ratio": 0.44157954468188293,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-04-30T00:00:00+08:00",
+      "period_date": "2012-04-30",
+      "gdp_period": "2012-03-31",
+      "ratio": 0.46805610119123653,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-05-31T00:00:00+08:00",
+      "period_date": "2012-05-31",
+      "gdp_period": "2012-03-31",
+      "ratio": 0.47027695394192026,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-06-30T00:00:00+08:00",
+      "period_date": "2012-06-30",
+      "gdp_period": "2012-06-30",
+      "ratio": 0.43369964790664145,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-07-31T00:00:00+08:00",
+      "period_date": "2012-07-31",
+      "gdp_period": "2012-06-30",
+      "ratio": 0.40874230056530103,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-08-31T00:00:00+08:00",
+      "period_date": "2012-08-31",
+      "gdp_period": "2012-06-30",
+      "ratio": 0.40178834561491467,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-09-30T00:00:00+08:00",
+      "period_date": "2012-09-30",
+      "gdp_period": "2012-09-30",
+      "ratio": 0.40109893588899953,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-10-31T00:00:00+08:00",
+      "period_date": "2012-10-31",
+      "gdp_period": "2012-09-30",
+      "ratio": 0.3989178917253934,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-11-30T00:00:00+08:00",
+      "period_date": "2012-11-30",
+      "gdp_period": "2012-09-30",
+      "ratio": 0.37378507469961736,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2012-12-31T00:00:00+08:00",
+      "period_date": "2012-12-31",
+      "gdp_period": "2012-12-31",
+      "ratio": 0.4207363689397064,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-01-31T00:00:00+08:00",
+      "period_date": "2013-01-31",
+      "gdp_period": "2012-12-31",
+      "ratio": 0.44548595789743617,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-02-28T00:00:00+08:00",
+      "period_date": "2013-02-28",
+      "gdp_period": "2012-12-31",
+      "ratio": 0.4484227720887961,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-03-31T00:00:00+08:00",
+      "period_date": "2013-03-31",
+      "gdp_period": "2013-03-31",
+      "ratio": 0.41728505669870397,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-04-30T00:00:00+08:00",
+      "period_date": "2013-04-30",
+      "gdp_period": "2013-03-31",
+      "ratio": 0.40827976235543184,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-05-31T00:00:00+08:00",
+      "period_date": "2013-05-31",
+      "gdp_period": "2013-03-31",
+      "ratio": 0.44240907779250754,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-06-30T00:00:00+08:00",
+      "period_date": "2013-06-30",
+      "gdp_period": "2013-06-30",
+      "ratio": 0.37163766305092855,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-07-31T00:00:00+08:00",
+      "period_date": "2013-07-31",
+      "gdp_period": "2013-06-30",
+      "ratio": 0.38162466440552495,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-08-31T00:00:00+08:00",
+      "period_date": "2013-08-31",
+      "gdp_period": "2013-06-30",
+      "ratio": 0.4019871473214637,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-09-30T00:00:00+08:00",
+      "period_date": "2013-09-30",
+      "gdp_period": "2013-09-30",
+      "ratio": 0.41087656609850154,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-10-31T00:00:00+08:00",
+      "period_date": "2013-10-31",
+      "gdp_period": "2013-09-30",
+      "ratio": 0.40222244704638915,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-11-30T00:00:00+08:00",
+      "period_date": "2013-11-30",
+      "gdp_period": "2013-09-30",
+      "ratio": 0.4217892569372212,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2013-12-31T00:00:00+08:00",
+      "period_date": "2013-12-31",
+      "gdp_period": "2013-12-31",
+      "ratio": 0.3960458523982524,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-01-31T00:00:00+08:00",
+      "period_date": "2014-01-31",
+      "gdp_period": "2013-12-31",
+      "ratio": 0.39397263958344786,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-02-28T00:00:00+08:00",
+      "period_date": "2014-02-28",
+      "gdp_period": "2013-12-31",
+      "ratio": 0.4003632833957636,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-03-31T00:00:00+08:00",
+      "period_date": "2014-03-31",
+      "gdp_period": "2014-03-31",
+      "ratio": 0.3845560413189818,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-04-30T00:00:00+08:00",
+      "period_date": "2014-04-30",
+      "gdp_period": "2014-03-31",
+      "ratio": 0.3839882747207511,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-05-31T00:00:00+08:00",
+      "period_date": "2014-05-31",
+      "gdp_period": "2014-03-31",
+      "ratio": 0.3895917139713135,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-06-30T00:00:00+08:00",
+      "period_date": "2014-06-30",
+      "gdp_period": "2014-06-30",
+      "ratio": 0.3883281379614216,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-07-31T00:00:00+08:00",
+      "period_date": "2014-07-31",
+      "gdp_period": "2014-06-30",
+      "ratio": 0.41673705283468154,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-08-31T00:00:00+08:00",
+      "period_date": "2014-08-31",
+      "gdp_period": "2014-06-30",
+      "ratio": 0.42741418585470725,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-09-30T00:00:00+08:00",
+      "period_date": "2014-09-30",
+      "gdp_period": "2014-09-30",
+      "ratio": 0.45702785481883657,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-10-31T00:00:00+08:00",
+      "period_date": "2014-10-31",
+      "gdp_period": "2014-09-30",
+      "ratio": 0.46783045538661017,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-11-30T00:00:00+08:00",
+      "period_date": "2014-11-30",
+      "gdp_period": "2014-09-30",
+      "ratio": 0.5103967649294363,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2014-12-31T00:00:00+08:00",
+      "period_date": "2014-12-31",
+      "gdp_period": "2014-12-31",
+      "ratio": 0.5680949533755759,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-01-31T00:00:00+08:00",
+      "period_date": "2015-01-31",
+      "gdp_period": "2014-12-31",
+      "ratio": 0.5877322609357457,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-02-28T00:00:00+08:00",
+      "period_date": "2015-02-28",
+      "gdp_period": "2014-12-31",
+      "ratio": 0.6215360179413034,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-03-31T00:00:00+08:00",
+      "period_date": "2015-03-31",
+      "gdp_period": "2015-03-31",
+      "ratio": 0.7157975525457189,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-04-30T00:00:00+08:00",
+      "period_date": "2015-04-30",
+      "gdp_period": "2015-03-31",
+      "ratio": 0.8455563568581674,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-05-31T00:00:00+08:00",
+      "period_date": "2015-05-31",
+      "gdp_period": "2015-03-31",
+      "ratio": 0.9415537626784753,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-06-30T00:00:00+08:00",
+      "period_date": "2015-06-30",
+      "gdp_period": "2015-06-30",
+      "ratio": 0.8611366425883228,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-07-31T00:00:00+08:00",
+      "period_date": "2015-07-31",
+      "gdp_period": "2015-06-30",
+      "ratio": 0.7436891408515354,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-08-31T00:00:00+08:00",
+      "period_date": "2015-08-31",
+      "gdp_period": "2015-06-30",
+      "ratio": 0.6452587536142558,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-09-30T00:00:00+08:00",
+      "period_date": "2015-09-30",
+      "gdp_period": "2015-09-30",
+      "ratio": 0.6076978527760657,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-10-31T00:00:00+08:00",
+      "period_date": "2015-10-31",
+      "gdp_period": "2015-09-30",
+      "ratio": 0.6903998335642527,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-11-30T00:00:00+08:00",
+      "period_date": "2015-11-30",
+      "gdp_period": "2015-09-30",
+      "ratio": 0.72953056543974,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2015-12-31T00:00:00+08:00",
+      "period_date": "2015-12-31",
+      "gdp_period": "2015-12-31",
+      "ratio": 0.7562925248910517,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-01-31T00:00:00+08:00",
+      "period_date": "2016-01-31",
+      "gdp_period": "2015-12-31",
+      "ratio": 0.5747952696859767,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-02-29T00:00:00+08:00",
+      "period_date": "2016-02-29",
+      "gdp_period": "2015-12-31",
+      "ratio": 0.5651543735582976,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-03-31T00:00:00+08:00",
+      "period_date": "2016-03-31",
+      "gdp_period": "2016-03-31",
+      "ratio": 0.636005854003653,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-04-30T00:00:00+08:00",
+      "period_date": "2016-04-30",
+      "gdp_period": "2016-03-31",
+      "ratio": 0.6272547946617403,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-05-31T00:00:00+08:00",
+      "period_date": "2016-05-31",
+      "gdp_period": "2016-03-31",
+      "ratio": 0.6282829766996595,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-06-30T00:00:00+08:00",
+      "period_date": "2016-06-30",
+      "gdp_period": "2016-06-30",
+      "ratio": 0.6365875936790162,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-07-31T00:00:00+08:00",
+      "period_date": "2016-07-31",
+      "gdp_period": "2016-06-30",
+      "ratio": 0.641460043762942,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-08-31T00:00:00+08:00",
+      "period_date": "2016-08-31",
+      "gdp_period": "2016-06-30",
+      "ratio": 0.676074743952961,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-09-30T00:00:00+08:00",
+      "period_date": "2016-09-30",
+      "gdp_period": "2016-09-30",
+      "ratio": 0.6537287105772335,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-10-31T00:00:00+08:00",
+      "period_date": "2016-10-31",
+      "gdp_period": "2016-09-30",
+      "ratio": 0.6805380578089376,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-11-30T00:00:00+08:00",
+      "period_date": "2016-11-30",
+      "gdp_period": "2016-09-30",
+      "ratio": 0.7152765058271933,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2016-12-31T00:00:00+08:00",
+      "period_date": "2016-12-31",
+      "gdp_period": "2016-12-31",
+      "ratio": 0.6669607899704806,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-01-31T00:00:00+08:00",
+      "period_date": "2017-01-31",
+      "gdp_period": "2016-12-31",
+      "ratio": 0.679522486806894,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-02-28T00:00:00+08:00",
+      "period_date": "2017-02-28",
+      "gdp_period": "2016-12-31",
+      "ratio": 0.707063610542924,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-03-31T00:00:00+08:00",
+      "period_date": "2017-03-31",
+      "gdp_period": "2017-03-31",
+      "ratio": 0.6911309928207129,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-04-30T00:00:00+08:00",
+      "period_date": "2017-04-30",
+      "gdp_period": "2017-03-31",
+      "ratio": 0.6756233401956959,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-05-31T00:00:00+08:00",
+      "period_date": "2017-05-31",
+      "gdp_period": "2017-03-31",
+      "ratio": 0.6578604553341665,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-06-30T00:00:00+08:00",
+      "period_date": "2017-06-30",
+      "gdp_period": "2017-06-30",
+      "ratio": 0.6667391023533323,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-07-31T00:00:00+08:00",
+      "period_date": "2017-07-31",
+      "gdp_period": "2017-06-30",
+      "ratio": 0.676541479207208,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-08-31T00:00:00+08:00",
+      "period_date": "2017-08-31",
+      "gdp_period": "2017-06-30",
+      "ratio": 0.7012427369507317,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-09-30T00:00:00+08:00",
+      "period_date": "2017-09-30",
+      "gdp_period": "2017-09-30",
+      "ratio": 0.6914755372560527,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-10-31T00:00:00+08:00",
+      "period_date": "2017-10-31",
+      "gdp_period": "2017-09-30",
+      "ratio": 0.7034031358904484,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-11-30T00:00:00+08:00",
+      "period_date": "2017-11-30",
+      "gdp_period": "2017-09-30",
+      "ratio": 0.6850569316755761,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2017-12-31T00:00:00+08:00",
+      "period_date": "2017-12-31",
+      "gdp_period": "2017-12-31",
+      "ratio": 0.6692205808023739,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-01-31T00:00:00+08:00",
+      "period_date": "2018-01-31",
+      "gdp_period": "2017-12-31",
+      "ratio": 0.69103719499178,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-02-28T00:00:00+08:00",
+      "period_date": "2018-02-28",
+      "gdp_period": "2017-12-31",
+      "ratio": 0.6628007348271955,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-03-31T00:00:00+08:00",
+      "period_date": "2018-03-31",
+      "gdp_period": "2018-03-31",
+      "ratio": 0.6447226914566885,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-04-30T00:00:00+08:00",
+      "period_date": "2018-04-30",
+      "gdp_period": "2018-03-31",
+      "ratio": 0.6251500781592263,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-05-31T00:00:00+08:00",
+      "period_date": "2018-05-31",
+      "gdp_period": "2018-03-31",
+      "ratio": 0.6270945616019842,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-06-30T00:00:00+08:00",
+      "period_date": "2018-06-30",
+      "gdp_period": "2018-06-30",
+      "ratio": 0.5663960323991604,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-07-31T00:00:00+08:00",
+      "period_date": "2018-07-31",
+      "gdp_period": "2018-06-30",
+      "ratio": 0.5686322434012423,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-08-31T00:00:00+08:00",
+      "period_date": "2018-08-31",
+      "gdp_period": "2018-06-30",
+      "ratio": 0.534364404395944,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-09-30T00:00:00+08:00",
+      "period_date": "2018-09-30",
+      "gdp_period": "2018-09-30",
+      "ratio": 0.5334165681112918,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-10-31T00:00:00+08:00",
+      "period_date": "2018-10-31",
+      "gdp_period": "2018-09-30",
+      "ratio": 0.48947975729782045,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-11-30T00:00:00+08:00",
+      "period_date": "2018-11-30",
+      "gdp_period": "2018-09-30",
+      "ratio": 0.49725078746557594,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2018-12-31T00:00:00+08:00",
+      "period_date": "2018-12-31",
+      "gdp_period": "2018-12-31",
+      "ratio": 0.4646574190812685,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-01-31T00:00:00+08:00",
+      "period_date": "2019-01-31",
+      "gdp_period": "2018-12-31",
+      "ratio": 0.4795736051352438,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-02-28T00:00:00+08:00",
+      "period_date": "2019-02-28",
+      "gdp_period": "2018-12-31",
+      "ratio": 0.5607440905819286,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-03-31T00:00:00+08:00",
+      "period_date": "2019-03-31",
+      "gdp_period": "2019-03-31",
+      "ratio": 0.5914037373255634,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-04-30T00:00:00+08:00",
+      "period_date": "2019-04-30",
+      "gdp_period": "2019-03-31",
+      "ratio": 0.5834205697485008,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-05-31T00:00:00+08:00",
+      "period_date": "2019-05-31",
+      "gdp_period": "2019-03-31",
+      "ratio": 0.5494905484094363,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-06-30T00:00:00+08:00",
+      "period_date": "2019-06-30",
+      "gdp_period": "2019-06-30",
+      "ratio": 0.5529512801684168,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-07-31T00:00:00+08:00",
+      "period_date": "2019-07-31",
+      "gdp_period": "2019-06-30",
+      "ratio": 0.5572887403000907,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-08-31T00:00:00+08:00",
+      "period_date": "2019-08-31",
+      "gdp_period": "2019-06-30",
+      "ratio": 0.5564703781972248,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-09-30T00:00:00+08:00",
+      "period_date": "2019-09-30",
+      "gdp_period": "2019-09-30",
+      "ratio": 0.5529657164687177,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-10-31T00:00:00+08:00",
+      "period_date": "2019-10-31",
+      "gdp_period": "2019-09-30",
+      "ratio": 0.5599132465531079,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-11-30T00:00:00+08:00",
+      "period_date": "2019-11-30",
+      "gdp_period": "2019-09-30",
+      "ratio": 0.5540298960618844,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2019-12-31T00:00:00+08:00",
+      "period_date": "2019-12-31",
+      "gdp_period": "2019-12-31",
+      "ratio": 0.5894729441825822,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-01-31T00:00:00+08:00",
+      "period_date": "2020-01-31",
+      "gdp_period": "2019-12-31",
+      "ratio": 0.5936931573030535,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-02-29T00:00:00+08:00",
+      "period_date": "2020-02-29",
+      "gdp_period": "2019-12-31",
+      "ratio": 0.5931568901781179,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-03-31T00:00:00+08:00",
+      "period_date": "2020-03-31",
+      "gdp_period": "2020-03-31",
+      "ratio": 0.5662001135511326,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-04-30T00:00:00+08:00",
+      "period_date": "2020-04-30",
+      "gdp_period": "2020-03-31",
+      "ratio": 0.5975253561650782,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-05-31T00:00:00+08:00",
+      "period_date": "2020-05-31",
+      "gdp_period": "2020-03-31",
+      "ratio": 0.6036778845689563,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-06-30T00:00:00+08:00",
+      "period_date": "2020-06-30",
+      "gdp_period": "2020-06-30",
+      "ratio": 0.6479025126886748,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-07-31T00:00:00+08:00",
+      "period_date": "2020-07-31",
+      "gdp_period": "2020-06-30",
+      "ratio": 0.7371825116940134,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-08-31T00:00:00+08:00",
+      "period_date": "2020-08-31",
+      "gdp_period": "2020-06-30",
+      "ratio": 0.7584549029371176,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-09-30T00:00:00+08:00",
+      "period_date": "2020-09-30",
+      "gdp_period": "2020-09-30",
+      "ratio": 0.7108590299682989,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-10-31T00:00:00+08:00",
+      "period_date": "2020-10-31",
+      "gdp_period": "2020-09-30",
+      "ratio": 0.724768377656829,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-11-30T00:00:00+08:00",
+      "period_date": "2020-11-30",
+      "gdp_period": "2020-09-30",
+      "ratio": 0.7579764092531289,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2020-12-31T00:00:00+08:00",
+      "period_date": "2020-12-31",
+      "gdp_period": "2020-12-31",
+      "ratio": 0.7703773685638627,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-01-31T00:00:00+08:00",
+      "period_date": "2021-01-31",
+      "gdp_period": "2020-12-31",
+      "ratio": 0.7746203304654625,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-02-28T00:00:00+08:00",
+      "period_date": "2021-02-28",
+      "gdp_period": "2020-12-31",
+      "ratio": 0.773809957621632,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-03-31T00:00:00+08:00",
+      "period_date": "2021-03-31",
+      "gdp_period": "2021-03-31",
+      "ratio": 0.7255072250291299,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-04-30T00:00:00+08:00",
+      "period_date": "2021-04-30",
+      "gdp_period": "2021-03-31",
+      "ratio": 0.7435969758714567,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-05-31T00:00:00+08:00",
+      "period_date": "2021-05-31",
+      "gdp_period": "2021-03-31",
+      "ratio": 0.7873345661941564,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-06-30T00:00:00+08:00",
+      "period_date": "2021-06-30",
+      "gdp_period": "2021-06-30",
+      "ratio": 0.7748024009919797,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-07-31T00:00:00+08:00",
+      "period_date": "2021-07-31",
+      "gdp_period": "2021-06-30",
+      "ratio": 0.7449319155898707,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-08-31T00:00:00+08:00",
+      "period_date": "2021-08-31",
+      "gdp_period": "2021-06-30",
+      "ratio": 0.7780163190811755,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-09-30T00:00:00+08:00",
+      "period_date": "2021-09-30",
+      "gdp_period": "2021-09-30",
+      "ratio": 0.758577170808248,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-10-31T00:00:00+08:00",
+      "period_date": "2021-10-31",
+      "gdp_period": "2021-09-30",
+      "ratio": 0.7588662092534304,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-11-30T00:00:00+08:00",
+      "period_date": "2021-11-30",
+      "gdp_period": "2021-09-30",
+      "ratio": 0.7853859480182748,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2021-12-31T00:00:00+08:00",
+      "period_date": "2021-12-31",
+      "gdp_period": "2021-12-31",
+      "ratio": 0.7804309882324677,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-01-31T00:00:00+08:00",
+      "period_date": "2022-01-31",
+      "gdp_period": "2021-12-31",
+      "ratio": 0.7149517504768608,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-02-28T00:00:00+08:00",
+      "period_date": "2022-02-28",
+      "gdp_period": "2021-12-31",
+      "ratio": 0.7367445571436239,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-03-31T00:00:00+08:00",
+      "period_date": "2022-03-31",
+      "gdp_period": "2022-03-31",
+      "ratio": 0.6731980125985874,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-04-30T00:00:00+08:00",
+      "period_date": "2022-04-30",
+      "gdp_period": "2022-03-31",
+      "ratio": 0.6179212524737788,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-05-31T00:00:00+08:00",
+      "period_date": "2022-05-31",
+      "gdp_period": "2022-03-31",
+      "ratio": 0.6529221530179181,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-06-30T00:00:00+08:00",
+      "period_date": "2022-06-30",
+      "gdp_period": "2022-06-30",
+      "ratio": 0.7027445359484022,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-07-31T00:00:00+08:00",
+      "period_date": "2022-07-31",
+      "gdp_period": "2022-06-30",
+      "ratio": 0.6842142378122205,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-08-31T00:00:00+08:00",
+      "period_date": "2022-08-31",
+      "gdp_period": "2022-06-30",
+      "ratio": 0.6723902272425454,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-09-30T00:00:00+08:00",
+      "period_date": "2022-09-30",
+      "gdp_period": "2022-09-30",
+      "ratio": 0.6205257425436936,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-10-31T00:00:00+08:00",
+      "period_date": "2022-10-31",
+      "gdp_period": "2022-09-30",
+      "ratio": 0.604557375016925,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-11-30T00:00:00+08:00",
+      "period_date": "2022-11-30",
+      "gdp_period": "2022-09-30",
+      "ratio": 0.6541175342409371,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2022-12-31T00:00:00+08:00",
+      "period_date": "2022-12-31",
+      "gdp_period": "2022-12-31",
+      "ratio": 0.6385633176972931,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-01-31T00:00:00+08:00",
+      "period_date": "2023-01-31",
+      "gdp_period": "2022-12-31",
+      "ratio": 0.6829990002669305,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-02-28T00:00:00+08:00",
+      "period_date": "2023-02-28",
+      "gdp_period": "2022-12-31",
+      "ratio": 0.6884902192767854,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-03-31T00:00:00+08:00",
+      "period_date": "2023-03-31",
+      "gdp_period": "2023-03-31",
+      "ratio": 0.6795066266823265,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-04-30T00:00:00+08:00",
+      "period_date": "2023-04-30",
+      "gdp_period": "2023-03-31",
+      "ratio": 0.680055157672485,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-05-31T00:00:00+08:00",
+      "period_date": "2023-05-31",
+      "gdp_period": "2023-03-31",
+      "ratio": 0.6605518215171294,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-06-30T00:00:00+08:00",
+      "period_date": "2023-06-30",
+      "gdp_period": "2023-06-30",
+      "ratio": 0.6574926297533918,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-07-31T00:00:00+08:00",
+      "period_date": "2023-07-31",
+      "gdp_period": "2023-06-30",
+      "ratio": 0.6717081219512735,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-08-31T00:00:00+08:00",
+      "period_date": "2023-08-31",
+      "gdp_period": "2023-06-30",
+      "ratio": 0.6385800055498155,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-09-30T00:00:00+08:00",
+      "period_date": "2023-09-30",
+      "gdp_period": "2023-09-30",
+      "ratio": 0.626564744009916,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-10-31T00:00:00+08:00",
+      "period_date": "2023-10-31",
+      "gdp_period": "2023-09-30",
+      "ratio": 0.6115399027067131,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-11-30T00:00:00+08:00",
+      "period_date": "2023-11-30",
+      "gdp_period": "2023-09-30",
+      "ratio": 0.6149296196294889,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2023-12-31T00:00:00+08:00",
+      "period_date": "2023-12-31",
+      "gdp_period": "2023-12-31",
+      "ratio": 0.5973480752148099,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-01-31T00:00:00+08:00",
+      "period_date": "2024-01-31",
+      "gdp_period": "2023-12-31",
+      "ratio": 0.5363426252772119,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-02-29T00:00:00+08:00",
+      "period_date": "2024-02-29",
+      "gdp_period": "2023-12-31",
+      "ratio": 0.585089809272659,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-03-31T00:00:00+08:00",
+      "period_date": "2024-03-31",
+      "gdp_period": "2024-03-31",
+      "ratio": 0.5884797238342782,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-04-30T00:00:00+08:00",
+      "period_date": "2024-04-30",
+      "gdp_period": "2024-03-31",
+      "ratio": 0.5970969115489231,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-05-31T00:00:00+08:00",
+      "period_date": "2024-05-31",
+      "gdp_period": "2024-03-31",
+      "ratio": 0.5905128274300209,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-06-30T00:00:00+08:00",
+      "period_date": "2024-06-30",
+      "gdp_period": "2024-06-30",
+      "ratio": 0.5557261250357017,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-07-31T00:00:00+08:00",
+      "period_date": "2024-07-31",
+      "gdp_period": "2024-06-30",
+      "ratio": 0.5510205260536021,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-08-31T00:00:00+08:00",
+      "period_date": "2024-08-31",
+      "gdp_period": "2024-06-30",
+      "ratio": 0.5311571864875044,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-09-30T00:00:00+08:00",
+      "period_date": "2024-09-30",
+      "gdp_period": "2024-09-30",
+      "ratio": 0.6328083499620996,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-10-31T00:00:00+08:00",
+      "period_date": "2024-10-31",
+      "gdp_period": "2024-09-30",
+      "ratio": 0.6349204955628882,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-11-30T00:00:00+08:00",
+      "period_date": "2024-11-30",
+      "gdp_period": "2024-09-30",
+      "ratio": 0.6444683294556866,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2024-12-31T00:00:00+08:00",
+      "period_date": "2024-12-31",
+      "gdp_period": "2024-12-31",
+      "ratio": 0.6340345313160436,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-01-31T00:00:00+08:00",
+      "period_date": "2025-01-31",
+      "gdp_period": "2024-12-31",
+      "ratio": 0.6185440516941972,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-02-28T00:00:00+08:00",
+      "period_date": "2025-02-28",
+      "gdp_period": "2024-12-31",
+      "ratio": 0.6412951200764474,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-03-31T00:00:00+08:00",
+      "period_date": "2025-03-31",
+      "gdp_period": "2025-03-31",
+      "ratio": 0.6353328176812134,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-04-30T00:00:00+08:00",
+      "period_date": "2025-04-30",
+      "gdp_period": "2025-03-31",
+      "ratio": 0.6179592446834666,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-05-31T00:00:00+08:00",
+      "period_date": "2025-05-31",
+      "gdp_period": "2025-03-31",
+      "ratio": 0.6325588881770707,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-06-30T00:00:00+08:00",
+      "period_date": "2025-06-30",
+      "gdp_period": "2025-06-30",
+      "ratio": 0.6545311967649071,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-07-31T00:00:00+08:00",
+      "period_date": "2025-07-31",
+      "gdp_period": "2025-06-30",
+      "ratio": 0.6844614370189833,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-08-31T00:00:00+08:00",
+      "period_date": "2025-08-31",
+      "gdp_period": "2025-06-30",
+      "ratio": 0.7515494321444569,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-09-30T00:00:00+08:00",
+      "period_date": "2025-09-30",
+      "gdp_period": "2025-09-30",
+      "ratio": 0.7579345635393888,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-10-31T00:00:00+08:00",
+      "period_date": "2025-10-31",
+      "gdp_period": "2025-09-30",
+      "ratio": 0.7670480546642717,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-11-30T00:00:00+08:00",
+      "period_date": "2025-11-30",
+      "gdp_period": "2025-09-30",
+      "ratio": 0.7540133683339505,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2025-12-31T00:00:00+08:00",
+      "period_date": "2025-12-31",
+      "gdp_period": "2025-12-31",
+      "ratio": 0.7705224562144871,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2026-01-31T00:00:00+08:00",
+      "period_date": "2026-01-31",
+      "gdp_period": "2025-12-31",
+      "ratio": 0.8099683905004084,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2026-02-28T00:00:00+08:00",
+      "period_date": "2026-02-28",
+      "gdp_period": "2025-12-31",
+      "ratio": 0.8269557962626166,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2026-03-31T00:00:00+08:00",
+      "period_date": "2026-03-31",
+      "gdp_period": "2026-03-31",
+      "ratio": 0.7604879950045349,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2026-04-30T00:00:00+08:00",
+      "period_date": "2026-04-30",
+      "gdp_period": "2026-03-31",
+      "ratio": 0.820688055994696,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2026-05-31T00:00:00+08:00",
+      "period_date": "2026-05-31",
+      "gdp_period": "2026-03-31",
+      "ratio": 0.8224035733631716,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2026-06-30T00:00:00+08:00",
+      "period_date": "2026-06-30",
+      "gdp_period": "2026-06-30",
+      "ratio": 0.8224804110893236,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2026-07-31T00:00:00+08:00",
+      "period_date": "2026-07-31",
+      "gdp_period": "2026-06-30",
+      "ratio": 0.7637407111362868,
+      "basis": "historical revised series"
+    },
+    {
+      "available_at": "2026-08-31T00:00:00+08:00",
+      "period_date": "2026-08-31",
+      "gdp_period": "2026-06-30",
+      "ratio": 0.8051410473348942,
+      "basis": "historical revised series"
+    }
+  ],
+  "observations": [
+    {
+      "available_at": "2026-09-30T10:55:59.345933+00:00",
+      "period_date": "2026-08-31",
+      "gdp_period": "2026-06-30",
+      "ratio": 0.8051410473348942,
+      "basis": "observed"
+    }
+  ],
+  "historical_cutoff": "2026-09-30T10:55:59.345933+00:00"
+}

@@ -70,7 +70,7 @@ RSI_ANALYSIS_CONFIGS = [
             "show_daily_signals": True,
             "show_weekly_signals": True,
             "show_monthly_signals": True,
-            # 主程序默认只输出收盘价与成交量；想恢复本图底部 RSI 时改为 True。
+            # True 输出 Price + RSI 两行；False 只保留 Price。
             "show_rsi_panel": True,
             # 收盘价子图的 BOLL(20,2)；可按单个标的关闭或调整参数。
             "show_boll": True,
@@ -191,6 +191,11 @@ RSI_ANALYSIS_CONFIGS = [
         "use_realtime_param": True,
         "kwargs": {
             "symbol": "159943",
+            # 整个沪深市场的宏观估值；None 沿用全局 0.765 / 0.60 / 0.55。
+            "show_mc_gdp": True,
+            "mc_gdp_over_threshold": None,
+            "mc_gdp_low_threshold": None,
+            "mc_gdp_deep_low_threshold": None,
             "breadth_key": "shenzhen",
             "breadth_band_low_threshold": None,
             "breadth_band_high_threshold": None,
@@ -238,6 +243,10 @@ RSI_ANALYSIS_CONFIGS = [
         "use_realtime_param": True,
         "kwargs": {
             "symbol": "560220",
+            "show_mc_gdp": True,
+            "mc_gdp_over_threshold": None,
+            "mc_gdp_low_threshold": None,
+            "mc_gdp_deep_low_threshold": None,
             "breadth_key": "csi2000",
             "breadth_band_low_threshold": None,
             "breadth_band_high_threshold": None,

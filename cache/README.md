@@ -35,6 +35,21 @@
 - 说明位置：本 README
 - 注意：不要在 CSV 文件头部添加说明行，避免 pandas.read_csv() 把说明当成数据。
 
+### `a_share_mc_gdp.json`
+- 用途：仅用于159943、560220走势图的沪深市价总值/中国名义GDP(TTM)估值背景。
+- 生成：tools/a_share_valuation.py，stock_analysis整轮共享一次加载。
+- 读取：tools/rsi_data.py
+- 刷新：市值48小时，GDP96小时；失败24小时退避；宏观子进程总预算15秒。
+- 保留：保留来源历史、固定初始化修订历史及后续观测；不批量删除文件。
+- 结构：version/unit/sources/history/observations/historical_cutoff容器；金额亿元，比例不缩放。
+- 说明位置：本 README
+- 注意：上海市价总值+深圳市价总值，不含北交所；累计名义GDP转单季后，连续四季求TTM。
+- 注意：初始化历史是historical revised series，统计期不是发布日期，不承诺无前视回测。
+- 注意：后续新值或修订使用首次成功观测时间available_at；不回写历史基线或旧观测。
+- 注意：来源异常继续用可信旧值，无值则N/A；不参与基金收益预估、benchmark或实时基金观察。
+- 注意：strategy/gdp.py旧CSV只读校验迁入；不更新其文件，不相信旧派生ratio。
+
+
 ### `a_share_trade_calendar_cache.json`
 - 用途：A 股交易日历文件缓存，用于判断普通交易日、周末和节假日累计窗口。
 - 生成：tools/fund_history_io.py 从 AkShare 交易日历刷新后写入。
