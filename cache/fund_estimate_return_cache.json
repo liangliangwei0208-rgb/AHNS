@@ -223593,7 +223593,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 43.793,
@@ -223664,7 +223664,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:021277:2026-09-30"
     },
@@ -223675,7 +223675,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 63.20400000000001,
@@ -223724,7 +223724,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:016702:2026-09-30"
     },
@@ -223735,7 +223735,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -223783,7 +223783,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 26.51%，其中行情有效 26.51%，行情失败 0.00%，未披露仓位 73.49%；有效持仓放大系数 1.15，实际有效估算权重 30.49%，从基准补偿仓位转移 3.98% 给有效持仓；补偿仓位 69.51% 使用 美国油气开采(XOP)(2026-09-30) +0.3919% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:007844:2026-09-30"
     },
@@ -223794,7 +223794,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 59.8345,
@@ -223850,7 +223850,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:015205:2026-09-30"
     },
@@ -223861,7 +223861,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -223909,7 +223909,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 26.25%，其中行情有效 26.25%，行情失败 0.00%，未披露仓位 73.75%；有效持仓放大系数 1.15，实际有效估算权重 30.19%，从基准补偿仓位转移 3.94% 给有效持仓；补偿仓位 69.81% 使用 美国油气开采(XOP)(2026-09-30) +0.3919% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:018852:2026-09-30"
     },
@@ -223920,7 +223920,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 52.198499999999996,
@@ -223969,7 +223969,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:015202:2026-09-30"
     },
@@ -223980,7 +223980,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 52.9,
@@ -224029,7 +224029,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:000043:2026-09-30"
     },
@@ -224040,7 +224040,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 49.413999999999994,
@@ -224097,7 +224097,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:002891:2026-09-30"
     },
@@ -224108,7 +224108,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 87.56099999999999,
@@ -224164,7 +224164,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017145:2026-09-30"
     },
@@ -224175,7 +224175,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -224223,7 +224223,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 67.59%，其中行情有效 67.59%，行情失败 0.00%，未披露仓位 32.41%；有效持仓放大系数 1.15，实际有效估算权重 77.73%，从基准补偿仓位转移 10.14% 给有效持仓；补偿仓位 22.27% 使用 标普500(2026-09-30) -0.2516% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:012868:2026-09-30"
     },
@@ -224234,7 +224234,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 32.062,
@@ -224283,7 +224283,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:519696:2026-09-30"
     },
@@ -224294,7 +224294,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 72.01299999999999,
@@ -224343,7 +224343,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017437:2026-09-30"
     },
@@ -224354,7 +224354,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 75.3365,
@@ -224403,7 +224403,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:009975:2026-09-30"
     },
@@ -224414,7 +224414,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 25.803999999999988,
@@ -224478,7 +224478,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:013328:2026-09-30"
     },
@@ -224489,7 +224489,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 16.17049999999999,
@@ -224560,7 +224560,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:019231:2026-09-30"
     },
@@ -224571,7 +224571,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 49.127999999999986,
@@ -224620,7 +224620,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:008254:2026-09-30"
     },
@@ -224631,7 +224631,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 20.527500000000003,
@@ -224687,7 +224687,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:024239:2026-09-30"
     },
@@ -224698,7 +224698,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 65.78,
@@ -224747,7 +224747,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:018036:2026-09-30"
     },
@@ -224758,7 +224758,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 35.212999999999994,
@@ -224814,7 +224814,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:486002:2026-09-30"
     },
@@ -224825,7 +224825,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 13.213499999999996,
@@ -224874,7 +224874,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:163813:2026-09-30"
     },
@@ -224885,7 +224885,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 28.5775,
@@ -224934,7 +224934,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017654:2026-09-30"
     },
@@ -224945,7 +224945,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 56.1075,
@@ -225009,7 +225009,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:006555:2026-09-30"
     },
@@ -225020,7 +225020,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 54.55449999999999,
@@ -225077,7 +225077,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:021842:2026-09-30"
     },
@@ -225088,7 +225088,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 41.9385,
@@ -225152,7 +225152,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:012922:2026-09-30"
     },
@@ -225163,7 +225163,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 71.553,
@@ -225219,7 +225219,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:539002:2026-09-30"
     },
@@ -225230,7 +225230,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 14.317499999999995,
@@ -225302,7 +225302,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:016665:2026-09-30"
     },
@@ -225313,7 +225313,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 24.514499999999998,
@@ -225384,7 +225384,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:018229:2026-09-30"
     },
@@ -225395,7 +225395,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -225443,7 +225443,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 65.49%，其中行情有效 65.49%，行情失败 0.00%，未披露仓位 34.51%；有效持仓放大系数 1.15，实际有效估算权重 75.31%，从基准补偿仓位转移 9.82% 给有效持仓；补偿仓位 24.69% 使用 美国油气开采(XOP)(2026-09-30) +0.3919% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:006679:2026-09-30"
     },
@@ -225454,7 +225454,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -225502,7 +225502,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 13.81%，其中行情有效 13.81%，行情失败 0.00%，未披露仓位 86.19%；有效持仓放大系数 1.15，实际有效估算权重 15.88%，从基准补偿仓位转移 2.07% 给有效持仓；补偿仓位 84.12% 使用 标普500(2026-09-30) -0.2516% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:519981:2026-09-30"
     },
@@ -225513,7 +225513,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 33.37299999999999,
@@ -225569,7 +225569,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:164212:2026-09-30"
     },
@@ -225580,7 +225580,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -225628,7 +225628,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 2.57%，其中行情有效 2.57%，行情失败 0.00%，未披露仓位 97.43%；有效持仓放大系数 1.15，实际有效估算权重 2.96%，从基准补偿仓位转移 0.39% 给有效持仓；补偿仓位 97.04% 使用 标普500(2026-09-30) -0.2516% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:008401:2026-09-30"
     },
@@ -225639,7 +225639,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 35.66149999999999,
@@ -225695,7 +225695,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017731:2026-09-30"
     },
@@ -225706,7 +225706,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -225766,7 +225766,7 @@
       "source": "anchor_daily",
       "warnings": [],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:118001:2026-09-30"
     },
@@ -225777,7 +225777,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 44.73199999999999,
@@ -225855,7 +225855,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:022184:2026-09-30"
     },
@@ -225866,7 +225866,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "final",
       "data_status": "complete",
       "completeness_score": 100.0,
@@ -225914,7 +225914,7 @@
         "已启用海外股票持仓增强补偿口径：已披露前N大持仓合计 36.08%，其中行情有效 36.08%，行情失败 0.00%，未披露仓位 63.92%；有效持仓放大系数 1.15，实际有效估算权重 41.49%，从基准补偿仓位转移 5.41% 给有效持仓；补偿仓位 58.51% 使用 生物科技(2026-09-30) -0.2417% 估算。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:001092:2026-09-30"
     },
@@ -225925,7 +225925,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "partial",
       "completeness_score": 47.6445,
@@ -225981,7 +225981,7 @@
         "补偿基准 纳斯达克100(2026-09-30) 在估值锚点 2026-09-30 状态为 missing，补偿仓位贡献暂按 0% 计入。"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:017072:2026-09-30"
     },
@@ -225992,7 +225992,7 @@
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:42",
+      "run_time_bj": "2026-10-01T14:13:11",
       "stage": "partial",
       "data_status": "stale",
       "completeness_score": 98.22,
@@ -226040,12 +226040,12 @@
         "艾芙隆海湾社区(AVB) 所属市场 US 在估值锚点 2026-09-30 状态为 stale，本次贡献暂按 0% 计入；trade_date=2026-08-14 与 valuation_anchor_date=2026-09-30 不一致"
       ],
       "holding_quarter": "2026年2季度股票投资明细",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "cache_key": "overseas:160140:2026-09-30"
     }
   },
-  "updated_at": "2026-10-01T09:12:45",
+  "updated_at": "2026-10-01T14:13:14",
   "benchmark_records": {
     "benchmark:.INX:2026-05-08": {
       "market_group": "overseas",
@@ -242791,7 +242791,7 @@
       "valuation_anchor_date": "2026-09-30",
       "trade_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:45",
+      "run_time_bj": "2026-10-01T14:13:14",
       "stage": "partial",
       "data_status": "failed",
       "is_final": false,
@@ -242802,7 +242802,7 @@
       "status": "missing",
       "source": "daily_fetch_failed",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -242820,7 +242820,7 @@
       "valuation_anchor_date": "2026-09-30",
       "trade_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:45",
+      "run_time_bj": "2026-10-01T14:13:14",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -242831,7 +242831,7 @@
       "status": "traded",
       "source": "rsi_module_index_daily",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -242849,7 +242849,7 @@
       "valuation_anchor_date": "2026-09-30",
       "trade_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:45",
+      "run_time_bj": "2026-10-01T14:13:14",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -242860,7 +242860,7 @@
       "status": "traded",
       "source": "ak_stock_us_daily",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -242878,7 +242878,7 @@
       "valuation_anchor_date": "2026-09-30",
       "trade_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:45",
+      "run_time_bj": "2026-10-01T14:13:14",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -242889,7 +242889,7 @@
       "status": "traded",
       "source": "rsi_module_index_daily",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -242907,7 +242907,7 @@
       "valuation_anchor_date": "2026-09-30",
       "trade_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:45",
+      "run_time_bj": "2026-10-01T14:13:14",
       "stage": "final",
       "data_status": "complete",
       "is_final": true,
@@ -242918,7 +242918,7 @@
       "status": "traded",
       "source": "ak_futures_foreign_hist_sina",
       "error": "",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": true,
@@ -242934,20 +242934,20 @@
       "order": 7,
       "valuation_date": "2026-09-30",
       "valuation_anchor_date": "2026-09-30",
-      "trade_date": "2026-09-29",
+      "trade_date": "2026-09-30",
       "run_date_bj": "2026-10-01",
-      "run_time_bj": "2026-10-01T09:12:45",
-      "stage": "partial",
-      "data_status": "stale",
-      "is_final": false,
+      "run_time_bj": "2026-10-01T14:13:14",
+      "stage": "final",
+      "data_status": "complete",
+      "is_final": true,
       "return_pct": null,
-      "value": 16.04,
-      "display_value": "16.04",
+      "value": 16.34,
+      "display_value": "16.34",
       "value_type": "level",
-      "status": "stale",
+      "status": "traded",
       "source": "CBOE",
-      "error": "VIX trade_date=2026-09-29 与 valuation_anchor_date=2026-09-30 不一致",
-      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 09:06:50",
+      "error": "",
+      "table_title": "海外市场收益率预估 估值日：2026-09-30 生成：2026-10-01 14:07:15",
       "output_file": "output/haiwai_fund.png",
       "display_in_daily_fund": true,
       "display_in_holidays": false,
