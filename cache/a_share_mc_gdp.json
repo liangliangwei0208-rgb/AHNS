@@ -1352,8 +1352,8 @@
       "source": "https://data.eastmoney.com/cjsj/gpjytj.html",
       "unit": "亿元",
       "seed": "a_share_market_cap_monthly.csv",
-      "last_attempt_at": "2026-09-30T10:55:59.345933+00:00",
-      "last_success_at": "2026-09-30T10:55:59.345933+00:00",
+      "last_attempt_at": "2026-10-03T00:46:42.249992+00:00",
+      "last_success_at": "2026-10-03T00:46:42.249992+00:00",
       "error": null
     },
     "gdp": {
