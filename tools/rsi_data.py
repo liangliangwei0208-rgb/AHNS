@@ -564,6 +564,7 @@ def draw_vix_state_band(
     *,
     output_dpi: int | None = None,
     include_ebs: bool = False,
+    include_ene: bool = False,
 ) -> list[Rectangle] | None:
     """负向VIX贴图底，正向VIX靠图顶；色带不参与价格轴自动缩放。"""
     required_state_columns = {"date", "VIX_MA_SPREAD"}
@@ -621,7 +622,7 @@ def draw_vix_state_band(
         right_edges[-1] = x_values[-1] + (x_values[-1] - midpoints[-1])
 
     from tools.market_breadth import price_band_layout, add_state_band_label
-    layout = price_band_layout(axis, output_dpi, include_ebs=include_ebs)
+    layout = price_band_layout(axis, output_dpi, include_ebs=include_ebs, include_ene=include_ene)
     # VIX正负极端分居两侧，与同侧50D留约2像素间隔。
     state_bands = []
     for index, value in enumerate(data["VIX_MA_SPREAD"]):
@@ -2439,6 +2440,8 @@ def plot_analysis(
     mc_gdp_deep_low_threshold: Optional[float] = None,
     show_ebs_state_band: bool = False,
     ebs_state_df: Optional[pd.DataFrame] = None,
+    show_ene_state_band: bool = False,
+    ene_state_df: Optional[pd.DataFrame] = None,
 ):
     """
     输出价格和可选 RSI/50D 两行图。成交量数据仍参与摘要与量化计算。
@@ -2701,20 +2704,35 @@ def plot_analysis(
     if show_vix_state_band:
         draw_vix_state_band(axes[0], plot_df, vix_state_df,
                             vix_state_negative_threshold, vix_state_positive_threshold,
-                            vix_state_max_staleness_days, output_dpi=dpi, include_ebs=show_ebs_state_band)
+                            vix_state_max_staleness_days, output_dpi=dpi, include_ebs=show_ebs_state_band,
+                            include_ene=show_ene_state_band)
     if show_breadth:
         from tools.market_breadth import draw_breadth_state_band
         from tools.configs.market_breadth_configs import BREADTH_BAND_LOW_THRESHOLD, BREADTH_BAND_HIGH_THRESHOLD
         low = BREADTH_BAND_LOW_THRESHOLD if breadth_band_low_threshold is None else breadth_band_low_threshold
         high = BREADTH_BAND_HIGH_THRESHOLD if breadth_band_high_threshold is None else breadth_band_high_threshold
         draw_breadth_state_band(axes[0], plot_df, breadth_df, low, high, output_dpi=dpi,
-                                include_ebs=show_ebs_state_band)
+                                include_ebs=show_ebs_state_band, include_ene=show_ene_state_band)
     if show_ebs_state_band:
         try:
             from tools.equity_bond_spread import draw_ebs_state_band
-            draw_ebs_state_band(axes[0], plot_df, ebs_state_df, output_dpi=dpi)
+            draw_ebs_state_band(axes[0], plot_df, ebs_state_df, output_dpi=dpi,
+                                include_ene=show_ene_state_band)
         except Exception as error:
             print(f"[WARN] EBS unavailable，已跳过价格状态带: {error}")
+    if show_ene_state_band:
+        try:
+            from tools.ene_state_band import (
+                build_weekly_ene_frame, expand_weekly_ene_to_price_dates, draw_ene_state_band,
+            )
+            if ene_state_df is None:
+                # 直接调用绘图时仅复用传入行情；分析入口会传入完整历史预热后的结果。
+                ene_state_df = expand_weekly_ene_to_price_dates(
+                    build_weekly_ene_frame(plot_df, market=_infer_rsi_cache_market(symbol) or "CN"), plot_df["date"])
+            draw_ene_state_band(axes[0], plot_df, ene_state_df, output_dpi=dpi,
+                                include_ebs=show_ebs_state_band)
+        except Exception as error:
+            print(f"[WARN] ENE unavailable，已跳过价格状态带: {error}")
     if mc_ax is not None:
         fig.canvas.draw()
         _label_mc_gdp_regimes(mc_ax, mc_gdp_regimes, axes[1])
@@ -2804,6 +2822,7 @@ def rsi_analyze_index(
     mc_gdp_deep_low_threshold: Optional[float] = None,
     show_ebs_state_band: bool = False,
     ebs_state_df: Optional[pd.DataFrame] = None,
+    show_ene_state_band: bool = False,
 ) -> pd.DataFrame:
     """
     外部调用主函数。
@@ -3039,6 +3058,16 @@ def rsi_analyze_index(
             except Exception as error:
                 print(f"[WARN] EBS unavailable，继续生成市场图: {error}")
                 ebs_state_df = pd.DataFrame()
+        ene_state_df = None
+        if show_ene_state_band:
+            try:
+                from tools.ene_state_band import build_weekly_ene_frame, expand_weekly_ene_to_price_dates
+                # 必须用完整 raw_hist 做10周预热，不能先截为展示窗口再计算。
+                ene_state_df = expand_weekly_ene_to_price_dates(
+                    build_weekly_ene_frame(raw_hist, market=_infer_rsi_cache_market(symbol) or "CN"), hist["date"])
+            except Exception as error:
+                print(f"[WARN] ENE unavailable，继续生成市场图: {error}")
+                ene_state_df = pd.DataFrame()
         plot_analysis(
             df=hist,
             symbol=symbol,
@@ -3050,6 +3079,8 @@ def rsi_analyze_index(
             show_mc_gdp=show_mc_gdp,
             show_ebs_state_band=show_ebs_state_band,
             ebs_state_df=ebs_state_df,
+            show_ene_state_band=show_ene_state_band,
+            ene_state_df=ene_state_df,
             mc_gdp_df=mc_gdp_df,
             mc_gdp_over_threshold=mc_gdp_over_threshold,
             mc_gdp_low_threshold=mc_gdp_low_threshold,
@@ -3137,6 +3168,7 @@ def main():
         save_signal_table=True,
         signal_table_file="output/rsi_signal_table.png",
         breadth_key="nasdaq100" if NDX_CUTOVER_READY else "nasdaq",
+        show_ene_state_band=True,
     )
 
     return hist

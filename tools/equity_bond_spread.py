@@ -30,7 +30,7 @@ def load_ebs_states(cache_dir="cache", *, now=None) -> pd.DataFrame:
     return data.tail(EBS_HISTORY_ROWS).reset_index(drop=True)
 
 
-def draw_ebs_state_band(ax, price_df, state_df, *, output_dpi=None):
+def draw_ebs_state_band(ax, price_df, state_df, *, output_dpi=None, include_ene=False):
     """严格同日匹配；缺值/盘中未有正式状态时断开，连续同状态合成一段。"""
     if (price_df is None or price_df.empty or "date" not in price_df
             or state_df is None or state_df.empty or not {"date", "state"}.issubset(state_df)):
@@ -50,7 +50,7 @@ def draw_ebs_state_band(ax, price_df, state_df, *, output_dpi=None):
         left = np.r_[x[0]-(mid[0]-x[0]), mid]
         right = np.r_[mid, x[-1]+(x[-1]-mid[-1])]
     from tools.market_breadth import price_band_layout, add_state_band_label
-    layout = price_band_layout(ax, output_dpi, include_ebs=True)
+    layout = price_band_layout(ax, output_dpi, include_ebs=True, include_ene=include_ene)
     styles = {"HIGH": (EBS_HIGH_COLOR, layout["ebs_high"]), "LOW": (EBS_LOW_COLOR, layout["ebs_low"])}
     runs = [value if value in styles else None for value in aligned["state"]]
     patches, start = [], 0

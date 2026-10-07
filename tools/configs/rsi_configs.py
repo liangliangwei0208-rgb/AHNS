@@ -13,6 +13,7 @@ RSI_ANALYSIS_CONFIGS = [
     {'name': '道琼斯工业指数',
      'image': 'output/dow_jones_analysis.png',
      'kwargs': {'symbol': '.DJI',
+                'show_ene_state_band': True,
                 'display_name': '道琼斯工业指数',
                 'days': 220,
                 'output_file': 'output/dow_jones_analysis.png',
@@ -52,6 +53,7 @@ RSI_ANALYSIS_CONFIGS = [
         "image": "output/nasdaq_analysis.png",
         "kwargs": {
             "symbol": ".IXIC",
+            "show_ene_state_band": True,  # NDX 切换配置也继承周线 ENE。
             "breadth_key": "nasdaq",
             "breadth_band_low_threshold": None,
             "breadth_band_high_threshold": None,
@@ -99,6 +101,7 @@ RSI_ANALYSIS_CONFIGS = [
         "use_realtime_param": True,
         "kwargs": {
             "symbol": "512890",
+            "show_ene_state_band": True,
             "breadth_key": "dividend",
             "breadth_band_low_threshold": None,
             "breadth_band_high_threshold": None,
@@ -147,6 +150,7 @@ RSI_ANALYSIS_CONFIGS = [
         "use_realtime_param": True,
         "kwargs": {
             "symbol": "159561",
+            "show_ene_state_band": True,  # 使用境内ETF自身价格和交易时段。
             "display_name": "德国DAX：159561",
             "days": 300,
             "output_file": "output/germany_dax.png",
@@ -192,6 +196,7 @@ RSI_ANALYSIS_CONFIGS = [
         "kwargs": {
             "symbol": "159943",
             "show_ebs_state_band": True,  # 全A股债利差只显示在第一行极端状态带。
+            "show_ene_state_band": True,  # 周线 ENE 只显示 Price 红/绿带，第二行不变。
             # 整个沪深市场的宏观估值；None 沿用全局 0.775 / 0.60 / 0.55。
             "show_mc_gdp": True,
             "mc_gdp_over_threshold": None,
@@ -245,6 +250,7 @@ RSI_ANALYSIS_CONFIGS = [
         "kwargs": {
             "symbol": "560220",
             "show_ebs_state_band": True,
+            "show_ene_state_band": True,
             "show_mc_gdp": True,
             "mc_gdp_over_threshold": None,
             "mc_gdp_low_threshold": None,
