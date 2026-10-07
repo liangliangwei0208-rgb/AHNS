@@ -45,6 +45,19 @@
 - 基准表里的涨跌幅全部按“完整日线收盘价”计算，不使用盘中实时行情。
 """
 
+# 正常估算入口仅用本地缓存自愈最近两周的指数基准缺口，不增加行情请求。
+BENCHMARK_REPAIR_LOOKBACK_DAYS = 14
+
+
+def canonical_market_benchmark_symbol(symbol) -> str:
+    """统一历史基准别名；不改证券持仓、补偿基准或其它市场的代码口径。"""
+    symbol = str(symbol or "").strip().upper()
+    return {
+        "NDX": ".NDX", "^NDX": ".NDX", ".NDX": ".NDX",
+        "SPX": ".INX", "GSPC": ".INX", "^GSPC": ".INX", ".INX": ".INX",
+    }.get(symbol, symbol)
+
+
 MARKET_BENCHMARK_ITEMS = [
     {"enabled": True, "label": "纳斯达克100", "kind": "us_index", "ticker": ".NDX"},
     {"enabled": True, "label": "标普500", "kind": "us_index", "ticker": ".INX"},
@@ -80,4 +93,5 @@ MARKET_BENCHMARK_ITEMS = [
 ]
 
 
-__all__ = ["MARKET_BENCHMARK_ITEMS"]
+__all__ = ["MARKET_BENCHMARK_ITEMS", "BENCHMARK_REPAIR_LOOKBACK_DAYS",
+           "canonical_market_benchmark_symbol"]

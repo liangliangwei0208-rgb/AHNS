@@ -22,7 +22,10 @@ from datetime import datetime
 from typing import Any
 
 import pandas as pd
-from tools.configs.market_benchmark_configs import MARKET_BENCHMARK_ITEMS
+from tools.configs.market_benchmark_configs import (
+    MARKET_BENCHMARK_ITEMS, canonical_market_benchmark_symbol,
+)
+from tools.fund_cache_maintenance import is_final_benchmark_return_record
 from tools.configs.safe_image_style_configs import SAFE_TITLE_STYLE, safe_daily_table_kwargs
 from tools.console_display import print_dataframe_table
 from tools.fund_table_image import save_fund_estimate_table_image
@@ -327,7 +330,7 @@ def get_benchmark_footer_items(
         if not isinstance(spec, dict):
             continue
         label = str(spec.get("label", "")).strip()
-        symbol = str(spec.get("ticker", "")).strip().upper()
+        symbol = canonical_market_benchmark_symbol(spec.get("ticker", ""))
         if not bool(spec.get("enabled", True)):
             if symbol:
                 disabled_symbols.add(symbol)
@@ -364,15 +367,21 @@ def get_benchmark_footer_items(
         if item_valuation_date != valuation_date:
             continue
 
-        symbol = str(item.get("symbol", "")).strip().upper()
+        symbol = canonical_market_benchmark_symbol(item.get("symbol", ""))
         label = str(item.get("label", "")).strip()
         return_pct = safe_float_or_none(item.get("return_pct"))
         if not symbol or symbol in disabled_symbols or label in disabled_labels:
             continue
 
         old = selected_by_symbol.get(symbol)
-        if old is None or record_rank(item) > record_rank(old):
-            selected_by_symbol[symbol] = dict(item)
+        # 日安全版原来直接读 JSON；与累计表一样优先目标日正式值，并识别旧别名。
+        def benchmark_rank(row):
+            exact_final = (is_final_benchmark_return_record(row, valuation_date)
+                           if symbol in {".NDX", ".INX"} else False)
+            return int(exact_final), record_rank(row)
+
+        if old is None or benchmark_rank(item) > benchmark_rank(old):
+            selected_by_symbol[symbol] = {**item, "symbol": symbol}
 
     footer_items = []
     used_symbols = set()
@@ -382,6 +391,8 @@ def get_benchmark_footer_items(
         item = selected_by_symbol.get(symbol, {})
         used_symbols.add(symbol)
         label = str(item.get("label", "")).strip() or spec["label"]
+        if symbol in {".NDX", ".INX"}:
+            label = spec["label"]
         used_labels.add(label)
         footer_item = {
             "order": spec["order"],

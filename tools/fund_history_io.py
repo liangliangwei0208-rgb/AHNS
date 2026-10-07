@@ -37,7 +37,10 @@ from matplotlib.offsetbox import AnchoredOffsetbox, HPacker, TextArea, VPacker
 
 from tools.cache_metadata import attach_cache_info
 from tools.configs.cache_policy_configs import A_SHARE_TRADE_CALENDAR_CACHE_DAYS
-from tools.configs.market_benchmark_configs import MARKET_BENCHMARK_ITEMS
+from tools.configs.market_benchmark_configs import (
+    MARKET_BENCHMARK_ITEMS, canonical_market_benchmark_symbol,
+)
+from tools.fund_cache_maintenance import is_final_benchmark_return_record
 from tools.paths import CACHE_DIR
 from tools.runtime_stats import record_market_event, timed_market_call
 
@@ -249,6 +252,9 @@ def load_benchmark_estimate_history(cache_file: str | Path | None = None) -> pd.
     df = _records_to_dataframe(data.get("benchmark_records", {}))
     if df.empty:
         return df
+
+    if "symbol" in df:
+        df["symbol"] = df["symbol"].map(canonical_market_benchmark_symbol)
 
     for col in ["valuation_date", "run_date_bj", "trade_date"]:
         if col in df.columns:
@@ -867,6 +873,28 @@ def get_fund_estimate_records(
     return df
 
 
+def _deduplicate_benchmark_alias_records(df: pd.DataFrame) -> pd.DataFrame:
+    """NDX/INX 别名同日只计一次，优先真实目标日的正式收益；不改原始缓存。"""
+    df = df.copy()
+    df["symbol"] = df["symbol"].map(canonical_market_benchmark_symbol)
+    affected = df["symbol"].isin([".NDX", ".INX"])
+    aliases = df.loc[affected].copy()
+    if aliases.empty:
+        return df
+    aliases["_alias_quality"] = [
+        int(is_final_benchmark_return_record(row, str(row.get("valuation_date", ""))[:10]))
+        for row in aliases.to_dict("records")
+    ]
+    aliases["_alias_run_time"] = pd.to_datetime(
+        aliases.get("run_time_bj", pd.Series(pd.NaT, index=aliases.index)), errors="coerce",
+    )
+    aliases = aliases.sort_values(["_alias_quality", "_alias_run_time"],
+                                  kind="stable", na_position="first")
+    aliases = aliases.drop_duplicates(["symbol", "valuation_date"], keep="last")
+    return pd.concat([df.loc[~affected], aliases.drop(columns=["_alias_quality", "_alias_run_time"])],
+                     ignore_index=True)
+
+
 def get_benchmark_estimate_records(
     start_date: str,
     end_date: str,
@@ -901,7 +929,7 @@ def get_benchmark_estimate_records(
     if symbols is not None:
         if isinstance(symbols, str):
             symbols = [symbols]
-        symbol_set = {str(x).strip().upper() for x in symbols}
+        symbol_set = {canonical_market_benchmark_symbol(x) for x in symbols}
         df = df[df["symbol"].astype(str).str.upper().isin(symbol_set)]
 
     if require_final or not include_intraday:
@@ -916,6 +944,7 @@ def get_benchmark_estimate_records(
     if df.empty:
         return df
 
+    df = _deduplicate_benchmark_alias_records(df)
     df["_final_rank"] = df["is_final"].astype(int)
     df = df.sort_values(
         by=["symbol", "valuation_date", "_final_rank", "_run_time_dt"],
@@ -1001,7 +1030,7 @@ def _enabled_benchmark_config_rows() -> list[dict]:
         if not bool(item.get("include_in_cumulative", True)):
             continue
         label = str(item.get("label", "")).strip()
-        ticker = str(item.get("ticker", "")).strip().upper()
+        ticker = canonical_market_benchmark_symbol(item.get("ticker", ""))
         if not label or not ticker:
             continue
         rows.append({"order": order, "label": label, "symbol": ticker})
@@ -1020,7 +1049,7 @@ def _disabled_benchmark_config_sets() -> tuple[set[str], set[str]]:
         )
         if not disabled_for_cumulative:
             continue
-        symbol = str(item.get("ticker", "")).strip().upper()
+        symbol = canonical_market_benchmark_symbol(item.get("ticker", ""))
         label = str(item.get("label", "")).strip()
         if symbol:
             symbols.add(symbol)
@@ -1071,7 +1100,7 @@ def build_benchmark_cumulative_dataframe(benchmark_daily_df: pd.DataFrame) -> pd
             })
         return pd.DataFrame(rows, columns=out.columns)
 
-    benchmark_daily_df = benchmark_daily_df.copy()
+    benchmark_daily_df = _deduplicate_benchmark_alias_records(benchmark_daily_df)
     if "value_type" in benchmark_daily_df.columns:
         value_type = benchmark_daily_df["value_type"].fillna("").astype(str).str.strip().str.lower()
         benchmark_daily_df = benchmark_daily_df[value_type.isin(["", "return_pct", "pct"])].copy()
@@ -1097,7 +1126,7 @@ def build_benchmark_cumulative_dataframe(benchmark_daily_df: pd.DataFrame) -> pd
             status = "intraday"
 
         label = label_map.get(symbol_norm, str(symbol))
-        if "label" in g.columns and g["label"].notna().any():
+        if symbol_norm not in {".NDX", ".INX"} and "label" in g.columns and g["label"].notna().any():
             label = str(g["label"].dropna().iloc[-1])
         if symbol_norm in disabled_symbols or label in disabled_labels:
             continue

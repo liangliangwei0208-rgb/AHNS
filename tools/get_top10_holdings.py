@@ -67,6 +67,7 @@ result_df, detail_map = estimate_funds_and_save_table(
 
 import re
 import json
+import math
 import time
 import os
 import html
@@ -92,7 +93,9 @@ from tools.configs.market_calendar_configs import (
     MARKET_CALENDAR_NAMES,
     MARKET_CLOSE_BUFFER_HOURS,
 )
-from tools.configs.market_benchmark_configs import MARKET_BENCHMARK_ITEMS
+from tools.configs.market_benchmark_configs import (
+    MARKET_BENCHMARK_ITEMS, canonical_market_benchmark_symbol,
+)
 from tools.configs.cache_policy_configs import (
     ANCHOR_CACHE_STABLE_RETENTION_DAYS,
     FUND_ESTIMATE_HISTORY_RETENTION_DAYS,
@@ -7186,6 +7189,40 @@ def _print_failed_holdings_report_summary(summary: dict) -> None:
 # 市场基准：直接获取指数涨跌幅。
 
 
+def _read_us_index_benchmark_daily_cache(symbol, cache_dir=None):
+    """读取同一份指数价格事实；历史锚点不要求文件更新到今天，也不触发联网。"""
+    symbol = canonical_market_benchmark_symbol(symbol)
+    cache_file = Path(cache_dir or CACHE_DIR) / f"{symbol.replace('.', 'dot_')}_index_daily.csv"
+    try:
+        out = pd.read_csv(cache_file, usecols=["date", "close"])
+        out["date"] = pd.to_datetime(out["date"], errors="coerce").dt.normalize()
+        out["close"] = pd.to_numeric(out["close"], errors="coerce")
+        out = out.loc[out["date"].notna() & out["close"].map(math.isfinite) & (out["close"] > 0)]
+        # 冲突的同日价格不能任取一条；完全相同的重复行可以合并。
+        if (out.groupby("date")["close"].nunique() > 1).any():
+            return None
+        out = out.drop_duplicates("date").sort_values("date").reset_index(drop=True)
+        if symbol == ".NDX":
+            from tools.rsi_data import NDX_MIN_INDEX_HISTORY_ROWS
+
+            if len(out) < NDX_MIN_INDEX_HISTORY_ROWS:
+                return None
+        return out if len(out) >= 2 else None
+    except (OSError, ValueError, KeyError):
+        return None
+
+
+def _has_previous_us_index_close(out):
+    """最后两个点须相邻于美国交易日历，不能跨过缺失的交易日。"""
+    if len(out) < 2:
+        return False
+    last = pd.Timestamp(out.iloc[-1]["date"])
+    schedule = _market_schedule("US", str((last - pd.Timedelta(days=14)).date()), str(last.date()))
+    sessions = [pd.Timestamp(day).strftime("%Y-%m-%d") for day in schedule.index]
+    return (len(sessions) >= 2 and sessions[-1] == last.strftime("%Y-%m-%d")
+            and sessions[-2] == pd.Timestamp(out.iloc[-2]["date"]).strftime("%Y-%m-%d"))
+
+
 def fetch_us_index_return_pct_from_rsi_module(symbol, display_name=None, days=15, end_date=None):
     """
     使用 tools/rsi_module.py 中已经验证过的指数行情入口获取美股指数最新完整交易日涨跌幅。
@@ -7197,7 +7234,7 @@ def fetch_us_index_return_pct_from_rsi_module(symbol, display_name=None, days=15
     返回：
         return_pct, trade_date, source
     """
-    symbol = str(symbol).strip()
+    symbol = canonical_market_benchmark_symbol(symbol)
     display_name = display_name or symbol
 
     last_error = None
@@ -7221,19 +7258,45 @@ def fetch_us_index_return_pct_from_rsi_module(symbol, display_name=None, days=15
     if getter is None:
         raise RuntimeError(f"无法导入 rsi_module.get_us_index_akshare: {last_error}")
 
-    try:
-        df = getter(
-            symbol=symbol,
-            days=days,
-            cache_dir="cache",
-            retry=3,
-            use_cache=True,
-            allow_eastmoney=False,
-            include_realtime=False,
-        )
-    except TypeError:
-        # 兼容旧函数签名
-        df = getter(symbol=symbol, days=days)
+    # 图表预热长度和单日收益窗口不同：NDX 先读够真实历史，最后仍只算两个收盘点。
+    requested_days = int(days)
+    if symbol.upper() == ".NDX":
+        from tools.rsi_data import NDX_MIN_INDEX_HISTORY_ROWS
+
+        requested_days = max(requested_days, NDX_MIN_INDEX_HISTORY_ROWS)
+
+    df = None
+    # NDX 历史收益直接复用图表完整 CSV，不因“今天缓存过期”重抓一个旧锚点。
+    if symbol == ".NDX":
+        target = _normalize_trade_date_key(end_date)
+        if not target:
+            target = module._latest_complete_rsi_trade_date(symbol)
+        cached = _read_us_index_benchmark_daily_cache(symbol)
+        if target and cached is not None:
+            # 必要的刷新也保留已有长窗口，避免将图表历史缩成基准的短窗口。
+            requested_days = max(requested_days, len(cached))
+            eligible = cached[cached["date"] <= pd.Timestamp(target)]
+            if (len(eligible) >= 2 and eligible.iloc[-1]["date"].strftime("%Y-%m-%d") == target
+                    and _has_previous_us_index_close(eligible)):
+                df = eligible
+                r_pct = (float(df.iloc[-1]["close"]) / float(df.iloc[-2]["close"]) - 1) * 100
+                print(f"[BENCHMARK] {symbol} anchor={target} source=local_index_cache "
+                      f"trade_date={target} status=traded return={r_pct:.6f}", flush=True)
+
+    if df is None:
+        try:
+            df = getter(
+                symbol=symbol,
+                days=requested_days,
+                cache_dir=str(CACHE_DIR),
+                retry=3,
+                use_cache=True,
+                allow_eastmoney=False,
+                include_realtime=False,
+            )
+        except TypeError:
+            # 兼容旧函数签名
+            df = getter(symbol=symbol, days=requested_days)
 
     if df is None or df.empty:
         raise RuntimeError(f"rsi_module 返回空数据: {display_name}({symbol})")
@@ -7259,12 +7322,20 @@ def fetch_us_index_return_pct_from_rsi_module(symbol, display_name=None, days=15
         errors="coerce",
     )
     out = out.dropna(subset=["date", "close"]).sort_values("date").reset_index(drop=True)
+    if symbol == ".NDX":
+        out = out.loc[out["close"].map(math.isfinite) & (out["close"] > 0)]
+        if (out.groupby("date")["close"].nunique() > 1).any():
+            raise RuntimeError("NDX 同一交易日存在冲突收盘价")
+        out = out.drop_duplicates("date").reset_index(drop=True)
     end_date_key = _normalize_trade_date_key(end_date)
     if end_date_key:
         out = _drop_rows_after_target_date(out, out["date"], end_date_key).reset_index(drop=True)
 
     if len(out) < 2:
         raise RuntimeError(f"rsi_module 在目标日期 {end_date_key or 'latest'} 前有效收盘点不足: {display_name}({symbol})")
+
+    if symbol == ".NDX" and not _has_previous_us_index_close(out):
+        raise RuntimeError("NDX 缺少前一真实美国交易日收盘，不能生成单日基准收益")
 
     last_close = float(out.iloc[-1]["close"])
     prev_close = float(out.iloc[-2]["close"])
@@ -7822,6 +7893,15 @@ def get_us_index_benchmark_items(cache_enabled=True, valuation_anchor_date=None)
     """
     items = []
     anchor = _normalize_trade_date_key(valuation_anchor_date)
+
+    if cache_enabled and anchor:
+        # 只修市场基准缺口，不重算基金，也不让只读的 safe_holidays 联网。
+        from tools.fund_cache_maintenance import repair_missing_us_index_benchmark_records
+
+        try:
+            repair_missing_us_index_benchmark_records(end_date=anchor)
+        except Exception as exc:
+            print(f"[BENCHMARK-REPAIR] unavailable: {exc}", flush=True)
 
     for spec in _enabled_market_benchmark_specs():
         label = str(spec.get("label", "基准"))
@@ -9211,6 +9291,9 @@ def _write_overseas_benchmark_history_cache(
     title=None,
     output_file=None,
     cache_enabled=True,
+    *,
+    cache_file=None,
+    preserve_existing_records=False,
 ):
     """
     写入海外市场指数基准每日涨跌幅缓存。
@@ -9264,8 +9347,9 @@ def _write_overseas_benchmark_history_cache(
 
     now = datetime.now()
 
+    target_cache_file = cache_file or FUND_ESTIMATE_RETURN_CACHE_FILE
     cache = _load_json_cache(
-        FUND_ESTIMATE_RETURN_CACHE_FILE,
+        target_cache_file,
         default={"version": 1, "records": {}, "benchmark_records": {}},
     )
 
@@ -9280,6 +9364,7 @@ def _write_overseas_benchmark_history_cache(
     written = 0
     skipped_final = 0
     skipped_invalid = 0
+    written_symbols = []
 
     for item in list(benchmark_footer_items):
         if not isinstance(item, dict):
@@ -9287,7 +9372,7 @@ def _write_overseas_benchmark_history_cache(
             continue
 
         label = str(item.get("label", "")).strip()
-        symbol = str(item.get("symbol", "")).strip().upper()
+        symbol = canonical_market_benchmark_symbol(item.get("symbol", ""))
         return_pct = _safe_float_or_none(item.get("return_pct"))
         value = _safe_float_or_none(item.get("value"))
         value_type = str(item.get("value_type", "return_pct") or "return_pct").strip().lower()
@@ -9301,6 +9386,17 @@ def _write_overseas_benchmark_history_cache(
             continue
 
         key = f"benchmark:{symbol}:{valuation_date}"
+        if preserve_existing_records:
+            from tools.fund_cache_maintenance import is_final_benchmark_return_record
+
+            # 再读后的正式记录（含别名）仍受保护，避免修复期间其它进程先补好的值被覆盖。
+            if any(isinstance(old, dict)
+                   and canonical_market_benchmark_symbol(old.get("symbol")) == symbol
+                   and str(old.get("valuation_date", ""))[:10] == valuation_date
+                   and is_final_benchmark_return_record(old, valuation_date)
+                   for old in records.values()):
+                skipped_final += 1
+                continue
         status = str(item.get("status", "traded")).strip().lower()
         has_level_value = value_type == "level" and value is not None
         is_final = (
@@ -9353,6 +9449,7 @@ def _write_overseas_benchmark_history_cache(
         if _should_replace_benchmark_record(old_record, record):
             records[key] = record
             written += 1
+            written_symbols.append(symbol)
         else:
             skipped_final += 1
 
@@ -9360,7 +9457,12 @@ def _write_overseas_benchmark_history_cache(
     cache["updated_at"] = now.isoformat(timespec="seconds")
     cache["benchmark_records"] = records
 
-    _save_fund_estimate_return_cache(cache)
+    if written:
+        if preserve_existing_records:
+            # 修复单个基准时禁止顺带裁剪基金记录或其它市场历史。
+            _save_json_cache(target_cache_file, cache)
+        else:
+            _save_fund_estimate_return_cache(cache)
 
     _cache_log(
         f"海外指数基准每日涨跌幅缓存: valuation_date={valuation_date}, "
@@ -9374,6 +9476,7 @@ def _write_overseas_benchmark_history_cache(
         "skipped_invalid": skipped_invalid,
         "valuation_date": valuation_date,
         "stage": "quality_driven",
+        "written_symbols": written_symbols,
     }
 
 def estimate_funds_and_save_table(

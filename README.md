@@ -467,6 +467,16 @@ GitHub 仓库需要在 Settings -> Secrets and variables -> Actions -> Secrets �
 
 基准记录会写入 `cache/fund_estimate_return_cache.json` 的 `benchmark_records`。收益率型基准写 `return_pct`；VIX 点位型指标写 `value_type="level"`、`value/display_value`，并保持 `return_pct=null`。如果某个基准失败，只影响该基准行，不会中断主流程，也不会影响基金主表生成。
 
+NDX 基准与走势图共用 `cache/dot_NDX_index_daily.csv`。基准入口虽然默认 `days=15`，NDX 实际请求长度使用 `tools/rsi_data.py` 的 `NDX_MIN_INDEX_HISTORY_ROWS`；读取足够历史后，仍只用目标日和前一真实交易日的两个收盘价计算单日收益，严格排除未来日期。图表的 220 行预热要求保持不变。已有历史锚点可直接读完整 CSV，不为旧日期重复下载行情。
+
+正常基准加载会用本地指数 CSV、完整的证券锚点缓存自愈最近 **14 个自然日**的 `us_index` 缺口（`BENCHMARK_REPAIR_LOOKBACK_DAYS`），不增加网络请求。仅处理美国已完整收盘的交易日，不填周末、不替换有效正式记录、不裁剪或重算基金记录。`NDX/^NDX/.NDX` 和 `SPX/GSPC/^GSPC/.INX` 在读取、修复和累计时归一，同日别名只计一次；原始旧记录保留。`safe_holidays.py` 仍然只读缓存，累计仍按日收益复利计算。
+
+手动补指定基准区间（默认只读本地行情；确需刷新时可显式传 `allow_network=True`，每个指数最多刷新一次）：
+
+```powershell
+& F:\anaconda\envs\py310\python.exe -c "from tools.fund_cache_maintenance import repair_missing_us_index_benchmark_records as repair; repair('2026-10-01', '2026-10-06', symbols=['.NDX'])"
+```
+
 ## Safe 图样式配置
 
 safe 公开图的样式集中在 `tools/configs/safe_image_style_configs.py`。这个文件只管“怎么画图”，不拉行情、不读缓存、不出图，适合后续日常微调。
