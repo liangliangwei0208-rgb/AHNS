@@ -165504,7 +165504,7 @@
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
     "error": "港股日线返回空数据: 06857; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
-    "fetched_at": "2026-10-07T13:01:07+08:00"
+    "fetched_at": "2026-10-07T22:58:05+08:00"
   },
   "SECURITY:CN:300408:2026-10-06": {
     "market": "CN",
@@ -165612,7 +165612,7 @@
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
     "error": "港股日线返回空数据: 06976; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
-    "fetched_at": "2026-10-07T13:06:39+08:00"
+    "fetched_at": "2026-10-07T22:58:26+08:00"
   },
   "SECURITY:CN:002353:2026-10-06": {
     "market": "CN",
@@ -165654,13 +165654,13 @@
     "market": "US",
     "ticker": ".NDX",
     "valuation_anchor_date": "2026-10-06",
-    "trade_date": "",
-    "return_pct": 0.0,
-    "status": "missing",
-    "source": "daily_fetch_failed",
+    "trade_date": "2026-10-06",
+    "return_pct": 0.47634572470707237,
+    "status": "traded",
+    "source": "rsi_module_index_daily",
     "calendar_is_open": true,
-    "error": "指数 纳斯达克100 获取失败: rsi_module: RuntimeError(\"NDX 真实历史日线不足: 缓存 15/220; 第 1 次尝试失败: RuntimeError('NDX 真实历史日线不足: 15/220'); 第 2 次尝试失败: RuntimeError('NDX 真实历史日线不足: 15/220'); 第 3 次尝试失败: RuntimeError('NDX 真实历史日线不足: 15/220')\") | yahoo: RuntimeError('指数 纳斯达克100(^NDX) 获取失败: 403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/%5ENDX?range=15d&interval=1d&includePrePost=false&events=history')",
-    "fetched_at": "2026-10-07T13:07:00+08:00"
+    "error": "",
+    "fetched_at": "2026-10-07T22:57:43+08:00"
   },
   "SECURITY:US:.INX:2026-10-06": {
     "market": "US",
@@ -165867,7 +165867,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-10-07T13:05:30+08:00"
+    "fetched_at": "2026-10-07T22:58:22+08:00"
   },
   "SECURITY:US:TSM:2026-10-06": {
     "market": "US",
@@ -166143,7 +166143,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-10-07T13:02:01+08:00"
+    "fetched_at": "2026-10-07T22:58:08+08:00"
   },
   "SECURITY:HK:02476:2026-10-06": {
     "market": "HK",
@@ -166179,7 +166179,7 @@
     "source": "calendar_failed",
     "calendar_is_open": null,
     "error": "未配置交易日历: market=UNKNOWN",
-    "fetched_at": "2026-10-07T13:02:05+08:00"
+    "fetched_at": "2026-10-07T22:58:09+08:00"
   },
   "SECURITY:US:LLY:2026-10-06": {
     "market": "US",
@@ -166202,8 +166202,8 @@
     "status": "missing",
     "source": "daily_fetch_failed",
     "calendar_is_open": true,
-    "error": "美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError(\"东方财富美股日线获取失败: SMSN: 105.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 106.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | 107.SMSN: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))\") | yahoo_chart_daily_us_fallback: RuntimeError('Yahoo 美股日线获取失败: SMSN: 403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/SMSN?range=20d&interval=1d&includePrePost=false&events=history')",
-    "fetched_at": "2026-10-07T13:02:41+08:00"
+    "error": "美股 SMSN 日线获取失败: ak_stock_us_daily_sina: IndexError('list index out of range') | eastmoney_us_hist_daily: RuntimeError('东方财富美股日线获取失败: SMSN: 105.SMSN: empty klines | 106.SMSN: empty klines | 107.SMSN: empty klines') | yahoo_chart_daily_us_fallback: RuntimeError('Yahoo 美股日线获取失败: SMSN: 403 Client Error: Forbidden for url: https://query1.finance.yahoo.com/v8/finance/chart/SMSN?range=20d&interval=1d&includePrePost=false&events=history')",
+    "fetched_at": "2026-10-07T22:58:14+08:00"
   },
   "SECURITY:US:ONTO:2026-10-06": {
     "market": "US",
@@ -167115,7 +167115,7 @@
     "source": "ak_stock_us_daily_trade_date_older_than_anchor",
     "calendar_is_open": true,
     "error": "trade_date=2026-08-14 与 valuation_anchor_date=2026-10-06 不一致",
-    "fetched_at": "2026-10-07T13:07:23+08:00"
+    "fetched_at": "2026-10-07T22:58:32+08:00"
   },
   "SECURITY:CN:300502:2026-10-07": {
     "market": "CN",
@@ -167159,11 +167159,11 @@
     "valuation_anchor_date": "2026-10-07",
     "trade_date": "",
     "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "status": "missing",
+    "source": "daily_fetch_failed",
     "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-10-07T13:09:19+08:00"
+    "error": "港股日线返回空数据: 06857; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+    "fetched_at": "2026-10-07T22:59:29+08:00"
   },
   "SECURITY:CN:300408:2026-10-07": {
     "market": "CN",
@@ -167267,11 +167267,11 @@
     "valuation_anchor_date": "2026-10-07",
     "trade_date": "",
     "return_pct": 0.0,
-    "status": "pending",
-    "source": "market_close_not_confirmed",
+    "status": "missing",
+    "source": "daily_fetch_failed",
     "calendar_is_open": true,
-    "error": "",
-    "fetched_at": "2026-10-07T13:09:30+08:00"
+    "error": "港股日线返回空数据: 06976; ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_daily_sina_qfq: KeyError('date') | ak_stock_hk_daily_sina_hfq: KeyError('date') | ak_stock_hk_daily_sina_raw: KeyError('date') | ak_stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) | stock_hk_daily_sina_raw: KeyError('date') | stock_hk_daily_sina_qfq: KeyError('date') | stock_hk_daily_sina_hfq: KeyError('date') | stock_hk_hist_em: ConnectionError(ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))",
+    "fetched_at": "2026-10-07T23:00:05+08:00"
   },
   "SECURITY:CN:002353:2026-10-07": {
     "market": "CN",
@@ -167308,5 +167308,173 @@
     "calendar_is_open": false,
     "error": "",
     "fetched_at": "2026-10-07T13:09:33+08:00"
+  },
+  "SECURITY:HK:01888:2026-10-07": {
+    "market": "HK",
+    "ticker": "01888",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": -2.722323049001818,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:25+08:00"
+  },
+  "SECURITY:HK:00522:2026-10-07": {
+    "market": "HK",
+    "ticker": "00522",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": -4.120879120879117,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:27+08:00"
+  },
+  "SECURITY:HK:02513:2026-10-07": {
+    "market": "HK",
+    "ticker": "02513",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": -2.7253668763102756,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:31+08:00"
+  },
+  "SECURITY:KR:000660:2026-10-07": {
+    "market": "KR",
+    "ticker": "000660",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": -3.867713004484305,
+    "status": "traded",
+    "source": "pykrx_ohlcv_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:39+08:00"
+  },
+  "SECURITY:KR:005930:2026-10-07": {
+    "market": "KR",
+    "ticker": "005930",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": -1.465201465201465,
+    "status": "traded",
+    "source": "pykrx_ohlcv_pct",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:41+08:00"
+  },
+  "SECURITY:HK:02476:2026-10-07": {
+    "market": "HK",
+    "ticker": "02476",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": -0.5847953216374213,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:42+08:00"
+  },
+  "SECURITY:HK:01347:2026-10-07": {
+    "market": "HK",
+    "ticker": "01347",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": -2.6802218114602594,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:44+08:00"
+  },
+  "SECURITY:HK:00883:2026-10-07": {
+    "market": "HK",
+    "ticker": "00883",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": 0.3412969283276279,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:53+08:00"
+  },
+  "SECURITY:HK:01179:2026-10-07": {
+    "market": "HK",
+    "ticker": "01179",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": 0.9762050030506453,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:55+08:00"
+  },
+  "SECURITY:HK:00700:2026-10-07": {
+    "market": "HK",
+    "ticker": "00700",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": -1.7748715553479566,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:56+08:00"
+  },
+  "SECURITY:HK:09988:2026-10-07": {
+    "market": "HK",
+    "ticker": "09988",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": -2.5878003696857665,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:58+08:00"
+  },
+  "SECURITY:HK:03750:2026-10-07": {
+    "market": "HK",
+    "ticker": "03750",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": -0.4502660663119218,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T22:59:59+08:00"
+  },
+  "SECURITY:HK:09630:2026-10-07": {
+    "market": "HK",
+    "ticker": "09630",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": 2.1739130434782705,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T23:00:01+08:00"
+  },
+  "SECURITY:HK:00939:2026-10-07": {
+    "market": "HK",
+    "ticker": "00939",
+    "valuation_anchor_date": "2026-10-07",
+    "trade_date": "2026-10-07",
+    "return_pct": -0.2072538860103612,
+    "status": "traded",
+    "source": "ak_stock_hk_daily_sina_qfq_close_calc",
+    "calendar_is_open": true,
+    "error": "",
+    "fetched_at": "2026-10-07T23:00:03+08:00"
   }
 }
