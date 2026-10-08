@@ -573,6 +573,11 @@ print("RSI缓存样本", df.tail(1).to_string(index=False))
 
 ## 当前状态摘要
 
+- 2026-10-08去冗余：广度`BreadthStore.read_scope()`仅本轮共享价格与成员读取，写入/外部版本变化失效；完成验收可复用可信计算结果，无维护任务才跳过SMA。95%及正式结果保护不变。
+- 市值/GDP原始数据统一由`tools.a_share_valuation.load_macro_data()`刷新JSON；技术图使用可用时间事件，`strategy/gdp.py`使用修订历史，旧原始CSV只读兼容。TTL48/96小时、失败24小时、预算15秒不变。
+- 进度函数、基准表和Price色带几何分别复用`tools.console_display`、`tools.benchmark_table`、`tools.market_breadth`；金融算法、色带布局、ENE的E2.4标签不变。
+- 旧Composite缓存审计见`docs/audits/2026-10-08-optimization.md`和逐文件清单；3304个候选仍有业务引用，本轮不得移动或删除。
+
 - 总控入口是 `git_main.py` / `service_main.py`，流程由 `tools/configs/workflow_configs.py` 管理；`main.py` 保持主计算职责，不作为日常配置入口。
 - GitHub / 主机流程不含富途夜盘，也不自动生成 `first_pic.py`；小电脑 Service 流程额外包含富途夜盘窗口。
 - 海外/全球基金估算已经统一为 `valuation_anchor_date` 锚点口径；正式主流程只用完整日线，盘前/盘中/盘后/富途夜盘实时观察由独立入口承担。

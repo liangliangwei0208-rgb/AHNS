@@ -36,9 +36,9 @@
 - 注意：不要在 CSV 文件头部添加说明行，避免 pandas.read_csv() 把说明当成数据。
 
 ### `a_share_mc_gdp.json`
-- 用途：仅用于159943、560220走势图的沪深市价总值/中国名义GDP(TTM)右轴阶梯曲线及最新状态。
-- 生成：tools/a_share_valuation.py，stock_analysis整轮共享一次加载。
-- 读取：tools/rsi_data.py
+- 用途：沪深市值与名义GDP共享原始数据及可用时间事件；供技术图和独立十年图复用。
+- 生成：tools/a_share_valuation.py load_macro_data；stock_analysis整轮共享一次加载。
+- 读取：tools/rsi_data.py（可用时间事件）, strategy/gdp.py（历史修订序列）
 - 刷新：市值48小时，GDP96小时；失败24小时退避；宏观子进程总预算15秒。
 - 保留：保留来源历史、固定初始化修订历史及后续观测；不批量删除文件。
 - 结构：version/unit/sources/history/observations/historical_cutoff容器；金额亿元，比例不缩放。
@@ -298,3 +298,11 @@
 - 该目录仅供本机协调，由Git忽略，不与GitHub/Gitee同步，也不承载行情或基金估算数据。不自动删除状态文件。
 
 - 美股50D默认总预算300秒，全部未完成证券进入按预算/额度保护的富途历史回退。`market_breadth_local/<市场>_attempts.json` 只保存本机尝试顺序，队列仍由真实价格缓存重建；每批诊断见 `output/market_breadth_diagnostics.json`。正式目标日期缺失时报告stale，临时快照不能冒充正式完成。
+
+## 去冗余与共享原始数据（2026-10-08）
+
+- 广度read_scope只在本轮复用价格表、成员文档和小型元数据，写入或外部文件版本变化失效；轮末释放，不增加持久化矩阵。完成检查可复用同一成员/价格版本的可信计算。
+- 正式结果和维护任务分别验收；仅无行情缺口、临时价核验、预热、成员到期核验及修复任务时跳过下载和SMA。95%门槛与正式值保护不变。
+- 市值/GDP唯一刷新入口为tools.a_share_valuation.load_macro_data及a_share_mc_gdp.json；原始市值a_share_market_cap_monthly.csv和原始GDP china_nominal_gdp_quarterly.csv不再刷新或重复写入，只在JSON缺失时作为只读校验来源。月度复核a_share_market_cap_gdp_10y.csv仍按原规则生成。
+- 技术图使用available_at/historical_cutoff/observations；十年图使用历史修订序列，不能混作当时已知信号。两入口共用48/96小时TTL、24小时失败退避和15秒预算。
+- 旧Composite分片仅审计，候选清单见docs/audits/legacy_nasdaq_cache_candidates.csv；仍有业务引用，未移动或删除。

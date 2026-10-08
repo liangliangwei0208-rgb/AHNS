@@ -106,40 +106,61 @@ def prepare_market_close_quotes(store,members,quotes,now,day,previous_day,market
 
 def missing_price_sessions(store,code,sessions):
     """只检查真实交易日，上市前不补造价格；50日窗口内临时值也须正式核验。"""
-    frame=store.prices(code)
+    entry=store.price_state(code)
+    frame=entry['frame']
     if frame.empty:return list(sessions[-50:])
-    present=set(frame.date)-set(store.read('prices',code).get('provisional_dates',[]))
-    return [day for day in sessions[-50:] if day>=frame.iloc[0].date and day not in present]
+    window=tuple(sessions[-50:])
+    if window not in entry['gaps']:
+        present=set(frame.date)-set(entry['metadata'].get('provisional_dates',[]))
+        entry['gaps'][window]=tuple(day for day in window if day>=frame.iloc[0].date and day not in present)
+    return list(entry['gaps'][window])
 
 
 def save_downloaded_prices(store,code,frame,basis):
     """换源不拼接复权价格，也不能用更旧的完整窗口丢掉已补齐的真实日期。"""
     old=store.prices(code)
-    if not frame.empty and not old.empty and store.read('prices',code).get('basis')!=basis \
+    if not frame.empty and not old.empty and store.price_metadata(code).get('basis')!=basis \
             and frame.iloc[-1].date<old.iloc[-1].date:
         raise RuntimeError(f'stale different-source window: {basis} ends {frame.iloc[-1].date}; keep {old.iloc[-1].date}')
     store.save_prices(code,frame,basis)
 
 
-def close_completion(store,key,clock):
+def _price_scope(function):
+    @functools.wraps(function)
+    def scoped(store,*args,**kwargs):
+        with store.read_scope():return function(store,*args,**kwargs)
+    return scoped
+
+
+@_price_scope
+def close_completion(store,key,clock,*,calculation=None):
     """正式收盘状态与目标日覆盖率分开检查，不拿旧100%覆盖率掩盖缺口。"""
     rows=store.read('results',key).get('rows',[])
     official=[r for r in rows if r.get('kind')=='close' and r.get('finality') not in
               {'snapshot_provisional','chart_only'} and r.get('date','')<=clock['complete_day']
               and r.get('percent') is not None and math.isfinite(float(r['percent']))
               and float(r.get('coverage') or 0)>=BREADTH_MIN_COVERAGE]
-    latest=max(official,key=lambda r:r['date'],default={}).get('date')
+    latest_record=max(official,key=lambda r:r['date'],default={})
+    latest=latest_record.get('date')
     member=store.members(key,clock['complete_day']);symbols=member.get('symbols',[])
-    calculated=calculate_history({c:store.prices(c) for c in symbols},symbols,BREADTH_MIN_COVERAGE,clock['sessions'][-50:])
-    row=calculated.iloc[-1] if not calculated.empty else {}
+    if (calculation and calculation.get('day')==clock['complete_day']
+            and calculation.get('version')==member.get('version')
+            and calculation.get('prices_token')==store.price_token(symbols)):
+        row=calculation['row']
+    else:
+        calculated=calculate_history({c:store.prices(c) for c in symbols},symbols,BREADTH_MIN_COVERAGE,clock['sessions'][-50:])
+        row=calculated.iloc[-1] if not calculated.empty else {}
     missing=[c for c in symbols if missing_price_sessions(store,c,clock['sessions'])]
     return dict(expected_complete_day=clock['complete_day'],latest_valid_close_date=latest,
                 member_count=len(symbols),valid_count=int(row.get('valid',0)),coverage=float(row.get('coverage',0)),
                 missing_count=len(missing),remaining_missing_symbols=missing,
                 missing_sessions=sum((latest or '')<d<=clock['complete_day'] for d in clock['sessions']),
-                status='complete' if latest==clock['complete_day'] else 'stale')
+                status='complete' if latest==clock['complete_day'] and float(row.get('coverage',0))>=BREADTH_MIN_COVERAGE
+                       and latest_record.get('membership_version')==member.get('version')
+                       and bool(symbols) else 'stale')
 
 
+@_price_scope
 def price_download_plan(store,key,member,day,complete_day,bootstrap,repair,initialized):
     """调入证券先缓存真实日线；仅当日有效名单进入广度分母。"""
     symbols=member["symbols"]
@@ -160,7 +181,7 @@ def price_download_plan(store,key,member,day,complete_day,bootstrap,repair,initi
                 pending.append(code);missing_added+=1
         elif (missing_price_sessions(store,code,sessions) or frame.iloc[-1].date<complete_day or
               (bootstrap and len(frame)<400 and len(frame)>=50) or
-              (repair and (len(frame)<50 or bool(store.read("prices",code).get("provisional_dates"))))):
+              (repair and (len(frame)<50 or bool(store.price_metadata(code).get("provisional_dates"))))):
             pending.append(code)
     future_added=0
     for code in prewarm:
@@ -171,7 +192,7 @@ def price_download_plan(store,key,member,day,complete_day,bootstrap,repair,initi
         elif frame.iloc[-1].date<complete_day or (bootstrap and 50<=len(frame)<400):
             pending.append(code)
     if bootstrap:
-        pending=[code for code in pending if not (store.read("prices",code).get("bootstrap_complete")
+        pending=[code for code in pending if not (store.price_metadata(code).get("bootstrap_complete")
                  and not store.prices(code).empty and store.prices(code).iloc[-1].date>=complete_day)]
         pending.sort(reverse=True)
     return dict(pending=pending,needs_bootstrap=needs_bootstrap,prewarm_symbols=prewarm,
@@ -250,6 +271,50 @@ def validate_membership_candidate(key,symbols,member,meta,day):
     return meta.get("source_date") if meta.get("official_current") else day
 
 
+def _reusable_close(store,key,clock,member,plan):
+    """正式结果与维护分别验收；无法证明行情未变化时仍走正常计算。"""
+    if not member or plan['pending'] or plan['needs_bootstrap'] or plan['prewarm_cached']<len(plan['prewarm_symbols']):return None
+    doc=store.read('members',key)
+    completed={r['date']:r for r in store.read('results',key).get('rows',[])
+               if r.get('kind')=='close' and r.get('finality') not in {'snapshot_provisional','chart_only'}
+               and r.get('percent') is not None and math.isfinite(float(r['percent']))
+               and float(r.get('coverage') or 0)>=BREADTH_MIN_COVERAGE}
+    required=[day for day in clock['sessions'][-400:] if day>=(doc.get('pit_start') or '')]
+    if any(day not in completed for day in required):return None
+    row=completed.get(clock['complete_day'],{})
+    if row.get('membership_version')!=member.get('version') or row.get('total')!=len(member['symbols']):return None
+    published=pd.to_datetime(row.get('updated_at'),utc=True,errors='coerce')
+    if pd.isna(published):return None
+    valid=0;tokens=[]
+    for code in member['symbols']:
+        state=store.price_state(code)
+        tokens.append((code,state['signature']))
+        stamp=pd.to_datetime(state['metadata'].get('updated_at'),utc=True,errors='coerce')
+        if pd.isna(stamp) or stamp>published or not state['metadata'].get('basis'):return None
+        if state['metadata'].get('provisional_dates'):return None
+        window=state['frame'].loc[state['frame'].date.isin(clock['sessions'][-50:])]
+        values=pd.to_numeric(window.close,errors='coerce')
+        # 与正常矩阵一致：重复/坏价不能借已有结果绕过完整性检查。
+        if window.date.duplicated().any():return None
+        good=values.notna() & values.gt(0) & values.abs().lt(float('inf'))
+        valid+=int(len(window)==50 and good.all())
+    if valid!=row.get('valid') or valid/max(1,len(member['symbols']))!=row.get('coverage'):return None
+    return dict(day=clock['complete_day'],version=member['version'],
+                prices_token=tuple(sorted(tokens)),row=row)
+
+
+def _cached_benchmark_comparison(store,key,clock,report):
+    """只读对照缓存；快路径和实际刷新保持同一诊断，不增加接口请求。"""
+    if key not in {'nasdaq','nasdaq100'}:return
+    benchmark=store.benchmark(key+'_stockcharts')
+    same=benchmark.loc[(benchmark.date==clock['complete_day']) & (benchmark.kind=='close')] if not benchmark.empty else pd.DataFrame()
+    latest=report.get('latest',{})
+    if not same.empty and latest.get('date')==clock['complete_day'] and latest.get('percent') is not None:
+        report['benchmark']={'self_calculated':latest['percent'],'stockcharts':float(same.iloc[-1].percent),
+                             'difference_pp':float(latest['percent'])-float(same.iloc[-1].percent)}
+
+
+@_price_scope
 def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_members=True,deadline=None,use_futu=True,
                    source_health=None,shared_quotes=None,futu=None,progress_callback=None):
     spec=BREADTH_MARKETS[key];clock=market_clock(spec["market"],now)
@@ -343,6 +408,24 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
     report["needs_bootstrap"]=plan["needs_bootstrap"]
     report["prewarm"]={"symbols":plan["prewarm_symbols"],"cached":plan["prewarm_cached"],
                        "missing":len(plan["prewarm_symbols"])-plan["prewarm_cached"]}
+    reusable=(_reusable_close(store,key,clock,store.members(key,clock['complete_day']),plan)
+              if not bootstrap and not repair and not clock['regular'] else None)
+    if reusable:
+        latest_frame=store.results(key)
+        report.update(close_completion(store,key,clock,calculation=reusable))
+        report.update(latest=json.loads(latest_frame.tail(1).to_json(orient='records'))[0],
+                      maintenance_complete=True,missing_symbols=[],insufficient_listing_history=[],
+                      membership={k:member.get(k) for k in ('date','effective_date','last_verified_at','version','source','universe')},
+                      pending_membership=store.read('members',key).get('pending_membership'))
+        report.update(futu_connection_status=getattr(futu,'connection_status','not_attempted'),
+                      futu_history_request_count=0,futu_quota_remaining=getattr(futu,'remaining',None)
+                      if getattr(futu,'quota_checked_at',None) else None,
+                      source_health={'unreachable':sorted(source_health.unreachable),
+                                     'errors':dict(getattr(source_health,'errors',{}))})
+        _cached_benchmark_comparison(store,key,clock,report)
+        checkpoint()
+        if own_futu:futu.close()
+        return report
     snapshot_codes=set()
     local=store.root.parent/'market_breadth_local';local.mkdir(parents=True,exist_ok=True)
     attempt_path=local/(key+'_attempts.json')
@@ -373,7 +456,7 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
         values=prepare_market_close_quotes(store,missing,quotes,clock["now"],clock["complete_day"],previous_day,spec["market"])
         for code,value in values.items():
             try:
-                basis=store.read("prices",code).get("basis")
+                basis=store.price_metadata(code).get("basis")
                 if not basis:continue
                 store.save_prices(code,pd.DataFrame([{"date":clock["complete_day"],"close":value}]),basis,
                                   provisional=True)
@@ -403,7 +486,7 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
     if spec['market']=='US':daily_deadline=min(daily_deadline,time.monotonic()+max(0,network_deadline-time.monotonic())*.60)
     def download(code):
         if time.monotonic()>=deadline:return None
-        prior=store.read("prices",code);old=store.prices(code)
+        prior=store.price_metadata(code);old=store.prices(code)
         gaps=missing_price_sessions(store,code,clock['sessions'])
         first=min([old.iloc[-1].date,*gaps]) if not old.empty else None
         # 长尾从旧末日续接，避免只请求最近50日而跳过中间的数月交易日。
@@ -448,7 +531,7 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
             if time.monotonic()>=network_deadline:
                 report['errors'].append('Runtime budget exhausted');break
             try:
-                prior=store.read('prices',code);gaps=missing_price_sessions(store,code,clock['sessions'])
+                prior=store.price_metadata(code);gaps=missing_price_sessions(store,code,clock['sessions'])
                 old=store.prices(code)
                 first=min([old.iloc[-1].date,*gaps]) if not old.empty else min(gaps)
                 first=max(first,clock['sessions'][-min(400,len(clock['sessions']))])
@@ -477,16 +560,23 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
         published={r["date"] for r in store.read("results",key).get("rows",[])
                    if r.get("kind")=="close" and r.get("percent") is not None and r.get("finality")!="snapshot_provisional"}
         target_dates=[day for day in dates if repair or day not in published]
+        calculation_dates=sorted(set(target_dates)|{clock['complete_day']})
         # 旧版本中的退指证券仍可能用于未发布日期的计算；其价格缓存不删除。
         needed=set(symbols)
-        for day in target_dates:
+        for day in calculation_dates:
             previous=store.members(key,day)
             needed.update(previous.get("symbols",[]))
-        prices={c:store.prices(c) for c in needed}
-        out=calculate_segmented_history(prices,store,key,target_dates,BREADTH_MIN_COVERAGE,
+        prices,prices_token=store.price_snapshot(needed)
+        out=calculate_segmented_history(prices,store,key,calculation_dates,BREADTH_MIN_COVERAGE,
                                         calendar_sessions=dates)
         # 预热空值可保留，绘图会自然断开。
-        records=out.to_dict("records")
+        target_row=out.loc[out.date==clock['complete_day']] if not out.empty else pd.DataFrame()
+        completion_member=store.members(key,clock['complete_day'])
+        completion_symbols=set(completion_member.get('symbols',[]))
+        calculation=(dict(day=clock['complete_day'],version=completion_member.get('version'),
+                          prices_token=tuple(pair for pair in prices_token if pair[0] in completion_symbols),
+                          row=target_row.iloc[-1].to_dict()) if not target_row.empty else None)
+        records=out.loc[out.date.isin(target_dates)].to_dict("records") if not out.empty else []
         pit_start=store.read("members",key).get("pit_start")
         if repair and pit_start and clock["complete_day"]<pit_start:
             # 显式修复可补最近旧日期，但必须明确标成当前名单回算，不能冒称逐日成分。
@@ -498,7 +588,7 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
                 records.append(record)
         if records:
             # 临时价格即便跨日留在价格缓存，也不能误升级为正式收盘广度。
-            provisional_days={day for code in needed for day in store.read("prices",code).get("provisional_dates",[])}
+            provisional_days={day for code in needed for day in store.price_metadata(code).get("provisional_dates",[])}
             affected_days=set()
             for index,day in enumerate(dates):
                 if day in provisional_days:affected_days.update(dates[index:index+50])
@@ -549,7 +639,7 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
         report["futu_quota"]=(dict(checked_at=futu.quota_checked_at,remaining=futu.remaining,
                                    used_count=len(futu.used),reserve=BREADTH_FUTU_RESERVE)
                               if getattr(futu,"quota_checked_at",None) else {"checked":False})
-        report.update(close_completion(store,key,clock))
+        report.update(close_completion(store,key,clock,calculation=calculation))
         report['futu_connection_status']=getattr(futu,'connection_status','not_attempted')
         report['futu_history_request_count']=getattr(futu,'history_calls',0)-futu_calls_before
         report['futu_quota_remaining']=getattr(futu,'remaining',None) if getattr(futu,'quota_checked_at',None) else None
@@ -557,18 +647,14 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
             report['errors'].append('Insufficient coverage' if report['coverage']<BREADTH_MIN_COVERAGE else 'Formal close pending')
             if time.monotonic()>=network_deadline:report['errors'].append('Runtime budget exhausted')
         checkpoint()
-        if key in {"nasdaq","nasdaq100"}:
-            benchmark=store.benchmark(key+"_stockcharts")
-            same=benchmark.loc[(benchmark.date==clock["complete_day"]) & (benchmark.kind=="close")] if not benchmark.empty else pd.DataFrame()
-            latest=report["latest"]
-            if not same.empty and latest.get("date")==clock["complete_day"] and latest.get("percent") is not None:
-                report["benchmark"]={"self_calculated":latest["percent"],"stockcharts":float(same.iloc[-1].percent),
-                                     "difference_pp":float(latest["percent"])-float(same.iloc[-1].percent)}
+        _cached_benchmark_comparison(store,key,clock,report)
     finally:
         if own_futu:futu.close()
     report["prewarm"]["cached"]=sum(not store.prices(code).empty for code in plan["prewarm_symbols"])
     report["prewarm"]["missing"]=len(plan["prewarm_symbols"])-report["prewarm"]["cached"]
     report["needs_bootstrap"]=sum(store.prices(c).empty for c in symbols)
+    # 本轮可能刚完成调入预热，必须使用最终统计，不能复用下载前的 missing。
+    report['maintenance_complete']=not bool(report.get('remaining_missing_symbols') or report['prewarm']['missing'])
     return report
 
 
@@ -588,6 +674,7 @@ def refresh_for_charts(root=None):
     except subprocess.TimeoutExpired:print("[WARN] 广度采集已到时间预算，继续使用已保存数据。")
 
 
+@_price_scope
 def _ndx_chart_backcast(store,dates,clock):
     """绘图时按首次核验名单回算早期历史，不向正式 results 写入数据。"""
     doc=store.read("members","nasdaq100")
@@ -602,7 +689,7 @@ def _ndx_chart_backcast(store,dates,clock):
     frame=frame.loc[frame.date.between(start,str(pd.Timestamp(pit_start)-pd.Timedelta(days=1))[:10])].copy()
     if frame.empty:return frame
     # 临时收盘价会影响其后 50 根均线；这段历史只能留空，不能冒充真实日线。
-    provisional={day for code in baseline["symbols"] for day in store.read("prices",code).get("provisional_dates",[])}
+    provisional={day for code in baseline["symbols"] for day in store.price_metadata(code).get("provisional_dates",[])}
     affected=set()
     for index,day in enumerate(sessions):
         if day in provisional:affected.update(sessions[index:index+50])

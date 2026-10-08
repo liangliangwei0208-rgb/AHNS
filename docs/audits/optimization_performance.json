@@ -1,0 +1,452 @@
+{
+  "baseline": "97414eca2d204a7637feea13f05e4562e3efa4f4",
+  "frozen_time": "2026-10-08T04:45:00+00:00",
+  "repetitions": 3,
+  "scope": "local planning + unpublished close calculation + close completion; no download/write",
+  "markets": {
+    "nasdaq100": {
+      "before": {
+        "median_seconds": 0.6759636999995564,
+        "samples": [
+          {
+            "seconds": 0.8035998999994263,
+            "python_peak_bytes": null,
+            "price_file_reads": 707,
+            "price_dataframe_builds": 505,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.6759636999995564,
+            "python_peak_bytes": null,
+            "price_file_reads": 707,
+            "price_dataframe_builds": 505,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.662629299999935,
+            "python_peak_bytes": null,
+            "price_file_reads": 707,
+            "price_dataframe_builds": 505,
+            "sma_passes": 1,
+            "http_requests": 0
+          }
+        ],
+        "python_peak_bytes": 13106969
+      },
+      "after": {
+        "median_seconds": 0.384285600000112,
+        "samples": [
+          {
+            "seconds": 0.5009430000000066,
+            "python_peak_bytes": null,
+            "price_file_reads": 101,
+            "price_dataframe_builds": 101,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.384285600000112,
+            "python_peak_bytes": null,
+            "price_file_reads": 101,
+            "price_dataframe_builds": 101,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.3836993999993865,
+            "python_peak_bytes": null,
+            "price_file_reads": 101,
+            "price_dataframe_builds": 101,
+            "sma_passes": 1,
+            "http_requests": 0
+          }
+        ],
+        "python_peak_bytes": 10140244
+      },
+      "completion": {
+        "expected_complete_day": "2026-10-07",
+        "latest_valid_close_date": "2026-10-07",
+        "member_count": 101,
+        "valid_count": 100,
+        "coverage": 0.9900990099009901,
+        "missing_count": 1,
+        "missing_sessions": 0,
+        "status": "complete"
+      },
+      "pending": 1,
+      "latest_formal": {
+        "coverage": 0.9900990099009901,
+        "date": "2026-10-07",
+        "finality": "official",
+        "kind": "close",
+        "membership_policy": "point_in_time_membership",
+        "membership_version": "26b4f6d125866def",
+        "percent": 52.0,
+        "source": "self_calculated",
+        "total": 101,
+        "updated_at": "2026-10-08T05:16:47.675681+00:00",
+        "valid": 100
+      },
+      "compared_history_rows": 0,
+      "exact_result_match": true,
+      "reused": false
+    },
+    "dow": {
+      "before": {
+        "median_seconds": 0.19704340000043885,
+        "samples": [
+          {
+            "seconds": 0.19704340000043885,
+            "python_peak_bytes": null,
+            "price_file_reads": 210,
+            "price_dataframe_builds": 150,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.19501970000055735,
+            "python_peak_bytes": null,
+            "price_file_reads": 210,
+            "price_dataframe_builds": 150,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.19716799999969226,
+            "python_peak_bytes": null,
+            "price_file_reads": 210,
+            "price_dataframe_builds": 150,
+            "sma_passes": 1,
+            "http_requests": 0
+          }
+        ],
+        "python_peak_bytes": 4194726
+      },
+      "after": {
+        "median_seconds": 0.09197239999957674,
+        "samples": [
+          {
+            "seconds": 0.0882408999996187,
+            "python_peak_bytes": null,
+            "price_file_reads": 30,
+            "price_dataframe_builds": 30,
+            "sma_passes": 0,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.09200800000053277,
+            "python_peak_bytes": null,
+            "price_file_reads": 30,
+            "price_dataframe_builds": 30,
+            "sma_passes": 0,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.09197239999957674,
+            "python_peak_bytes": null,
+            "price_file_reads": 30,
+            "price_dataframe_builds": 30,
+            "sma_passes": 0,
+            "http_requests": 0
+          }
+        ],
+        "python_peak_bytes": 1976497
+      },
+      "completion": {
+        "expected_complete_day": "2026-10-07",
+        "latest_valid_close_date": "2026-10-07",
+        "member_count": 30,
+        "valid_count": 30,
+        "coverage": 1.0,
+        "missing_count": 0,
+        "missing_sessions": 0,
+        "status": "complete"
+      },
+      "pending": 0,
+      "latest_formal": {
+        "coverage": 1.0,
+        "date": "2026-10-07",
+        "finality": "official",
+        "kind": "close",
+        "membership_policy": "point_in_time_membership",
+        "membership_version": "8f20fa3a31a05e48",
+        "percent": 40.0,
+        "source": "self_calculated",
+        "total": 30,
+        "updated_at": "2026-10-08T05:17:11.732927+00:00",
+        "valid": 30
+      },
+      "compared_history_rows": 0,
+      "exact_result_match": true,
+      "reused": true
+    },
+    "csi2000": {
+      "before": {
+        "median_seconds": 16.084526599999663,
+        "samples": [
+          {
+            "seconds": 16.185246900000493,
+            "python_peak_bytes": null,
+            "price_file_reads": 14000,
+            "price_dataframe_builds": 10000,
+            "sma_passes": 2,
+            "http_requests": 0
+          },
+          {
+            "seconds": 15.898355199999969,
+            "python_peak_bytes": null,
+            "price_file_reads": 14000,
+            "price_dataframe_builds": 10000,
+            "sma_passes": 2,
+            "http_requests": 0
+          },
+          {
+            "seconds": 16.084526599999663,
+            "python_peak_bytes": null,
+            "price_file_reads": 14000,
+            "price_dataframe_builds": 10000,
+            "sma_passes": 2,
+            "http_requests": 0
+          }
+        ],
+        "python_peak_bytes": 268742594
+      },
+      "after": {
+        "median_seconds": 7.082896300000357,
+        "samples": [
+          {
+            "seconds": 7.167452200000298,
+            "python_peak_bytes": null,
+            "price_file_reads": 2000,
+            "price_dataframe_builds": 2000,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 7.082896300000357,
+            "python_peak_bytes": null,
+            "price_file_reads": 2000,
+            "price_dataframe_builds": 2000,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 7.075713399999586,
+            "python_peak_bytes": null,
+            "price_file_reads": 2000,
+            "price_dataframe_builds": 2000,
+            "sma_passes": 1,
+            "http_requests": 0
+          }
+        ],
+        "python_peak_bytes": 200760523
+      },
+      "completion": {
+        "expected_complete_day": "2026-09-30",
+        "latest_valid_close_date": "2026-09-28",
+        "member_count": 2000,
+        "valid_count": 1984,
+        "coverage": 0.992,
+        "missing_count": 1898,
+        "missing_sessions": 2,
+        "status": "stale"
+      },
+      "pending": 1898,
+      "latest_formal": {
+        "coverage": 0.993,
+        "date": "2026-09-28",
+        "kind": "close",
+        "membership_policy": "current_members_backcast",
+        "membership_version": "b9c126f2ed6d4320",
+        "percent": 50.60422960725075,
+        "source": "self_calculated",
+        "total": 2000,
+        "updated_at": "2026-09-29T04:28:15.033043+00:00",
+        "valid": 1986
+      },
+      "compared_history_rows": 2,
+      "exact_result_match": true,
+      "reused": false
+    },
+    "shenzhen": {
+      "before": {
+        "median_seconds": 3.200753799999802,
+        "samples": [
+          {
+            "seconds": 3.211109099999703,
+            "python_peak_bytes": null,
+            "price_file_reads": 3500,
+            "price_dataframe_builds": 2500,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 3.1986246999995274,
+            "python_peak_bytes": null,
+            "price_file_reads": 3500,
+            "price_dataframe_builds": 2500,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 3.200753799999802,
+            "python_peak_bytes": null,
+            "price_file_reads": 3500,
+            "price_dataframe_builds": 2500,
+            "sma_passes": 1,
+            "http_requests": 0
+          }
+        ],
+        "python_peak_bytes": 65554111
+      },
+      "after": {
+        "median_seconds": 1.7707489000003989,
+        "samples": [
+          {
+            "seconds": 1.7707489000003989,
+            "python_peak_bytes": null,
+            "price_file_reads": 500,
+            "price_dataframe_builds": 500,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 1.7629019000005428,
+            "python_peak_bytes": null,
+            "price_file_reads": 500,
+            "price_dataframe_builds": 500,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 1.7722272999999404,
+            "python_peak_bytes": null,
+            "price_file_reads": 500,
+            "price_dataframe_builds": 500,
+            "sma_passes": 1,
+            "http_requests": 0
+          }
+        ],
+        "python_peak_bytes": 50725050
+      },
+      "completion": {
+        "expected_complete_day": "2026-09-30",
+        "latest_valid_close_date": "2026-09-30",
+        "member_count": 500,
+        "valid_count": 498,
+        "coverage": 0.996,
+        "missing_count": 2,
+        "missing_sessions": 0,
+        "status": "complete"
+      },
+      "pending": 2,
+      "latest_formal": {
+        "coverage": 0.996,
+        "date": "2026-09-30",
+        "finality": "official",
+        "kind": "close",
+        "membership_policy": "point_in_time_membership",
+        "membership_version": "e40c4d84e0cec11f",
+        "percent": 22.48995983935743,
+        "source": "self_calculated",
+        "total": 500,
+        "updated_at": "2026-10-08T06:18:44.823810+00:00",
+        "valid": 498
+      },
+      "compared_history_rows": 0,
+      "exact_result_match": true,
+      "reused": false
+    },
+    "dividend": {
+      "before": {
+        "median_seconds": 0.32420840000031603,
+        "samples": [
+          {
+            "seconds": 0.3237884000000122,
+            "python_peak_bytes": null,
+            "price_file_reads": 350,
+            "price_dataframe_builds": 250,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.3250475999993796,
+            "python_peak_bytes": null,
+            "price_file_reads": 350,
+            "price_dataframe_builds": 250,
+            "sma_passes": 1,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.32420840000031603,
+            "python_peak_bytes": null,
+            "price_file_reads": 350,
+            "price_dataframe_builds": 250,
+            "sma_passes": 1,
+            "http_requests": 0
+          }
+        ],
+        "python_peak_bytes": 7322846
+      },
+      "after": {
+        "median_seconds": 0.14546659999996336,
+        "samples": [
+          {
+            "seconds": 0.14509689999977127,
+            "python_peak_bytes": null,
+            "price_file_reads": 50,
+            "price_dataframe_builds": 50,
+            "sma_passes": 0,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.14561770000000251,
+            "python_peak_bytes": null,
+            "price_file_reads": 50,
+            "price_dataframe_builds": 50,
+            "sma_passes": 0,
+            "http_requests": 0
+          },
+          {
+            "seconds": 0.14546659999996336,
+            "python_peak_bytes": null,
+            "price_file_reads": 50,
+            "price_dataframe_builds": 50,
+            "sma_passes": 0,
+            "http_requests": 0
+          }
+        ],
+        "python_peak_bytes": 2747722
+      },
+      "completion": {
+        "expected_complete_day": "2026-09-30",
+        "latest_valid_close_date": "2026-09-30",
+        "member_count": 50,
+        "valid_count": 50,
+        "coverage": 1.0,
+        "missing_count": 0,
+        "missing_sessions": 0,
+        "status": "complete"
+      },
+      "pending": 0,
+      "latest_formal": {
+        "coverage": 1.0,
+        "date": "2026-09-30",
+        "finality": "official",
+        "kind": "close",
+        "membership_policy": "point_in_time_membership",
+        "membership_version": "3bf5d36639364030",
+        "percent": 57.99999999999999,
+        "source": "self_calculated",
+        "total": 50,
+        "updated_at": "2026-10-01T00:34:22.282252+00:00",
+        "valid": 50
+      },
+      "compared_history_rows": 0,
+      "exact_result_match": true,
+      "reused": true
+    }
+  }
+}

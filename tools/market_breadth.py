@@ -6,6 +6,9 @@ import math
 import os
 import re
 import uuid
+from contextlib import contextmanager
+from copy import deepcopy
+from threading import RLock
 from urllib.parse import urlparse
 from datetime import datetime, timezone
 from pathlib import Path
@@ -62,22 +65,35 @@ def calculate_segmented_history(prices, store, key, sessions, min_coverage=.95, 
     all_dates = ([str(day)[:10] for day in calendar_sessions] if calendar_sessions is not None else
                  sorted(set(requested).union(
                      str(day)[:10] for frame in prices.values() for day in frame.get("date", []))))
-    versions = {}
+    versions, memberships = {}, {}
     for day in requested:
         member = store.members(key, day)
         if member:
             versions[member["version"]] = member
-    calculated = {}
-    for version, member in versions.items():
-        frame = calculate_history(prices, member["symbols"], min_coverage, all_dates)
-        calculated[version] = frame.set_index("date")
+            memberships[day] = member
+    if not versions:
+        return pd.DataFrame()
+    # 同一证券的均线不随成员版本变化。保留原滚动累加起点，避免浮点边界漂移；
+    # 只聚合待发布日期，各版本不再分别重建矩阵和计算同一根 SMA。
+    union = sorted({code for member in versions.values() for code in member["symbols"]})
+    matrix = price_matrix(prices, union, [day for day in all_dates if day <= max(requested)])
+    averages = matrix.rolling(50, min_periods=50).mean()
+    available = matrix.notna() & averages.notna()
+    above = (matrix > averages) & available
+    del matrix, averages
     rows = []
     for day in requested:
-        member = store.members(key, day)
+        member = memberships.get(day)
         if not member:
             continue
-        row = calculated[member["version"]].loc[day].to_dict()
-        rows.append(dict(date=day, **row, membership_version=member["version"],
+        symbols = sorted(set(member["symbols"]))
+        valid = int(available.loc[day, symbols].sum())
+        total = len(symbols)
+        coverage = valid / max(1, total)
+        percent = (int(above.loc[day, symbols].sum()) / valid * 100
+                   if valid and coverage >= min_coverage else np.nan)
+        rows.append(dict(date=day, percent=percent, valid=valid, total=total, coverage=coverage,
+                         kind="close", membership_version=member["version"],
                          membership_policy="point_in_time_membership"))
     return pd.DataFrame(rows)
 
@@ -211,25 +227,95 @@ def merge_document(a,b):
 
 
 class BreadthStore:
-    def __init__(self,root): self.root=Path(root)
+    def __init__(self,root):
+        self.root=Path(root)
+        self._scope_depth=0
+        self._price_cache={}
+        self._document_cache={}
+        self._lock=RLock()
+
+    @staticmethod
+    def _signature(path):
+        try:
+            stat=path.stat()
+            return stat.st_mtime_ns,stat.st_size
+        except FileNotFoundError:
+            return None
+
+    @contextmanager
+    def read_scope(self):
+        """仅本轮复用；价格表内部只读，写入及外部文件变更立即失效。"""
+        with self._lock:self._scope_depth+=1
+        try:
+            yield self
+        finally:
+            with self._lock:
+                self._scope_depth-=1
+                if not self._scope_depth:
+                    self._price_cache.clear()
+                    self._document_cache.clear()
+
+    def price_state(self,key):
+        """每个版本仅保留一份价格表及小型元数据，不重复保留 JSON 行列表。"""
+        with self._lock:
+            path=self.path("prices",key);signature=self._signature(path)
+            entry=self._price_cache.get(key) if self._scope_depth else None
+            if entry is None or entry["signature"]!=signature:
+                doc=json.loads(path.read_text(encoding="utf-8")) if signature else {}
+                frame=pd.DataFrame(doc.pop("rows",[]),columns=["date","close"])
+                entry=dict(signature=signature,frame=frame,metadata=doc,gaps={})
+                if self._scope_depth:self._price_cache[key]=entry
+            return entry
+
+    def price_metadata(self,key):
+        return deepcopy(self.price_state(key)["metadata"])
+
+    def price_token(self,symbols):
+        """计算证据只在本轮使用；包含实际文件版本，不写入正式缓存。"""
+        return tuple((code,self._signature(self.path("prices",code))) for code in sorted(symbols))
+
+    def price_snapshot(self,symbols):
+        """行情与文件版本一起取得；计算期间外部写入不能污染复用证据。"""
+        entries={code:self.price_state(code) for code in sorted(symbols)}
+        return ({code:entry['frame'] for code,entry in entries.items()},
+                tuple((code,entry['signature']) for code,entry in entries.items()))
+
+    def release_prices(self,keep=()):
+        with self._lock:
+            keep=set(keep)
+            for code in list(self._price_cache):
+                if code not in keep:self._price_cache.pop(code)
     def path(self,kind,key):
         if not re.fullmatch(r"[A-Za-z0-9_.^-]+",key): raise ValueError("非法缓存键")
         return self.root/kind/(key+".json")
     def read(self,kind,key):
-        path=self.path(kind,key)
-        if not path.exists():return {}
-        return json.loads(path.read_text(encoding="utf-8"))
+        with self._lock:
+            if kind=="prices" and self._scope_depth:
+                entry=self.price_state(key)
+                if entry["signature"] is None:return {}
+                return dict(deepcopy(entry["metadata"]),rows=entry["frame"].to_dict("records"))
+            path=self.path(kind,key);signature=self._signature(path)
+            if signature is None:return {}
+            cached=self._document_cache.get((kind,key)) if self._scope_depth else None
+            if cached is None or cached[0]!=signature:
+                cached=(signature,json.loads(path.read_text(encoding="utf-8")))
+                if self._scope_depth:self._document_cache[kind,key]=cached
+            # 保留 read 返回独立可修改文档的既有约定。
+            return deepcopy(cached[1]) if self._scope_depth else cached[1]
     def write(self,kind,key,doc):
         path=self.path(kind,key);path.parent.mkdir(parents=True,exist_ok=True)
         tmp=path.with_suffix("."+uuid.uuid4().hex+".tmp")
         tmp.write_text(json.dumps(doc,ensure_ascii=False,allow_nan=False,sort_keys=True,separators=(",",":"))+"\n",encoding="utf-8")
         os.replace(tmp,path)
+        with self._lock:
+            self._document_cache.pop((kind,key),None)
+            if kind=="prices":self._price_cache.pop(key,None)
     def prices(self,key):
-        return pd.DataFrame(self.read("prices",key).get("rows",[]),columns=["date","close"])
+        return self.price_state(key)["frame"]
     def save_prices(self,key,frame,basis,updated_at=None,provisional=False):
         frame=clean_prices(frame)
         incoming_dates=set(frame.date)
-        old=self.read("prices",key)
+        old=self.price_metadata(key)
         provisional_dates=set(old.get("provisional_dates",[]))
         if old:
             previous=self.prices(key)
@@ -369,6 +455,29 @@ class BreadthStore:
         return pd.DataFrame(self.read("benchmarks",key).get("rows",[]))
 
 
+def state_band_dates(price_df):
+    """日期格的唯一有序交易日期；指标自身负责同日/向后匹配规则。"""
+    return (pd.to_datetime(price_df['date'],errors='coerce').dt.normalize()
+            .dropna().drop_duplicates().sort_values())
+
+
+def state_band_edges(dates):
+    """以相邻交易日期中点确定边界，单日期保持一日宽度。"""
+    x=mdates.date2num(dates.to_numpy())
+    if len(x)<=1:return x-.5,x+.5
+    middle=(x[:-1]+x[1:])/2
+    return np.r_[x[0]-(middle[0]-x[0]),middle],np.r_[middle,x[-1]+(x[-1]-middle[-1])]
+
+
+def add_price_state_band(ax,left,right,bottom,height,color,*,alpha=.88,zorder=2.5,gid=None):
+    """仅绘制几何，不参与价格自动缩放，也不判断指标状态。"""
+    patch=Rectangle((left,bottom),right-left,height,transform=ax.get_xaxis_transform(),
+                    facecolor=color,edgecolor='none',alpha=alpha,zorder=zorder,clip_on=True)
+    if gid:patch.set_gid(gid)
+    ax.add_artist(patch)
+    return patch
+
+
 def price_band_layout(ax, output_dpi=None, *, include_ebs=False, include_ene=False):
     """按导出像素统一排布；默认两层位置保持不变，可追加 EBS/ENE。"""
     dpi = float(output_dpi or ax.figure.dpi)
@@ -431,7 +540,7 @@ def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_thresh
             return []
     except (TypeError, ValueError):
         return []
-    dates = pd.to_datetime(price_df["date"], errors="coerce").dt.normalize().dropna().drop_duplicates().sort_values()
+    dates = state_band_dates(price_df)
     if dates.empty:
         return []
     breadth = breadth_df[["date", "percent"]].copy()
@@ -439,13 +548,7 @@ def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_thresh
     breadth["percent"] = pd.to_numeric(breadth["percent"], errors="coerce")
     breadth = breadth.dropna(subset=["date"]).drop_duplicates("date", keep="last")
     aligned = pd.DataFrame({"date": dates}).merge(breadth, on="date", how="left").sort_values("date")
-    x = mdates.date2num(aligned["date"].to_numpy())
-    if len(x) == 1:
-        left, right = x - .5, x + .5
-    else:
-        middle = (x[:-1] + x[1:]) / 2
-        left = np.r_[x[0] - (middle[0]-x[0]), middle]
-        right = np.r_[middle, x[-1] + (x[-1]-middle[-1])]
+    left, right = state_band_edges(aligned['date'])
 
     # 上下极端各占一侧，VIX在同侧紧邻；位置由导出尺寸换算。
     layout = price_band_layout(ax, output_dpi, include_ebs=include_ebs, include_ene=include_ene)
@@ -461,10 +564,7 @@ def draw_breadth_state_band(ax, price_df, breadth_df, low_threshold, high_thresh
         state = states[start]
         if state is not None:
             color, bottom = bands[state]
-            patch = Rectangle((left[start], bottom), right[end-1]-left[start], layout["height"],
-                              transform=ax.get_xaxis_transform(), facecolor=color, edgecolor="none",
-                              alpha=.88, zorder=2.5, clip_on=True)
-            ax.add_artist(patch)
+            patch = add_price_state_band(ax,left[start],right[end-1],bottom,layout['height'],color)
             patches.append(patch)
             add_state_band_label(ax, patch, "50D", output_dpi=output_dpi)
         start = end

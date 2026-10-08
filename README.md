@@ -407,7 +407,7 @@ GitHub 仓库需要在 Settings -> Secrets and variables -> Actions -> Secrets �
 
 独立图的阈值保留 `0.765 / 0.60 / 0.55`，在脚本顶部维护：高估≥0.765为砖红，中性为灰色，0.55<比例≤0.60为绿色，比例≤0.55为深绿色。月度比例使用step-post阶梯线，跳变使用新状态颜色，缺值断线；三个非中性区间配有很淡的横向底色与中文名称。深证成指按已经观测到的月度MC/GDP向后映射相同状态，采用较浅的红/灰/绿/深绿色细虚线，与MC/GDP深色实线区分。缺失估值使用浅灰，指数不使用未来月份；MC/GDP曲线不延长到指数最新交易日。图例及底部最新数据标明两种指标各自的日期；历史保留 `historical revised series` 说明，不是严格无前视回测信号。
 
-默认纸面尺寸7.2×4.2英寸，局部设置微软雅黑/Arial，不改变其它图的样式。**仅输出PNG**：`output/a_share_market_cap_gdp_10y.png`，600 DPI，4320×2520像素，不再生成PDF/SVG。数据获取入口、缓存文件及月度复核CSV保持原样，基金业务无变化。
+默认纸面尺寸7.2×4.2英寸，局部设置微软雅黑/Arial，不改变其它图的样式。**仅输出PNG**：`output/a_share_market_cap_gdp_10y.png`，600 DPI，4320×2520像素，不再生成PDF/SVG。原公开获取函数及月度复核CSV保留；市值/GDP原始数据统一由 `tools.a_share_valuation.load_macro_data()` 读取和刷新 `cache/a_share_mc_gdp.json`，一次返回市值、GDP及可用时间事件。两入口共用48/96小时TTL、24小时失败退避和15秒预算；旧原始CSV只在JSON缺失时作为只读兼容来源，不再重复联网或写入。技术图继续按 `available_at/historical_cutoff` 使用事件，十年图继续使用历史修订序列，基金业务无变化。
 
 小电脑Service在北京时间11:30–23:50（含23:50整分钟）的首次有效触发中执行 `strategy/gdp.py --no-show`，成功更新指定PNG后当天跳过；失败或没有新PNG时，后续触发可重试。`tools/service_daily_step.py` 使用本机进程锁及 `cache/service_daily_steps/` 成功日期防止重复运行；此目录不参与Git同步。已启动的任务允许完成。主机/GitHub不自动运行该图；这沿用Service触发机制，不新增独立定时任务。
 
@@ -821,6 +821,12 @@ EBS只在第一行Price面板显示：严格高于上轨为底部绿色 `#2F9E44
 邮件图片统一使用短中文名称，原始output路径不变。`tools/configs/email_image_name_configs.py` 维护名称，例如“深成指ETF.png”“中证2000ETF.png”“股债利差.png”“海外基金盘前.png”；动态图采用“持仓_012922.png”“限购_007844.png”“地区分布_3.png”。未知图片按简短步骤名和序号命名，重名追加序号；内嵌图加短标题、附件使用同名，发图顺序保持原样。`send_email/build_message` 新增可选 `image_names` 参数，与 `image_paths` 一一对应；未传时保持原文件名。
 
 ### 美股50D增量修复诊断
+
+广度读取、SMA及公共展示组件的去冗余验收见 [2026-10-08优化报告](docs/audits/2026-10-08-optimization.md)。
+每轮 `BreadthStore.read_scope()` 复用价格表/成员文档，价格或成员变化后失效；计算与完成验收共享
+带文件版本的结果。只有正式结果与维护任务均完成才跳过网络和SMA，95%门槛及正式值保护不变。
+公共进度辅助函数位于 `tools/console_display.py`，基准表位于 `tools/benchmark_table.py`；
+四种Price色带只共享日期格边界和Rectangle几何，指标状态及布局仍独立。旧Composite仅审计，未删除。
 
 默认总预算300秒（`--budget`可覆盖），按缺口证券数分配市场预算，普通美股源最多使用网络份额的60%，余量给富途。Yahoo/东方财富/富途同源仅请求缺口与重叠校验区间，换源或复权变化须获取完整窗口；三个普通美股源均用可终止进程约束总请求时间（HTTP连接3秒/读取最多8秒），以免慢速响应拖住回退；新浪接口只能返回全量，沿用原AKShare解析并用独立进程限制15秒，不能称为网络增量下载。
 

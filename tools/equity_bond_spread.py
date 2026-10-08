@@ -1,10 +1,8 @@
 """复用策略正式EBS；展示层只在Price面板绘制极端状态带。"""
 from pathlib import Path
 
-import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
-from matplotlib.patches import Rectangle
 
 from tools.configs.equity_bond_spread_configs import (
     EBS_BAND_ALPHA, EBS_HIGH_COLOR, EBS_LOW_COLOR, EBS_HISTORY_ROWS, EBS_HISTORY_YEARS,
@@ -35,21 +33,16 @@ def draw_ebs_state_band(ax, price_df, state_df, *, output_dpi=None, include_ene=
     if (price_df is None or price_df.empty or "date" not in price_df
             or state_df is None or state_df.empty or not {"date", "state"}.issubset(state_df)):
         return []
-    dates = pd.to_datetime(price_df["date"], errors="coerce").dt.normalize().dropna().drop_duplicates().sort_values()
+    from tools.market_breadth import (price_band_layout, add_state_band_label,
+                                     state_band_dates, state_band_edges, add_price_state_band)
+    dates = state_band_dates(price_df)
     states = state_df[["date", "state"]].copy()
     states["date"] = pd.to_datetime(states["date"], errors="coerce").dt.normalize()
     states = states.dropna(subset=["date"]).drop_duplicates("date", keep="last")
     aligned = pd.DataFrame({"date": dates}).merge(states, on="date", how="left")
     if aligned.empty:
         return []
-    x = mdates.date2num(aligned["date"].to_numpy())
-    if len(x) == 1:
-        left, right = x-.5, x+.5
-    else:
-        mid = (x[:-1]+x[1:])/2
-        left = np.r_[x[0]-(mid[0]-x[0]), mid]
-        right = np.r_[mid, x[-1]+(x[-1]-mid[-1])]
-    from tools.market_breadth import price_band_layout, add_state_band_label
+    left,right = state_band_edges(aligned['date'])
     layout = price_band_layout(ax, output_dpi, include_ebs=True, include_ene=include_ene)
     styles = {"HIGH": (EBS_HIGH_COLOR, layout["ebs_high"]), "LOW": (EBS_LOW_COLOR, layout["ebs_low"])}
     runs = [value if value in styles else None for value in aligned["state"]]
@@ -59,12 +52,8 @@ def draw_ebs_state_band(ax, price_df, state_df, *, output_dpi=None, include_ene=
             continue
         if runs[start] is not None:
             color, bottom = styles[runs[start]]
-            patch = Rectangle((left[start], bottom), right[end-1]-left[start], layout["height"],
-                              transform=ax.get_xaxis_transform(), facecolor=color, edgecolor="none",
-                              alpha=EBS_BAND_ALPHA, zorder=2.5, clip_on=True)
-            patch.set_gid("ebs-state-band")
-            # add_artist不更新dataLim，价格范围和BOLL/信号保持原样。
-            ax.add_artist(patch)
+            patch = add_price_state_band(ax,left[start],right[end-1],bottom,layout['height'],color,
+                                         alpha=EBS_BAND_ALPHA,gid='ebs-state-band')
             patches.append(patch)
             add_state_band_label(ax, patch, "EBS", output_dpi=output_dpi)
         start = end

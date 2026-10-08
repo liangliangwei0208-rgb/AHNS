@@ -4,7 +4,6 @@ from functools import lru_cache
 import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
-from matplotlib.patches import Rectangle
 
 from tools.configs.ene_configs import (
     ENE_WINDOW, ENE_UPPER_PCT, ENE_LOWER_PCT,
@@ -112,21 +111,16 @@ def draw_ene_state_band(ax, price_df, ene_frame, *, output_dpi=None, include_ebs
             or ene_frame is None or ene_frame.empty
             or not {"date", "ene_state", "ene_label"}.issubset(ene_frame)):
         return []
-    dates = pd.to_datetime(price_df.date, errors="coerce").dt.normalize().dropna().drop_duplicates().sort_values()
+    from tools.market_breadth import (price_band_layout, add_state_band_label,
+                                     state_band_dates, state_band_edges, add_price_state_band)
+    dates = state_band_dates(price_df)
     states = ene_frame[["date", "ene_state", "ene_label"]].copy()
     states["date"] = pd.to_datetime(states.date, errors="coerce").dt.normalize()
     states = states.dropna(subset=["date"]).drop_duplicates("date", keep="last")
     daily = pd.DataFrame({"date": dates}).merge(states, on="date", how="left")
     if daily.empty:
         return []
-    x = mdates.date2num(daily.date.to_numpy())
-    if len(x) == 1:
-        left, right = x - .5, x + .5
-    else:
-        middle = (x[:-1] + x[1:]) / 2
-        left = np.r_[x[0] - (middle[0]-x[0]), middle]
-        right = np.r_[middle, x[-1] + (x[-1]-middle[-1])]
-    from tools.market_breadth import price_band_layout, add_state_band_label
+    left,right = state_band_edges(daily.date)
     layout = price_band_layout(ax, output_dpi, include_ebs=include_ebs, include_ene=True)
     styles = {"HIGH": (ENE_HIGH_COLOR, layout["ene_high"]), "LOW": (ENE_LOW_COLOR, layout["ene_low"])}
     weeks = daily.date.dt.to_period("W-FRI").dt.end_time.dt.normalize()
@@ -144,12 +138,8 @@ def draw_ene_state_band(ax, price_df, ene_frame, *, output_dpi=None, include_ebs
             # 即使两个缺口两侧的状态相同，也不能把没有行情的整周涂满。
             band_left = max(left[start], mdates.date2num(weeks.iloc[start]-pd.Timedelta(days=4.5)))
             band_right = min(right[end-1], mdates.date2num(weeks.iloc[end-1]+pd.Timedelta(days=.5)))
-            band = Rectangle((band_left, bottom), band_right-band_left, layout["height"],
-                             transform=ax.get_xaxis_transform(), facecolor=color, edgecolor="none",
-                             alpha=ENE_BAND_ALPHA, zorder=2.5, clip_on=True)
-            band.set_gid("ene-state-band")
-            # add_artist 不更新 dataLim，绝不改变价格/BOLL/信号的坐标范围。
-            ax.add_artist(band)
+            band = add_price_state_band(ax,band_left,band_right,bottom,layout['height'],color,
+                                        alpha=ENE_BAND_ALPHA,gid='ene-state-band')
             patches.append((band, label))
         start = end
     occupied = []

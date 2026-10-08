@@ -1,0 +1,29 @@
+{
+  "nasdaq100": {
+    "rows": 7,
+    "exact_match": true
+  },
+  "dow": {
+    "rows": 7,
+    "exact_match": true
+  },
+  "csi2000": {
+    "rows": 2,
+    "exact_match": true
+  },
+  "shenzhen": {
+    "rows": 2,
+    "exact_match": true
+  },
+  "dividend": {
+    "rows": 2,
+    "exact_match": true
+  },
+  "macro": {
+    "rows": 224,
+    "exact_match": true,
+    "latest_ratio": 0.8051410473348942,
+    "event_count": 225,
+    "historical_cutoff": "2026-09-30T10:55:59.345933+00:00"
+  }
+}

@@ -578,11 +578,9 @@ def draw_vix_state_band(
     ):
         return None
 
-    price_dates = price_df.loc[:, ["date"]].copy()
-    price_dates["date"] = pd.to_datetime(price_dates["date"], errors="coerce")
-    price_dates = price_dates.dropna(subset=["date"])
-    price_dates["date"] = price_dates["date"].dt.normalize()
-    price_dates = price_dates.drop_duplicates(subset=["date"], keep="last").sort_values("date")
+    from tools.market_breadth import (price_band_layout, add_state_band_label,
+                                     state_band_dates, state_band_edges, add_price_state_band)
+    price_dates = pd.DataFrame({"date": state_band_dates(price_df)})
 
     vix_state = vix_state_df.loc[:, ["date", "VIX_MA_SPREAD"]].copy()
     vix_state["date"] = pd.to_datetime(vix_state["date"], errors="coerce")
@@ -608,20 +606,7 @@ def draw_vix_state_band(
     if data.empty:
         return None
 
-    x_values = mdates.date2num(data["date"].to_numpy())
-    if len(x_values) == 1:
-        left_edges = x_values - 0.5
-        right_edges = x_values + 0.5
-    else:
-        midpoints = (x_values[:-1] + x_values[1:]) / 2
-        left_edges = np.empty(len(x_values), dtype=float)
-        right_edges = np.empty(len(x_values), dtype=float)
-        left_edges[0] = x_values[0] - (midpoints[0] - x_values[0])
-        left_edges[1:] = midpoints
-        right_edges[:-1] = midpoints
-        right_edges[-1] = x_values[-1] + (x_values[-1] - midpoints[-1])
-
-    from tools.market_breadth import price_band_layout, add_state_band_label
+    left_edges, right_edges = state_band_edges(data['date'])
     layout = price_band_layout(axis, output_dpi, include_ebs=include_ebs, include_ene=include_ene)
     # VIX正负极端分居两侧，与同侧50D留约2像素间隔。
     state_bands = []
@@ -654,19 +639,9 @@ def draw_vix_state_band(
     patches = []
     for start_index, end_index, color, band_bottom in color_runs:
         # x 使用数据坐标、y 使用 axes fraction，顶/底色带不挤占价格坐标空间。
-        patch = Rectangle(
-            (left_edges[start_index], band_bottom),
-            right_edges[end_index] - left_edges[start_index],
-            layout["height"],
-            transform=axis.get_xaxis_transform(),
-            facecolor=color,
-            edgecolor="none",
-            alpha=VIX_STATE_BAND_ALPHA,
-            zorder=2.4,
-            clip_on=True,
-        )
-        # add_artist 不更新 dataLim，价格图的 x/y 自动缩放保持原样。
-        axis.add_artist(patch)
+        patch = add_price_state_band(axis,left_edges[start_index],right_edges[end_index],
+                                     band_bottom,layout['height'],color,
+                                     alpha=VIX_STATE_BAND_ALPHA,zorder=2.4)
         patches.append(patch)
     # 每一段够宽的状态带都在右端标V；短段只保留颜色。
     for band in patches:

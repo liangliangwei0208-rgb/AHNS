@@ -31,7 +31,7 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(len(result[0]),180)
     def test_collection_failure_does_not_stop_existing_price_charts(self):
         import stock_analysis
-        with patch("tools.breadth_engine.refresh_for_charts",side_effect=RuntimeError("OpenD unavailable")),patch("tools.a_share_valuation.load_valuation",return_value=pd.DataFrame()),patch.object(stock_analysis,"_run_rsi_analysis") as run,patch.object(stock_analysis,"build_change_summary_text",return_value="ok"):
+        with patch("tools.breadth_engine.refresh_for_charts",side_effect=RuntimeError("OpenD unavailable")),patch("tools.a_share_valuation.load_valuation",return_value=pd.DataFrame()),patch("tools.equity_bond_spread.load_ebs_states",return_value=pd.DataFrame()),patch.object(stock_analysis,"_run_rsi_analysis") as run,patch.object(stock_analysis,"build_change_summary_text",return_value="ok"):
             text,images=stock_analysis.build_stock_analysis()
         self.assertEqual(text,"ok")
         self.assertEqual(run.call_count,len(RSI_ANALYSIS_CONFIGS))

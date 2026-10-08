@@ -194,12 +194,13 @@ def _as_events(doc):
     return frame
 
 
-def load_valuation(cache_dir="cache", *, now=None, fetcher=None, refresh=True):
-    """有效缓存优先；按来源 TTL 刷新，失败不阻断出图。返回绘图事件表。"""
+def load_macro_data(cache_dir="cache", *, now=None, fetcher=None, refresh=True):
+    """共享原始数据入口：返回市值、GDP和事件表；两种历史口径各自使用。"""
     stamp = _utc(now)
     cache_dir = Path(cache_dir)
     path = cache_dir / MC_GDP_CACHE_FILENAME
     doc = {"version": 1, "unit": "亿元", "sources": {}, "history": [], "observations": []}
+    cap, gdp = pd.DataFrame(), pd.DataFrame()
     try:
         if path.exists():
             loaded = json.loads(path.read_text(encoding="utf-8"))
@@ -251,6 +252,9 @@ def load_valuation(cache_dir="cache", *, now=None, fetcher=None, refresh=True):
                             raise ValueError("金额出现数量级变化，拒绝疑似单位漂移")
                     source.update(rows=_records(normalized), source=SOURCE_URLS[key], unit="亿元",
                                   last_success_at=stamp.isoformat(), error=None)
+                    if not previous.empty and normalized.period_date.max()==previous.period_date.max():
+                        print(f"[MC/GDP] {key} request verified; latest_period_date="
+                              f"{normalized.period_date.max():%Y-%m-%d}; statistical period unchanged")
                 except (ValueError, TypeError, KeyError, IndexError) as error:
                     source["error"] = str(error)
                     print(f"[WARN] MC/GDP {key} 刷新失败，保留可信旧值: {error}")
@@ -289,14 +293,19 @@ def load_valuation(cache_dir="cache", *, now=None, fetcher=None, refresh=True):
             latest = doc["observations"][-1]
             print(f"[MC/GDP] cap={latest['period_date']} GDP={latest['gdp_period']} "
                   f"ratio={latest['ratio']:.6f} {classify_ratio(latest['ratio'])}; " + "; ".join(age_text))
-        return frame
+        return cap, gdp, frame
     except Exception as error:
         # 估值是可选图层，缓存损坏/权限异常均不能拖垮股票图或基金总入口。
         print(f"[WARN] MC/GDP unavailable: {error}")
         try:
-            return _as_events(doc)
+            return cap, gdp, _as_events(doc)
         except Exception:
-            return pd.DataFrame(columns=_EVENT_COLUMNS)
+            return cap, gdp, pd.DataFrame(columns=_EVENT_COLUMNS)
+
+
+def load_valuation(cache_dir="cache", *, now=None, fetcher=None, refresh=True):
+    """兼容技术图接口；共享刷新仍维护原历史基线及首次观测时间。"""
+    return load_macro_data(cache_dir, now=now, fetcher=fetcher, refresh=refresh)[2]
 
 
 def align_valuation(frame, dates, *, now=None):

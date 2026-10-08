@@ -52,6 +52,27 @@ _VERBOSE_VALUES = {"2", "full", "verbose", "debug", "detail", "details"}
 _NUMERIC_TABLE_LABELS = {"模型估算观察", "盘前模型观察", "盘中模型观察", "盘后模型观察", "夜盘模型观察"}
 
 
+def progress_status(progress, message: str) -> None:
+    """进度显示失败不影响正式估算；各观察入口共用原异常边界。"""
+    if progress is None:
+        return
+    try:
+        progress.set_status(str(message))
+    except Exception:
+        return
+
+
+def format_progress_return_pct(value) -> str:
+    # 延迟导入，纯控制台流程不因该可选格式化函数增加 pandas 启动成本。
+    import pandas as pd
+    try:
+        if value is None or pd.isna(value):
+            return "无涨跌幅"
+        return f"{float(value):+.4f}%"
+    except Exception:
+        return "无涨跌幅"
+
+
 def rich_enabled() -> bool:
     if progress_disabled():
         return False

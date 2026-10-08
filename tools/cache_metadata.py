@@ -29,6 +29,7 @@ BREADTH_CACHE_DOCUMENTATION = (BREADTH_CACHE_DOCUMENTATION
 
 # 本机尝试顺序不是行情事实；失效或删除后仍从证券价格分片重建缺口队列。
 BREADTH_CACHE_DOCUMENTATION += "\n- 默认刷新总预算300秒；全部美股未完成证券可进入富途回退，保留10只历史额度。普通源失败或旧响应不算成功。\n- `market_breadth_local/<市场>_attempts.json` 仅记录本机尝试顺序；未完成任务由真实价格分片重建，不同步此文件。\n- `output/market_breadth_diagnostics.json` 每批原子保存进度。正式目标日期未完成时报告stale，临时快照不算正式完成。\n"
+BREADTH_CACHE_DOCUMENTATION += "\n- 本轮读取作用域复用价格表和元数据；写入或外部文件版本变化后失效，处理结束释放，不增加持久化中间矩阵。完成验收可复用同一成员版本和价格文件版本的计算结果。\n- 仅当正式结果及维护任务均已完成时跳过下载和SMA计算；缺口、临时价核验、调入预热、到期成员核验和显式修复仍执行。旧Composite分片保留；审计候选不等于可删除。\n"
 
 CACHE_INFO_VERSION = 1
 CACHE_README_FILENAME = "README.md"
@@ -96,9 +97,9 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
         "data_shape": "JSON key-map；不内嵌 _cache_info，避免被业务遍历误读。",
     },
     "a_share_mc_gdp.json": {
-        "purpose": "仅用于159943、560220走势图的沪深市价总值/中国名义GDP(TTM)右轴阶梯曲线及最新状态。",
-        "producer": "tools/a_share_valuation.py，stock_analysis整轮共享一次加载。",
-        "consumers": ["tools/rsi_data.py"],
+        "purpose": "沪深市值与名义GDP共享原始数据及可用时间事件；供技术图和独立十年图复用。",
+        "producer": "tools/a_share_valuation.py load_macro_data；stock_analysis整轮共享一次加载。",
+        "consumers": ["tools/rsi_data.py（可用时间事件）", "strategy/gdp.py（历史修订序列）"],
         "refresh_policy": "市值48小时，GDP96小时；失败24小时退避；宏观子进程总预算15秒。",
         "retention_policy": "保留来源历史、固定初始化修订历史及后续观测；不批量删除文件。",
         "data_shape": "version/unit/sources/history/observations/historical_cutoff容器；金额亿元，比例不缩放。",
@@ -109,6 +110,22 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "来源异常继续用可信旧值，无值则N/A；不参与基金收益预估、benchmark或实时基金观察。",
             "strategy/gdp.py旧CSV只读校验迁入；不更新其文件，不相信旧派生ratio。",
         ],
+    },
+    "a_share_market_cap_monthly.csv": {
+        "purpose": "旧沪深月度市价总值原始缓存，只读兼容来源。",
+        "producer": "历史strategy/gdp.py；当前不再写入。",
+        "consumers": ["tools/a_share_valuation.py（仅JSON缺失时校验迁入）"],
+        "refresh_policy": "不刷新此CSV；新数据统一写a_share_mc_gdp.json。",
+        "retention_policy": "保留原文件，不自动删除。",
+        "data_shape": "CSV：date,sse_market_cap_yi,szse_market_cap_yi,market_cap_yi；亿元。",
+    },
+    "china_nominal_gdp_quarterly.csv": {
+        "purpose": "旧中国名义季度GDP原始缓存，只读兼容来源。",
+        "producer": "历史strategy/gdp.py；当前不再写入。",
+        "consumers": ["tools/a_share_valuation.py（仅JSON缺失时校验迁入）"],
+        "refresh_policy": "不刷新此CSV；新数据统一写a_share_mc_gdp.json。",
+        "retention_policy": "保留原文件，不自动删除。",
+        "data_shape": "CSV：date,gdp_ytd_yi及原派生字段；重新验证累计值与连续四季TTM。",
     },
     "fund_estimate_return_cache.json": {
         "purpose": "海外/全球基金每日估算收益和海外基准结果缓存，供 safe 图、节假日累计图和拆解工具只读复用。",

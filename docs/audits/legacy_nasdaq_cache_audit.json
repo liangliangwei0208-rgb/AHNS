@@ -1,0 +1,16 @@
+{
+  "total_price_files": 5969,
+  "us_price_files": 3426,
+  "us_bytes": 51342327,
+  "current_retained": 122,
+  "all_retained": 122,
+  "history_only": 0,
+  "pending_or_future": 0,
+  "task_references": 121,
+  "composite_referenced": 3405,
+  "candidate_files": 3304,
+  "candidate_bytes": 49549275,
+  "all_candidates_still_composite_referenced": true,
+  "orphan_files": 0,
+  "action": "audit only; no file moved or deleted"
+}

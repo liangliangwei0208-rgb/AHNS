@@ -1,0 +1,292 @@
+{
+  "output/dow_jones_analysis.png": {
+    "axes": 2,
+    "price_ylim": [
+      41309.12227911049,
+      57154.06088809738
+    ],
+    "rsi_ylim": [
+      0.0,
+      100.0
+    ],
+    "right_ylim": null,
+    "labels": [
+      "▲",
+      "▼",
+      "▼",
+      "V",
+      "50D",
+      "R: 40.7",
+      "50D: 40.0%"
+    ],
+    "legends": [
+      [
+        "R",
+        "50D"
+      ]
+    ],
+    "band_counts": {
+      "ene-state-band": 0,
+      "ebs-state-band": 0
+    }
+  },
+  "output/nasdaq_analysis.png": {
+    "axes": 2,
+    "price_ylim": [
+      19833.797148447255,
+      34393.17879743719
+    ],
+    "rsi_ylim": [
+      0.0,
+      100.0
+    ],
+    "right_ylim": null,
+    "labels": [
+      "▲",
+      "▲",
+      "▲",
+      "▲",
+      "▼",
+      "▼",
+      "★",
+      "★",
+      "★",
+      "V",
+      "50D",
+      "E0.4",
+      "E0.7",
+      "E2.8",
+      "R: 73.3",
+      "50D: 52.0%",
+      "历史50D按2026-09-29成分回算"
+    ],
+    "legends": [
+      [
+        "R",
+        "50D"
+      ]
+    ],
+    "band_counts": {
+      "ene-state-band": 3,
+      "ebs-state-band": 0
+    }
+  },
+  "output/honglidibo_analysis.png": {
+    "axes": 2,
+    "price_ylim": [
+      1.0109838370059747,
+      1.2877587540501303
+    ],
+    "rsi_ylim": [
+      0.0,
+      100.0
+    ],
+    "right_ylim": null,
+    "labels": [
+      "▲",
+      "▼",
+      "▼",
+      "▼",
+      "★",
+      "★",
+      "V",
+      "50D",
+      "50D",
+      "50D",
+      "50D",
+      "50D",
+      "50D",
+      "50D",
+      "R: 57.4",
+      "50D: 58.0% · 09-30收"
+    ],
+    "legends": [
+      [
+        "R",
+        "50D"
+      ]
+    ],
+    "band_counts": {
+      "ene-state-band": 0,
+      "ebs-state-band": 0
+    }
+  },
+  "output/germany_dax.png": {
+    "axes": 2,
+    "price_ylim": [
+      1.0867178041812757,
+      1.5569924039875558
+    ],
+    "rsi_ylim": [
+      0.0,
+      100.0
+    ],
+    "right_ylim": null,
+    "labels": [
+      "▼",
+      "▼",
+      "▼",
+      "V",
+      "E0.1",
+      "R: 38.7"
+    ],
+    "legends": [],
+    "band_counts": {
+      "ene-state-band": 1,
+      "ebs-state-band": 0
+    }
+  },
+  "output/shenzhen_component_analysis.png": {
+    "axes": 3,
+    "price_ylim": [
+      0.7937095645034509,
+      2.01827925207688
+    ],
+    "rsi_ylim": [
+      0.0,
+      100.0
+    ],
+    "right_ylim": [
+      0.52,
+      0.8569557962626166
+    ],
+    "labels": [
+      "▲",
+      "▲",
+      "▲",
+      "▲",
+      "▲",
+      "▲",
+      "▲",
+      "▲",
+      "▲",
+      "▼",
+      "★",
+      "★",
+      "★",
+      "★",
+      "★",
+      "★",
+      "★",
+      "★",
+      "V",
+      "50D",
+      "50D",
+      "50D",
+      "E0.3",
+      "E1.9",
+      "E0.2",
+      "R: 26.4",
+      "50D: 22.5% · 09-30收",
+      "MC/GDP: N/A",
+      "MC/GDP history: historical revised series",
+      "OVER",
+      "OVER"
+    ],
+    "legends": [
+      [
+        "R",
+        "50D",
+        "MC/GDP"
+      ]
+    ],
+    "band_counts": {
+      "ene-state-band": 3,
+      "ebs-state-band": 0
+    }
+  },
+  "output/csi_2000_analysis.png": {
+    "axes": 3,
+    "price_ylim": [
+      0.8635518155303873,
+      1.85420621158086
+    ],
+    "rsi_ylim": [
+      0.0,
+      100.0
+    ],
+    "right_ylim": [
+      0.52,
+      0.8569557962626166
+    ],
+    "labels": [
+      "▲",
+      "▲",
+      "▲",
+      "▲",
+      "▲",
+      "▲",
+      "▼",
+      "▼",
+      "★",
+      "★",
+      "★",
+      "★",
+      "★",
+      "★",
+      "★",
+      "V",
+      "50D",
+      "50D",
+      "50D",
+      "50D",
+      "50D",
+      "E3.3",
+      "E7.6",
+      "E3.3",
+      "E0.4",
+      "R: 45.4",
+      "50D: 52.8% · 09-30收",
+      "MC/GDP: N/A",
+      "MC/GDP history: historical revised series",
+      "OVER",
+      "OVER"
+    ],
+    "legends": [
+      [
+        "R",
+        "50D",
+        "MC/GDP"
+      ]
+    ],
+    "band_counts": {
+      "ene-state-band": 4,
+      "ebs-state-band": 0
+    }
+  },
+  "output\\a_share_market_cap_gdp_10y.png": {
+    "axes": 2,
+    "price_ylim": [
+      0.4,
+      0.9
+    ],
+    "rsi_ylim": [
+      6625.286999999999,
+      16836.653
+    ],
+    "right_ylim": null,
+    "labels": [
+      "高估",
+      "低估",
+      "极端低估",
+      "0.765",
+      "0.60",
+      "0.55",
+      "0.805",
+      "12,888"
+    ],
+    "legends": [],
+    "band_counts": {
+      "ene-state-band": 0,
+      "ebs-state-band": 0
+    }
+  },
+  "macro": {
+    "latest_ratio": 0.8051410473348942,
+    "event_count": 225,
+    "historical_cutoff": "2026-09-30T10:55:59.345933+00:00",
+    "protected_files": 6009,
+    "http_requests": 0,
+    "business_cache_changes": 0
+  }
+}

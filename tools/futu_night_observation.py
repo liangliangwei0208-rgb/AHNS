@@ -34,6 +34,8 @@ from tools.configs.futu_night_configs import (
 )
 from tools.configs.premarket_configs import PREMARKET_FUND_ESTIMATION_METHOD_MAP
 from tools.console_display import fund_progress, print_dataframe_table, print_stage
+from tools.console_display import progress_status as _progress_status
+from tools.console_display import format_progress_return_pct as _format_progress_return_pct
 from tools.fund_universe import HAIWAI_FUND_CODES
 from tools.futu_night_quotes import (
     FutuNightQuoteProvider,
@@ -101,22 +103,8 @@ FUTU_NIGHT_SESSION = ObservationSessionConfig(
 PURCHASE_LIMIT_COLUMN = "模型观察基金信息"
 
 
-def _progress_status(progress, message: str) -> None:
-    if progress is None:
-        return
-    try:
-        progress.set_status(str(message))
-    except Exception:
-        return
 
 
-def _format_progress_return_pct(value: Any) -> str:
-    try:
-        if value is None or pd.isna(value):
-            return "无涨跌幅"
-        return f"{float(value):+.4f}%"
-    except Exception:
-        return "无涨跌幅"
 
 
 def _print_night_estimate_table(display_df: pd.DataFrame, *, generated_at: datetime) -> None:

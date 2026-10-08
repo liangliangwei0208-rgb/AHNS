@@ -71,6 +71,8 @@ from tools.configs.premarket_configs import (
 )
 from tools.configs.safe_image_style_configs import SAFE_TITLE_STYLE, safe_daily_table_kwargs
 from tools.console_display import fund_progress, print_dataframe_table
+from tools.console_display import progress_status as _progress_status
+from tools.console_display import format_progress_return_pct as _format_progress_return_pct
 from tools.fund_table_image import save_fund_estimate_table_image
 from tools.fund_universe import HAIWAI_FUND_CODES
 from tools.get_top10_holdings import (
@@ -130,22 +132,8 @@ PREMARKET_QUOTE_CACHE_FIELDS = (
 )
 
 
-def _progress_status(progress, message: str) -> None:
-    if progress is None:
-        return
-    try:
-        progress.set_status(str(message))
-    except Exception:
-        return
 
 
-def _format_progress_return_pct(value: Any) -> str:
-    try:
-        if value is None or pd.isna(value):
-            return "无涨跌幅"
-        return f"{float(value):+.4f}%"
-    except Exception:
-        return "无涨跌幅"
 
 
 def _print_observation_estimate_table(

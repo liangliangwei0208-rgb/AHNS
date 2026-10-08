@@ -27,7 +27,11 @@ from __future__ import annotations
 
 import re
 import argparse
+import sys
 from pathlib import Path
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import akshare as ak
 import numpy as np
@@ -140,44 +144,27 @@ def read_cache(path: Path) -> pd.DataFrame | None:
 # 1. 上海 + 深圳市场总市值
 # ============================================================
 
+def _macro_frames():
+    from tools.a_share_valuation import load_macro_data, normalize_market_cap, normalize_gdp
+    cap, gdp, _ = load_macro_data(cache_dir=CACHE_DIR)
+    if cap.empty or gdp.empty:
+        raise RuntimeError("沪深市值/GDP共享缓存无有效数据")
+    # JSON派生列有序列化舍入。复用标准化函数从原始分量重建，保持原图
+    # 浮点加法、差分和滚动求和顺序；不改技术图已经记录的可用时间事件。
+    cap = normalize_market_cap(cap.rename(columns={"period_date":"数据日期",
+        "sse_market_cap_yi":"市价总值-上海", "szse_market_cap_yi":"市价总值-深圳"}))
+    gdp = normalize_gdp(gdp.rename(columns={"period_date":"季度",
+        "gdp_ytd_yi":"国内生产总值-绝对值"}))
+    cap = cap.rename(columns={"period_date": "date"})[
+        ["date", "sse_market_cap_yi", "szse_market_cap_yi", "market_cap_yi"]].copy()
+    gdp = gdp.rename(columns={"period_date": "date"})[
+        ["date", "year", "quarter", "gdp_ytd_yi", "gdp_single_quarter_yi", "gdp_ttm_yi"]]
+    return cap, gdp.dropna(subset=["gdp_ttm_yi"]).copy()
+
+
 def fetch_market_cap_monthly() -> pd.DataFrame:
-    try:
-        raw = ak.macro_china_stock_market_cap().copy()
-
-        required = {"数据日期", "市价总值-上海", "市价总值-深圳"}
-        missing = required - set(raw.columns)
-        if missing:
-            raise RuntimeError(
-                f"市值接口字段发生变化，缺少 {sorted(missing)}；"
-                f"实际字段={raw.columns.tolist()}"
-            )
-
-        out = pd.DataFrame()
-        out["date"] = raw["数据日期"].map(parse_month)
-        out["sse_market_cap_yi"] = to_numeric(raw["市价总值-上海"])
-        out["szse_market_cap_yi"] = to_numeric(raw["市价总值-深圳"])
-        out["market_cap_yi"] = (
-            out["sse_market_cap_yi"] + out["szse_market_cap_yi"]
-        )
-
-        out = (
-            out.dropna(subset=["date", "market_cap_yi"])
-            .sort_values("date")
-            .drop_duplicates("date", keep="last")
-            .reset_index(drop=True)
-        )
-
-        out.to_csv(CAP_CACHE, index=False, encoding="utf-8-sig")
-        return out
-
-    except Exception as error:
-        cached = read_cache(CAP_CACHE)
-        if cached is None:
-            raise RuntimeError(f"沪深总市值获取失败且没有缓存：{error}") from error
-
-        cached["date"] = pd.to_datetime(cached["date"], errors="coerce")
-        print(f"[WARN] 市值接口失败，使用缓存：{error}")
-        return cached.dropna(subset=["date"]).sort_values("date")
+    """保留旧入口和列结构，原始数据统一从共享缓存加载。"""
+    return _macro_frames()[0]
 
 
 # ============================================================
@@ -211,89 +198,8 @@ def parse_quarter(value) -> tuple[int, int] | None:
 
 
 def fetch_gdp_ttm() -> pd.DataFrame:
-    try:
-        raw = ak.macro_china_gdp().copy()
-
-        required = {"季度", "国内生产总值-绝对值"}
-        missing = required - set(raw.columns)
-        if missing:
-            raise RuntimeError(
-                f"GDP接口字段发生变化，缺少 {sorted(missing)}；"
-                f"实际字段={raw.columns.tolist()}"
-            )
-
-        parsed = raw["季度"].map(parse_quarter)
-
-        out = pd.DataFrame()
-        out["year"] = parsed.map(lambda x: x[0] if x else np.nan)
-        out["quarter"] = parsed.map(lambda x: x[1] if x else np.nan)
-        out["gdp_ytd_yi"] = to_numeric(raw["国内生产总值-绝对值"])
-
-        out = (
-            out.dropna(subset=["year", "quarter", "gdp_ytd_yi"])
-            .astype({"year": int, "quarter": int})
-            .sort_values(["year", "quarter"])
-            .drop_duplicates(["year", "quarter"], keep="last")
-            .reset_index(drop=True)
-        )
-
-        # AKShare此字段为年内累计GDP：
-        # Q1 = Q1
-        # Q2单季 = Q1-Q2累计差
-        # Q3单季 = Q1-Q3累计差
-        # Q4单季 = 全年累计 - Q1-Q3累计
-        out["previous_ytd"] = out.groupby("year")["gdp_ytd_yi"].shift(1)
-        out["gdp_single_quarter_yi"] = np.where(
-            out["quarter"].eq(1),
-            out["gdp_ytd_yi"],
-            out["gdp_ytd_yi"] - out["previous_ytd"],
-        )
-
-        bad = out["gdp_single_quarter_yi"] <= 0
-        if bad.any():
-            raise RuntimeError(
-                "GDP单季度值出现非正数，可能是接口字段或口径变化：\n"
-                + out.loc[
-                    bad,
-                    ["year", "quarter", "gdp_ytd_yi", "gdp_single_quarter_yi"],
-                ].to_string(index=False)
-            )
-
-        out["gdp_ttm_yi"] = (
-            out["gdp_single_quarter_yi"]
-            .rolling(4, min_periods=4)
-            .sum()
-        )
-
-        period = pd.PeriodIndex(
-            year=out["year"],
-            quarter=out["quarter"],
-            freq="Q",
-        )
-        out["date"] = period.to_timestamp(how="end").normalize()
-
-        out = out[
-            [
-                "date",
-                "year",
-                "quarter",
-                "gdp_ytd_yi",
-                "gdp_single_quarter_yi",
-                "gdp_ttm_yi",
-            ]
-        ].dropna(subset=["gdp_ttm_yi"])
-
-        out.to_csv(GDP_CACHE, index=False, encoding="utf-8-sig")
-        return out
-
-    except Exception as error:
-        cached = read_cache(GDP_CACHE)
-        if cached is None:
-            raise RuntimeError(f"GDP获取失败且没有缓存：{error}") from error
-
-        cached["date"] = pd.to_datetime(cached["date"], errors="coerce")
-        print(f"[WARN] GDP接口失败，使用缓存：{error}")
-        return cached.dropna(subset=["date"]).sort_values("date")
+    """累计转单季及连续四季 TTM 的校验复用共享实现。"""
+    return _macro_frames()[1]
 
 
 # ============================================================
@@ -381,19 +287,13 @@ def fetch_shenzhen_component(start_date: pd.Timestamp, end_date: pd.Timestamp) -
 # ============================================================
 
 def build_market_cap_gdp_ratio() -> pd.DataFrame:
-    cap = fetch_market_cap_monthly()
-    gdp = fetch_gdp_ttm()
-
-    out = pd.merge_asof(
-        cap.sort_values("date"),
-        gdp[["date", "gdp_ttm_yi"]].sort_values("date"),
-        on="date",
-        direction="backward",
-    )
-
+    # 一次加载市值和GDP；不把技术图的 observed 事件用作修订历史。
+    cap, gdp = _macro_frames()
+    out = pd.merge_asof(cap.sort_values("date"),
+                        gdp[["date", "gdp_ttm_yi"]].sort_values("date"),
+                        on="date", direction="backward")
     out = out.dropna(subset=["gdp_ttm_yi"]).copy()
     out["market_cap_to_gdp"] = out["market_cap_yi"] / out["gdp_ttm_yi"]
-
     return out
 
 

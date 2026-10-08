@@ -123,43 +123,51 @@ def main(argv=None):
             except subprocess.TimeoutExpired:
                 print("广度预算已用完，已保存的证券可供下次续跑。",flush=True);return 2
     from tools.breadth_engine import refresh_market,market_clock,price_download_plan
-    deadline=time.monotonic()+a.budget-2;reports=[]
-    source_health=SourceHealth();shared_quotes={};futu=FutuBreadth()
-    report_path=a.report_path
-    report_path.parent.mkdir(parents=True,exist_ok=True)
-    def save_progress(report):
-        # 批次原子保存；父进程硬超时仍能读到最后完成批次及剩余任务。
-        data=reports+[report]
-        temp=report_path.with_suffix('.tmp')
-        temp.write_text(json.dumps(data,ensure_ascii=False,indent=2,allow_nan=False),encoding='utf-8')
-        os.replace(temp,report_path)
-    weights={}
-    for key in a.market:
-        clock=market_clock(BREADTH_MARKETS[key]['market']);member=store.members(key,clock['day'])
-        plan=price_download_plan(store,key,member,clock['day'],clock['complete_day'],a.bootstrap,a.repair,True) if member else {'pending':[]}
-        weights[key]=min(100,len(plan['pending']))
-        if clock['regular'] or not member:weights[key]=max(1,weights[key])
-    try:
-        for index,key in enumerate(a.market):
-            if time.monotonic()>=deadline:break
-            remaining=a.market[index:];left=max(0,deadline-time.monotonic())
-            active=[k for k in remaining if weights[k]]
-            floor=min(20,left/max(1,len(active)))
-            share=(floor+max(0,left-floor*len(active))*weights[key]/max(1,sum(weights[k] for k in active))) if weights[key] else min(5,left)
-            market_deadline=min(deadline,time.monotonic()+share)
-            try:report=refresh_market(store,key,bootstrap=a.bootstrap,repair=a.repair,deadline=market_deadline,use_futu=not a.no_futu,
-                                      source_health=source_health,shared_quotes=shared_quotes,futu=futu,progress_callback=save_progress)
-            except Exception as e:report=dict(key=key,status='stale',errors=[str(e)])
-            save_progress(report);reports.append(report)
-            # 逐证券缺口写诊断文件，终端只给摘要，避免数千只股票刷屏。
-            concise={k:v for k,v in report.items() if k not in
-                     {"missing_symbols","remaining_missing_symbols","updated_symbols","insufficient_listing_history","snapshot","pending_membership","errors"}}
-            concise.update(missing_count=len(report.get("missing_symbols",[])),
-                           insufficient_count=len(report.get("insufficient_listing_history",[])),
-                           error_count=len(report.get("errors",[])),errors=report.get("errors",[])[:5],
-                           diagnostics=str(report_path))
-            print(json.dumps(concise,ensure_ascii=False),flush=True)
-    finally:futu.close()
-    return 0 if len(reports)==len(a.market) and all(r.get('status')=='complete' for r in reports) else 1
+    with store.read_scope():
+        deadline=time.monotonic()+a.budget-2;reports=[]
+        source_health=SourceHealth();shared_quotes={};futu=FutuBreadth()
+        report_path=a.report_path
+        report_path.parent.mkdir(parents=True,exist_ok=True)
+        def save_progress(report):
+            # 批次原子保存；父进程硬超时仍能读到最后完成批次及剩余任务。
+            data=reports+[report]
+            temp=report_path.with_suffix('.tmp')
+            temp.write_text(json.dumps(data,ensure_ascii=False,indent=2,allow_nan=False),encoding='utf-8')
+            os.replace(temp,report_path)
+        weights={}
+        for key in a.market:
+            clock=market_clock(BREADTH_MARKETS[key]['market']);member=store.members(key,clock['day'])
+            plan=price_download_plan(store,key,member,clock['day'],clock['complete_day'],a.bootstrap,a.repair,True) if member else {'pending':[]}
+            weights[key]=min(100,len(plan['pending']))
+            if clock['regular'] or not member:weights[key]=max(1,weights[key])
+        try:
+            for index,key in enumerate(a.market):
+                if time.monotonic()>=deadline:break
+                remaining=a.market[index:];left=max(0,deadline-time.monotonic())
+                active=[k for k in remaining if weights[k]]
+                floor=min(20,left/max(1,len(active)))
+                share=(floor+max(0,left-floor*len(active))*weights[key]/max(1,sum(weights[k] for k in active))) if weights[key] else min(5,left)
+                market_deadline=min(deadline,time.monotonic()+share)
+                try:report=refresh_market(store,key,bootstrap=a.bootstrap,repair=a.repair,deadline=market_deadline,use_futu=not a.no_futu,
+                                          source_health=source_health,shared_quotes=shared_quotes,futu=futu,progress_callback=save_progress)
+                except Exception as e:report=dict(key=key,status='stale',errors=[str(e)])
+                save_progress(report);reports.append(report)
+                # 逐证券缺口写诊断文件，终端只给摘要，避免数千只股票刷屏。
+                concise={k:v for k,v in report.items() if k not in
+                         {"missing_symbols","remaining_missing_symbols","updated_symbols","insufficient_listing_history","snapshot","pending_membership","errors"}}
+                concise.update(missing_count=len(report.get("missing_symbols",[])),
+                               insufficient_count=len(report.get("insufficient_listing_history",[])),
+                               error_count=len(report.get("errors",[])),errors=report.get("errors",[])[:5],
+                               diagnostics=str(report_path))
+                print(json.dumps(concise,ensure_ascii=False),flush=True)
+                # 后续市场不再引用的价格表及时释放，避免预扫描提高整轮内存峰值。
+                keep=set()
+                for upcoming in a.market[index+1:]:
+                    document=store.read('members',upcoming)
+                    for version in document.get('rows',[]):keep.update(version.get('symbols',[]))
+                    keep.update(document.get('pending_membership',{}).get('symbols',[]))
+                store.release_prices(keep)
+        finally:futu.close()
+        return 0 if len(reports)==len(a.market) and all(r.get('status')=='complete' for r in reports) else 1
 
 if __name__=="__main__":raise SystemExit(main())
