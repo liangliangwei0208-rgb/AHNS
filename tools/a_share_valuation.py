@@ -302,21 +302,32 @@ def load_valuation(cache_dir="cache", *, now=None, fetcher=None, refresh=True):
 def align_valuation(frame, dates, *, now=None):
     """以 available_at 向后匹配；当日用实际当前时间，历史日线用15:00。"""
     current = _utc(now)
-    days = pd.DatetimeIndex(pd.to_datetime(dates)).tz_localize(None).normalize()
+    days = pd.DatetimeIndex(pd.to_datetime(dates, format="ISO8601", errors="coerce")).tz_localize(None).normalize()
     result = pd.DataFrame({"date": days, "ratio": np.nan, "basis": None})
     if frame is None or frame.empty:
         return result
     events = frame.copy()
-    events["available_at"] = pd.to_datetime(events.available_at, utc=True, errors="coerce")
+    # 缓存历史为整秒 ISO 时间，新增观测可能带微秒，不能按首行推断统一格式。
+    events["available_at"] = pd.to_datetime(
+        events.available_at, format="ISO8601", utc=True, errors="coerce").astype("datetime64[ns, UTC]")
     events["ratio"] = pd.to_numeric(events.ratio, errors="coerce")
+    valid_days = days.notna()
+    invalid_events, invalid_queries = int(events.available_at.isna().sum()), int((~valid_days).sum())
+    if invalid_events or invalid_queries:
+        print(f"[WARN] MC/GDP skipped invalid dates: invalid_event_dates={invalid_events} "
+              f"invalid_query_dates={invalid_queries}")
     events = events.loc[events.available_at.notna() & events.ratio.gt(0) & np.isfinite(events.ratio)]
     cutoff = frame.attrs.get("historical_cutoff")
     cutoff_day = _utc(cutoff).tz_convert("Asia/Shanghai").tz_localize(None).normalize() if cutoff else None
     history_mask = days < cutoff_day if cutoff_day is not None else np.zeros(len(days), dtype=bool)
-    queries = days.tz_localize("Asia/Shanghai") + pd.Timedelta(hours=15)
-    today = current.tz_convert("Asia/Shanghai").normalize()
-    queries = pd.DatetimeIndex([min(q, current) if q.normalize() == today else q for q in queries]).tz_convert("UTC")
+    queries = (days.tz_localize("Asia/Shanghai") + pd.Timedelta(hours=15)).tz_convert("UTC")
+    today = current.tz_convert("Asia/Shanghai").tz_localize(None).normalize()
+    # 盘中上限与历史查询先统一为 UTC，避免列表中混入两种时区；合并键统一为纳秒。
+    queries = pd.DatetimeIndex([min(q, current) if day == today else q
+                               for day, q in zip(days, queries)], dtype="datetime64[ns, UTC]")
     for historical, mask in ((True, history_mask), (False, ~history_mask)):
+        # 无效查询保留原行与空值，只让有效日期参与向后匹配。
+        mask = mask & valid_days
         selected = events.loc[events.basis.eq("historical revised series") if historical else events.basis.ne("historical revised series")]
         if selected.empty or not mask.any():
             continue

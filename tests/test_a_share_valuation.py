@@ -1,6 +1,8 @@
 """宏观估值只服务走势图；隔离缓存验证计算、时间与刷新行为。"""
 import tempfile
 import unittest
+import io
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -72,6 +74,87 @@ class ValuationTests(unittest.TestCase):
         self.assertEqual(result.ratio.iloc[1:].tolist(), [.55, .65])
         late = pd.DataFrame({"available_at": ["2026-02-15T16:00:00+08:00"], "ratio": [.7], "basis": ["observed"]})
         self.assertTrue(pd.isna(valuation.align_valuation(late, ["2026-02-15"], now="2026-02-15T14:00:00+08:00").ratio.iloc[0]))
+
+    def test_cache_iso_precision_keeps_observation_and_historical_cutoff(self):
+        # 生产缓存的原始格式：历史无小数秒，首次观测为 UTC 微秒。
+        latest = 0.8051410473348942
+        frame = pd.DataFrame({
+            "available_at": ["2026-08-31T00:00:00+08:00", "2026-09-30T10:55:59.345933+00:00"],
+            "ratio": [latest, latest], "basis": ["historical revised series", "observed"],
+        })
+        frame.attrs["historical_cutoff"] = "2026-09-30T10:55:59.345933+00:00"
+        original = frame.copy(deep=True)
+        result = valuation.align_valuation(frame, ["2026-09-29", "2026-09-30", "2026-10-01", "2026-10-08"],
+                                           now="2026-10-08T16:00:00+08:00")
+        self.assertEqual(result.ratio.iloc[0], latest)
+        # 9月30日15:00早于18:55首次观测，不能为了补线倒填。
+        self.assertTrue(pd.isna(result.ratio.iloc[1]))
+        self.assertEqual(result.ratio.iloc[2:].tolist(), [latest, latest])
+        self.assertEqual(result.basis.iloc[0], "historical revised series")
+        self.assertEqual(result.basis.iloc[2:].tolist(), ["observed", "observed"])
+        pd.testing.assert_frame_equal(frame, original)
+        self.assertEqual(frame.attrs, original.attrs)
+
+    def test_intraday_mixed_timezones_preserve_fractional_seconds(self):
+        frame = pd.DataFrame({
+            "available_at": ["2026-10-07T15:00:00+08:00", "2026-10-08T12:39:30.123+08:00",
+                             "2026-10-08T04:39:59.123456Z", "2026-10-08T04:40:00.123456789+00:00"],
+            "ratio": [.6, .75, .8051410473348942, .9], "basis": "observed",
+        })
+        result = valuation.align_valuation(frame, ["2026-10-07", "2026-10-08"],
+                                           now="2026-10-08T12:40:00.123456+08:00")
+        self.assertEqual(result.ratio.tolist(), [.6, .8051410473348942])
+
+    def test_after_close_and_historical_queries_keep_1500_boundary(self):
+        frame = pd.DataFrame({
+            "available_at": ["2026-10-07T15:00:00+08:00", "2026-10-07T16:00:00+08:00",
+                             "2026-10-08T14:59:59.999999+08:00", "2026-10-08T15:00:00.000001+08:00"],
+            "ratio": [.7, .75, .8, .9], "basis": "observed",
+        })
+        result = valuation.align_valuation(frame, ["2026-10-07", "2026-10-08"],
+                                           now="2026-10-08T16:00:00.000001+08:00")
+        self.assertEqual(result.ratio.tolist(), [.7, .8])
+
+    def test_beijing_day_switch_does_not_use_utc_calendar_day(self):
+        frame = pd.DataFrame({
+            "available_at": ["2026-10-08T14:59:00+08:00", "2026-10-08T16:10:00.123456+00:00",
+                             "2026-10-08T16:31:00+00:00"],
+            "ratio": [.7, .8, .9], "basis": "observed",
+        })
+        result = valuation.align_valuation(frame, ["2026-10-08", "2026-10-09"],
+                                           now="2026-10-09T00:30:00.123456+08:00")
+        self.assertEqual(result.ratio.tolist(), [.7, .8])
+
+    def test_bad_event_and_query_dates_only_skip_the_affected_rows(self):
+        frame = pd.DataFrame({"available_at": ["2026-09-30T10:55:59.345933+00:00", "bad", None],
+                              "ratio": [.8051410473348942, .9, .95], "basis": "observed"})
+        output = io.StringIO()
+        with redirect_stdout(output):
+            result = valuation.align_valuation(frame, ["2026-10-02", "bad", None, "2026-10-01"],
+                                               now="2026-10-08T16:00:00+08:00")
+        self.assertEqual(len(result), 4)
+        self.assertEqual(result.ratio.iloc[[0, 3]].tolist(), [.8051410473348942] * 2)
+        self.assertTrue(result.iloc[1:3].date.isna().all())
+        self.assertTrue(result.iloc[1:3].ratio.isna().all())
+        self.assertIn("invalid_event_dates=2", output.getvalue())
+        self.assertIn("invalid_query_dates=2", output.getvalue())
+
+    def test_all_invalid_query_dates_do_not_reach_asof(self):
+        frame = pd.DataFrame({"available_at": ["2026-09-30T10:55:59.345933+00:00"],
+                              "ratio": [.8051410473348942], "basis": "observed"})
+        with patch.object(valuation.pd, "merge_asof", side_effect=AssertionError("无有效日期不能合并")):
+            result = valuation.align_valuation(frame, [None, "bad"], now="2026-10-08T16:00:00+08:00")
+        self.assertEqual(len(result), 2)
+        self.assertTrue(result.ratio.isna().all())
+
+    def test_query_resolution_is_compatible_with_event_resolution(self):
+        frame = pd.DataFrame({"available_at": ["2026-09-30T10:55:59.345933+00:00"],
+                              "ratio": [.8051410473348942], "basis": "observed"})
+        for unit in ("s", "us", "ns"):
+            with self.subTest(unit=unit):
+                dates = pd.DatetimeIndex(["2026-10-01", "2026-10-08"]).as_unit(unit)
+                result = valuation.align_valuation(frame, dates, now="2026-10-08T12:40:00.123456+08:00")
+                self.assertEqual(result.ratio.tolist(), [.8051410473348942] * 2)
 
     def test_contiguous_regimes_are_merged_and_gaps_break_them(self):
         aligned = pd.DataFrame({"date": pd.bdate_range("2026-01-01", periods=7),

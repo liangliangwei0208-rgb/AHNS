@@ -102,6 +102,49 @@ class ChartTests(unittest.TestCase):
         self.assertEqual(len(fig.axes), 2)
         self.assertIn("MC/GDP: N/A", [t.get_text() for t in fig.axes[1].texts])
 
+    def test_cache_timestamp_formats_restore_intraday_curve_axis_and_current_value(self):
+        from tools import a_share_valuation as valuation
+        latest = .8051410473348942
+        macro = pd.DataFrame({
+            "available_at": ["2026-08-31T00:00:00+08:00", "2026-09-30T10:55:59.345933+00:00"],
+            "ratio": [latest, latest], "basis": ["historical revised series", "observed"],
+        })
+        macro.attrs["historical_cutoff"] = "2026-09-30T10:55:59.345933+00:00"
+        original = macro.copy(deep=True)
+        self.frame["date"] = pd.bdate_range(end="2026-10-08", periods=len(self.frame))
+        breadth = pd.DataFrame({"date": self.frame.date, "percent": 40., "kind": "close"})
+        utc = valuation._utc
+        with patch.object(valuation, "_utc", side_effect=lambda value=None: utc(
+                "2026-10-08T12:40:00.123456+08:00" if value is None else value)):
+            fig = self.draw(show_mc_gdp=True, mc_gdp_df=macro, show_breadth=True, breadth_df=breadth)
+        self.assertEqual(len(fig.axes), 3)
+        self.assertEqual(fig.axes[1].get_ylim(), (0, 100))
+        self.assertEqual(fig.axes[2].get_ylabel(), "MC/GDP")
+        self.assertTrue(fig.axes[2].lines)
+        self.assertTrue(all(line.get_drawstyle() == "steps-post" for line in fig.axes[2].lines))
+        self.assertIn("MC/GDP: 0.81 · OVER", [t.get_text() for t in fig.axes[1].texts])
+        self.assertEqual([t.get_text() for t in fig.axes[1].get_legend().get_texts()], ["R", "50D", "MC/GDP"])
+        # 首次观测晚于9月30日收盘：保留真正的历史缺口，不跨缺口接线。
+        gap = pd.Timestamp("2026-09-30")
+        for line in fig.axes[2].lines:
+            dates = pd.to_datetime(line.get_xdata())
+            self.assertFalse(dates.min() < gap < dates.max())
+        pd.testing.assert_frame_equal(macro, original)
+        self.assertEqual(macro.attrs, original.attrs)
+
+    def test_bad_event_date_does_not_remove_the_valid_macro_layer(self):
+        macro = pd.DataFrame({"available_at": ["2025-12-31T00:00:00+08:00", "bad"],
+                              "ratio": [.81, .9], "basis": "observed"})
+        fig = self.draw(show_mc_gdp=True, mc_gdp_df=macro)
+        self.assertEqual(len(fig.axes), 3)
+        self.assertIn("MC/GDP: 0.81 · OVER", [t.get_text() for t in fig.axes[1].texts])
+
+    def test_all_bad_event_dates_degrade_without_an_empty_right_axis(self):
+        macro = pd.DataFrame({"available_at": [None, "bad"], "ratio": [.81, .9], "basis": "observed"})
+        fig = self.draw(show_mc_gdp=True, mc_gdp_df=macro)
+        self.assertEqual(len(fig.axes), 2)
+        self.assertIn("MC/GDP: N/A", [t.get_text() for t in fig.axes[1].texts])
+
     def test_right_axis_uses_graph_overrides_and_filters_outside_display(self):
         macro = pd.DataFrame({"available_at": ["2025-12-31"], "ratio": [.81], "basis": ["observed"]})
         fig = self.draw(show_mc_gdp=True, mc_gdp_df=macro, mc_gdp_over_threshold=.90,
@@ -216,9 +259,12 @@ class ChartTests(unittest.TestCase):
 
     def test_builder_loads_macro_once_and_passes_same_frame(self):
         import stock_analysis
-        macro = pd.DataFrame()
+        macro = pd.DataFrame({"available_at": ["2026-09-30T10:55:59.345933+00:00"],
+                              "ratio": [.8051410473348942], "basis": "observed"})
+        macro.attrs["historical_cutoff"] = "2026-09-30T10:55:59.345933+00:00"
         with patch("tools.a_share_valuation.load_valuation", return_value=macro) as load, \
              patch("tools.breadth_engine.refresh_for_charts"), \
+             patch("tools.equity_bond_spread.load_ebs_states", return_value=pd.DataFrame()), \
              patch.object(stock_analysis, "rsi_analyze_index", return_value=(None,)*7) as run, \
              patch.object(stock_analysis, "build_change_summary_text", return_value="ok"):
             stock_analysis.build_stock_analysis()
@@ -226,6 +272,8 @@ class ChartTests(unittest.TestCase):
         enabled = [call.kwargs for call in run.call_args_list if call.kwargs.get("show_mc_gdp")]
         self.assertEqual(len(enabled), 2)
         self.assertTrue(all(call["mc_gdp_df"] is macro for call in enabled))
+        self.assertTrue(all(not call["mc_gdp_df"].empty for call in enabled))
+        self.assertTrue(all(call["mc_gdp_df"].attrs == macro.attrs for call in enabled))
 
     def test_volume_factor_and_email_summary_are_retained(self):
         from stock_analysis import add_quant_factors, format_stock_factor_text, StockAnalysisResult
