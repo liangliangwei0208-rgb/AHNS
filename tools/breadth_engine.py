@@ -104,6 +104,42 @@ def prepare_market_close_quotes(store,members,quotes,now,day,previous_day,market
     return out
 
 
+def missing_price_sessions(store,code,sessions):
+    """只检查真实交易日，上市前不补造价格；50日窗口内临时值也须正式核验。"""
+    frame=store.prices(code)
+    if frame.empty:return list(sessions[-50:])
+    present=set(frame.date)-set(store.read('prices',code).get('provisional_dates',[]))
+    return [day for day in sessions[-50:] if day>=frame.iloc[0].date and day not in present]
+
+
+def save_downloaded_prices(store,code,frame,basis):
+    """换源不拼接复权价格，也不能用更旧的完整窗口丢掉已补齐的真实日期。"""
+    old=store.prices(code)
+    if not frame.empty and not old.empty and store.read('prices',code).get('basis')!=basis \
+            and frame.iloc[-1].date<old.iloc[-1].date:
+        raise RuntimeError(f'stale different-source window: {basis} ends {frame.iloc[-1].date}; keep {old.iloc[-1].date}')
+    store.save_prices(code,frame,basis)
+
+
+def close_completion(store,key,clock):
+    """正式收盘状态与目标日覆盖率分开检查，不拿旧100%覆盖率掩盖缺口。"""
+    rows=store.read('results',key).get('rows',[])
+    official=[r for r in rows if r.get('kind')=='close' and r.get('finality') not in
+              {'snapshot_provisional','chart_only'} and r.get('date','')<=clock['complete_day']
+              and r.get('percent') is not None and math.isfinite(float(r['percent']))
+              and float(r.get('coverage') or 0)>=BREADTH_MIN_COVERAGE]
+    latest=max(official,key=lambda r:r['date'],default={}).get('date')
+    member=store.members(key,clock['complete_day']);symbols=member.get('symbols',[])
+    calculated=calculate_history({c:store.prices(c) for c in symbols},symbols,BREADTH_MIN_COVERAGE,clock['sessions'][-50:])
+    row=calculated.iloc[-1] if not calculated.empty else {}
+    missing=[c for c in symbols if missing_price_sessions(store,c,clock['sessions'])]
+    return dict(expected_complete_day=clock['complete_day'],latest_valid_close_date=latest,
+                member_count=len(symbols),valid_count=int(row.get('valid',0)),coverage=float(row.get('coverage',0)),
+                missing_count=len(missing),remaining_missing_symbols=missing,
+                missing_sessions=sum((latest or '')<d<=clock['complete_day'] for d in clock['sessions']),
+                status='complete' if latest==clock['complete_day'] else 'stale')
+
+
 def price_download_plan(store,key,member,day,complete_day,bootstrap,repair,initialized):
     """调入证券先缓存真实日线；仅当日有效名单进入广度分母。"""
     symbols=member["symbols"]
@@ -114,14 +150,15 @@ def price_download_plan(store,key,member,day,complete_day,bootstrap,repair,initi
             future.update(row.get("symbols",[]))
     future.update(doc.get("pending_membership",{}).get("symbols",[]))
     prewarm=sorted(future-set(symbols))
+    sessions=[str(d.date()) for d in _schedule(BREADTH_MARKETS[key]['market'],complete_day).index]
     pending=[];needs_bootstrap=0;missing_added=0
     for code in symbols:
         frame=store.prices(code)
         if frame.empty:
             needs_bootstrap+=1
-            if bootstrap or repair or (initialized and missing_added<10):
+            if bootstrap or repair or (initialized and (BREADTH_MARKETS[key]['market']=='US' or missing_added<10)):
                 pending.append(code);missing_added+=1
-        elif (frame.iloc[-1].date<complete_day or
+        elif (missing_price_sessions(store,code,sessions) or frame.iloc[-1].date<complete_day or
               (bootstrap and len(frame)<400 and len(frame)>=50) or
               (repair and (len(frame)<50 or bool(store.read("prices",code).get("provisional_dates"))))):
             pending.append(code)
@@ -214,14 +251,28 @@ def validate_membership_candidate(key,symbols,member,meta,day):
 
 
 def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_members=True,deadline=None,use_futu=True,
-                   source_health=None,shared_quotes=None,futu=None):
+                   source_health=None,shared_quotes=None,futu=None,progress_callback=None):
     spec=BREADTH_MARKETS[key];clock=market_clock(spec["market"],now)
-    deadline=deadline or (time.monotonic()+180)
+    deadline=deadline or (time.monotonic()+BREADTH_RUNTIME_BUDGET_SECONDS)
     report=dict(key=key,time=utc_now(),complete_day=clock["complete_day"],regular_session=clock["regular"],downloaded=0,needs_bootstrap=0,errors=[])
+    report.update(market=key,status='running',expected_complete_day=clock['complete_day'],updated_symbols=[],
+                  ordinary_source_success_count=0,futu_history_success_count=0,futu_snapshot_success_count=0)
+    def checkpoint():
+        if progress_callback:
+            report['futu_connection_status']=getattr(futu,'connection_status','not_attempted')
+            report['futu_history_request_count']=getattr(futu,'history_calls',0)-futu_calls_before
+            checked=getattr(futu,'quota_checked_at',None)
+            report['futu_quota_remaining']=getattr(futu,'remaining',None) if checked else None
+            report['futu_quota']=(dict(checked_at=checked,remaining=futu.remaining,used_count=len(futu.used),reserve=BREADTH_FUTU_RESERVE)
+                                  if checked else {'checked':False})
+            report['source_health']={'unreachable':sorted(source_health.unreachable),'errors':dict(getattr(source_health,'errors',{}))}
+            # 列表须快照，否则调用方后续写日志时会看到被下一批修改的数据。
+            progress_callback(json.loads(json.dumps(report,ensure_ascii=False)))
     source_health=source_health or SourceHealth()
     shared_quotes=shared_quotes if shared_quotes is not None else {}
     own_futu=futu is None
     futu=futu or FutuBreadth()
+    futu_calls_before=getattr(futu,'history_calls',0)
     # StockCharts 不允许未经批准的脚本自动取数；历史对照缓存仍可只读查看。
     member=store.members(key,clock["day"])
     member_doc=store.read("members",key)
@@ -276,6 +327,7 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
                 store.write("members",key,doc)
     if not member:
         report["errors"].append("缺少经验证的完整成分名单")
+        report['status']='stale';checkpoint()
         if own_futu:futu.close()
         return report
     store.establish_pit_start(key,clock["day"])
@@ -291,10 +343,14 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
     report["needs_bootstrap"]=plan["needs_bootstrap"]
     report["prewarm"]={"symbols":plan["prewarm_symbols"],"cached":plan["prewarm_cached"],
                        "missing":len(plan["prewarm_symbols"])-plan["prewarm_cached"]}
-    failures=[];snapshot_codes=set()
-    if use_futu and hasattr(futu,"refresh_quota") and not getattr(futu,"quota_checked_at",None) and time.monotonic()+5<deadline:
-        try:futu.refresh_quota()
-        except Exception as e:report["errors"].append("富途额度查询不可用: "+str(e)[:160])
+    snapshot_codes=set()
+    local=store.root.parent/'market_breadth_local';local.mkdir(parents=True,exist_ok=True)
+    attempt_path=local/(key+'_attempts.json')
+    try:attempts=json.loads(attempt_path.read_text(encoding='utf-8'))
+    except (OSError,ValueError):attempts={}
+    # 最近缺口优先，同一缺口层按最久未尝试顺序续跑，防止失败证券永久占据队首。
+    pending.sort(key=lambda c:(-pd.Timestamp(max(missing_price_sessions(store,c,clock['sessions']) or [clock['complete_day']])).value,attempts.get(c,0),c))
+    report['remaining_missing_symbols']=list(pending);checkpoint()
     if key=="nasdaq" and use_futu and time.monotonic()<deadline:
         try:
             report["membership_crosscheck"]=futu.crosscheck_nasdaq(symbols)
@@ -335,10 +391,7 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
                 report["close_snapshot"]["coverage"]=row.get("coverage")
                 if pd.notna(row["percent"]):
                     store.save_results(key,[row],member["version"],source="futu_close_snapshot",finality="snapshot_provisional")
-        if spec["market"]=="US":
-            # 已有快照的股票只抽少量正式日线核对，避免数千只每日重复下载。
-            verify=set(sorted(snapshot_codes)[:3])
-            pending=[c for c in pending if c not in snapshot_codes or c in verify]
+        report['futu_snapshot_success_count']=len(snapshot_codes)
     # 先给正式日线一个有界窗口；收盘快照和计算仍有时间完成。
     if not bootstrap and spec["market"]=="US" and clock["regular"]:
         # 日常优先留下批量盘中快照的时间，不让少数难取日线耗尽市场份额。
@@ -346,18 +399,26 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
     elif spec["market"]=="CN" and not bootstrap:
         daily_deadline=min(deadline,time.monotonic()+45)
     else:daily_deadline=deadline
+    network_deadline=deadline-min(10,max(1,(deadline-time.monotonic())*.08))
+    if spec['market']=='US':daily_deadline=min(daily_deadline,time.monotonic()+max(0,network_deadline-time.monotonic())*.60)
     def download(code):
         if time.monotonic()>=deadline:return None
         prior=store.read("prices",code);old=store.prices(code)
-        begin=None if bootstrap or old.empty else str((pd.Timestamp(old.iloc[-1].date)-pd.Timedelta(days=10)).date())
-        frame,basis=fetch_prices(code,clock["complete_day"],begin,prior.get("basis"),health=source_health)
-        try:store.save_prices(code,frame,basis)
+        gaps=missing_price_sessions(store,code,clock['sessions'])
+        first=min([old.iloc[-1].date,*gaps]) if not old.empty else None
+        # 长尾从旧末日续接，避免只请求最近50日而跳过中间的数月交易日。
+        if first:first=max(first,clock['sessions'][-min(400,len(clock['sessions']))])
+        begin=None if bootstrap or old.empty else str((pd.Timestamp(first)-pd.Timedelta(days=10)).date())
+        request_deadline=min(daily_deadline,time.monotonic()+BREADTH_US_SYMBOL_TIMEOUT_SECONDS)
+        kwargs={'deadline':request_deadline} if spec['market']=='US' else {}
+        frame,basis=fetch_prices(code,clock["complete_day"],begin,prior.get("basis"),health=source_health,**kwargs)
+        try:save_downloaded_prices(store,code,frame,basis)
         except ValueError:
-            frame,basis=fetch_prices(code,clock["complete_day"],None,prior.get("basis"),health=source_health)
-            store.save_prices(code,frame,basis)
+            frame,basis=fetch_prices(code,clock["complete_day"],None,prior.get("basis"),health=source_health,**kwargs)
+            save_downloaded_prices(store,code,frame,basis)
         if bootstrap:
             doc=store.read("prices",code);doc["bootstrap_complete"]=True;store.write("prices",code,doc)
-        return code, (not frame.empty and frame.iloc[-1].date==clock["complete_day"])
+        return code, not missing_price_sessions(store,code,clock['sessions'])
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             # 每批只安排4只，达到预算不再排队；外层仍有硬超时。
@@ -368,22 +429,48 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
                     report["errors"].append(f"美股日线源本轮均不可达，剩余 {len(pending)-offset} 只留待下次续跑")
                     break
                 jobs={executor.submit(download,c):c for c in pending[offset:offset+4]}
+                for code in jobs.values():attempts[code]=time.time()
                 for future in concurrent.futures.as_completed(jobs):
                     try:
                         outcome=future.result()
-                        if outcome:
+                        if outcome and outcome[1]:
                             report["downloaded"]+=1
-                    except Exception as e:failures.append(jobs[future]);report["errors"].append(f"{jobs[future]}: {str(e)[:180]}")
+                            report['ordinary_source_success_count']+=1;report['updated_symbols'].append(outcome[0])
+                        elif outcome:report['errors'].append(f'{outcome[0]}: ordinary response incomplete; missing {missing_price_sessions(store,outcome[0],clock["sessions"])}')
+                    except Exception as e:report["errors"].append(f"{jobs[future]}: {str(e)[:180]}")
                 if bootstrap and (offset==0 or offset%100==0):print(f"[BREADTH] {key} 已处理 {min(offset+4,len(pending))}/{len(pending)}",flush=True)
-        # 只为少量缺口使用富途，避免建库耗尽整账户额度。
-        history_failures=[c for c in failures if FutuBreadth.supports_code(c)]
-        for code in history_failures[:10] if use_futu and (spec["market"]=="US" or bootstrap or repair or clock["regular"]) else []:
-            if time.monotonic()>=deadline:break
+                attempt_path.write_text(json.dumps(attempts),encoding='utf-8')
+                report['remaining_missing_symbols']=[c for c in pending if missing_price_sessions(store,c,clock['sessions'])]
+                checkpoint()
+        # 全部真实缺口都进入回退；能否请求由剩余预算和账户预留额度决定。
+        history_failures=[c for c in pending if FutuBreadth.supports_code(c) and missing_price_sessions(store,c,clock['sessions'])]
+        for code in history_failures if use_futu and (spec["market"]=="US" or bootstrap or repair or clock["regular"]) else []:
+            if time.monotonic()>=network_deadline:
+                report['errors'].append('Runtime budget exhausted');break
             try:
-                frame,basis=futu.history(code,clock["complete_day"]);store.save_prices(code,frame,basis);report["downloaded"]+=1
+                prior=store.read('prices',code);gaps=missing_price_sessions(store,code,clock['sessions'])
+                old=store.prices(code)
+                first=min([old.iloc[-1].date,*gaps]) if not old.empty else min(gaps)
+                first=max(first,clock['sessions'][-min(400,len(clock['sessions']))])
+                begin=str((pd.Timestamp(first)-pd.Timedelta(days=10)).date()) if prior.get('basis')=='futu_qfq' else None
+                attempts[code]=time.time()
+                frame,basis=futu.history(code,clock["complete_day"],start=begin,deadline=network_deadline)
+                try:save_downloaded_prices(store,code,frame,basis)
+                except ValueError:
+                    frame,basis=futu.history(code,clock['complete_day'],deadline=network_deadline)
+                    save_downloaded_prices(store,code,frame,basis)
+                if not missing_price_sessions(store,code,clock['sessions']):
+                    report['downloaded']+=1;report['futu_history_success_count']+=1;report['updated_symbols'].append(code)
+                else:report['errors'].append(f'Futu {code}: history response incomplete; missing {missing_price_sessions(store,code,clock["sessions"])}')
             except Exception as e:
                 report["errors"].append(f"Futu {code}: "+str(e)[:160])
-                if "额度" in str(e):break
+                # 预留线不能阻止本轮已经占额度证券继续修复；连接失败则不反复重连。
+                if 'OpenD not running' in str(e) or 'Runtime budget exhausted' in str(e):break
+            attempt_path.write_text(json.dumps(attempts),encoding='utf-8')
+            report['remaining_missing_symbols']=[c for c in pending if missing_price_sessions(store,c,clock['sessions'])];checkpoint()
+        if getattr(futu,'history_calls',0)>futu_calls_before and time.monotonic()+14<deadline:
+            try:futu.refresh_quota()
+            except Exception as e:report['errors'].append('富途额度复核: '+str(e)[:160])
         report["membership"]={k:member.get(k) for k in ("date","effective_date","last_verified_at","version","source","universe")}
         report["pending_membership"]=store.read("members",key).get("pending_membership")
         report["historical_policy"]="旧结果保留并标记回算；启用后按当日有效名单计算"
@@ -458,9 +545,18 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
         report["missing_symbols"]=[c for c in symbols if store.prices(c).empty or store.prices(c).iloc[-1].date<clock["complete_day"]]
         report["insufficient_listing_history"]=[c for c in symbols if 0<len(store.prices(c))<50]
         report["source_health"]={"unreachable":sorted(source_health.unreachable)}
+        report['source_health']['errors']=dict(getattr(source_health,'errors',{}))
         report["futu_quota"]=(dict(checked_at=futu.quota_checked_at,remaining=futu.remaining,
                                    used_count=len(futu.used),reserve=BREADTH_FUTU_RESERVE)
                               if getattr(futu,"quota_checked_at",None) else {"checked":False})
+        report.update(close_completion(store,key,clock))
+        report['futu_connection_status']=getattr(futu,'connection_status','not_attempted')
+        report['futu_history_request_count']=getattr(futu,'history_calls',0)-futu_calls_before
+        report['futu_quota_remaining']=getattr(futu,'remaining',None) if getattr(futu,'quota_checked_at',None) else None
+        if report['status']!='complete':
+            report['errors'].append('Insufficient coverage' if report['coverage']<BREADTH_MIN_COVERAGE else 'Formal close pending')
+            if time.monotonic()>=network_deadline:report['errors'].append('Runtime budget exhausted')
+        checkpoint()
         if key in {"nasdaq","nasdaq100"}:
             benchmark=store.benchmark(key+"_stockcharts")
             same=benchmark.loc[(benchmark.date==clock["complete_day"]) & (benchmark.kind=="close")] if not benchmark.empty else pd.DataFrame()
@@ -483,8 +579,11 @@ def refresh_for_charts(root=None):
     root=Path(root or project/"cache"/"market_breadth")
     env=os.environ.copy();env["PYTHONIOENCODING"]="utf-8"
     try:
+        # 300秒是包装器总上限；给CLI父进程先终止自己的worker留下启动/退出余量。
         result=subprocess.run([sys.executable,str(project/"market_breadth.py"),"--update","--budget",str(max(5,BREADTH_RUNTIME_BUDGET_SECONDS-5)),"--cache-root",str(root)],cwd=project,env=env,timeout=BREADTH_RUNTIME_BUDGET_SECONDS,capture_output=True,encoding="utf-8",errors="replace")
-        if result.stdout:print(result.stdout[-4000:])
+        if result.stdout:
+            for line in result.stdout.splitlines():
+                if 'expected_complete_day' in line or line.startswith('[BREADTH]'):print(line)
         if result.returncode:print("[WARN] 广度未全部完成；原有RSI继续生成。"+result.stderr[-600:])
     except subprocess.TimeoutExpired:print("[WARN] 广度采集已到时间预算，继续使用已保存数据。")
 

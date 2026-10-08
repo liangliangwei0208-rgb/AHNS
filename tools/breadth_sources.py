@@ -7,6 +7,8 @@ import json
 import os
 import re
 import socket
+import subprocess
+import sys
 import threading
 import time
 import warnings
@@ -21,7 +23,7 @@ from tools.configs.market_breadth_configs import BREADTH_MARKETS, BREADTH_FUTU_R
 class SourceHealth:
     """本轮网络故障熔断；单只证券的空数据不连坐同源其他证券。"""
     def __init__(self):
-        self.unreachable=set();self.lock=threading.Lock()
+        self.unreachable=set();self.lock=threading.Lock();self.errors={}
 
     def available(self,source):
         with self.lock:return source not in self.unreachable
@@ -29,13 +31,14 @@ class SourceHealth:
     def failed(self,source,error):
         status=getattr(getattr(error,"response",None),"status_code",None)
         if isinstance(error,(requests.ConnectionError,requests.Timeout)) or status in {403,429,503}:
-            with self.lock:self.unreachable.add(source)
+            with self.lock:
+                self.unreachable.add(source);self.errors[source]=str(error)[:160]
 
 
 def get(url,**kwargs):
     # 所有网络调用有超时；继承本机已有代理，不写入任何凭据。
     headers=kwargs.pop("headers", {"User-Agent":"Mozilla/5.0"})
-    r=requests.get(url,timeout=(10,15),headers=headers,**kwargs)
+    r=requests.get(url,timeout=kwargs.pop('timeout',(10,15)),headers=headers,**kwargs)
     r.raise_for_status()
     if not r.content:raise ValueError("数据源返回空内容")
     return r
@@ -508,25 +511,70 @@ def yahoo_symbol(code):
     return ticker.replace(".","-") if market=="US" else ticker+(".SS" if market=="SH" else ".BJ" if market=="BJ" else ".SZ")
 
 
-def fetch_yahoo_prices(code,complete_day,start=None):
+def request_timeout(deadline=None):
+    """连接/读取上限分别3/8秒，同时服从单证券剩余预算。"""
+    left=11 if deadline is None else deadline-time.monotonic()
+    if left<=0.1:raise requests.Timeout('Source timeout: runtime budget exhausted')
+    return min(3,left/2),min(8,left/2)
+
+
+def bounded_us_source(function,code,complete_day,start,deadline):
+    """socket读取超时不是总超时；慢速响应也必须能终止且为富途留出时间。"""
+    script='''import json,sys
+from tools import breadth_sources as sources
+name,code,day,start=json.loads(sys.argv[1])
+try:
+    frame,basis=getattr(sources,name)(code,day,start)
+    print(json.dumps(dict(rows=json.loads(frame.to_json(orient="records")),basis=basis)))
+except Exception as error:
+    print(json.dumps(dict(error=str(error),error_type=type(error).__name__,
+                         http_status=getattr(getattr(error,"response",None),"status_code",None))))
+    sys.exit(1)
+'''
+    left=min(15,deadline-time.monotonic())
+    if left<=.1:raise requests.Timeout('Source timeout: runtime budget exhausted')
+    try:
+        result=subprocess.run([sys.executable,'-c',script,json.dumps([function,code,complete_day,start])],
+                              cwd=os.path.dirname(os.path.dirname(__file__)),capture_output=True,
+                              timeout=left,encoding='utf-8',errors='replace')
+    except subprocess.TimeoutExpired as error:
+        raise requests.Timeout(f'Source timeout: {function} request process terminated') from error
+    try:payload=json.loads(result.stdout.strip().splitlines()[-1])
+    except (ValueError,IndexError):
+        raise RuntimeError(f'{function} request process: {result.stderr[-160:]}')
+    if 'error' in payload:
+        raw=payload['error'];kind=payload.get('error_type','')
+        if 'Timeout' in kind:raise requests.Timeout(raw)
+        if 'Connection' in kind:raise requests.ConnectionError(raw)
+        if payload.get('http_status'):
+            response=requests.Response();response.status_code=payload['http_status']
+            raise requests.HTTPError(raw,response=response)
+        raise RuntimeError(raw)
+    return clean_prices(pd.DataFrame(payload['rows'],columns=['date','close'])),payload['basis']
+
+
+def fetch_yahoo_prices(code,complete_day,start=None,deadline=None):
+    if deadline is not None:return bounded_us_source('fetch_yahoo_prices',code,complete_day,start,deadline)
     params={"interval":"1d","events":"div,splits"}
     if start:
         params.update(period1=int(pd.Timestamp(start,tz="UTC").timestamp()),period2=int(pd.Timestamp(complete_day,tz="UTC").timestamp())+172800)
     else:params["range"]="2y"
-    data=get("https://query1.finance.yahoo.com/v8/finance/chart/"+quote(yahoo_symbol(code),safe=""),params=params).json()
+    data=get("https://query1.finance.yahoo.com/v8/finance/chart/"+quote(yahoo_symbol(code),safe=""),params=params,timeout=request_timeout(deadline)).json()
     return parse_yahoo_history(data,complete_day),"yahoo_adjclose"
 
 
-def fetch_eastmoney_us_prices(code,complete_day,start=None):
+def fetch_eastmoney_us_prices(code,complete_day,start=None,deadline=None):
     """东方财富美股前复权日线；直连避免继承本机失效的境外代理。"""
+    if deadline is not None:return bounded_us_source('fetch_eastmoney_us_prices',code,complete_day,start,deadline)
     ticker=code.split(".",1)[1]
     url="https://63.push2his.eastmoney.com/api/qt/stock/kline/get"
     base={"fields1":"f1,f2,f3,f4,f5,f6","fields2":"f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61",
-          "klt":"101","fqt":"1","end":"20500000","lmt":"500"}
+          "klt":"101","fqt":"1","end":complete_day.replace('-',''),"lmt":"500"}
+    if start:base['beg']=start.replace('-','')
     with requests.Session() as session:
         session.trust_env=False
         for market in ("105","106","107"):
-            response=session.get(url,params=dict(base,secid=f"{market}.{ticker}"),timeout=(5,10))
+            response=session.get(url,params=dict(base,secid=f"{market}.{ticker}"),timeout=request_timeout(deadline))
             response.raise_for_status()
             payload=response.json().get("data") or {}
             raw=payload.get("klines") or []
@@ -542,8 +590,12 @@ def fetch_eastmoney_us_prices(code,complete_day,start=None):
     raise ValueError(f"东方财富美股日线无有效数据: {code}")
 
 
-def fetch_sina_us_prices(code,complete_day,start=None):
+def fetch_sina_us_prices(code,complete_day,start=None,deadline=None):
     """新浪美股前复权日线作为国内可访问回退；每只证券只保留计算窗口。"""
+    if deadline is not None:
+        # AKShare内部两次requests没有超时；隔离原解析逻辑，可终止自己的请求进程。
+        # 新浪不支持日期下载：网络仍为全量响应，返回后才裁剪，绝不伪称增量接口。
+        return bounded_us_source('fetch_sina_us_prices',code,complete_day,start,deadline)
     import akshare as ak
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore",category=FutureWarning,module=r"akshare\.stock\.stock_us_sina")
@@ -565,7 +617,7 @@ def parse_tencent_history(payload,symbol,complete_day):
     return frame.loc[frame.date<=complete_day].tail(400)
 
 
-def fetch_prices(code,complete_day,start=None,preferred=None,health=None):
+def fetch_prices(code,complete_day,start=None,preferred=None,health=None,deadline=None):
     errors=[]
     health=health or SourceHealth()
     # 同源优先复用；失败后仍试国内其他源，换源必须取完整窗口核对复权基准。
@@ -596,15 +648,22 @@ def fetch_prices(code,complete_day,start=None,preferred=None,health=None):
                 health.failed(source,e);errors.append(f"{source}: {str(e)[:120]}")
     us_sources=["yahoo_adjclose","sina_us_qfq","eastmoney_us_qfq"] if code.startswith("US.") else ["yahoo_adjclose"]
     if preferred in us_sources:us_sources.remove(preferred);us_sources.insert(0,preferred)
+    partial=None
     for source in us_sources:
         if not health.available(source):continue
+        if deadline is not None and time.monotonic()>=deadline:break
         try:
             begin=start if preferred==source else None
-            return (fetch_yahoo_prices(code,complete_day,begin) if source=="yahoo_adjclose"
-                    else fetch_sina_us_prices(code,complete_day,begin) if source=="sina_us_qfq"
-                    else fetch_eastmoney_us_prices(code,complete_day,begin))
+            kwargs={'deadline':deadline} if deadline is not None else {}
+            result=(fetch_yahoo_prices(code,complete_day,begin,**kwargs) if source=="yahoo_adjclose"
+                    else fetch_sina_us_prices(code,complete_day,begin,**kwargs) if source=="sina_us_qfq"
+                    else fetch_eastmoney_us_prices(code,complete_day,begin,**kwargs))
+            if not result[0].empty and result[0].iloc[-1].date==complete_day:return result
+            if partial is None or (not result[0].empty and result[0].iloc[-1].date>partial[0].iloc[-1].date):partial=result
+            errors.append(source+': stale daily response')
         except Exception as e:
             health.failed(source,e);errors.append(source+": "+str(e)[:120])
+    if partial is not None:return partial
     raise RuntimeError("; ".join(errors) or "本轮可用日线源已熔断")
 
 
@@ -704,14 +763,23 @@ class FutuBreadth:
                  "csi2000":"SH.932000","shenzhen":"SZ.399001"}
     def __init__(self):
         self.ctx=None;self.remaining=0;self.used=set();self.last_call=None;self.quote_errors=[];self.quota_checked_at=None
+        self.connection_status='not_attempted';self.connection_error=None;self.history_calls=0
     @staticmethod
     def supports_code(code):return code.startswith(("US.","HK.","SH.","SZ."))
     def connect(self):
         if self.ctx is None:
+            if self.connection_error:raise ConnectionError(self.connection_error)
             host=os.environ.get("AHNS_BREADTH_FUTU_HOST","127.0.0.1");port=int(os.environ.get("AHNS_BREADTH_FUTU_PORT","11111"))
-            with socket.create_connection((host,port),timeout=1):pass
-            from futu import OpenQuoteContext
-            self.ctx=OpenQuoteContext(host=host,port=port)
+            try:
+                with socket.create_connection((host,port),timeout=1):pass
+                from futu import OpenQuoteContext
+                self.ctx=OpenQuoteContext(host=host,port=port)
+                self.ctx.set_sync_query_connect_timeout(2)
+                self.connection_status='connected'
+            except Exception as error:
+                self.connection_status='OpenD not running'
+                self.connection_error=f'OpenD not running: {str(error)[:120]}'
+                raise ConnectionError(self.connection_error) from error
         return self.ctx
     def index_members(self,key):
         """读取富途指数板块，校验行数后才作为成分来源。"""
@@ -755,21 +823,37 @@ class FutuBreadth:
         self.last_call=time.monotonic() if self.last_call is not None else now
     def batches(self,codes):
         for i in range(0,len(codes),BREADTH_FUTU_BATCH_SIZE):yield codes[i:i+BREADTH_FUTU_BATCH_SIZE]
+    @staticmethod
+    def query_error(data):
+        raw=str(data)[:160];lower=raw.lower()
+        category=('Futu permission denied' if any(s in lower for s in ['permission','权限','订阅']) else
+                  'Futu quota exhausted' if any(s in lower for s in ['quota','额度']) else
+                  'Source timeout' if any(s in lower for s in ['timeout','time out','超时']) else 'Futu query failed')
+        return RuntimeError(category+': '+raw)
     def refresh_quota(self):
         self.throttle();ret,data=self.connect().get_history_kl_quota(get_detail=True)
-        if ret!=0:raise RuntimeError(str(data))
+        if ret!=0:raise self.query_error(data)
         used,remaining,details=data
         self.remaining=int(remaining);self.used={d["code"] for d in details or []}
         self.quota_checked_at=datetime.now(timezone.utc).isoformat()
         return dict(used=used,remaining=remaining)
     def can_history(self,code):return self.supports_code(code) and (code in self.used or self.remaining>BREADTH_FUTU_RESERVE)
-    def history(self,code,complete_day):
-        self.refresh_quota()
-        if not self.can_history(code):raise RuntimeError("富途历史额度已达预留线")
+    def history(self,code,complete_day,start=None,deadline=None):
+        # 一轮首次查询额度，随后在内存按新证券扣减；分批不能绕过七天证券额度。
+        if deadline is not None and time.monotonic()+14>=deadline:
+            raise TimeoutError('Runtime budget exhausted: Futu history')
+        if not self.quota_checked_at:self.refresh_quota()
+        if deadline is not None and time.monotonic()+14>=deadline:
+            raise TimeoutError('Runtime budget exhausted: after Futu quota query')
+        if not self.can_history(code):raise RuntimeError("Futu quota exhausted: 富途历史额度已达10只预留线")
         from futu import KLType,AuType
         self.throttle()
-        ret,data,page=self.connect().request_history_kline(code,start=str((pd.Timestamp(complete_day)-pd.Timedelta(days=700)).date()),end=complete_day,ktype=KLType.K_DAY,autype=AuType.QFQ,max_count=1000)
-        if ret!=0:raise RuntimeError(str(data))
+        if deadline is not None and time.monotonic()+12>=deadline:
+            raise TimeoutError('Runtime budget exhausted: after Futu throttle')
+        self.history_calls+=1
+        ret,data,page=self.connect().request_history_kline(code,start=start or str((pd.Timestamp(complete_day)-pd.Timedelta(days=700)).date()),end=complete_day,ktype=KLType.K_DAY,autype=AuType.QFQ,max_count=1000)
+        if ret!=0:raise self.query_error(data)
+        if code not in self.used:self.used.add(code);self.remaining=max(0,self.remaining-1)
         if page is not None:raise RuntimeError("历史窗口返回未完成分页")
         return clean_prices(data.rename(columns={"time_key":"date"})).tail(400),"futu_qfq"
     def quotes(self,codes):
@@ -778,7 +862,7 @@ class FutuBreadth:
         for batch in self.batches(supported):
             try:
                 self.throttle();ret,data=self.connect().get_market_snapshot(batch)
-                if ret!=0:raise RuntimeError(str(data))
+                if ret!=0:raise self.query_error(data)
                 for row in data.to_dict("records"):
                     out[row["code"]]=dict(price=row.get("last_price"),prev_close=row.get("prev_close_price"),time=row.get("update_time"),source="futu_snapshot")
             except Exception as e:

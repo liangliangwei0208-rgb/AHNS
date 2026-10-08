@@ -56,7 +56,7 @@ class BreadthCliTests(unittest.TestCase):
         self.assertEqual(status["source"],"https://www.spglobal.com/old")
 
     def test_repair_flag_reaches_engine_without_bootstrap(self):
-        with patch("tools.breadth_engine.refresh_market",return_value={"latest":{"percent":50},"errors":[]}) as refresh:
+        with patch("tools.breadth_engine.refresh_market",return_value={"latest":{"percent":50},"status":"complete","errors":[]}) as refresh:
             with redirect_stdout(io.StringIO()):
                 rc=market_breadth.main(["--repair","--market","dow","--cache-root",str(self.root),
                                          "--report-path",str(self.root/"diagnostics.json"),"--worker"])

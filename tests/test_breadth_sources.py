@@ -106,12 +106,16 @@ class SourceTests(unittest.TestCase):
             parse_ndx_api_list({**body,"data":{**body["data"],"data":{"rows":rows[:-1]+[rows[0]]}}})
 
     def test_ndx_fetch_uses_official_json_and_rejects_count_mismatch(self):
+        class FrozenTimestamp(pd.Timestamp):
+            @classmethod
+            def now(cls,tz=None):return pd.Timestamp('2026-09-30',tz=tz)
         class Reply:
             def __init__(self,body):self.text=body
             def json(self):return {"data":{"totalrecords":101,"limit":101,"offset":0,
                 "date":"Sep 29, 2026","data":{"rows":[{"symbol":f"T{i:03d}",
                 "companyName":f"Issuer {i}"} for i in range(101)]}}}
-        with patch("tools.breadth_sources.get",side_effect=[Reply("api"),Reply("<dt># of Components</dt><dd>101</dd>")]):
+        with patch("tools.breadth_sources.pd.Timestamp",FrozenTimestamp), \
+             patch("tools.breadth_sources.get",side_effect=[Reply("api"),Reply("<dt># of Components</dt><dd>101</dd>")]):
             from tools.breadth_sources import fetch_members
             symbols,source,meta=fetch_members("nasdaq100",futu=None)
         self.assertEqual(len(symbols),101)

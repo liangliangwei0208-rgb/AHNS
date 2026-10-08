@@ -27,6 +27,9 @@ BREADTH_CACHE_DOCUMENTATION = (BREADTH_CACHE_DOCUMENTATION
     .replace("默认30分钟复用", "默认40分钟复用")
     .replace("日线/结果仅裁剪文件内记录", "新发布结果覆盖率至少95%；旧正式值不追改。未来或待确认调入证券提前预热真实价格，生效前不进入分母。日线/结果仅裁剪文件内记录"))
 
+# 本机尝试顺序不是行情事实；失效或删除后仍从证券价格分片重建缺口队列。
+BREADTH_CACHE_DOCUMENTATION += "\n- 默认刷新总预算300秒；全部美股未完成证券可进入富途回退，保留10只历史额度。普通源失败或旧响应不算成功。\n- `market_breadth_local/<市场>_attempts.json` 仅记录本机尝试顺序；未完成任务由真实价格分片重建，不同步此文件。\n- `output/market_breadth_diagnostics.json` 每批原子保存进度。正式目标日期未完成时报告stale，临时快照不算正式完成。\n"
+
 CACHE_INFO_VERSION = 1
 CACHE_README_FILENAME = "README.md"
 
