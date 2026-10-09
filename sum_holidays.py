@@ -15,12 +15,15 @@ sum_holidays.py
 from __future__ import annotations
 
 import argparse
+import json
+import tempfile
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import pandas as pd
+from PIL import Image, ImageChops
 
 from safe_holidays import (
     CUMULATIVE_DISPLAY_COLUMN,
@@ -39,18 +42,19 @@ from tools.fund_estimate_history_overseas import (
     get_fund_estimate_records,
     save_cumulative_estimate_table_image,
 )
-from tools.fund_history_io import load_a_share_trade_dates
+from tools.fund_history_io import detect_a_share_holiday_context, load_fund_estimate_history
+from tools.fund_universe import HAIWAI_FUND_CODES
 from tools.get_top10_holdings import (
     format_pct,
     save_fund_estimate_table_image,
 )
-from tools.paths import SAFE_SUM_HOLIDAYS_IMAGE, ensure_runtime_dirs, relative_path_str
+from tools.paths import FUND_ESTIMATE_CACHE, SAFE_SUM_HOLIDAYS_IMAGE, ensure_runtime_dirs, relative_path_str
 from tools.safe_display import apply_safe_public_watermarks, mask_fund_name
 
 
 SAFE_OUTPUT_FILE = relative_path_str(SAFE_SUM_HOLIDAYS_IMAGE)
 MAX_POST_HOLIDAY_TRADE_DAYS = 2
-MAX_HOLIDAY_LOOKBACK_TRADE_DAYS = 15
+RESULT_PREFIX = "AHNS_SUM_HOLIDAYS_RESULT="
 
 FOOTNOTE_TEXT = (
     "按节后QDII净值补更新口径读取历史缓存并复利估算，仅供学习记录，"
@@ -72,6 +76,7 @@ class PostHolidayContext:
     first_post_holiday_trade_date: str = ""
     closed_dates: tuple[str, ...] = field(default_factory=tuple)
     weekday_closed_dates: tuple[str, ...] = field(default_factory=tuple)
+    verified: bool = True
 
 
 def _normalize_date(value) -> date | None:
@@ -114,108 +119,30 @@ def _date_label(value: str | date) -> str:
     return f"{parsed.month}.{parsed.day}"
 
 
-def _load_trade_dates() -> tuple[list[date], str]:
-    trade_date_strings, source = load_a_share_trade_dates(use_akshare=True)
-    trade_dates = sorted(
-        parsed
-        for parsed in (_normalize_date(x) for x in trade_date_strings)
-        if parsed is not None
-    )
-    return trade_dates, source
-
-
 def detect_post_holiday_context(today=None) -> PostHolidayContext:
+    """兼容旧调用的数据类型，假期检测统一复用已验证的共享交易日历。"""
     today_date = _get_beijing_today(today)
-    today_str = today_date.isoformat()
-    trade_dates, calendar_source = _load_trade_dates()
-
-    if not trade_dates:
-        return PostHolidayContext(
-            should_generate=False,
-            reason="无法读取A股交易日历，未生成节后海外基金净值补更新预估图。",
-            today=today_date,
-            calendar_source=calendar_source,
-        )
-
-    trade_date_set = set(trade_dates)
-    if today_date not in trade_date_set:
-        if today_date.weekday() >= 5:
-            reason = f"{today_str} 是普通周末或A股非交易日，不属于节后开盘补更新场景。"
-        else:
-            reason = f"{today_str} 是A股休市日，还没有进入节后开盘补更新场景。"
-        return PostHolidayContext(
-            should_generate=False,
-            reason=reason,
-            today=today_date,
-            calendar_source=calendar_source,
-        )
-
-    today_index = trade_dates.index(today_date)
-    lower_bound = max(1, today_index - MAX_HOLIDAY_LOOKBACK_TRADE_DAYS + 1)
-    ordinary_weekend_seen = False
-
-    for pair_index in range(today_index, lower_bound - 1, -1):
-        previous_trade_date = trade_dates[pair_index - 1]
-        next_trade_date = trade_dates[pair_index]
-        closed_dates = _date_range_exclusive(previous_trade_date, next_trade_date)
-
-        if not closed_dates:
-            continue
-
-        weekday_closed_dates = [d for d in closed_dates if d.weekday() < 5]
-        if not weekday_closed_dates:
-            ordinary_weekend_seen = True
-            continue
-
-        post_holiday_trade_day = today_index - pair_index + 1
-        pre_holiday_trade_date = previous_trade_date.isoformat()
-        first_post_holiday_trade_date = next_trade_date.isoformat()
-        closed_date_strings = tuple(d.isoformat() for d in closed_dates)
-        weekday_closed_date_strings = tuple(d.isoformat() for d in weekday_closed_dates)
-
-        if post_holiday_trade_day > MAX_POST_HOLIDAY_TRADE_DAYS:
-            return PostHolidayContext(
-                should_generate=False,
-                reason=(
-                    f"{today_str} 是节后第 {post_holiday_trade_day} 个A股交易日，"
-                    "已回归正常节奏，请使用 main.py / safe_fund.py 的当日预估图。"
-                ),
-                today=today_date,
-                calendar_source=calendar_source,
-                post_holiday_trade_day=post_holiday_trade_day,
-                pre_holiday_trade_date=pre_holiday_trade_date,
-                first_post_holiday_trade_date=first_post_holiday_trade_date,
-                closed_dates=closed_date_strings,
-                weekday_closed_dates=weekday_closed_date_strings,
-            )
-
-        return PostHolidayContext(
-            should_generate=True,
-            reason=(
-                f"识别为节后第 {post_holiday_trade_day} 个A股交易日；"
-                f"A股日历来源: {calendar_source}; "
-                f"节前最后交易日: {pre_holiday_trade_date}; "
-                f"休市区间: {closed_date_strings[0]} 至 {closed_date_strings[-1]}"
-            ),
-            today=today_date,
-            calendar_source=calendar_source,
-            post_holiday_trade_day=post_holiday_trade_day,
-            pre_holiday_trade_date=pre_holiday_trade_date,
-            first_post_holiday_trade_date=first_post_holiday_trade_date,
-            closed_dates=closed_date_strings,
-            weekday_closed_dates=weekday_closed_date_strings,
-        )
-
-    if ordinary_weekend_seen:
-        reason = f"{today_str} 前面只是普通周末闭市，不属于节假日后净值补更新场景。"
-    else:
-        reason = f"{today_str} 不是节假日后第1或第2个A股交易日，未生成图片。"
-
+    shared = detect_a_share_holiday_context(today_date)
+    previous = _normalize_date(shared.previous_trade_date)
+    reopen = _normalize_date(shared.first_post_holiday_trade_date)
+    closed = _date_range_exclusive(previous, reopen) if previous and reopen else []
+    ordinal = shared.post_holiday_trade_day
+    reason = shared.reason
+    if ordinal:
+        reason = f"识别为节后第 {ordinal} 个A股交易日；{shared.reason}"
+        if ordinal > MAX_POST_HOLIDAY_TRADE_DAYS:
+            reason += "；已回归正常每日估算流程"
     return PostHolidayContext(
-        should_generate=False,
+        should_generate=shared.verified and ordinal in (1, 2),
         reason=reason,
         today=today_date,
-        calendar_source=calendar_source,
+        calendar_source=shared.calendar_source,
+        post_holiday_trade_day=ordinal,
+        pre_holiday_trade_date=shared.previous_trade_date,
+        first_post_holiday_trade_date=shared.first_post_holiday_trade_date,
+        closed_dates=tuple(item.isoformat() for item in closed),
+        weekday_closed_dates=tuple(item.isoformat() for item in closed if item.weekday() < 5),
+        verified=shared.verified,
     )
 
 
@@ -237,8 +164,11 @@ def _load_overseas_daily_records(
         end_date=end_date,
         market_group="overseas",
         date_field="valuation_date",
-        include_intraday=True,
+        include_intraday=False,
         require_final=False,
+        include_partial_close=True,
+        valid_close_only=True,
+        as_of_run_date_bj=today_str,
         cache_file=cache_file,
     )
     benchmark_daily_df = get_benchmark_estimate_records(
@@ -246,28 +176,19 @@ def _load_overseas_daily_records(
         end_date=end_date,
         market_group="overseas",
         date_field="valuation_date",
-        include_intraday=True,
-        require_final=False,
+        include_intraday=False,
+        require_final=True,
+        valid_close_only=True,
+        as_of_run_date_bj=today_str,
         cache_file=cache_file,
     )
 
     fund_daily_df = _filter_records_not_after_today(fund_daily_df, today_str)
     benchmark_daily_df = _filter_records_not_after_today(benchmark_daily_df, today_str)
 
-    if fund_daily_df.empty or benchmark_daily_df.empty:
-        return fund_daily_df, benchmark_daily_df, tuple()
-
-    fund_dates = set(fund_daily_df["valuation_date"].dropna().astype(str))
-    benchmark_dates = set(benchmark_daily_df["valuation_date"].dropna().astype(str))
-    common_dates = tuple(sorted(fund_dates & benchmark_dates))
-
-    if common_dates:
-        fund_daily_df = fund_daily_df[fund_daily_df["valuation_date"].isin(common_dates)].copy()
-        benchmark_daily_df = benchmark_daily_df[
-            benchmark_daily_df["valuation_date"].isin(common_dates)
-        ].copy()
-
-    return fund_daily_df, benchmark_daily_df, common_dates
+    # 基金与基准分别使用自身有效日期，基准缺失不能删掉基金真实收益。
+    fund_dates = tuple(sorted(set(fund_daily_df.get("valuation_date", pd.Series(dtype=str)).dropna().astype(str))))
+    return fund_daily_df, benchmark_daily_df, fund_dates
 
 
 def _target_valuation_window(context: PostHolidayContext) -> tuple[str, str, str]:
@@ -285,7 +206,10 @@ def _target_valuation_window(context: PostHolidayContext) -> tuple[str, str, str
 
     if context.post_holiday_trade_day == 2:
         start_date = (pre_holiday_date + timedelta(days=1)).isoformat()
-        end_date = context.today.isoformat()
+        first_reopen = _normalize_date(context.first_post_holiday_trade_date)
+        if first_reopen is None or not pre_holiday_date < first_reopen < context.today:
+            raise RuntimeError("第一复市交易日无效，无法确定节后累计截止日。")
+        end_date = first_reopen.isoformat()
         title = f"{_date_label(context.today)}晚海外基金节后累计补更新预估"
         return start_date, end_date, title
 
@@ -305,7 +229,7 @@ def _build_title(context: PostHolidayContext, valuation_dates: tuple[str, ...], 
     if context.post_holiday_trade_day == 2:
         return (
             f"{_date_label(context.today)}晚海外基金节后累计补更新预估"
-            f"（{_date_label(valuation_dates[0])}-{_date_label(valuation_dates[-1])}估值）"
+            f"（{_date_label(valuation_dates[0])}–{_date_label(valuation_dates[-1])}估值）"
         )
 
     return fallback
@@ -467,10 +391,13 @@ def _format_benchmark_summary_labels(
     if benchmark_summary_df is None or benchmark_summary_df.empty or not valuation_dates:
         return benchmark_summary_df
 
-    label = f"{_date_label(valuation_dates[0])}-{_date_label(valuation_dates[-1])}"
     out = benchmark_summary_df.copy()
     if "指数名称" in out.columns:
-        out["指数名称"] = out["指数名称"].map(lambda x: f"{x}（{label}）")
+        # 每个基准标自己的实际区间，不能把基金的有效日期范围借给缺日基准。
+        out["指数名称"] = out.apply(lambda row: (
+            f"{row['指数名称']}（{_date_label(row['起始估值日'])}-{_date_label(row['结束估值日'])}）"
+            if row.get("起始估值日") and row.get("结束估值日") else row["指数名称"]
+        ), axis=1)
     return out
 
 
@@ -478,11 +405,12 @@ def _save_daily_images(
     fund_daily_df: pd.DataFrame,
     benchmark_daily_df: pd.DataFrame,
     title: str,
+    output_file: str | Path | None = None,
 ) -> None:
+    output_file = output_file or SAFE_OUTPUT_FILE
     result_df = _daily_result_dataframe(fund_daily_df)
     if result_df.empty:
-        print("目标海外基金单日缓存为空，未生成图片。")
-        return
+        raise RuntimeError("目标海外基金单日缓存为空，无法生成补更新图片。")
 
     benchmark_items = _daily_benchmark_footer_items(benchmark_daily_df)
     _print_daily_estimate_table(result_df, title, benchmark_items, pct_digits=2)
@@ -501,22 +429,23 @@ def _save_daily_images(
     )
     save_fund_estimate_table_image(
         result_df=safe_df,
-        output_file=SAFE_OUTPUT_FILE,
+        output_file=str(output_file),
         title=title,
         pct_digits=2,
         display_column_names=SAFE_DAILY_DISPLAY_COLUMN_NAMES,
         benchmark_footer_items=benchmark_items,
         **image_kwargs,
     )
-    apply_safe_public_watermarks(SAFE_OUTPUT_FILE)
-    print(f"安全版图片已生成: {SAFE_OUTPUT_FILE}")
+    apply_safe_public_watermarks(output_file)
 
 
 def _save_safe_image(
     summary_df: pd.DataFrame,
     benchmark_summary_df: pd.DataFrame,
     title: str,
+    output_file: str | Path | None = None,
 ) -> None:
+    output_file = output_file or SAFE_OUTPUT_FILE
     safe_summary_df = build_safe_summary_df(summary_df)
     image_summary_df = safe_summary_df.rename(
         columns={CUMULATIVE_DISPLAY_COLUMN: CUMULATIVE_INTERNAL_COLUMN}
@@ -535,84 +464,128 @@ def _save_safe_image(
     )
     save_cumulative_estimate_table_image(
         summary_df=image_summary_df,
-        output_file=SAFE_OUTPUT_FILE,
+        output_file=str(output_file),
         title=title,
         pct_digits=2,
         display_column_names=DISPLAY_COLUMN_NAMES,
         benchmark_summary_df=benchmark_summary_df,
         hide_status_column=True,
+        # 上下表统一为五列，复用绘图函数已有的同列数边界/列宽对齐逻辑。
+        hide_effective_days_column=True,
         **image_kwargs,
     )
-    apply_safe_public_watermarks(SAFE_OUTPUT_FILE)
-    print(f"安全版图片已生成: {SAFE_OUTPUT_FILE}")
+    apply_safe_public_watermarks(output_file)
+
+
+def _publish_image(render) -> str:
+    """完整绘制、水印和校验成功后才替换正式图；相同像素不重复改写。"""
+    target = Path(SAFE_OUTPUT_FILE).resolve()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(prefix=".sum_holidays_", suffix=".png", dir=target.parent, delete=False) as handle:
+        temporary = Path(handle.name)
+    try:
+        render(temporary)
+        with Image.open(temporary) as image:
+            image.verify()
+        with Image.open(temporary) as image:
+            current = image.convert("RGB")
+        if target.is_file():
+            try:
+                with Image.open(target) as image:
+                    previous = image.convert("RGB")
+                if current.size == previous.size and ImageChops.difference(current, previous).getbbox() is None:
+                    return "unchanged"
+            except (OSError, ValueError):
+                pass  # 旧图损坏时使用本次已校验成功的图片替换。
+        temporary.replace(target)
+        return "generated"
+    finally:
+        # 仅清理本次明确创建的单个临时文件，不批量删除目录或历史产物。
+        if temporary.exists():
+            temporary.unlink()
+
+
+def _update_data_diagnostics(report, funds, benchmarks, cache_file):
+    """缺口仅用于诊断，不把缺失收益当 0，也不强制各市场拥有相同交易日。"""
+    fund_days = sorted(set(funds.get("valuation_date", [])))
+    benchmark_days = sorted(set(benchmarks.get("valuation_date", [])))
+    by_fund = {str(code).zfill(6): sorted(set(group["valuation_date"]))
+               for code, group in funds.groupby("fund_code")} if not funds.empty else {}
+    codes = sorted({str(code).zfill(6) for code in HAIWAI_FUND_CODES})
+    reference_days = fund_days or [item.date().isoformat() for item in pd.date_range(report["start_date"], report["end_date"])]
+    missing = {code: sorted(set(reference_days) - set(by_fund.get(code, []))) for code in codes}
+    missing = {code: days for code, days in missing.items() if days}
+    raw = load_fund_estimate_history(cache_file)
+    if not raw.empty and "valuation_date" in raw:
+        raw = raw[raw["valuation_date"].between(report["start_date"], report["end_date"])]
+        raw = raw[raw["fund_code"].astype(str).str.zfill(6).isin(codes)]
+    report.update(
+        fund_valid_dates=fund_days, benchmark_valid_dates=benchmark_days,
+        fund_record_count=len(funds), benchmark_record_count=len(benchmarks),
+        fund_count=len(by_fund), expected_fund_count=len(codes), fund_dates_by_code=by_fund,
+        missing_fund_count=len(set(codes) - set(by_fund)),
+        missing_dates_by_fund=missing,
+        missing_dates_basis="其它基金已有的有效估值日期（不同市场可能正常休市）" if fund_days else "目标自然日期；暂无有效基金日可核对",
+        missing_reason="目标区间无基金记录" if raw.empty else "未缓存目标日，或记录未通过收盘/有限收益/可用运行日期校验；不同市场休市不补零",
+        raw_fund_record_count=len(raw),
+    )
+    if not raw.empty:
+        report["raw_record_states"] = raw.groupby(["stage", "data_status"], dropna=False).size().to_dict() if {"stage", "data_status"}.issubset(raw.columns) else {}
+        report["raw_record_states"] = {str(key): int(value) for key, value in report["raw_record_states"].items()}
 
 
 def run(today=None, cache_file: str | Path | None = None) -> bool:
-    ensure_runtime_dirs()
-
-    context = detect_post_holiday_context(today=today)
-    print(context.reason)
-
-    if context.calendar_source:
-        print(f"A股日历来源: {context.calendar_source}")
-    if context.closed_dates:
-        print(f"A股闭市日期: {', '.join(context.closed_dates)}")
-    if context.weekday_closed_dates:
-        print(f"其中工作日闭市: {', '.join(context.weekday_closed_dates)}")
-
-    if not context.should_generate:
-        return False
-
-    start_date, end_date, title = _target_valuation_window(context)
-    today_str = context.today.isoformat()
-
-    fund_daily_df, benchmark_daily_df, valuation_dates = _load_overseas_daily_records(
-        start_date=start_date,
-        end_date=end_date,
-        today_str=today_str,
-        cache_file=cache_file,
-    )
-
-    if not valuation_dates:
-        print(
-            "未找到目标海外估值日缓存，未生成图片。"
-            f"目标区间: {start_date} 至 {end_date}；请先运行 main.py。"
-        )
-        return False
-
-    if context.post_holiday_trade_day == 1 and valuation_dates != (start_date,):
-        print(
-            "节后第1天只使用节前最后估值日缓存；"
-            f"当前可用估值日: {', '.join(valuation_dates)}"
-        )
-
-    if context.post_holiday_trade_day == 2:
-        latest_valuation_date = valuation_dates[-1]
-        print(
-            f"节后第2天累计估值区间: {valuation_dates[0]} 至 {latest_valuation_date}; "
-            f"有效估值日: {', '.join(valuation_dates)}"
-        )
-    else:
-        print(f"节后第1天使用海外估值日: {valuation_dates[0]}")
-
-    title = _build_title(context, valuation_dates, title)
-
-    if context.post_holiday_trade_day == 1:
-        _save_daily_images(fund_daily_df, benchmark_daily_df, title)
+    report = dict(status="failed", should_generate=False,
+                  now_bj=datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
+                  today=_get_beijing_today(today).isoformat(), post_holiday_trade_day=0,
+                  pre_holiday_trade_date="", first_post_holiday_trade_date="", start_date="", end_date="",
+                  fund_valid_dates=[], benchmark_valid_dates=[], fund_record_count=0, benchmark_record_count=0,
+                  fund_count=0, missing_reason="", output_file=str(Path(SAFE_OUTPUT_FILE).resolve()),
+                  image_status="not_generated", mail_collection_status="standalone_not_collected")
+    try:
+        context = detect_post_holiday_context(today=today)
+        report.update(should_generate=context.should_generate, post_holiday_trade_day=context.post_holiday_trade_day,
+                      pre_holiday_trade_date=context.pre_holiday_trade_date,
+                      first_post_holiday_trade_date=context.first_post_holiday_trade_date,
+                      calendar_source=context.calendar_source, reason=context.reason)
+        print(context.reason)
+        if not context.verified:
+            raise RuntimeError(f"A股日历未核实：{context.reason}")
+        if not context.should_generate:
+            report.update(status="skipped", image_status="not_required")
+            return False
+        start_date, end_date, title = _target_valuation_window(context)
+        report.update(start_date=start_date, end_date=end_date)
+        print(f"目标估值区间: {start_date} 至 {end_date}；A股日历来源: {context.calendar_source}")
+        # 显式暴露缺失/损坏缓存，不让历史读取的兼容性空表掩盖应出图失败。
+        payload = json.loads(Path(cache_file or FUND_ESTIMATE_CACHE).read_text(encoding="utf-8-sig"))
+        if not isinstance(payload, dict) or not isinstance(payload.get("records", {}), dict):
+            raise RuntimeError("基金估算缓存结构无效")
+        funds, benchmarks, valuation_dates = _load_overseas_daily_records(start_date, end_date, context.today.isoformat(), cache_file)
+        _update_data_diagnostics(report, funds, benchmarks, cache_file)
+        print(f"基金有效日期: {', '.join(valuation_dates) or '无'}；基金记录 {len(funds)} 条 / {report['fund_count']} 只")
+        print(f"基准有效日期: {', '.join(report['benchmark_valid_dates']) or '无有效数据'}；基准记录 {len(benchmarks)} 条")
+        if not valuation_dates:
+            raise RuntimeError(f"目标海外基金无有效收盘估算；{report['missing_reason']}")
+        title = _build_title(context, valuation_dates, title)
+        ensure_runtime_dirs()
+        if context.post_holiday_trade_day == 1:
+            status = _publish_image(lambda path: _save_daily_images(funds, benchmarks, title, path))
+        else:
+            summary = build_cumulative_dataframe(funds)
+            if summary.empty:
+                raise RuntimeError("目标海外基金累计结果为空")
+            benchmark_summary = _format_benchmark_summary_labels(build_benchmark_cumulative_dataframe(benchmarks), valuation_dates)
+            status = _publish_image(lambda path: _save_safe_image(summary, benchmark_summary, title, path))
+        report.update(status=status, image_status=status)
+        print(f"安全版图片{'已生成/更新' if status == 'generated' else '已生成但未变化'}: {SAFE_OUTPUT_FILE}")
         return True
-
-    summary_df = build_cumulative_dataframe(fund_daily_df)
-    benchmark_summary_df = _format_benchmark_summary_labels(
-        build_benchmark_cumulative_dataframe(benchmark_daily_df),
-        valuation_dates,
-    )
-
-    if summary_df.empty:
-        print("目标海外基金缓存为空，未生成图片。")
-        return False
-
-    _save_safe_image(summary_df, benchmark_summary_df, title)
-    return True
+    except Exception as exc:
+        report.update(status="failed", error=str(exc), missing_reason=report["missing_reason"] or str(exc))
+        raise
+    finally:
+        # 放在输出末尾，确保总入口保留的日志尾部能读取完整状态和缺口诊断。
+        print(RESULT_PREFIX + json.dumps(report, ensure_ascii=False), flush=True)
 
 
 def parse_args() -> argparse.Namespace:

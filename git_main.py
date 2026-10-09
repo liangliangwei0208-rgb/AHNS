@@ -14,6 +14,7 @@ QQ_EMAIL_ACCOUNT、QQ_EMAIL_AUTH_CODE、QQ_EMAIL_RECEIVER 环境变量覆盖。
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -64,6 +65,7 @@ class WorkflowStep:
     close_observation_group: bool = False
     holiday_observation_group: bool = False
     first_reopen_group: bool = False
+    post_holiday_update_group: bool = False
     independent_window: bool = False
     once_per_day: bool = False
     daily_required_images: tuple[str, ...] = ()
@@ -235,6 +237,7 @@ def resolve_workflow_steps(
         close_observation_group = bool(item.get("close_observation_group", False))
         holiday_observation_group = bool(item.get("holiday_observation_group", False))
         first_reopen_group = bool(item.get("first_reopen_group", False))
+        post_holiday_update_group = bool(item.get("post_holiday_update_group", False))
         args_raw = item.get("args") or []
         if isinstance(args_raw, str):
             args = (args_raw,)
@@ -257,6 +260,7 @@ def resolve_workflow_steps(
                 close_observation_group=close_observation_group,
                 holiday_observation_group=holiday_observation_group,
                 first_reopen_group=first_reopen_group,
+                post_holiday_update_group=post_holiday_update_group,
                 independent_window=bool(item.get("independent_window", False)),
                 once_per_day=bool(item.get("once_per_day", False)),
                 daily_required_images=tuple(item.get("daily_required_images") or ()),
@@ -304,6 +308,7 @@ def select_workflow_steps_for_time(
     *,
     service_holiday: bool = False,
     service_first_reopen: bool = False,
+    post_holiday_trade_day: int = 0,
 ) -> list[WorkflowStep]:
     """按配置中的北京时间窗口选择步骤。
 
@@ -314,6 +319,13 @@ def select_workflow_steps_for_time(
     """
     now_bj = coerce_beijing_datetime(current_time or datetime.now(BJ_TZ))
     current = now_bj.time().replace(microsecond=0)
+    post_update_active = post_holiday_trade_day in (1, 2) or service_first_reopen
+    # 只在节后第1、2个交易日追加补更新，不把它设为普通交易日的 always_run。
+    steps = [
+        replace(step, args=(*step.args, "--today", now_bj.date().isoformat()))
+        if step.post_holiday_update_group and "--today" not in step.args else step
+        for step in steps if not step.post_holiday_update_group or post_update_active
+    ]
     matching_window_steps = [
         step
         for step in steps
@@ -333,6 +345,7 @@ def select_workflow_steps_for_time(
             if step.always_run
             or step.holiday_observation_group
             or (service_first_reopen and step.first_reopen_group)
+            or (post_update_active and step.post_holiday_update_group)
             or step in matching_realtime_steps
             or (step.independent_window and step in matching_window_steps)
         ]
@@ -354,6 +367,7 @@ def select_workflow_steps_for_time(
             if step.always_run
             or step in matching_realtime_steps
             or (step.independent_window and step in matching_window_steps)
+            or (post_update_active and step.post_holiday_update_group)
             or (
                 close_window_active
                 and step.close_observation_group
@@ -481,6 +495,35 @@ def _run_script(step: WorkflowStep, *, extra_env: dict[str, str] | None = None) 
     elapsed = time.perf_counter() - started
     after = snapshot_images()
     images = changed_images(before, after)
+
+    if script_path.name == "sum_holidays.py":
+        prefix = "AHNS_SUM_HOLIDAYS_RESULT="
+        marker = next((line[len(prefix):] for line in reversed(output_tail) if line.startswith(prefix)), None)
+        try:
+            state = json.loads(marker) if marker is not None else None
+            if state is not None:
+                target = Path(state.get("output_file", "")).resolve()
+                status = state.get("status")
+                exists = target in after and after[target].size > 0
+                if status == "generated" and (not exists or target not in images):
+                    raise ValueError("应生成的补更新图片未更新，邮件无法收集")
+                if status == "unchanged" and not exists:
+                    raise ValueError("报告图片未变化，但正式图片不存在或为空")
+                if status == "failed" or (status == "skipped" and state.get("should_generate")):
+                    raise ValueError(state.get("error") or "应该生成补更新图片却未生成")
+                if status not in {"generated", "unchanged", "skipped", "failed"}:
+                    raise ValueError("补更新脚本返回未知图片状态")
+                collection = "已加入邮件候选" if target in images and step.collect_images else (
+                    "已生成但未变化，本轮不重复发送" if status == "unchanged" else "本轮无补更新邮件图片"
+                )
+                log(f"节后补更新图片状态: {status}；邮件收集状态: {collection}")
+                output_tail.append(f"节后补更新图片状态: {status}；邮件收集状态: {collection}")
+            elif return_code == 0 and not images:
+                raise ValueError("补更新脚本未报告生成或跳过状态，且未更新图片")
+        except (ValueError, TypeError, AttributeError) as exc:
+            return_code = return_code or 1
+            error_message = f"节后补更新出图检查失败: {exc}"
+            output_tail.append(error_message)
 
     if return_code != 0:
         log(
@@ -736,14 +779,16 @@ def main(
     all_steps = steps
     service_holiday = False
     service_first_reopen = False
+    post_holiday_trade_day = 0
     calendar_error = ""
-    if service_mode:
+    if service_mode or any(step.post_holiday_update_group for step in steps):
         from tools.fund_history_io import detect_a_share_holiday_context
 
         try:
             holiday_context = detect_a_share_holiday_context(today=now_bj)
-            service_holiday = holiday_context.is_holiday
-            service_first_reopen = holiday_context.is_first_reopen
+            service_holiday = service_mode and holiday_context.is_holiday
+            service_first_reopen = service_mode and holiday_context.is_first_reopen
+            post_holiday_trade_day = holiday_context.post_holiday_trade_day if holiday_context.verified else 0
             if not holiday_context.verified:
                 calendar_error = holiday_context.reason
         except Exception as exc:
@@ -755,8 +800,11 @@ def main(
         steps, current_time=now_bj,
         service_holiday=service_holiday,
         service_first_reopen=service_first_reopen,
+        post_holiday_trade_day=post_holiday_trade_day,
     )
     log(f"当前北京时间: {now_bj.strftime('%Y-%m-%d %H:%M:%S')}")
+    if post_holiday_trade_day in (1, 2):
+        log(f"节后第 {post_holiday_trade_day} 个A股交易日：补更新步骤保留，不受实时窗口过滤")
     configured_windows = [
         f"{step.name}:{step.run_window_text}"
         for step in all_steps

@@ -35,6 +35,7 @@ from __future__ import annotations
 # - daily_required_images: 每日完成必须更新的PNG文件名；配合本机进程锁与成功日期使用。
 # - close_observation_group: True 表示收盘观察必要步骤。早间盘后/富途夜盘窗口与
 #   safe_fund.py 的 06:00-13:40 收盘窗口重叠时，会和实时观察一起运行。
+# - post_holiday_update_group: 只在已核实的节后第1、2个交易日运行，实时窗口也保留。
 # - run_window_bj: 可选，北京时间闭区间；支持跨午夜窗口，例如 ("22:40", "02:00")。
 #   命中窗口时才运行该步骤；实时观察窗口命中时会优先只运行实时步骤和全天固定步骤。
 # - args: 可选，运行脚本时追加的参数；实时观察由总入口控制窗口，因此这里传 --force。
@@ -102,6 +103,7 @@ COMMON_WORKFLOW_STEPS = [
         "required": True,
         "collect_images": True,
         "first_reopen_group": True,
+        "post_holiday_update_group": True,
     },
     {
         "name": "节后补更新科普图",

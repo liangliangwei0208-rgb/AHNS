@@ -78,6 +78,8 @@ class AShareHolidayContext:
     previous_trade_date: str = ""
     calendar_source: str = ""
     reason: str = ""
+    post_holiday_trade_day: int = 0
+    first_post_holiday_trade_date: str = ""
 
 
 def _load_json_cache(filename: str, default=None):
@@ -228,7 +230,7 @@ def load_fund_estimate_history(cache_file: str | Path | None = None) -> pd.DataF
         df["estimate_return_pct"] = pd.to_numeric(df["estimate_return_pct"], errors="coerce")
 
     if "is_final" in df.columns:
-        df["is_final"] = df["is_final"].astype(bool)
+        df["is_final"] = df["is_final"].fillna(False).astype(bool)
     else:
         df["is_final"] = False
 
@@ -267,7 +269,7 @@ def load_benchmark_estimate_history(cache_file: str | Path | None = None) -> pd.
         df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
     if "is_final" in df.columns:
-        df["is_final"] = df["is_final"].astype(bool)
+        df["is_final"] = df["is_final"].fillna(False).astype(bool)
     else:
         df["is_final"] = False
 
@@ -699,7 +701,22 @@ def detect_a_share_holiday_context(
         return AShareHolidayContext(reason="缺少可核实的假前A股交易日，无法判断休市区间", calendar_source=source)
 
     is_trading_day = current in parsed
-    next_trade = current if is_trading_day else next((item for item in parsed if item > current), None)
+    post_holiday_trade_day = 0
+    next_trade = next((item for item in parsed if item > current), None)
+    if is_trading_day:
+        current_index = parsed.index(current)
+        # 回看最近的含工作日休市区间；节后序号按交易日计数，不能用自然日相减。
+        for pair_index in range(current_index, 0, -1):
+            before, reopen = parsed[pair_index - 1], parsed[pair_index]
+            if (current - before).days > max_lookback_days:
+                break
+            if _weekday_closed_dates((before + timedelta(days=1)).isoformat(),
+                                     (reopen - timedelta(days=1)).isoformat()):
+                previous, next_trade = before, reopen
+                post_holiday_trade_day = current_index - pair_index + 1
+                break
+        if not post_holiday_trade_day:
+            return AShareHolidayContext(verified=True, reason="普通交易日或普通周末", calendar_source=source)
     if next_trade is None:
         return AShareHolidayContext(reason="A股日历尚未覆盖下一交易日，无法判断休市区间", calendar_source=source)
 
@@ -711,13 +728,15 @@ def detect_a_share_holiday_context(
 
     return AShareHolidayContext(
         is_holiday=not is_trading_day,
-        is_first_reopen=is_trading_day,
+        is_first_reopen=post_holiday_trade_day == 1,
         verified=True,
         start_date=start.isoformat(),
         end_date=(current if not is_trading_day else last_closed).isoformat(),
         previous_trade_date=previous.isoformat(),
         calendar_source=source,
         reason=f"A股休市区间: {start.isoformat()} 至 {last_closed.isoformat()}",
+        post_holiday_trade_day=post_holiday_trade_day,
+        first_post_holiday_trade_date=next_trade.isoformat(),
     )
 
 
@@ -776,6 +795,101 @@ def detect_overseas_holiday_estimate_window(
     )
 
 
+def _filter_available_run_dates(df: pd.DataFrame, as_of_run_date_bj: str | None) -> pd.DataFrame:
+    """先排除回放日期之后才产生的记录，再选择同日最高质量记录。"""
+    if not as_of_run_date_bj or "run_date_bj" not in df:
+        return df
+    cutoff = _normalize_date_string(as_of_run_date_bj)
+    if not cutoff:
+        raise ValueError("as_of_run_date_bj 必须是可解析的北京时间日期")
+    return df[df["run_date_bj"].fillna("").astype(str).le(cutoff)].copy()
+
+
+def _filter_valid_close_records(df: pd.DataFrame, *, benchmark: bool = False) -> pd.DataFrame:
+    """补更新专用收盘校验：保留合法部分收盘，拒绝盘中和明确错日的旧行情。"""
+    if df.empty:
+        return df
+
+    def eligible(row: pd.Series) -> bool:
+        value = pd.to_numeric(row.get("return_pct" if benchmark else "estimate_return_pct"), errors="coerce")
+        if pd.isna(value) or not np.isfinite(value):
+            return False
+        day = _normalize_date_string(row.get("valuation_date"))
+        anchor = _normalize_date_string(row.get("valuation_anchor_date"))
+        if not day or (anchor and anchor != day):
+            return False
+        stage = str(row.get("stage", "")).lower()
+        modes = {str(row.get(key, "")).lower() for key in ("valuation_mode", "effective_valuation_mode")}
+        realtime = {"intraday", "premarket", "afterhours", "night", "futu_night"}
+        if stage in realtime or modes & realtime:
+            return False
+        if benchmark:
+            # 无明细的旧版完整缓存仍兼容；有交易日期/状态时必须属于本估值日。
+            trade_day = _normalize_date_string(row.get("trade_date"))
+            status = str(row.get("status", "")).lower()
+            return bool(row.get("is_final", False)) and (not trade_day or trade_day == day) and status not in {
+                "closed", "stale", "pending", "missing", "failed", "intraday",
+            }
+        status = str(row.get("data_status", "")).lower()
+        if not bool(row.get("is_final", False)) and not (
+            stage == "partial" and status in {"partial", "stale"} and "last_close" in modes
+        ):
+            return False
+        market_status = row.get("market_status")
+        if isinstance(market_status, dict) and market_status and all(
+            str(item).lower() == "closed" for item in market_status.values()
+        ):
+            return False
+        market_dates = row.get("market_trade_dates")
+        statuses = market_status if isinstance(market_status, dict) else {}
+        # 市场状态取持仓中的最差状态，missing/pending/stale 仍可能包含当日真实贡献。
+        # closed 才表示整市场闭市，其锚点日期不能作为有效行情日期。
+        quote_days = [
+            _normalize_date_string(item) for market, item in market_dates.items()
+            if str(statuses.get(market, "")).lower() != "closed"
+        ] if isinstance(market_dates, dict) else []
+        residual_day = _normalize_date_string(row.get("residual_benchmark_trade_date"))
+        current_residual = str(row.get("residual_benchmark_status", "")).lower() == "traded" and residual_day == day
+        # 有当日有效持仓或补偿基准即可保留 partial/stale；不能把全部旧行情当新一天。
+        known_days = [item for item in quote_days if item]
+        if known_days or residual_day:
+            return day in known_days or current_residual
+        # 明确的未收盘/缺失占位不能变成 0% 有效日；只兼容无明细的旧版完整记录。
+        has_details = bool(statuses) or (isinstance(market_dates, dict) and bool(market_dates)) or str(
+            row.get("residual_benchmark_status", "")
+        ).lower() in {"traded", "closed", "pending", "missing", "stale", "failed"}
+        return bool(row.get("is_final", False)) and not has_details
+
+    return df[df.apply(eligible, axis=1)].copy()
+
+
+def _deduplicate_estimate_records(df: pd.DataFrame, *, benchmark: bool = False) -> pd.DataFrame:
+    """读缓存与累计共用质量选择，规则复用正式估算写入方，不修改模型公式。"""
+    if df.empty:
+        return df
+    from tools.get_top10_holdings import _record_run_time, _should_replace_estimate_record, _should_replace_benchmark_record
+    should_replace = _should_replace_benchmark_record if benchmark else _should_replace_estimate_record
+
+    out = df.copy()
+    # 无时区 run_time_bj 本来就是北京时间；与带时区记录按写入方相同语义比较。
+    out["_quality_run_time"] = out.apply(lambda row: _record_run_time(row.to_dict()), axis=1)
+    out = out.sort_values("_quality_run_time", kind="stable", na_position="first")
+    selected = {}
+    for row in out.to_dict("records"):
+        entity = str(row.get("symbol" if benchmark else "fund_code", ""))
+        key = (entity.upper() if benchmark else entity.zfill(6), str(row.get("valuation_date", "")))
+        old = selected.get(key)
+        if old is None:
+            selected[key] = row
+            continue
+        old_final, new_final = bool(old.get("is_final", False)), bool(row.get("is_final", False))
+        if (new_final and not old_final) or (
+            old_final == new_final and should_replace(old, row)
+        ):
+            selected[key] = row
+    return pd.DataFrame(selected.values()).drop(columns=["_quality_run_time"]).reset_index(drop=True)
+
+
 def get_fund_estimate_records(
     start_date: str,
     end_date: str,
@@ -786,6 +900,8 @@ def get_fund_estimate_records(
     require_final: bool = False,
     cache_file: str | Path | None = None,
     include_partial_close: bool = False,
+    valid_close_only: bool = False,
+    as_of_run_date_bj: str | None = None,
 ) -> pd.DataFrame:
     """
     按日期区间读取每日预估收益记录。
@@ -802,6 +918,10 @@ def get_fund_estimate_records(
         True：只保留 final 记录。
     include_partial_close:
         True 且 include_intraday=False 时，额外保留有数值的部分/过期收盘估算。
+    valid_close_only:
+        补更新可开启真实收盘校验；默认关闭，保留其它历史调用的原有口径。
+    as_of_run_date_bj:
+        回放可用记录的北京时间截止日，在去重之前过滤。
     """
     date_field = str(date_field).strip()
     if date_field not in {"valuation_date", "run_date_bj"}:
@@ -815,6 +935,10 @@ def get_fund_estimate_records(
     df = load_fund_estimate_history(cache_file=cache_file)
     if df.empty:
         return df
+
+    df = _filter_available_run_dates(df, as_of_run_date_bj)
+    if valid_close_only:
+        df = _filter_valid_close_records(df)
 
     if "market_group" in df.columns:
         df = df[df["market_group"].astype(str) == str(market_group)]
@@ -860,14 +984,8 @@ def get_fund_estimate_records(
         return df
 
     # 防御性去重：同一基金同一 valuation_date 只保留一条。
-    # 优先 final，其次保留运行时间更晚的一条。
-    df["_final_rank"] = df["is_final"].astype(int)
-    df = df.sort_values(
-        by=["fund_code", "valuation_date", "_final_rank", "_run_time_dt"],
-        ascending=[True, True, True, True],
-        na_position="first",
-    )
-    df = df.groupby(["fund_code", "valuation_date"], as_index=False).tail(1)
+    # 优先 final，再按写入方的完整性/质量选择，最后比较运行时间。
+    df = _deduplicate_estimate_records(df)
     df = df.sort_values(["fund_code", "valuation_date"]).reset_index(drop=True)
 
     return df
@@ -904,6 +1022,8 @@ def get_benchmark_estimate_records(
     include_intraday: bool = True,
     require_final: bool = False,
     cache_file: str | Path | None = None,
+    valid_close_only: bool = False,
+    as_of_run_date_bj: str | None = None,
 ) -> pd.DataFrame:
     """
     按日期区间读取指数每日涨跌幅记录。
@@ -922,6 +1042,10 @@ def get_benchmark_estimate_records(
     df = load_benchmark_estimate_history(cache_file=cache_file)
     if df.empty:
         return df
+
+    df = _filter_available_run_dates(df, as_of_run_date_bj)
+    if valid_close_only:
+        df = _filter_valid_close_records(df, benchmark=True)
 
     if "market_group" in df.columns:
         df = df[df["market_group"].astype(str) == str(market_group)]
@@ -945,13 +1069,7 @@ def get_benchmark_estimate_records(
         return df
 
     df = _deduplicate_benchmark_alias_records(df)
-    df["_final_rank"] = df["is_final"].astype(int)
-    df = df.sort_values(
-        by=["symbol", "valuation_date", "_final_rank", "_run_time_dt"],
-        ascending=[True, True, True, True],
-        na_position="first",
-    )
-    df = df.groupby(["symbol", "valuation_date"], as_index=False).tail(1)
+    df = _deduplicate_estimate_records(df, benchmark=True)
     df = df.sort_values(["symbol", "valuation_date"]).reset_index(drop=True)
 
     return df
@@ -975,6 +1093,7 @@ def build_cumulative_dataframe(daily_df: pd.DataFrame) -> pd.DataFrame:
             ]
         )
 
+    daily_df = _deduplicate_estimate_records(daily_df)
     rows = []
     for fund_code, g in daily_df.groupby("fund_code"):
         g = g.sort_values("valuation_date").copy()
@@ -1101,6 +1220,7 @@ def build_benchmark_cumulative_dataframe(benchmark_daily_df: pd.DataFrame) -> pd
         return pd.DataFrame(rows, columns=out.columns)
 
     benchmark_daily_df = _deduplicate_benchmark_alias_records(benchmark_daily_df)
+    benchmark_daily_df = _deduplicate_estimate_records(benchmark_daily_df, benchmark=True)
     if "value_type" in benchmark_daily_df.columns:
         value_type = benchmark_daily_df["value_type"].fillna("").astype(str).str.strip().str.lower()
         benchmark_daily_df = benchmark_daily_df[value_type.isin(["", "return_pct", "pct"])].copy()
