@@ -368,5 +368,13 @@
     "last_checked_at": "2026-09-12T08:45:04",
     "last_image": "output/fund_holding_change/latest/3_539002.png",
     "last_generated_at": "2026-07-21T09:58:59"
+  },
+  "018853:top10": {
+    "fund_code": "018853",
+    "top_n": 10,
+    "latest_quarter_key": 20262,
+    "latest_quarter_label": "2026年2季度股票投资明细",
+    "fingerprint": "9665aec38670b895d6ab46af57d6853edaca17fa944f64437b4f51162f36ba35",
+    "last_checked_at": "2026-10-09T13:30:36"
   }
 }
