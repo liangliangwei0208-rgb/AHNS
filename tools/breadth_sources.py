@@ -864,7 +864,11 @@ class FutuBreadth:
                 self.throttle();ret,data=self.connect().get_market_snapshot(batch)
                 if ret!=0:raise self.query_error(data)
                 for row in data.to_dict("records"):
-                    out[row["code"]]=dict(price=row.get("last_price"),prev_close=row.get("prev_close_price"),time=row.get("update_time"),source="futu_snapshot")
+                    # update_time可能属于盘后，last_price仍是常规价；保留原字段供收盘校验，
+                    # 不把盘后价格直接当常规收盘，也不改写报价时间冒充16:00。
+                    out[row["code"]]=dict(price=row.get("last_price"),prev_close=row.get("prev_close_price"),
+                        time=row.get("update_time"),source="futu_snapshot",
+                        after_price=row.get("after_price"),after_change_val=row.get("after_change_val"))
             except Exception as e:
                 # 一个批次失败不能丢掉其他批次；诊断保留错误供下次增量重试。
                 self.quote_errors.append(str(e)[:160])

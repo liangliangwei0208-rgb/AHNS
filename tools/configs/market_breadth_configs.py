@@ -6,7 +6,8 @@ BREADTH_RUNTIME_BUDGET_SECONDS = 300
 BREADTH_US_SYMBOL_TIMEOUT_SECONDS = 15
 BREADTH_MEMBER_RECHECK_DAYS = 15  # 成分名单半月核验一次，避免每日请求指数接口
 BREADTH_HISTORY_ROWS = 400
-BREADTH_MIN_COVERAGE = .95
+# 允许少量成分缺失，仍按实际有效成分计算；不把缺失收益/价格补零。
+BREADTH_MIN_COVERAGE = .90
 BREADTH_DIRECT_INDICATOR_SOURCES = {}  # 仅登记已核验口径且获准自动使用的直接广度源
 BREADTH_FALLBACK_MAX_SESSIONS = 5  # 最新行情失效时，右侧最多展示最近5个交易日的可信收盘值
 # 价格图上50D极端状态带的阈值；可自行调整，须保持 0 <= 下限 < 上限 <= 100。

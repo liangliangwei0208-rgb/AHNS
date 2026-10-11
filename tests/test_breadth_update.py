@@ -107,21 +107,21 @@ class UpdateTests(unittest.TestCase):
                                   '--cache-root',tmp.name,'--report-path',str(Path(tmp.name)/'report.json')])
         self.assertNotEqual(rc,0)
 
-    def test_95_percent_boundary_and_restart_only_requests_remaining(self):
-        store, frame, symbols = self.fixture(20)
-        for code in symbols[:19]:store.save_prices(code,frame,'sina_us_qfq')
-        with patch('tools.breadth_engine.fetch_prices',side_effect=RuntimeError('offline')):
-            report=self.run_update(store,use_futu=False)
-        self.assertEqual(report['coverage'],.95)
-        self.assertEqual(report['status'],'complete')
-        with patch('tools.breadth_engine.fetch_prices',return_value=(frame,'sina_us_qfq')) as fetch:
-            self.run_update(store,use_futu=False)
-        self.assertEqual([c.args[0] for c in fetch.call_args_list],symbols[19:])
+    def test_90_percent_boundary_and_restart_only_requests_remaining(self):
         store, frame, symbols = self.fixture(20)
         for code in symbols[:18]:store.save_prices(code,frame,'sina_us_qfq')
         with patch('tools.breadth_engine.fetch_prices',side_effect=RuntimeError('offline')):
             report=self.run_update(store,use_futu=False)
         self.assertEqual(report['coverage'],.90)
+        self.assertEqual(report['status'],'complete')
+        with patch('tools.breadth_engine.fetch_prices',return_value=(frame,'sina_us_qfq')) as fetch:
+            self.run_update(store,use_futu=False)
+        self.assertCountEqual([c.args[0] for c in fetch.call_args_list],symbols[18:])
+        store, frame, symbols = self.fixture(20)
+        for code in symbols[:17]:store.save_prices(code,frame,'sina_us_qfq')
+        with patch('tools.breadth_engine.fetch_prices',side_effect=RuntimeError('offline')):
+            report=self.run_update(store,use_futu=False)
+        self.assertEqual(report['coverage'],.85)
         self.assertEqual(report['status'],'stale')
 
     def test_partial_response_saves_progress_without_reporting_success(self):

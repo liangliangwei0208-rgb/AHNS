@@ -272,11 +272,11 @@
 - `market_breadth/results/<市场>.json`：最多400个广度记录，`kind=close/intraday` 区分收盘和盘中；`finality=snapshot_provisional` 不等于已核实正式日线；缺失值为null，不是0。旧结果标记 `current_members_backcast`，启用后结果标记 `point_in_time_membership`；已发布正式值只有显式 `--repair` 可更正。
 - `market_breadth/benchmarks/nasdaq_stockcharts.json` 和 `nasdaq100_stockcharts.json`：保存既有 StockCharts `$NAA50R`、`$NDXA50R` 独立参照数据；不再自动请求，不参与绘图优先级。旧 `results/nasdaq_stockcharts.json` 仅保留。
 - `market_breadth/direct_indicators/<市场>.json`：预留获准自动使用的同成分口径直接广度，文件需含 `type=direct_indicators`、`source_id`、`universe`、`metric=percent_members_above_sma50` 及逐日 `date/percent/kind/source`；盘中行还需 `observed_at`。只有配置中登记 `access_approved=True` 的来源才会供绘图优先读取，当前无已登记来源；正式自算结果不受其覆盖。
-- NDX 在 `pit_start` 前的历史曲线从首次核验名单和真实价格分片即时回算，缺口及覆盖率不足95%的日期留空，图内标明历史口径；不写入 `results/nasdaq100.json`。
+- NDX 在 `pit_start` 前的历史曲线从首次核验名单和真实价格分片即时回算，缺口及覆盖率不足90%的日期留空，图内标明历史口径；不写入 `results/nasdaq100.json`。
 - A股15:15之后可用富途15:00快照、美股按实际收市时间可用富途常规时段末尾快照，均按昨收比例接续原复权基准；后续正式日线核对。图表最多提示5个交易日内可信旧收盘值与日期，不复活过期盘中点。
 - 美股日线依次尝试 Yahoo、新浪美股前复权和东方财富直连；换源时重取完整窗口，不把不同复权口径拼接。限流或连接故障按本轮来源熔断，未补证券留待续跑。
 - `market_breadth/snapshots/<市场>.json`：最近一批快照，`nasdaq100` 与旧 `nasdaq` 分开；默认40分钟复用，原始报价时间控制有效性，不以文件修改时间替代。
-- 新发布值要求有效成分覆盖率至少95%；旧正式收盘值不因阈值改变而追改。未来或待确认调入证券可提前预热真实价格，生效前不进入分母，调出证券分片保留。
+- 新发布值要求有效成分覆盖率至少90%；旧正式收盘值不因阈值改变而追改。未来或待确认调入证券可提前预热真实价格，生效前不进入分母，调出证券分片保留。
 - 生产者：`market_breadth.py`；读取：RSI绘图、`check_project.py`和`sync_repos.py`。
 - 所有业务分片参加Git三边同步；本机锁、连接配置和临时文件不提交。`market_breadth_local/`仅用于本机协调。
 - 合并价格先校验复权基准与重叠值；临时价和正式价冲突时正式价优先，不兼容时取较新完整快照。正式收盘结果优先于盘中值，不按后来成分版本回写既有历史。
@@ -306,3 +306,9 @@
 - 市值/GDP唯一刷新入口为tools.a_share_valuation.load_macro_data及a_share_mc_gdp.json；原始市值a_share_market_cap_monthly.csv和原始GDP china_nominal_gdp_quarterly.csv不再刷新或重复写入，只在JSON缺失时作为只读校验来源。月度复核a_share_market_cap_gdp_10y.csv仍按原规则生成。
 - 技术图使用available_at/historical_cutoff/observations；十年图使用历史修订序列，不能混作当时已知信号。两入口共用48/96小时TTL、24小时失败退避和15秒预算。
 - 旧Composite分片仅审计，候选清单见docs/audits/legacy_nasdaq_cache_candidates.csv；仍有业务引用，未移动或删除。
+
+## 2026-10-11：50D发布门槛与临时收盘
+
+全市场新发布50D的有效成分门槛统一90%，按有效成分计算，缺失成分不补零。富途同日盘后更新时间快照，仅在目标日收盘15分钟后且常规价与盘后价减涨跌额一致时接纳；不改写原时间，不使用盘后价代替常规价。新有效临时收盘可恢复旧正式空值，较新正式核验仍可否决旧临时值；有效正式历史保护不变。诊断分别报告可展示结果与正式核验状态。
+
+临时收盘复用既有 `observed_at` 字段记录有效行情窗口的证据时间；重算、未补充价格/质量的旧日线响应和较新交易日分片更新不能刷新旧日证据。跨主机结果统一按UTC时间合并。

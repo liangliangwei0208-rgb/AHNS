@@ -18,7 +18,8 @@ import matplotlib.dates as mdates
 from matplotlib.patches import Rectangle
 from matplotlib import patheffects
 from matplotlib.font_manager import FontProperties
-from tools.configs.market_breadth_configs import (BREADTH_HISTORY_ROWS, BREADTH_BAND_LOW_COLOR, BREADTH_BAND_HIGH_COLOR)
+from tools.configs.market_breadth_configs import (BREADTH_HISTORY_ROWS, BREADTH_BAND_LOW_COLOR,
+                                               BREADTH_BAND_HIGH_COLOR, BREADTH_MIN_COVERAGE)
 
 RIGHT_METRIC_LABEL_X = .90
 
@@ -43,7 +44,7 @@ def price_matrix(prices, members, sessions=None):
     return frame
 
 
-def calculate_history(prices, members, min_coverage=.95, sessions=None):
+def calculate_history(prices, members, min_coverage=BREADTH_MIN_COVERAGE, sessions=None):
     members=sorted(set(members))
     frame=price_matrix(prices,members,sessions)
     averages=frame.rolling(50,min_periods=50).mean()
@@ -56,7 +57,8 @@ def calculate_history(prices, members, min_coverage=.95, sessions=None):
                          "total":len(members),"coverage":coverage.values,"kind":"close"})
 
 
-def calculate_segmented_history(prices, store, key, sessions, min_coverage=.95, calendar_sessions=None):
+def calculate_segmented_history(prices, store, key, sessions, min_coverage=BREADTH_MIN_COVERAGE,
+                                calendar_sessions=None, evidence_times=None):
     """按交易日有效名单分段计算；成员入指前的真实价格仍用于均线预热。"""
     pit_start=store.read("members",key).get("pit_start")
     requested = [str(day)[:10] for day in sessions if not pit_start or str(day)[:10]>=pit_start]
@@ -81,6 +83,10 @@ def calculate_segmented_history(prices, store, key, sessions, min_coverage=.95, 
     available = matrix.notna() & averages.notna()
     above = (matrix > averages) & available
     del matrix, averages
+    evidence = {code:pd.to_datetime(stamp,utc=True,errors='coerce')
+                for code,stamp in (evidence_times or {}).items()}
+    latest_price_days = {code:max((str(day)[:10] for day in prices[code].get('date',[])),default='')
+                         for code in evidence if code in prices}
     rows = []
     for day in requested:
         member = memberships.get(day)
@@ -95,10 +101,17 @@ def calculate_segmented_history(prices, store, key, sessions, min_coverage=.95, 
         rows.append(dict(date=day, percent=percent, valid=valid, total=total, coverage=coverage,
                          kind="close", membership_version=member["version"],
                          membership_policy="point_in_time_membership"))
+        if evidence_times is not None:
+            # 证据时间来自真正参与该日50根窗口的行情，不能用重算时间或无效成分刷新。
+            stamps=[evidence.get(code) for code in symbols if available.loc[day,code]
+                    # 分片的较新交易日写入不能冒充旧日快照被重新观测。
+                    and latest_price_days.get(code,'')<=day
+                    and pd.notna(evidence.get(code))]
+            rows[-1]['observed_at']=max(stamps).isoformat() if stamps else None
     return pd.DataFrame(rows)
 
 
-def calculate_intraday(prices,members,day,quotes,min_coverage=.95,sessions=None):
+def calculate_intraday(prices,members,day,quotes,min_coverage=BREADTH_MIN_COVERAGE,sessions=None):
     # 当天只放一次临时价格；不允许用过期日线向前填充停牌/缺失交易日。
     matrix=price_matrix(prices,sorted(set(members)),sessions)
     prior=matrix.loc[matrix.index<day].tail(49)
@@ -127,7 +140,19 @@ def _rank(row):
     # 有效收盘优先；同一日期已正式记录的成分版本保持稳定。
     value=row.get("percent")
     valid=isinstance(value,(int,float)) and math.isfinite(value) and 0<=value<=100
-    return (valid,row.get("kind")=="close",str(row.get("updated_at","")),json.dumps(row,sort_keys=True))
+    evidence=_snapshot_evidence_time(row) if row.get('finality')=='snapshot_provisional' else _updated_time(row)
+    return (valid,row.get("kind")=="close",evidence,_updated_time(row),json.dumps(row,sort_keys=True))
+
+
+def _updated_time(row):
+    """跨主机按真实UTC时间比较；缺少/无效时间不能证明快照比正式核验更新。"""
+    stamp=pd.to_datetime(row.get("updated_at"),utc=True,errors="coerce")
+    return stamp if pd.notna(stamp) else pd.Timestamp.min.tz_localize("UTC")
+
+
+def _snapshot_evidence_time(row):
+    # 新记录复用已有observed_at字段，旧版无此字段时兼容原写入时间。
+    return _updated_time({'updated_at':row['observed_at']}) if 'observed_at' in row else _updated_time(row)
 
 
 def merge_document(a,b):
@@ -135,7 +160,7 @@ def merge_document(a,b):
     if not b: return a
     if a.get("type")!=b.get("type"): raise ValueError("缓存类型不匹配")
     kind=a["type"]
-    newer=max([a,b],key=lambda x:(x.get("updated_at",""),json.dumps(x,sort_keys=True)))
+    newer=max([a,b],key=lambda x:(_updated_time(x) if kind=='results' else x.get("updated_at",""),json.dumps(x,sort_keys=True)))
     if kind=="snapshots":return newer
     if kind=="direct_indicators" and any(a.get(field)!=b.get(field) for field in
                                           ("source_id","universe","metric")):
@@ -196,11 +221,15 @@ def merge_document(a,b):
         if kind=="results":
             if old.get("kind")==row.get("kind")=="intraday":
                 # 新快照覆盖率下降时留空，不继续展示旧的有效盘中点。
-                rows[key]=max([old,row],key=lambda x:(x.get("updated_at",""),json.dumps(x,sort_keys=True)))
+                rows[key]=max([old,row],key=lambda x:(_updated_time(x),json.dumps(x,sort_keys=True)))
                 continue
-            if old.get("kind")==row.get("kind")=="close" and old.get("finality")!=row.get("finality"):
-                # 官方日线核验结果覆盖快照临时收盘值，包括覆盖率不足时的空值。
-                rows[key]=old if old.get("finality")!="snapshot_provisional" else row
+            if old.get("kind")==row.get("kind")=="close" and \
+                    (old.get("finality")=="snapshot_provisional")!=(row.get("finality")=="snapshot_provisional"):
+                official,snapshot=(row,old) if old.get("finality")=="snapshot_provisional" else (old,row)
+                # 有效正式值始终保护。较新有效快照只恢复较旧正式空值；
+                # 后续正式核验（包括空值）仍可否决旧快照，时间相同也优先正式。
+                rows[key]=(snapshot if not _rank(official)[0] and _rank(snapshot)[0]
+                           and _snapshot_evidence_time(snapshot)>_updated_time(official) else official)
                 continue
             if {old.get("kind"),row.get("kind")}=={"close","intraday"}:
                 rows[key]=old if old.get("kind")=="close" else row
@@ -216,7 +245,7 @@ def merge_document(a,b):
                           bool(old.get("membership_policy"))!=bool(row.get("membership_policy"))):
                         rows[key]=old if old.get("membership_policy") else row
                     else:
-                        rows[key]=min([old,row],key=lambda x:(x.get("updated_at",""),json.dumps(x,sort_keys=True)))
+                        rows[key]=min([old,row],key=lambda x:(_updated_time(x),json.dumps(x,sort_keys=True)))
                     continue
             rows[key]=max([old,row],key=_rank)
         else:
@@ -329,8 +358,14 @@ class BreadthStore:
         if provisional:provisional_dates.update(incoming_dates)
         else:provisional_dates.difference_update(incoming_dates)
         rows=json.loads(frame.tail(BREADTH_HISTORY_ROWS).to_json(orient="records"))
+        kept_provisional=sorted(provisional_dates.intersection(r['date'] for r in rows))
+        if old and not provisional and old.get('basis')==basis \
+                and kept_provisional==old.get('provisional_dates',[]) \
+                and rows==json.loads(previous.tail(BREADTH_HISTORY_ROWS).to_json(orient='records')):
+            # 旧日线响应若未补任何价格/质量信息，不改证据时间，避免复活已被否决的旧快照。
+            return
         self.write("prices",key,dict(type="prices",basis=basis,updated_at=updated_at or utc_now(),rows=rows,
-                                      provisional_dates=sorted(provisional_dates.intersection(r["date"] for r in rows)),
+                                      provisional_dates=kept_provisional,
                                       bootstrap_complete=old.get("bootstrap_complete",False)))
     def establish_pit_start(self,key,day):
         doc=self.read("members",key)
@@ -423,6 +458,9 @@ class BreadthStore:
                        updated_at=utc_now())
             row.setdefault("membership_policy","point_in_time_membership")
             prior=previous.get(row.get("date")) if row.get("kind")=="close" else None
+            if finality=='snapshot_provisional' and row.get('kind')=='close' and 'observed_at' not in row:
+                # 单纯重算不能成为新快照证据；有正式否决时，调用方须提供新行情的证据时间。
+                row['observed_at']=(prior.get('observed_at',prior.get('updated_at')) if prior else row['updated_at'])
             if repair and prior and all(prior.get(field)==row.get(field) for field in
                     ("kind","percent","valid","total","coverage","membership_version","membership_policy","source","finality")):
                 continue
@@ -436,7 +474,8 @@ class BreadthStore:
             if repair and finality=="official":
                 corrected={r["date"] for r in stamped if r.get("kind")=="close" and r.get("percent") is not None}
                 old["rows"]=[r for r in old["rows"] if not (r.get("date") in corrected and r.get("kind")=="close")]
-        policy="equal_weight_strict_above_inclusive_SMA50; point_in_time_from_activation; published_close_immutable; min_coverage_95pct"
+        policy=("equal_weight_strict_above_inclusive_SMA50; point_in_time_from_activation; "
+                f"published_close_immutable; min_coverage_{BREADTH_MIN_COVERAGE*100:g}pct")
         self.write("results",key,merge_document(old,dict(type="results",updated_at=utc_now(),rows=stamped,calculation_policy=policy)))
     def results(self,key):
         return pd.DataFrame(self.read("results",key).get("rows",[]),columns=["date","percent","valid","total","coverage","kind","membership_version","membership_policy","source","finality","repair_revision","updated_at","observed_at"])

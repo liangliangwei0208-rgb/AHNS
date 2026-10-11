@@ -76,30 +76,49 @@ def prepare_close_quotes(store,members,quotes,now,day,previous_day):
     return out
 
 
-def prepare_market_close_quotes(store,members,quotes,now,day,previous_day,market):
+def prepare_market_close_quotes(store,members,quotes,now,day,previous_day,market,diagnostics=None):
     """按实际交易日历验证收盘快照，再续接证券原有复权价格。"""
     if market=="CN":return prepare_close_quotes(store,members,quotes,now,day,previous_day)
     schedule=_schedule(market,day)
-    if pd.Timestamp(day) not in schedule.index:return {}
+    diagnostics=diagnostics if diagnostics is not None else {}
+    if pd.Timestamp(day) not in schedule.index:
+        diagnostics.update({c:'target_not_trading_session' for c in members});return {}
     session=schedule.loc[day]
     opened=pd.Timestamp(session.market_open).tz_convert("America/New_York")
     closed=pd.Timestamp(session.market_close).tz_convert("America/New_York")
     now=pd.Timestamp(now)
     now=now.tz_localize("America/New_York") if now.tzinfo is None else now.tz_convert("America/New_York")
-    if now<closed+pd.Timedelta(minutes=15):return {}
+    if now<closed+pd.Timedelta(minutes=15):
+        diagnostics.update({c:'session_not_complete_plus_15m' for c in members});return {}
     out={}
     for code in members:
         quote=quotes.get(code,{})
+        diagnostics[code]='missing_or_invalid_fields'
         try:
             stamp=pd.Timestamp(quote["time"])
             stamp=stamp.tz_localize("America/New_York") if stamp.tzinfo is None else stamp.tz_convert("America/New_York")
-            # 只认收市前最后几分钟的常规时段报价；午间旧价不能冒充收盘。
-            if not max(opened,closed-pd.Timedelta(minutes=5))<=stamp<=closed or str(stamp.date())!=day:continue
+            if pd.isna(stamp) or str(stamp.date())!=day:
+                diagnostics[code]='quote_date_mismatch';continue
+            if stamp>now:
+                diagnostics[code]='future_quote';continue
             price=float(quote["price"]);previous=float(quote["prev_close"])
-            if not all(math.isfinite(x) and x>0 for x in (price,previous)):continue
+            if not all(math.isfinite(x) and x>0 for x in (price,previous)):
+                diagnostics[code]='invalid_regular_or_previous_price';continue
+            regular=max(opened,closed-pd.Timedelta(minutes=5))<=stamp<=closed
+            if not regular:
+                # 富途的更新时间可推进至盘后；常规价必须与盘后涨跌额反推结果一致。
+                # 仅放宽经过交叉校验的同日收盘后快照，午间旧行情仍拒绝。
+                if stamp<closed or quote.get('source')!='futu_snapshot':
+                    diagnostics[code]='outside_regular_close_window';continue
+                after=float(quote['after_price']);change=float(quote['after_change_val'])
+                if not (math.isfinite(after) and after>0 and math.isfinite(change)
+                        and math.isclose(price,after-change,rel_tol=1e-6,abs_tol=.011)):
+                    diagnostics[code]='regular_after_price_mismatch';continue
             history=store.prices(code)
-            if history.empty or history.iloc[-1].date!=previous_day:continue
+            if history.empty or history.iloc[-1].date!=previous_day:
+                diagnostics[code]='missing_previous_session_basis';continue
             out[code]=float(history.iloc[-1].close)*price/previous
+            diagnostics[code]='accepted_regular_close_window' if regular else 'accepted_verified_postmarket_regular_close'
         except (KeyError,TypeError,ValueError,OverflowError):continue
     return out
 
@@ -142,6 +161,10 @@ def close_completion(store,key,clock,*,calculation=None):
               and float(r.get('coverage') or 0)>=BREADTH_MIN_COVERAGE]
     latest_record=max(official,key=lambda r:r['date'],default={})
     latest=latest_record.get('date')
+    usable=[r for r in rows if r.get('kind')=='close' and r.get('date','')<=clock['complete_day']
+            and r.get('percent') is not None and math.isfinite(float(r['percent']))
+            and float(r.get('coverage') or 0)>=BREADTH_MIN_COVERAGE]
+    latest_usable=max(usable,key=lambda r:r['date'],default={})
     member=store.members(key,clock['complete_day']);symbols=member.get('symbols',[])
     if (calculation and calculation.get('day')==clock['complete_day']
             and calculation.get('version')==member.get('version')
@@ -152,6 +175,8 @@ def close_completion(store,key,clock,*,calculation=None):
         row=calculated.iloc[-1] if not calculated.empty else {}
     missing=[c for c in symbols if missing_price_sessions(store,c,clock['sessions'])]
     return dict(expected_complete_day=clock['complete_day'],latest_valid_close_date=latest,
+                latest_usable_close_date=latest_usable.get('date'),
+                latest_usable_close_finality=latest_usable.get('finality'),min_coverage=BREADTH_MIN_COVERAGE,
                 member_count=len(symbols),valid_count=int(row.get('valid',0)),coverage=float(row.get('coverage',0)),
                 missing_count=len(missing),remaining_missing_symbols=missing,
                 missing_sessions=sum((latest or '')<d<=clock['complete_day'] for d in clock['sessions']),
@@ -321,6 +346,7 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
     deadline=deadline or (time.monotonic()+BREADTH_RUNTIME_BUDGET_SECONDS)
     report=dict(key=key,time=utc_now(),complete_day=clock["complete_day"],regular_session=clock["regular"],downloaded=0,needs_bootstrap=0,errors=[])
     report.update(market=key,status='running',expected_complete_day=clock['complete_day'],updated_symbols=[],
+                  min_coverage=BREADTH_MIN_COVERAGE,futu_history_skip_reasons={},
                   ordinary_source_success_count=0,futu_history_success_count=0,futu_snapshot_success_count=0)
     def checkpoint():
         if progress_callback:
@@ -453,7 +479,9 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
         try:shared_quotes.update(futu.quotes(to_fetch))
         except Exception as e:report["errors"].append("富途收盘快照: "+str(e)[:160])
         quotes={c:shared_quotes[c] for c in missing if c in shared_quotes}
-        values=prepare_market_close_quotes(store,missing,quotes,clock["now"],clock["complete_day"],previous_day,spec["market"])
+        validations={}
+        values=prepare_market_close_quotes(store,missing,quotes,clock["now"],clock["complete_day"],previous_day,spec["market"],
+                                           diagnostics=validations)
         for code,value in values.items():
             try:
                 basis=store.price_metadata(code).get("basis")
@@ -463,6 +491,8 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
                 snapshot_codes.add(code)
             except Exception as e:report["errors"].append(f"富途收盘价 {code}: {str(e)[:160]}")
         report["close_snapshot"]={"received":len(quotes),"eligible":len(snapshot_codes),"total":len(symbols),
+                                  "target_day":clock['complete_day'],"min_coverage":BREADTH_MIN_COVERAGE,
+                                  "validation":validations,"quote_times":{c:q.get('time') for c,q in quotes.items()},
                                   "source":"futu_regular_close_snapshot",
                                   "errors":list(getattr(futu,"quote_errors",[]))[quote_errors_start:]}
         if snapshot_codes:
@@ -471,6 +501,7 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
                                                  calendar_sessions=clock["sessions"][-400:])
             if not interim.empty:
                 row=interim.iloc[-1].to_dict()
+                row['observed_at']=utc_now()  # 本轮实际取得并通过校验的收盘快照证据。
                 report["close_snapshot"]["coverage"]=row.get("coverage")
                 if pd.notna(row["percent"]):
                     store.save_results(key,[row],member["version"],source="futu_close_snapshot",finality="snapshot_provisional")
@@ -547,6 +578,7 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
                 else:report['errors'].append(f'Futu {code}: history response incomplete; missing {missing_price_sessions(store,code,clock["sessions"])}')
             except Exception as e:
                 report["errors"].append(f"Futu {code}: "+str(e)[:160])
+                report['futu_history_skip_reasons'][code]=str(e)[:160]
                 # 预留线不能阻止本轮已经占额度证券继续修复；连接失败则不反复重连。
                 if 'OpenD not running' in str(e) or 'Runtime budget exhausted' in str(e):break
             attempt_path.write_text(json.dumps(attempts),encoding='utf-8')
@@ -568,7 +600,8 @@ def refresh_market(store,key,now=None,bootstrap=False,repair=False,refresh_membe
             needed.update(previous.get("symbols",[]))
         prices,prices_token=store.price_snapshot(needed)
         out=calculate_segmented_history(prices,store,key,calculation_dates,BREADTH_MIN_COVERAGE,
-                                        calendar_sessions=dates)
+                                        calendar_sessions=dates,
+                                        evidence_times={c:store.price_metadata(c).get('updated_at') for c in needed})
         # 预热空值可保留，绘图会自然断开。
         target_row=out.loc[out.date==clock['complete_day']] if not out.empty else pd.DataFrame()
         completion_member=store.members(key,clock['complete_day'])

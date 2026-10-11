@@ -25,11 +25,13 @@ BREADTH_CACHE_DOCUMENTATION = (BREADTH_CACHE_DOCUMENTATION
     .replace("- A股15:15之后可用富途15:00快照",
              "- `market_breadth/direct_indicators/<市场>.json`：获准自动使用的同成分口径直接广度；需 `source_id/universe/metric` 元数据和逐日日期、百分比、收盘/盘中类型。仅配置登记并核验的数据供绘图优先读取，当前没有启用来源。NDX 的 `pit_start` 前历史仅用首次核验名单与真实价格即时回算，不写正式结果。\n- A股15:15之后可用富途15:00快照")
     .replace("默认30分钟复用", "默认40分钟复用")
-    .replace("日线/结果仅裁剪文件内记录", "新发布结果覆盖率至少95%；旧正式值不追改。未来或待确认调入证券提前预热真实价格，生效前不进入分母。日线/结果仅裁剪文件内记录"))
+    .replace("美股按实际收市时间可用富途常规时段末尾快照", "美股按实际收市时间及15分钟缓冲可用富途常规时段末尾快照；同日盘后更新时间须验证last_price与after_price-after_change_val一致，始终使用常规价")
+    .replace("日线/结果仅裁剪文件内记录", "新发布结果覆盖率至少90%，缺失成分不补零；旧有效正式值不追改。常规收盘快照为临时值，正式日线可核验替换。未来或待确认调入证券提前预热真实价格，生效前不进入分母。日线/结果仅裁剪文件内记录"))
 
 # 本机尝试顺序不是行情事实；失效或删除后仍从证券价格分片重建缺口队列。
-BREADTH_CACHE_DOCUMENTATION += "\n- 默认刷新总预算300秒；全部美股未完成证券可进入富途回退，保留10只历史额度。普通源失败或旧响应不算成功。\n- `market_breadth_local/<市场>_attempts.json` 仅记录本机尝试顺序；未完成任务由真实价格分片重建，不同步此文件。\n- `output/market_breadth_diagnostics.json` 每批原子保存进度。正式目标日期未完成时报告stale，临时快照不算正式完成。\n"
+BREADTH_CACHE_DOCUMENTATION += "\n- 默认刷新总预算300秒；全部美股未完成证券可进入富途回退，保留10只历史额度。普通源失败或旧响应不算成功。\n- `market_breadth_local/<市场>_attempts.json` 仅记录本机尝试顺序；未完成任务由真实价格分片重建，不同步此文件。\n- `output/market_breadth_diagnostics.json` 每批原子保存进度，含目标日、有效/总成分、90%门槛、快照校验及历史额度阻断原因、可展示收盘日期/正式或临时状态。正式目标日期未完成时报告stale，临时快照不算正式完成。较新有效临时收盘可恢复旧正式空值；较新的正式核验仍能否决旧临时值，有效正式历史保持保护。\n"
 BREADTH_CACHE_DOCUMENTATION += "\n- 本轮读取作用域复用价格表和元数据；写入或外部文件版本变化后失效，处理结束释放，不增加持久化中间矩阵。完成验收可复用同一成员版本和价格文件版本的计算结果。\n- 仅当正式结果及维护任务均已完成时跳过下载和SMA计算；缺口、临时价核验、调入预热、到期成员核验和显式修复仍执行。旧Composite分片保留；审计候选不等于可删除。\n"
+BREADTH_CACHE_DOCUMENTATION += "\n- 临时收盘复用observed_at保存行情证据时间；重算、未补充价格/质量的旧日线响应、较新交易日的分片更新都不能刷新旧日证据。跨主机结果时间统一按UTC比较。\n"
 
 CACHE_INFO_VERSION = 1
 CACHE_README_FILENAME = "README.md"

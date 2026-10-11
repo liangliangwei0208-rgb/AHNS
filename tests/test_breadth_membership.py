@@ -23,18 +23,18 @@ class MembershipVersionTests(unittest.TestCase):
         self.assertEqual(second["verified_date"], "2026-09-28")
         self.assertEqual(self.store.read("members","dow")["pit_start"],"2026-09-25")
 
-    def test_new_publication_requires_95_percent_coverage(self):
-        self.assertEqual(BREADTH_MIN_COVERAGE,.95)
+    def test_new_publication_requires_90_percent_coverage(self):
+        self.assertEqual(BREADTH_MIN_COVERAGE,.90)
         sessions=pd.bdate_range("2026-01-01",periods=50).strftime("%Y-%m-%d").tolist()
         symbols=[f"US.T{i:03d}" for i in range(100)]
-        prices={code:pd.DataFrame({"date":sessions,"close":[10.]*50}) for code in symbols[:94]}
+        prices={code:pd.DataFrame({"date":sessions,"close":[10.]*50}) for code in symbols[:89]}
         from tools.market_breadth import calculate_history
         low=calculate_history(prices,symbols,BREADTH_MIN_COVERAGE,sessions).iloc[-1]
-        self.assertEqual(low.valid,94)
+        self.assertEqual(low.valid,89)
         self.assertTrue(pd.isna(low.percent))
-        prices[symbols[94]]=pd.DataFrame({"date":sessions,"close":[10.]*50})
+        prices[symbols[89]]=pd.DataFrame({"date":sessions,"close":[10.]*50})
         edge=calculate_history(prices,symbols,BREADTH_MIN_COVERAGE,sessions).iloc[-1]
-        self.assertEqual(edge.valid,95)
+        self.assertEqual(edge.valid,90)
         self.assertEqual(edge.percent,0.)
 
     def test_reject_duplicate_and_empty_new_membership(self):
