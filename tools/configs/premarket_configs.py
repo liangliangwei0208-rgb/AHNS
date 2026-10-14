@@ -163,7 +163,7 @@ PREMARKET_VALID_HOLDING_BOOST = 1.15
 PREMARKET_FUND_RESIDUAL_BENCHMARK_MAP = {
     "007844": "oil_gas_ep",
     "006679": "oil_gas_ep",
-    "018852": "oil_gas_ep",
+    "018853": "oil_gas_ep",
     "012868": "sp500",
     "008401": "sp500",
     "519981": "sp500",
