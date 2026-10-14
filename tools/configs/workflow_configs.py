@@ -56,6 +56,14 @@ COMMON_WORKFLOW_STEPS = [
         "args": ["--auto"],
     },
     {
+        "name": "指数基金限购变化跟踪",
+        "script": "index_fund_tracking.py",
+        "required": False,
+        "collect_images": True,
+        "always_run": True,
+        "args": ["--auto"],
+    },
+    {
         "name": "海外基金正式估算",
         "script": "main.py",
         "required": True,

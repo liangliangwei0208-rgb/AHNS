@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "funds": {
+    "021000": {
+      "baseline": {
+        "value": "暂不销售",
+        "observed_at": "2026-10-14T14:33:27+08:00"
+      },
+      "events": {}
+    },
+    "019441": {
+      "baseline": {
+        "value": "10元",
+        "observed_at": "2026-10-14T14:30:15+08:00"
+      },
+      "events": {}
+    },
+    "000834": {
+      "baseline": {
+        "value": "10元",
+        "observed_at": "2026-10-14T14:30:16+08:00"
+      },
+      "events": {}
+    },
+    "539001": {
+      "baseline": {
+        "value": "10元",
+        "observed_at": "2026-10-14T14:30:17+08:00"
+      },
+      "events": {}
+    },
+    "016452": {
+      "baseline": {
+        "value": "10元",
+        "observed_at": "2026-10-14T14:30:18+08:00"
+      },
+      "events": {}
+    },
+    "019736": {
+      "baseline": {
+        "value": "10元",
+        "observed_at": "2026-10-14T14:30:19+08:00"
+      },
+      "events": {}
+    },
+    "019547": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:20+08:00"
+      },
+      "events": {}
+    },
+    "019172": {
+      "baseline": {
+        "value": "10元",
+        "observed_at": "2026-10-14T14:30:21+08:00"
+      },
+      "events": {}
+    },
+    "040046": {
+      "baseline": {
+        "value": "5元",
+        "observed_at": "2026-10-14T14:30:22+08:00"
+      },
+      "events": {}
+    },
+    "019524": {
+      "baseline": {
+        "value": "5元",
+        "observed_at": "2026-10-14T14:30:23+08:00"
+      },
+      "events": {}
+    },
+    "022525": {
+      "baseline": {
+        "value": "暂不销售",
+        "observed_at": "2026-10-14T14:30:24+08:00"
+      },
+      "events": {}
+    },
+    "015299": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:25+08:00"
+      },
+      "events": {}
+    },
+    "016055": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:26+08:00"
+      },
+      "events": {}
+    },
+    "016532": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:27+08:00"
+      },
+      "events": {}
+    },
+    "160213": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:28+08:00"
+      },
+      "events": {}
+    },
+    "018043": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:29+08:00"
+      },
+      "events": {}
+    },
+    "270042": {
+      "baseline": {
+        "value": "10元",
+        "observed_at": "2026-10-14T14:30:31+08:00"
+      },
+      "events": {}
+    },
+    "161130": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:31+08:00"
+      },
+      "events": {}
+    },
+    "018966": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:32+08:00"
+      },
+      "events": {}
+    },
+    "017641": {
+      "baseline": {
+        "value": "10元",
+        "observed_at": "2026-10-14T14:30:34+08:00"
+      },
+      "events": {}
+    },
+    "018064": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:34+08:00"
+      },
+      "events": {}
+    },
+    "050025": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:35+08:00"
+      },
+      "events": {}
+    },
+    "017028": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:36+08:00"
+      },
+      "events": {}
+    },
+    "007721": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:37+08:00"
+      },
+      "events": {}
+    },
+    "161125": {
+      "baseline": {
+        "value": "暂停申购",
+        "observed_at": "2026-10-14T14:30:38+08:00"
+      },
+      "events": {}
+    }
+  }
+}

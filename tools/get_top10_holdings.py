@@ -195,7 +195,12 @@ def _save_json_cache(filename: str, data) -> None:
     保存 cache/*.json。
     """
     if filename in {FUND_HOLDINGS_CACHE_FILE, FUND_PURCHASE_LIMIT_CACHE_FILE} and isinstance(data, dict):
-        pruned, removed_keys = prune_inactive_fund_records(data, active_fund_codes=HAIWAI_FUND_CODES)
+        active_codes = HAIWAI_FUND_CODES
+        if filename == FUND_PURCHASE_LIMIT_CACHE_FILE:
+            # 新观察池仅共享限购缓存；不能扩大持仓缓存或原收益估算池。
+            from tools.configs.index_fund_tracking_configs import INDEX_FUND_TRACKING_MAP
+            active_codes = list(dict.fromkeys([*HAIWAI_FUND_CODES, *INDEX_FUND_TRACKING_MAP]))
+        pruned, removed_keys = prune_inactive_fund_records(data, active_fund_codes=active_codes)
         if removed_keys:
             # 同步更新调用方持有的 dict，避免本次运行后续写回旧 key。
             data.clear()
@@ -2112,6 +2117,7 @@ def get_fund_purchase_limit(
     force_refresh=False,
     bulk_limit_map: dict[str, dict[str, str]] | None = None,
     return_detail: bool = False,
+    detail_validator=None,
 ):
     """
     获取基金限购金额，带文件缓存。
@@ -2126,12 +2132,16 @@ def get_fund_purchase_limit(
 
     if not cache_enabled:
         detail = get_fund_purchase_limit_uncached_detail(fund_code=fund_code, timeout=timeout)
+        if detail_validator is not None and not detail_validator(detail):
+            raise ValueError("新限购详情未通过有效性校验")
         return _purchase_limit_return(detail, return_detail)
 
     cache = _load_json_cache(FUND_PURCHASE_LIMIT_CACHE_FILE, default={})
     item = cache.get(fund_code)
 
-    if item and not force_refresh and _is_cache_fresh(item.get("fetched_at"), max_age_days=cache_days):
+    if item and not force_refresh and _is_cache_fresh(item.get("fetched_at"), max_age_days=cache_days) and (
+        detail_validator is None or detail_validator(item)
+    ):
         value = resolve_purchase_limit_display_value(item)
         _FUND_LIMIT_CACHE[fund_code] = value
         _cache_log(f"使用限购缓存: {fund_code} -> {value}")
@@ -2191,6 +2201,9 @@ def get_fund_purchase_limit(
                 detail["error"] = f"{joined} | {old_error}" if old_error else joined
 
         value = resolve_purchase_limit_display_value(detail)
+        # 默认关闭，旧调用方行为不变；严格观察入口在落盘之前拒绝未知额度。
+        if detail_validator is not None and not detail_validator(detail):
+            raise ValueError("新限购详情未通过有效性校验（未知额度、解析失败或降级数据）")
         detail["value"] = value
 
         # 如果本次只得到“未知”，但旧缓存有明确值，则保留旧值，避免网络异常污染缓存。
