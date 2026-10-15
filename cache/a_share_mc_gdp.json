@@ -1347,13 +1347,19 @@
           "sse_market_cap_yi": 706966.48,
           "szse_market_cap_yi": 450602.1948,
           "market_cap_yi": 1157568.6748
+        },
+        {
+          "period_date": "2026-09-30T00:00:00.000",
+          "sse_market_cap_yi": 682277.99,
+          "szse_market_cap_yi": 424282.7404,
+          "market_cap_yi": 1106560.7304
         }
       ],
       "source": "https://data.eastmoney.com/cjsj/gpjytj.html",
       "unit": "亿元",
       "seed": "a_share_market_cap_monthly.csv",
-      "last_attempt_at": "2026-10-13T00:39:54.566293+00:00",
-      "last_success_at": "2026-10-13T00:39:54.566293+00:00",
+      "last_attempt_at": "2026-10-15T01:56:54.695744+00:00",
+      "last_success_at": "2026-10-15T01:56:54.695744+00:00",
       "error": null
     },
     "gdp": {
@@ -2018,8 +2024,8 @@
       "source": "https://data.eastmoney.com/cjsj/gdp.html",
       "unit": "亿元",
       "seed": "china_nominal_gdp_quarterly.csv",
-      "last_attempt_at": "2026-10-10T06:39:32.755864+00:00",
-      "last_success_at": "2026-10-10T06:39:32.755864+00:00",
+      "last_attempt_at": "2026-10-15T01:56:54.695744+00:00",
+      "last_success_at": "2026-10-15T01:56:54.695744+00:00",
       "error": null
     }
   },
@@ -3599,6 +3605,13 @@
       "period_date": "2026-08-31",
       "gdp_period": "2026-06-30",
       "ratio": 0.8051410473348942,
+      "basis": "observed"
+    },
+    {
+      "available_at": "2026-10-15T01:56:54.695744+00:00",
+      "period_date": "2026-09-30",
+      "gdp_period": "2026-06-30",
+      "ratio": 0.7696627291403286,
       "basis": "observed"
     }
   ],
