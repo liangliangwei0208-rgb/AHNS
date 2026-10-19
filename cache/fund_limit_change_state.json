@@ -2,233 +2,273 @@
   "017437": {
     "baseline": {
       "value": "2000元",
-      "observed_at": "2026-10-16T11:57:43+08:00"
+      "observed_at": "2026-10-19T14:30:18+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "012922": {
     "baseline": {
       "value": "暂停申购",
-      "observed_at": "2026-10-16T11:57:43+08:00"
+      "observed_at": "2026-10-19T14:30:18+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "016702": {
     "baseline": {
-      "value": "10000元",
-      "observed_at": "2026-10-16T11:57:43+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:18+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": [],
     "event": {
-      "id": "996d1ec857fbb77af5fdcf64b5b087917ca4fbf303c39faf36d6a501836b9333",
-      "old_value": "1000元",
-      "new_value": "10000元",
-      "detected_at": "2026-10-16T11:57:40+08:00",
-      "observed_at": "2026-10-16T11:57:43+08:00",
-      "generated_at": "2026-10-16T11:57:40+08:00"
+      "id": "154d9e6e3f5f0629dc2a41817dd8f27979926ec67ac7a4c4bfc48a23bc36622c",
+      "old_value": "10000元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:18+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
     }
   },
   "024239": {
     "baseline": {
-      "value": "5000元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:18+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
-    "observations": []
+    "updated_at": "2026-10-19T14:30:15+08:00",
+    "observations": [],
+    "event": {
+      "id": "9259f0bd4634044c487ac683efee099e43a13563cc35cd753129d278428acb09",
+      "old_value": "5000元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:18+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
+    }
   },
   "021842": {
     "baseline": {
       "value": "100元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:19+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "021277": {
     "baseline": {
       "value": "10000元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:19+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "018036": {
     "baseline": {
       "value": "2000元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:19+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "022184": {
     "baseline": {
-      "value": "10000元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:19+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": [],
     "event": {
-      "id": "f40ac9d0814a5737c3c4c212289426b530636605fd8a29030be0d50fff3a5391",
-      "old_value": "1000元",
-      "new_value": "10000元",
-      "detected_at": "2026-09-28T00:48:26+08:00",
-      "observed_at": "2026-09-28T00:48:30+08:00",
-      "generated_at": "2026-09-28T00:48:26+08:00"
+      "id": "152c285b710bd774dab40b167406872542b84c91af893b2d401d37f3dd5d07ba",
+      "old_value": "10000元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:19+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
     }
   },
   "016665": {
     "baseline": {
       "value": "1000元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:19+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "539002": {
     "baseline": {
-      "value": "100元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:19+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
-    "observations": []
+    "updated_at": "2026-10-19T14:30:15+08:00",
+    "observations": [],
+    "event": {
+      "id": "c3b6176e0964ecd6962ec8835a77871e26505e6a32ba0c8950b0f2f5999a8209",
+      "old_value": "100元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:19+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
+    }
   },
   "000043": {
     "baseline": {
       "value": "100元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:20+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "013328": {
     "baseline": {
       "value": "100元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:20+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "002891": {
     "baseline": {
-      "value": "100元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:20+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
-    "observations": []
+    "updated_at": "2026-10-19T14:30:15+08:00",
+    "observations": [],
+    "event": {
+      "id": "37178bdc28e99a3ed08709dada3b071cd4002552e4c77f2a39e32e3b66376e5c",
+      "old_value": "100元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:20+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
+    }
   },
   "008254": {
     "baseline": {
       "value": "2000元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:20+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "006555": {
     "baseline": {
       "value": "1000元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:20+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "017654": {
     "baseline": {
-      "value": "100000元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:20+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": [],
     "event": {
-      "id": "469c9cdd842e48a5a188709cdee127a91a4008b0400e03cce95dc3f23bee1f6a",
-      "old_value": "暂停申购",
-      "new_value": "100000元",
-      "detected_at": "2026-10-13T08:40:13+08:00",
-      "observed_at": "2026-10-13T08:40:17+08:00",
-      "generated_at": "2026-10-13T08:40:13+08:00"
+      "id": "8227c96c1d1ef3736714340acae86aabeaf08b323a724e8accd596e08ccc5b64",
+      "old_value": "100000元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:20+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
     }
   },
   "015202": {
     "baseline": {
-      "value": "300元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:20+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": [],
     "event": {
-      "id": "e7e7c74ecb92912855a048563a11f19a25a7ab3fce264685f4e1d9cabd3f39c8",
-      "old_value": "暂停申购",
-      "new_value": "300元",
-      "detected_at": "2026-10-13T08:40:13+08:00",
-      "observed_at": "2026-10-13T08:40:18+08:00",
-      "generated_at": "2026-10-13T08:40:13+08:00"
+      "id": "ab6db7158c77d8061ed1e83ab62c5c6023c27682cad1d1a02733a834b4b891b5",
+      "old_value": "300元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:20+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
     }
   },
   "015205": {
     "baseline": {
-      "value": "不限额度",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:21+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
-    "observations": []
+    "updated_at": "2026-10-19T14:30:15+08:00",
+    "observations": [],
+    "event": {
+      "id": "1e413c46a360160b72e77c74dd3f78c624b299da6b84986571a5ac499b802e71",
+      "old_value": "不限额度",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:21+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
+    }
   },
   "017731": {
     "baseline": {
-      "value": "1000元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:21+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
-    "observations": []
+    "updated_at": "2026-10-19T14:30:15+08:00",
+    "observations": [],
+    "event": {
+      "id": "1a1fcf51aa18cb3a631fa10d18175b842ed247828629d67f879f0b83a9fbdbb5",
+      "old_value": "1000元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:21+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
+    }
   },
   "001092": {
     "baseline": {
       "value": "10元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:21+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "519696": {
     "baseline": {
       "value": "不限额度",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:21+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "519981": {
     "baseline": {
       "value": "100元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:21+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "486002": {
     "baseline": {
-      "value": "100元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:21+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": [],
     "event": {
-      "id": "3c7e6308bd143b4289e84dd656e5d2fc0bf58a48e804fa3b29cd8e6589cf8e10",
-      "old_value": "50000元",
-      "new_value": "100元",
-      "detected_at": "2026-10-16T11:57:40+08:00",
-      "observed_at": "2026-10-16T11:57:44+08:00",
-      "generated_at": "2026-10-16T11:57:40+08:00"
+      "id": "6e94666910b8c1dc96a290254c4e1730b079002e0ce7f7a77ef28116abf9874b",
+      "old_value": "100元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:21+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
     }
   },
   "008401": {
     "baseline": {
       "value": "50元",
-      "observed_at": "2026-10-16T11:57:44+08:00"
+      "observed_at": "2026-10-19T14:30:22+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": [],
     "event": {
       "id": "fc5b8336e278dc3b4d0a333cd82b7a9e92fe7625ffbb601e0b0cc97c39f684fb",
@@ -242,17 +282,17 @@
   "007844": {
     "baseline": {
       "value": "暂停申购",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "observed_at": "2026-10-19T14:30:22+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "006679": {
     "baseline": {
       "value": "暂停申购",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "observed_at": "2026-10-19T14:30:22+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "018852": {
@@ -265,106 +305,122 @@
   },
   "118001": {
     "baseline": {
-      "value": "5000000元",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:22+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": [],
     "event": {
-      "id": "46bc41b5383c5aa6d2ed205f0bc985bdb4da5e5cab6fb1b861781d450db50ba0",
-      "old_value": "暂停申购",
-      "new_value": "5000000元",
-      "detected_at": "2026-10-13T08:40:13+08:00",
-      "observed_at": "2026-10-13T08:40:18+08:00",
-      "generated_at": "2026-10-13T08:40:13+08:00"
+      "id": "2d80ab0b45b74565863b617f2de9d88295b0e1bf34d72c029860cf6f3ffc4213",
+      "old_value": "5000000元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:22+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
     }
   },
   "018229": {
     "baseline": {
-      "value": "50000元",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:22+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
-    "observations": []
+    "updated_at": "2026-10-19T14:30:15+08:00",
+    "observations": [],
+    "event": {
+      "id": "1afa1c8f657745d3dfe993f217e45c020e804bd2edb019db24073fe38a4d5c12",
+      "old_value": "50000元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:22+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
+    }
   },
   "163813": {
     "baseline": {
-      "value": "5000000元",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:22+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": [],
     "event": {
-      "id": "233961e8fa793d661146aafbbace12db573c8761b569a2dd9bf22fcfc2689eff",
-      "old_value": "100元",
-      "new_value": "5000000元",
-      "detected_at": "2026-10-01T07:41:59+08:00",
-      "observed_at": "2026-10-01T07:42:03+08:00",
-      "generated_at": "2026-10-01T07:41:59+08:00"
+      "id": "ea97e8f1deb57ef87285f1a3f11baf4985c9dd1b61850f651428f76fbecd1510",
+      "old_value": "5000000元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:22+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
     }
   },
   "017145": {
     "baseline": {
       "value": "10000元",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "observed_at": "2026-10-19T14:30:23+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "009975": {
     "baseline": {
       "value": "1000元",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "observed_at": "2026-10-19T14:30:23+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "012868": {
     "baseline": {
       "value": "暂停申购",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "observed_at": "2026-10-19T14:30:23+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "019231": {
     "baseline": {
-      "value": "600000元",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "value": "暂停申购",
+      "observed_at": "2026-10-19T14:30:23+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
-    "observations": []
+    "updated_at": "2026-10-19T14:30:15+08:00",
+    "observations": [],
+    "event": {
+      "id": "62cdc94a4ae10b5440391415d7f8e5f8669dd6913b4525a920dfb604b208abdf",
+      "old_value": "600000元",
+      "new_value": "暂停申购",
+      "detected_at": "2026-10-19T14:30:15+08:00",
+      "observed_at": "2026-10-19T14:30:23+08:00",
+      "generated_at": "2026-10-19T14:30:15+08:00"
+    }
   },
   "164212": {
     "baseline": {
       "value": "1000元",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "observed_at": "2026-10-19T14:30:23+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "017072": {
     "baseline": {
       "value": "不限额度",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "observed_at": "2026-10-19T14:30:23+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "160140": {
     "baseline": {
       "value": "不限额度",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "observed_at": "2026-10-19T14:30:23+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00",
+    "updated_at": "2026-10-19T14:30:15+08:00",
     "observations": []
   },
   "018853": {
     "observations": [],
     "baseline": {
       "value": "100000元",
-      "observed_at": "2026-10-16T11:57:45+08:00"
+      "observed_at": "2026-10-19T14:30:22+08:00"
     },
-    "updated_at": "2026-10-16T11:57:40+08:00"
+    "updated_at": "2026-10-19T14:30:15+08:00"
   }
 }
