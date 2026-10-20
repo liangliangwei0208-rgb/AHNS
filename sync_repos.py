@@ -36,6 +36,8 @@ CACHE_CONFLICT_EXACT_PATHS = {
     "cache/fund_holdings_cache.json",
     "cache/fund_purchase_limit_cache.json",
     "cache/fund_limit_change_state.json",
+    "cache/index_fund_tracking_returns.json",
+    "cache/index_fund_tracking_state.json",
     "cache/fund_region_allocation_cache.json",
     "cache/fund_region_allocation_state.json",
     "cache/futu_night_return_cache.json",
@@ -442,7 +444,8 @@ def merge_dict_section(
 
 def merge_index_daily_csv(ours_text: str, theirs_text: str) -> str:
     def parse_csv(text: str) -> tuple[list[str], list[dict[str, str]]]:
-        reader = csv.DictReader(io.StringIO(text))
+        # pandas日线writer使用UTF-8 BOM；跨机器也兼容无BOM旧文件，避免丢失整侧日期。
+        reader = csv.DictReader(io.StringIO(text.lstrip("\ufeff")))
         if not reader.fieldnames:
             raise SyncError("CSV 缓存缺少表头，无法自动合并。")
         rows = [dict(row) for row in reader if row.get(reader.fieldnames[0])]
@@ -1109,6 +1112,11 @@ def merge_cache_conflict_file(repo: Path, path: str) -> None:
         merged_text = merge_fund_purchase_limit_cache(ours_text, theirs_text)
     elif path == "cache/fund_limit_change_state.json":
         merged_text = merge_fund_limit_change_state_cache(ours_text, theirs_text)
+    elif path in {"cache/index_fund_tracking_returns.json", "cache/index_fund_tracking_state.json"}:
+        from tools.index_fund_tracking import merge_tracking_state, merge_returns_cache
+        merge = merge_tracking_state if path.endswith("_state.json") else merge_returns_cache
+        merged_text = json.dumps(merge(json.loads(ours_text or "{}"), json.loads(theirs_text or "{}")),
+                                 ensure_ascii=False, indent=2, allow_nan=False) + "\n"
     elif path == "cache/fund_region_allocation_cache.json":
         merged_text = merge_fund_region_allocation_cache(ours_text, theirs_text)
     elif path == "cache/fund_region_allocation_state.json":

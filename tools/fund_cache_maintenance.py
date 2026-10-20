@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import re
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Iterable
@@ -24,6 +26,18 @@ _TIMESTAMP_FIELDS = (
     "fetched_at",
     "updated_at",
 )
+
+
+def replace_atomic_with_retry(source: str | Path, target: str | Path) -> None:
+    """Windows同步/扫描可能短暂占用目标；有限重试，永久失败保留旧文件。"""
+    for attempt in range(5):
+        try:
+            os.replace(source, target)
+            return
+        except PermissionError:
+            if attempt == 4:
+                raise
+            time.sleep(.2*(attempt+1))
 
 
 def write_json_if_changed(path: str | Path, data: Any) -> bool:
