@@ -227,6 +227,12 @@
       "report_date": "2026-06-30",
       "valid": true,
       "last_checked_at": "2026-10-09T13:30:39+08:00"
+    },
+    "080006": {
+      "fingerprint": "1752c3e55681dd53273570d628775d79a28bbf7e679e13e7bd2aa22e4bb3556e",
+      "report_date": "2026-06-30",
+      "valid": true,
+      "last_checked_at": "2026-10-21T08:21:50+08:00"
     }
   },
   "pages": {
@@ -301,14 +307,15 @@
       "last_generated_at": "2026-09-28T21:43:28+08:00"
     },
     "6": {
-      "signature": "cd247f3054daba5d1e4b2b58acf2fd65fdf085c7f1e3169e6487465c891ee1bd",
+      "signature": "11e085e2313279d80ea25a885602e4c3f4594a51605554c5d5b7afb17670501b",
       "fund_codes": [
         "017072",
-        "160140"
+        "160140",
+        "080006"
       ],
       "output_file": "output/fund_region_allocation/latest/6_海外基金地区分布.png",
-      "last_generated_at": "2026-09-28T21:43:28+08:00"
+      "last_generated_at": "2026-10-21T08:21:50+08:00"
     }
   },
-  "updated_at": "2026-10-09T13:30:39+08:00"
+  "updated_at": "2026-10-21T08:21:50+08:00"
 }

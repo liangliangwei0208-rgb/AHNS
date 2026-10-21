@@ -376,5 +376,13 @@
     "latest_quarter_label": "2026年2季度股票投资明细",
     "fingerprint": "9665aec38670b895d6ab46af57d6853edaca17fa944f64437b4f51162f36ba35",
     "last_checked_at": "2026-10-09T13:30:36"
+  },
+  "080006:top10": {
+    "fund_code": "080006",
+    "top_n": 10,
+    "latest_quarter_key": 20262,
+    "latest_quarter_label": "2026年2季度股票投资明细",
+    "fingerprint": "ccb723d9215f1ff1d5da304e02c62d472ca25fbb220ef1ff7e5de1de711d4b9d",
+    "last_checked_at": "2026-10-21T08:21:45"
   }
 }

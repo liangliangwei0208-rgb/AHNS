@@ -728,7 +728,7 @@
     "primary_regions": {},
     "subregions": {},
     "valid": false,
-    "last_checked_at": "2026-10-20T08:25:36+08:00",
+    "last_checked_at": "2026-10-21T08:21:48+08:00",
     "last_error": "晨星直连获取失败: RuntimeError('晨星页面未找到“股票地区分布”区块')",
     "fingerprint": ""
   },
@@ -1121,5 +1121,35 @@
     "valid": true,
     "last_error": "",
     "fingerprint": "9700e6b70a093d2ef9645571c3295eb8fb7a5209147ec2b4dbe10700e7fce1e8"
+  },
+  "080006": {
+    "fund_code": "080006",
+    "fund_name": "长盛环球行业混合(QDII)A",
+    "source": "morningstar_direct",
+    "source_url": "https://www.morningstar.cn/fund/080006.html",
+    "report_date": "2026-06-30",
+    "primary_regions": {
+      "大亚洲地区": 0.0,
+      "美洲": 99.06,
+      "大欧洲地区": 0.93,
+      "未分类": 0.0
+    },
+    "subregions": {
+      "日本": 0.0,
+      "大洋洲": 0.0,
+      "发达亚洲": 0.0,
+      "新兴亚洲": 0.0,
+      "北美": 98.62,
+      "拉丁美洲": 0.44,
+      "英国": 0.0,
+      "发达欧洲": 0.93,
+      "新兴欧洲": 0.0,
+      "非洲/中东": 0.0
+    },
+    "fetched_at": "2026-10-21T08:21:50+08:00",
+    "last_checked_at": "2026-10-21T08:21:50+08:00",
+    "valid": true,
+    "last_error": "",
+    "fingerprint": "1752c3e55681dd53273570d628775d79a28bbf7e679e13e7bd2aa22e4bb3556e"
   }
 }
