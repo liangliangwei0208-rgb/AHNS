@@ -306,15 +306,15 @@
     "raw_daily_limit_amount": "100000.0"
   },
   "019441": {
-    "fetched_at": "2026-10-19T14:30:31+08:00",
-    "value": "10元",
+    "fetched_at": "2026-10-22T14:36:29+08:00",
+    "value": "5元",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "限大额",
     "raw_redeem_status": "开放赎回",
-    "raw_daily_limit_amount": "10.0"
+    "raw_daily_limit_amount": "5.0"
   },
   "000834": {
-    "fetched_at": "2026-10-19T14:30:32+08:00",
+    "fetched_at": "2026-10-22T14:36:30+08:00",
     "value": "10元",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "限大额",
@@ -322,7 +322,7 @@
     "raw_daily_limit_amount": "10.0"
   },
   "539001": {
-    "fetched_at": "2026-10-19T14:30:33+08:00",
+    "fetched_at": "2026-10-22T14:36:31+08:00",
     "value": "10元",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "限大额",
@@ -330,7 +330,7 @@
     "raw_daily_limit_amount": "10.0"
   },
   "016452": {
-    "fetched_at": "2026-10-19T14:30:34+08:00",
+    "fetched_at": "2026-10-22T14:36:32+08:00",
     "value": "10元",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "限大额",
@@ -338,7 +338,7 @@
     "raw_daily_limit_amount": "10.0"
   },
   "019736": {
-    "fetched_at": "2026-10-19T14:30:35+08:00",
+    "fetched_at": "2026-10-22T14:36:33+08:00",
     "value": "10元",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "限大额",
@@ -346,7 +346,7 @@
     "raw_daily_limit_amount": "10.0"
   },
   "019547": {
-    "fetched_at": "2026-10-19T14:30:35+08:00",
+    "fetched_at": "2026-10-22T14:36:34+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -354,7 +354,7 @@
     "raw_daily_limit_amount": "10.0"
   },
   "019172": {
-    "fetched_at": "2026-10-19T14:30:36+08:00",
+    "fetched_at": "2026-10-22T14:36:35+08:00",
     "value": "10元",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "限大额",
@@ -362,15 +362,15 @@
     "raw_daily_limit_amount": "10.0"
   },
   "040046": {
-    "fetched_at": "2026-10-19T14:30:37+08:00",
-    "value": "5元",
+    "fetched_at": "2026-10-22T14:36:36+08:00",
+    "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
-    "raw_purchase_status": "限大额",
+    "raw_purchase_status": "暂停申购",
     "raw_redeem_status": "开放赎回",
     "raw_daily_limit_amount": "5.0"
   },
   "019524": {
-    "fetched_at": "2026-10-19T14:30:38+08:00",
+    "fetched_at": "2026-10-22T14:36:37+08:00",
     "value": "5元",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "限大额",
@@ -378,7 +378,7 @@
     "raw_daily_limit_amount": "5.0"
   },
   "022525": {
-    "fetched_at": "2026-10-19T14:30:39+08:00",
+    "fetched_at": "2026-10-22T14:36:38+08:00",
     "value": "暂不销售",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "限大额",
@@ -388,7 +388,7 @@
     "sale_availability_source": "eastmoney_html:https://fund.eastmoney.com/022525.html"
   },
   "015299": {
-    "fetched_at": "2026-10-19T14:30:40+08:00",
+    "fetched_at": "2026-10-22T14:36:38+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -396,7 +396,7 @@
     "raw_daily_limit_amount": "100.0"
   },
   "016055": {
-    "fetched_at": "2026-10-19T14:30:41+08:00",
+    "fetched_at": "2026-10-22T14:36:39+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -404,7 +404,7 @@
     "raw_daily_limit_amount": "100000000000"
   },
   "016532": {
-    "fetched_at": "2026-10-19T14:30:41+08:00",
+    "fetched_at": "2026-10-22T14:36:40+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -412,7 +412,7 @@
     "raw_daily_limit_amount": "100.0"
   },
   "160213": {
-    "fetched_at": "2026-10-19T14:30:43+08:00",
+    "fetched_at": "2026-10-22T14:36:41+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -420,7 +420,7 @@
     "raw_daily_limit_amount": "100.0"
   },
   "018043": {
-    "fetched_at": "2026-10-19T14:30:43+08:00",
+    "fetched_at": "2026-10-22T14:36:42+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -428,7 +428,7 @@
     "raw_daily_limit_amount": "100.0"
   },
   "270042": {
-    "fetched_at": "2026-10-19T14:30:44+08:00",
+    "fetched_at": "2026-10-22T14:36:43+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -436,7 +436,7 @@
     "raw_daily_limit_amount": "10.0"
   },
   "161130": {
-    "fetched_at": "2026-10-19T14:30:45+08:00",
+    "fetched_at": "2026-10-22T14:36:44+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -444,7 +444,7 @@
     "raw_daily_limit_amount": "10.0"
   },
   "018966": {
-    "fetched_at": "2026-10-19T14:30:46+08:00",
+    "fetched_at": "2026-10-22T14:36:45+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -452,7 +452,7 @@
     "raw_daily_limit_amount": "10.0"
   },
   "017641": {
-    "fetched_at": "2026-10-19T14:30:47+08:00",
+    "fetched_at": "2026-10-22T14:36:46+08:00",
     "value": "10元",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "限大额",
@@ -460,7 +460,7 @@
     "raw_daily_limit_amount": "10.0"
   },
   "018064": {
-    "fetched_at": "2026-10-19T14:30:48+08:00",
+    "fetched_at": "2026-10-22T14:36:47+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -468,7 +468,7 @@
     "raw_daily_limit_amount": "100.0"
   },
   "050025": {
-    "fetched_at": "2026-10-19T14:30:49+08:00",
+    "fetched_at": "2026-10-22T14:36:47+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -476,7 +476,7 @@
     "raw_daily_limit_amount": "100.0"
   },
   "017028": {
-    "fetched_at": "2026-10-19T14:30:50+08:00",
+    "fetched_at": "2026-10-22T14:36:49+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -484,7 +484,7 @@
     "raw_daily_limit_amount": "10000.0"
   },
   "007721": {
-    "fetched_at": "2026-10-19T14:30:51+08:00",
+    "fetched_at": "2026-10-22T14:36:49+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -492,7 +492,7 @@
     "raw_daily_limit_amount": "100.0"
   },
   "161125": {
-    "fetched_at": "2026-10-19T14:30:52+08:00",
+    "fetched_at": "2026-10-22T14:36:50+08:00",
     "value": "暂停申购",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "暂停申购",
@@ -500,7 +500,7 @@
     "raw_daily_limit_amount": "10.0"
   },
   "021000": {
-    "fetched_at": "2026-10-19T14:30:30+08:00",
+    "fetched_at": "2026-10-22T14:36:27+08:00",
     "value": "暂不销售",
     "source": "eastmoney_purchase_status_bulk",
     "raw_purchase_status": "限大额",
