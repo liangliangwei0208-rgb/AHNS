@@ -2022,18 +2022,18 @@
         },
         {
           "period_date": "2026-09-30T00:00:00.000",
-          "gdp_ytd_yi": 1071071.0,
+          "gdp_ytd_yi": 1071071.2,
           "year": 2026,
           "quarter": 3,
-          "gdp_single_quarter_yi": 375367.0,
-          "gdp_ttm_yi": 1458982.2999999998
+          "gdp_single_quarter_yi": 375367.2,
+          "gdp_ttm_yi": 1458982.4999999998
         }
       ],
       "source": "https://data.eastmoney.com/cjsj/gdp.html",
       "unit": "亿元",
       "seed": "china_nominal_gdp_quarterly.csv",
-      "last_attempt_at": "2026-10-19T06:29:57.711745+00:00",
-      "last_success_at": "2026-10-19T06:29:57.711745+00:00",
+      "last_attempt_at": "2026-10-23T06:36:01.795479+00:00",
+      "last_success_at": "2026-10-23T06:36:01.795479+00:00",
       "error": null
     }
   },
@@ -3627,6 +3627,13 @@
       "period_date": "2026-09-30",
       "gdp_period": "2026-09-30",
       "ratio": 0.7584469876022486,
+      "basis": "observed"
+    },
+    {
+      "available_at": "2026-10-23T06:36:01.795479+00:00",
+      "period_date": "2026-09-30",
+      "gdp_period": "2026-09-30",
+      "ratio": 0.758446883632943,
       "basis": "observed"
     }
   ],
