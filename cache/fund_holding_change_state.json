@@ -132,12 +132,12 @@
   "015205:top10": {
     "fund_code": "015205",
     "top_n": 10,
-    "latest_quarter_key": 20262,
-    "latest_quarter_label": "2026年2季度股票投资明细",
-    "fingerprint": "ae1b38a4d243c1ec9b85947b266199b67fb3bc60a238d191bec7a60d4fdf6bf0",
-    "last_checked_at": "2026-09-24T16:54:10",
-    "last_image": "output/fund_holding_change/latest/5_015205.png",
-    "last_generated_at": "2026-09-24T16:54:10"
+    "latest_quarter_key": 20263,
+    "latest_quarter_label": "2026年3季度股票投资明细",
+    "fingerprint": "52db0803b8f0c965920c3806ccb8d5aec0f19993224379b06fb961be488acc1e",
+    "last_checked_at": "2026-10-26T12:45:40",
+    "last_image": "output/fund_holding_change/latest/4_015205.png",
+    "last_generated_at": "2026-10-26T12:45:40"
   },
   "016665:top10": {
     "fund_code": "016665",
@@ -152,12 +152,12 @@
   "016702:top10": {
     "fund_code": "016702",
     "top_n": 10,
-    "latest_quarter_key": 20262,
-    "latest_quarter_label": "2026年2季度股票投资明细",
-    "fingerprint": "837812e660885cf8f5c9308fe9446cb2c9c2119608d40689f47e5665ffff19aa",
-    "last_checked_at": "2026-09-12T08:45:04",
+    "latest_quarter_key": 20263,
+    "latest_quarter_label": "2026年3季度股票投资明细",
+    "fingerprint": "9637c980ed813f2467da068c246c395bd2c6a87ca58dd281cb84e3edf00305f2",
+    "last_checked_at": "2026-10-26T12:45:35",
     "last_image": "output/fund_holding_change/latest/1_016702.png",
-    "last_generated_at": "2026-07-21T09:58:56"
+    "last_generated_at": "2026-10-26T12:45:35"
   },
   "017072:top10": {
     "fund_code": "017072",
@@ -192,12 +192,12 @@
   "017654:top10": {
     "fund_code": "017654",
     "top_n": 10,
-    "latest_quarter_key": 20262,
-    "latest_quarter_label": "2026年2季度股票投资明细",
-    "fingerprint": "e80e8f62b20a300f3e6e202229d8bb177be7f5d578b2dacfa32d82fdee618372",
-    "last_checked_at": "2026-09-12T08:45:04",
-    "last_image": "output/fund_holding_change/latest/4_017654.png",
-    "last_generated_at": "2026-07-21T09:59:00"
+    "latest_quarter_key": 20263,
+    "latest_quarter_label": "2026年3季度股票投资明细",
+    "fingerprint": "5bb2680a303927f0bfdc8cfa692ee5e2b857d9d9265112a05e3abce9c56967a7",
+    "last_checked_at": "2026-10-26T12:45:38",
+    "last_image": "output/fund_holding_change/latest/3_017654.png",
+    "last_generated_at": "2026-10-26T12:45:38"
   },
   "017731:top10": {
     "fund_code": "017731",
@@ -362,12 +362,12 @@
   "539002:top10": {
     "fund_code": "539002",
     "top_n": 10,
-    "latest_quarter_key": 20262,
-    "latest_quarter_label": "2026年2季度股票投资明细",
-    "fingerprint": "4bf1c91f3d7721b1cf257fbe6e1cf6c2afb63ee2a7943787272de3897d1cce4b",
-    "last_checked_at": "2026-09-12T08:45:04",
-    "last_image": "output/fund_holding_change/latest/3_539002.png",
-    "last_generated_at": "2026-07-21T09:58:59"
+    "latest_quarter_key": 20263,
+    "latest_quarter_label": "2026年3季度股票投资明细",
+    "fingerprint": "ba62397e4147615b2348420fd502cf2014dffdd34711ad4a51b40c25c18162da",
+    "last_checked_at": "2026-10-26T12:45:37",
+    "last_image": "output/fund_holding_change/latest/2_539002.png",
+    "last_generated_at": "2026-10-26T12:45:37"
   },
   "018853:top10": {
     "fund_code": "018853",

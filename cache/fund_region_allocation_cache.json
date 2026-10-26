@@ -728,7 +728,7 @@
     "primary_regions": {},
     "subregions": {},
     "valid": false,
-    "last_checked_at": "2026-10-24T08:19:07+08:00",
+    "last_checked_at": "2026-10-26T12:45:47+08:00",
     "last_error": "晨星直连获取失败: RuntimeError('晨星页面未找到“股票地区分布”区块')",
     "fingerprint": ""
   },
@@ -1116,8 +1116,8 @@
       "新兴欧洲": 0.0,
       "非洲/中东": 0.0
     },
-    "fetched_at": "2026-10-17T08:23:19+08:00",
-    "last_checked_at": "2026-10-17T08:23:19+08:00",
+    "fetched_at": "2026-10-26T12:45:43+08:00",
+    "last_checked_at": "2026-10-26T12:45:43+08:00",
     "valid": true,
     "last_error": "",
     "fingerprint": "9700e6b70a093d2ef9645571c3295eb8fb7a5209147ec2b4dbe10700e7fce1e8"

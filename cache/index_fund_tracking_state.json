@@ -4,14 +4,14 @@
     "021000": {
       "baseline": {
         "value": "暂不销售",
-        "observed_at": "2026-10-22T14:36:27+08:00"
+        "observed_at": "2026-10-26T12:43:13+08:00"
       },
       "events": {}
     },
     "019441": {
       "baseline": {
         "value": "5元",
-        "observed_at": "2026-10-22T14:36:29+08:00"
+        "observed_at": "2026-10-26T12:43:14+08:00"
       },
       "events": {
         "62d0902191959c950ca2ed2ba62f67f006a360521dee08de6ec62ab9ed824934": {
@@ -28,49 +28,49 @@
     "000834": {
       "baseline": {
         "value": "10元",
-        "observed_at": "2026-10-22T14:36:30+08:00"
+        "observed_at": "2026-10-26T12:43:14+08:00"
       },
       "events": {}
     },
     "539001": {
       "baseline": {
         "value": "10元",
-        "observed_at": "2026-10-22T14:36:31+08:00"
+        "observed_at": "2026-10-26T12:43:15+08:00"
       },
       "events": {}
     },
     "016452": {
       "baseline": {
         "value": "10元",
-        "observed_at": "2026-10-22T14:36:32+08:00"
+        "observed_at": "2026-10-26T12:43:16+08:00"
       },
       "events": {}
     },
     "019736": {
       "baseline": {
         "value": "10元",
-        "observed_at": "2026-10-22T14:36:33+08:00"
+        "observed_at": "2026-10-26T12:43:17+08:00"
       },
       "events": {}
     },
     "019547": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:34+08:00"
+        "observed_at": "2026-10-26T12:43:18+08:00"
       },
       "events": {}
     },
     "019172": {
       "baseline": {
         "value": "10元",
-        "observed_at": "2026-10-22T14:36:35+08:00"
+        "observed_at": "2026-10-26T12:43:19+08:00"
       },
       "events": {}
     },
     "040046": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:36+08:00"
+        "observed_at": "2026-10-26T12:43:20+08:00"
       },
       "events": {
         "6df45a23781525f77915a28b62b48a177c02fa147ba7427d4e16de78ecebcc94": {
@@ -87,56 +87,56 @@
     "019524": {
       "baseline": {
         "value": "5元",
-        "observed_at": "2026-10-22T14:36:37+08:00"
+        "observed_at": "2026-10-26T12:43:21+08:00"
       },
       "events": {}
     },
     "022525": {
       "baseline": {
         "value": "暂不销售",
-        "observed_at": "2026-10-22T14:36:38+08:00"
+        "observed_at": "2026-10-26T12:43:22+08:00"
       },
       "events": {}
     },
     "015299": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:38+08:00"
+        "observed_at": "2026-10-26T12:43:23+08:00"
       },
       "events": {}
     },
     "016055": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:39+08:00"
+        "observed_at": "2026-10-26T12:43:24+08:00"
       },
       "events": {}
     },
     "016532": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:40+08:00"
+        "observed_at": "2026-10-26T12:43:25+08:00"
       },
       "events": {}
     },
     "160213": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:41+08:00"
+        "observed_at": "2026-10-26T12:43:26+08:00"
       },
       "events": {}
     },
     "018043": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:42+08:00"
+        "observed_at": "2026-10-26T12:43:27+08:00"
       },
       "events": {}
     },
     "270042": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:43+08:00"
+        "observed_at": "2026-10-26T12:43:28+08:00"
       },
       "events": {
         "d9b215a8b6f082ded1aaeb49bafc240a041d12ca402c3c987b77b793d375c989": {
@@ -153,56 +153,56 @@
     "161130": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:44+08:00"
+        "observed_at": "2026-10-26T12:43:29+08:00"
       },
       "events": {}
     },
     "018966": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:45+08:00"
+        "observed_at": "2026-10-26T12:43:29+08:00"
       },
       "events": {}
     },
     "017641": {
       "baseline": {
         "value": "10元",
-        "observed_at": "2026-10-22T14:36:46+08:00"
+        "observed_at": "2026-10-26T12:43:30+08:00"
       },
       "events": {}
     },
     "018064": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:47+08:00"
+        "observed_at": "2026-10-26T12:43:31+08:00"
       },
       "events": {}
     },
     "050025": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:47+08:00"
+        "observed_at": "2026-10-26T12:43:32+08:00"
       },
       "events": {}
     },
     "017028": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:49+08:00"
+        "observed_at": "2026-10-26T12:43:33+08:00"
       },
       "events": {}
     },
     "007721": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:49+08:00"
+        "observed_at": "2026-10-26T12:43:34+08:00"
       },
       "events": {}
     },
     "161125": {
       "baseline": {
         "value": "暂停申购",
-        "observed_at": "2026-10-22T14:36:50+08:00"
+        "observed_at": "2026-10-26T12:43:35+08:00"
       },
       "events": {}
     }
