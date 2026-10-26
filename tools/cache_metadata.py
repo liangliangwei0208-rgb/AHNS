@@ -201,7 +201,7 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
             "git_main.py",
             "service_main.py",
         ],
-        "refresh_policy": "首次运行只初始化当前持仓指纹；后续季度或真实披露字段指纹变化时生成持仓变化图并更新状态。",
+        "refresh_policy": "首次升级重新汇总已发现的最新季度一次；之后仅最新季度新增披露或真实字段变化时出图，逐基金成功后持久化，不回退旧季度。",
         "retention_policy": "每个 fund_code:topN 一个 key，指纹未变时不改写检查时间；基金池外且明确超过 365 天的手动 key 在下次写入时回收。",
         "data_shape": "顶层是 fund_code:topN -> 状态记录，包含 latest_quarter_key、fingerprint、last_checked_at、last_image。",
         "notes": [
@@ -210,16 +210,16 @@ _INFO_BY_NAME: dict[str, dict[str, Any]] = {
         ],
     },
     "fund_holding_change_batch_state.json": {
-        "purpose": "基金前十大持仓变化图的披露批次状态缓存，用于维护 latest/ 下 1_基金代码.png 的本轮编号和上一轮图片清理状态。",
+        "purpose": "仅最新披露季度的持仓图累计编号与重建进度，维护 latest/ 下 1_三季度_基金代码.png 的文件名和邮件清单。",
         "producer": "fund_holding_change.py --auto 在自动检测到持仓变化并生成图片后写入。",
         "consumers": [
             "fund_holding_change.py",
             "git_main.py",
             "service_main.py",
         ],
-        "refresh_policy": "同一披露批次内基金首次生成图片时分配递增序号；新季度批次开始时把当前批次归档为上一轮。",
-        "retention_policy": "当前批次满基金池数量且首张图生成超过 3 天后，按缓存中记录的明确图片路径逐个清理上一轮图片。",
-        "data_shape": "顶层包含 current、previous、last_cleaned_previous；current.funds 按基金代码记录 index、image、quarter_key、generated_at。",
+        "refresh_policy": "rules_version=1 首次升级按基金池顺序汇总最新季度；同季度保留序号、新基金递增、新季度从1开始；失败和同步改号保留 needs_rebuild 待重绘。",
+        "retention_policy": "只轮换 current/previous 状态，不自动删除或搬移历史图片；邮件只收本轮成功且属于目标季度的图片。",
+        "data_shape": "顶层含 rules_version、current、previous，兼容旧字段；current.funds 按基金代码记录 index、image、quarter_key、fingerprint、generated_at、needs_rebuild。",
         "notes": [
             "不要在顶层内嵌 _cache_info，避免遍历逻辑把说明误认为批次状态。",
             "本缓存只记录图片批次和编号，不保存完整持仓明细。",

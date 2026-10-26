@@ -28,6 +28,7 @@ from zoneinfo import ZoneInfo
 from tools.email_send import send_email
 from tools.configs.workflow_configs import WORKFLOW_STEPS
 from tools.paths import OUTPUT_DIR, PROJECT_ROOT, relative_path_str
+from tools.holding_change_batch import RESULT_PREFIX, valid_quarter, holding_image_name
 
 
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
@@ -495,6 +496,40 @@ def _run_script(step: WorkflowStep, *, extra_env: dict[str, str] | None = None) 
     elapsed = time.perf_counter() - started
     after = snapshot_images()
     images = changed_images(before, after)
+
+    if script_path.name == "fund_holding_change.py":
+        # 持仓图只采用子进程明确报告的本轮最新季度清单，不能把历史归档算作新图。
+        images = []
+        try:
+            marker = next((line[len(RESULT_PREFIX):] for line in reversed(output_tail)
+                           if line.startswith(RESULT_PREFIX)), None)
+            if marker is None:
+                raise ValueError("持仓步骤未报告本轮图片清单")
+            report = json.loads(marker)
+            quarter = valid_quarter(report["quarter_key"])
+            latest_dir = (OUTPUT_DIR / "fund_holding_change" / "latest").resolve()
+            entries = report["images"]
+            if not isinstance(entries, list) or (entries and quarter < 0):
+                raise ValueError("持仓图片清单或目标季度无效")
+            for entry in sorted(entries, key=lambda item: int(item["index"])):
+                path = Path(entry["path"])
+                path = (path if path.is_absolute() else PROJECT_ROOT / path).resolve()
+                code = path.stem.rsplit("_", 1)[-1]
+                index = int(entry["index"])
+                if (valid_quarter(entry["quarter_key"]) != quarter or index < 1
+                        or len(code) != 6 or not code.isdigit()
+                        or path.parent != latest_dir
+                        or path.name != holding_image_name(index, quarter, code)
+                        or path not in after or after[path].size <= 0
+                        or before.get(path) == after[path]):
+                    raise ValueError(f"持仓图片不符合本轮最新季度清单: {path.name}")
+                if path not in images:
+                    images.append(path)
+        except (ValueError, KeyError, TypeError, AttributeError) as exc:
+            images = []
+            return_code = return_code or 1
+            error_message = f"持仓变化出图检查失败: {exc}"
+            output_tail.append(error_message)
 
     if script_path.name == "sum_holidays.py":
         prefix = "AHNS_SUM_HOLIDAYS_RESULT="

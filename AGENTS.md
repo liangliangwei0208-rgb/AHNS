@@ -1,6 +1,6 @@
 # AHNS 项目接手说明
 
-更新时间：2026-09-30
+更新时间：2026-10-26
 
 本项目用于生成每日市场分析图、海外/全球基金模型估算表、盘前/盘中/盘后/富途夜盘观察图、安全版公开发布图、海外基金节假日累计观察图、节后补更新观察图，以及面向小白的科普说明图。国内基金收益预估业务线已停用，但 A 股/港股/韩国行情能力仍保留用于海外/全球基金持仓估算。正式主流程只使用完整日线；四个实时观察入口均不写正式基金估算缓存。
 
@@ -104,7 +104,7 @@ GitHub / 主机 `git_main.py` 当前全天固定步骤、非实时窗口完整�
 1. `stock_analysis.py` 全天固定运行，生成 RSI / 市场分析图
 2. `fund_limit_change.py --auto` 全天固定检查限购，成功抓取满 72 小时才刷新；有变化生成单基金竖图并纳入邮件
 3. `main.py --skip-rsi`，生成正式海外/全球基金估算缓存，避免总入口里重复运行 RSI
-4. `fund_holding_change.py --auto`，检测基金库持仓缓存变动；首次只初始化状态，有变动或手动指定基金时生成持仓变化图并纳入邮件
+4. `fund_holding_change.py --auto`，仅处理已发现的最新披露季度；首次升级重新汇总该季度一次，以后新增披露或真实字段变化时出图，序号按季度累计
 5. `fund_region_allocation.py --auto`，直连晨星检查股票地区分布；首次生成基线分页，后续仅在披露日期或权重变化时重绘受影响页并纳入邮件
 6. `safe_holidays.py`
 7. `sum_holidays.py`
@@ -173,7 +173,9 @@ Service另含 `strategy/gdp.py --no-show`，同一11:30–23:50窗口内每天�
 - `afterhours_fund.py`：盘后观察图手动入口；生成 `output/safe_haiwai_afterhours.png` 和盘后失败报告，不写正式基金估算缓存。
 - `futu_night_fund.py`：富途夜盘观察图手动入口；生成 `output/safe_haiwai_night.png` 和夜盘失败报告，不写正式基金估算缓存。
 - `fund_estimate_breakdown.py`：只读缓存的估算拆解工具；运行后可手工输入基金代码、正式估值日期或实时观察类型，打印完整持仓贡献表；支持 `--latest`、`--save-txt` 和 `--observation 盘中`。
-- `fund_holding_change.py`：基金前十大持仓变化解读图入口；手动默认分析 `012922`，总入口用 `--auto` 检测基金库持仓缓存变动。自动变动图按披露批次生成到 `output/fund_holding_change/latest/1_<基金代码>.png` 这类编号文件；手动指定基金生成到 `output/fund_holding_change/manual/<基金代码>.png`，两者都会纳入邮件候选。
+- `fund_holding_change.py`：基金前十大持仓变化解读图入口；手动默认分析 `012922`，总入口用 `--auto`。全基金池有效缓存、已有状态和本轮取得数据共同确定最高年份/季度，只处理该季度且不回退；出现四季度后不再发送三季度。首次升级按基金池顺序重新汇总最新季度一次，之后仅新增披露或真实变化时出图。本地与附件均为 `output/fund_holding_change/latest/1_三季度_<基金代码>.png` 这类名称，同季度累计编号、同基金保留序号、新季度重置。失败预留序号并重试，不回退旧图。强制单基金 `--auto` 也遵守最新季度规则并持久化编号；不带 `--auto` 的本地手动图仍写入 `manual/`。
+- `tools/holding_change_batch.py`：持仓图季度、命名和多端批次合并规则，仅依赖标准库。批次 `rules_version=1`，`current.funds` 的 `needs_rebuild` 保留失败/改号进度；合并 `current/previous` 时选最高季度，成功升级记录优先于旧规则，冲突序号按生成时间和基金代码决定保留者，其余接续并重绘。不要恢复旧批次自动搬移/删除逻辑。
+- 持仓步骤最后输出 `AHNS_HOLDING_CHANGE_RESULT=` JSON，包含 `quarter_key`、`images`（每项 `path/quarter_key/index`）和 `failures`。总入口仅收集清单中通过季度、路径、命名和本轮更新校验的图片并按数字序号排序；缺清单/校验失败则记录失败并排除持仓图，不回退目录扫描。图内上一季度的对比内容保留。
 - `fund_region_allocation.py`：晨星公开基金页的股票地区分布图入口。`--all` 全量分页，`--fund-code 012922 --refresh` 手动直连单基金，`--auto` 只重绘地区权重或披露日期变化的页面。请求固定 `trust_env=False`，不继承 VPN HTTP/SOCKS 环境代理；TUN 全局接管时仍要在 VPN 软件中为 `www.morningstar.cn` 配直连。自动图输出在 `output/fund_region_allocation/latest/`，手动图输出在 `manual/`，会纳入收盘流程邮件。
 - `safe_fund.py`：只读基金估算缓存，生成安全版海外/全球收盘观察图；自动总入口只在北京时间 06:00-13:40 运行它。早间盘后/富途夜盘窗口与收盘窗口重叠时，会先运行 `main.py --skip-rsi`、`fund_holding_change.py --auto`、`fund_region_allocation.py --auto` 和 `safe_fund.py`，再运行对应实时观察；晚间盘前/盘中窗口不会输出收盘观察图，但 RSI 图仍会全天生成。
 - `safe_holidays.py`：只读缓存，生成安全版海外节假日累计观察图。
@@ -266,8 +268,8 @@ Service另含 `strategy/gdp.py --no-show`，同一11:30–23:50窗口内每天�
 - 基金详细估算图：
   - `output/haiwai_fund.png`（详细版当前在主流程中暂不输出，旧文件可能仍在本地）
 - 持仓变化解读图：
-  - `output/fund_holding_change/latest/1_012922.png`（自动检测到披露变化时按本轮批次编号生成，示例为第 1 张）
-- `output/fund_holding_change/manual/012922.png`（手动指定基金时生成，不计入自动披露批次编号）
+  - `output/fund_holding_change/latest/1_三季度_012922.png`（最新披露季度内累计编号，邮件保留同名）
+- `output/fund_holding_change/manual/012922.png`（不带 `--auto` 的本地手动分析，不进入总入口持仓邮件清单）
 - 晨星股票地区分布图：
   - `output/fund_region_allocation/latest/1_海外基金地区分布.png`（自动检测到变化时按固定页码更新）
   - `output/fund_region_allocation/manual/012922_基金地区分布.png`（手动指定基金时生成）

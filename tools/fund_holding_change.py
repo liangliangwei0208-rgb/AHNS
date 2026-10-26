@@ -37,15 +37,17 @@ from tools.paths import (
     relative_path_str,
 )
 from tools.safe_display import get_watermark_font
+from tools.holding_change_batch import (
+    RULES_VERSION, RESULT_PREFIX, valid_quarter, holding_image_name,
+    merge_batch_states, normalize_batch_indexes,
+)
 
 
 DEFAULT_FUND_CODE = "012922"
 HOLDING_CHANGE_OUTPUT_DIR = OUTPUT_DIR / "fund_holding_change"
 HOLDING_CHANGE_LATEST_DIR = HOLDING_CHANGE_OUTPUT_DIR / "latest"
-HOLDING_CHANGE_PREVIOUS_DIR = HOLDING_CHANGE_OUTPUT_DIR / "previous"
 HOLDING_CHANGE_MANUAL_DIR = HOLDING_CHANGE_OUTPUT_DIR / "manual"
 DEFAULT_OUTPUT = HOLDING_CHANGE_MANUAL_DIR / f"{DEFAULT_FUND_CODE}.png"
-BATCH_CLEANUP_GRACE_DAYS = 3
 
 FUND_NAME_FALLBACKS = {
     "012922": "易方达全球成长精选混合(QDII)人民币C",
@@ -58,6 +60,14 @@ class HoldingPeriod:
     quarter_label: str
     df: pd.DataFrame
     source: str
+
+
+class HoldingComparisonError(RuntimeError):
+    """对比失败仍携带已发现的最新一期，避免总入口退回旧季度出图。"""
+
+    def __init__(self, message: str, *, latest: HoldingPeriod):
+        super().__init__(message)
+        self.latest = latest
 
 
 @dataclass
@@ -171,8 +181,10 @@ def _cached_period_from_item(fund_code: str, top_n: int, item: dict[str, Any]) -
         return None
 
     df = _normalize_holdings_df(df, fund_code=fund_code, top_n=top_n, source="cache")
-    qkey = int(item.get("latest_quarter_key") or df["_quarter_key"].max())
-    qlabel = str(item.get("latest_quarter_label") or _quarter_label_from_key(qkey))
+    # 季度取真实持仓行，防止元数据滞后或多季度缓存把旧持仓混入最新一期。
+    qkey = int(df["_quarter_key"].max())
+    df = df[df["_quarter_key"] == qkey].copy()
+    qlabel = str(df["季度"].iloc[0])
     return HoldingPeriod(qkey, qlabel, df, "cache/fund_holdings_cache.json")
 
 
@@ -338,95 +350,13 @@ def _save_batch_state(state: dict[str, Any]) -> None:
     _write_json(FUND_HOLDING_CHANGE_BATCH_STATE_CACHE, state)
 
 
-def _parse_iso_datetime(value: Any) -> datetime | None:
-    text = str(value or "").strip()
-    if not text:
-        return None
-    try:
-        return datetime.fromisoformat(text)
-    except Exception:
-        return None
-
-
-def _repo_path_from_text(value: Any) -> Path | None:
-    text = str(value or "").strip()
-    if not text:
-        return None
-    path = Path(text)
-    return path if path.is_absolute() else OUTPUT_DIR.parent / path
-
-
-def _is_safe_holding_change_file(path: Path) -> bool:
-    try:
-        resolved = path.resolve()
-        root = HOLDING_CHANGE_OUTPUT_DIR.resolve()
-        return resolved.is_file() and resolved.is_relative_to(root) and resolved.suffix.lower() == ".png"
-    except Exception:
-        return False
-
-
-def _delete_previous_batch_images(previous_batch: dict[str, Any]) -> int:
-    deleted = 0
-    funds = previous_batch.get("funds")
-    if not isinstance(funds, dict):
-        return deleted
-
-    for item in funds.values():
-        if not isinstance(item, dict):
-            continue
-        path = _repo_path_from_text(item.get("image"))
-        if path is None or not _is_safe_holding_change_file(path):
-            continue
-        # 只删除批次状态中记录的明确文件路径，避免通配符或递归删除。
-        path.unlink()
-        deleted += 1
-        print(f"[HOLDING_CHANGE] 清理上一轮图片: {relative_path_str(path)}", flush=True)
-    return deleted
-
-
-def _move_current_batch_to_previous(batch_state: dict[str, Any]) -> None:
-    current = batch_state.get("current")
-    if not isinstance(current, dict) or not current.get("funds"):
-        batch_state["current"] = None
-        return
-
-    funds = current.get("funds")
-    if not isinstance(funds, dict):
-        batch_state["current"] = None
-        return
-
-    HOLDING_CHANGE_PREVIOUS_DIR.mkdir(parents=True, exist_ok=True)
-    previous = dict(current)
-    previous["archived_at"] = datetime.now().isoformat(timespec="seconds")
-    previous_funds: dict[str, Any] = {}
-
-    for fund_code, item in funds.items():
-        if not isinstance(item, dict):
-            continue
-        next_item = dict(item)
-        source = _repo_path_from_text(next_item.get("image"))
-        if source is not None and _is_safe_holding_change_file(source):
-            target = HOLDING_CHANGE_PREVIOUS_DIR / source.name
-            target.parent.mkdir(parents=True, exist_ok=True)
-            source.replace(target)
-            next_item["image"] = relative_path_str(target)
-            print(
-                f"[HOLDING_CHANGE] 上一轮图片归档: {relative_path_str(source)} -> {relative_path_str(target)}",
-                flush=True,
-            )
-        previous_funds[str(fund_code)] = next_item
-
-    previous["funds"] = previous_funds
-    batch_state["previous"] = previous
-    batch_state["current"] = None
-
-
 def _new_batch_record(*, period: HoldingPeriod, top_n: int, fund_pool_count: int, now: str) -> dict[str, Any]:
     return {
         "batch_key": f"top{int(top_n)}:{int(period.quarter_key)}",
         "top_n": int(top_n),
         "quarter_key": int(period.quarter_key),
         "quarter_label": str(period.quarter_label),
+        "rules_version": RULES_VERSION,
         "fund_pool_count": int(fund_pool_count),
         "first_generated_at": now,
         "updated_at": now,
@@ -435,131 +365,34 @@ def _new_batch_record(*, period: HoldingPeriod, top_n: int, fund_pool_count: int
 
 
 def _current_batch_for_period(
-    *,
-    batch_state: dict[str, Any],
-    period: HoldingPeriod,
-    top_n: int,
-    fund_pool_count: int,
-    now: str,
+    *, batch_state: dict[str, Any], period: HoldingPeriod, top_n: int,
+    fund_pool_count: int, now: str,
 ) -> dict[str, Any]:
-    expected_key = f"top{int(top_n)}:{int(period.quarter_key)}"
     current = batch_state.get("current")
-    if not isinstance(current, dict) or current.get("batch_key") != expected_key:
-        _move_current_batch_to_previous(batch_state)
+    current_key = valid_quarter(current.get("quarter_key")) if isinstance(current, dict) else -1
+    if current_key > period.quarter_key:
+        raise RuntimeError("持仓披露季度禁止回退")
+    if (not isinstance(current, dict) or current_key != period.quarter_key
+            or current.get("rules_version") != RULES_VERSION
+            or current.get("top_n") != top_n):
+        # 只轮换状态，不搬移、不删除历史图片；旧图由邮件清单排除。
+        if isinstance(current, dict):
+            batch_state["previous"] = current
         current = _new_batch_record(period=period, top_n=top_n, fund_pool_count=fund_pool_count, now=now)
         batch_state["current"] = current
-        print(
-            f"[HOLDING_CHANGE] 开始新的持仓披露批次: {current['quarter_label']}，基金池 {fund_pool_count} 只",
-            flush=True,
-        )
-    else:
-        current["fund_pool_count"] = int(fund_pool_count)
-        current["updated_at"] = now
+    batch_state["rules_version"] = RULES_VERSION
+    normalize_batch_indexes(current)
     return current
 
 
-def _next_batch_index(current_batch: dict[str, Any]) -> int:
-    funds = current_batch.get("funds")
-    if not isinstance(funds, dict) or not funds:
-        return 1
-    indexes = []
-    for item in funds.values():
-        if isinstance(item, dict):
-            try:
-                indexes.append(int(item.get("index") or 0))
-            except Exception:
-                continue
-    return max(indexes or [0]) + 1
-
-
-def _batch_output_for_fund(
-    *,
-    batch_state: dict[str, Any],
-    result: HoldingChangeResult,
-    top_n: int,
-    fund_pool_count: int,
-    generated_at: str,
-) -> tuple[Path, int]:
-    current = _current_batch_for_period(
-        batch_state=batch_state,
-        period=result.latest,
-        top_n=top_n,
-        fund_pool_count=fund_pool_count,
-        now=generated_at,
-    )
+def _reserve_batch_fund(current: dict[str, Any], fund_code: str) -> dict[str, Any]:
     funds = current.setdefault("funds", {})
-    if not isinstance(funds, dict):
-        funds = {}
-        current["funds"] = funds
-
-    existing = funds.get(result.fund_code)
-    if isinstance(existing, dict) and existing.get("index"):
-        index = int(existing["index"])
-    else:
-        index = _next_batch_index(current)
-
-    image_path = HOLDING_CHANGE_LATEST_DIR / f"{index}_{result.fund_code}.png"
-    return image_path, index
-
-
-def _record_batch_image(
-    *,
-    batch_state: dict[str, Any],
-    result: HoldingChangeResult,
-    image_path: Path,
-    index: int,
-    fund_pool_count: int,
-    generated_at: str,
-) -> None:
-    current = batch_state.get("current")
-    if not isinstance(current, dict):
-        return
-    funds = current.setdefault("funds", {})
-    if not isinstance(funds, dict):
-        funds = {}
-        current["funds"] = funds
-    funds[result.fund_code] = {
-        "fund_code": result.fund_code,
-        "fund_name": result.fund_name,
-        "index": int(index),
-        "image": relative_path_str(image_path),
-        "quarter_key": int(result.latest.quarter_key),
-        "quarter_label": str(result.latest.quarter_label),
-        "generated_at": generated_at,
-    }
-    current["fund_pool_count"] = int(fund_pool_count)
-    current["updated_at"] = generated_at
-
-
-def _maybe_cleanup_previous_batch(batch_state: dict[str, Any], *, now: datetime) -> int:
-    current = batch_state.get("current")
-    previous = batch_state.get("previous")
-    if not isinstance(current, dict) or not isinstance(previous, dict):
-        return 0
-
-    funds = current.get("funds")
-    current_count = len(funds) if isinstance(funds, dict) else 0
-    fund_pool_count = int(current.get("fund_pool_count") or 0)
-    first_generated_at = _parse_iso_datetime(current.get("first_generated_at"))
-    if current_count < fund_pool_count or fund_pool_count <= 0 or first_generated_at is None:
-        return 0
-    if (now - first_generated_at).days < BATCH_CLEANUP_GRACE_DAYS:
-        return 0
-
-    deleted = _delete_previous_batch_images(previous)
-    batch_state["last_cleaned_previous"] = {
-        "batch_key": previous.get("batch_key"),
-        "quarter_label": previous.get("quarter_label"),
-        "deleted_images": deleted,
-        "cleaned_at": now.isoformat(timespec="seconds"),
-    }
-    batch_state["previous"] = None
-    print(
-        f"[HOLDING_CHANGE] 当前批次已满 {current_count}/{fund_pool_count} 且超过 {BATCH_CLEANUP_GRACE_DAYS} 天，"
-        f"清理上一轮持仓变化图片 {deleted} 张",
-        flush=True,
-    )
-    return deleted
+    if fund_code not in funds:
+        # 先保留序号和待重绘状态，失败后仍使用原序号。
+        index = max((int(item["index"]) for item in funds.values()), default=0) + 1
+        funds[fund_code] = {"fund_code": fund_code, "quarter_key": current["quarter_key"],
+                            "index": index, "needs_rebuild": True}
+    return funds[fund_code]
 
 
 def _manual_output_for_fund(fund_code: str) -> Path:
@@ -597,7 +430,7 @@ def _pick_periods(
 
     online_df = _fetch_recent_holdings(fund_code, top_n=top_n)
     quarter_keys = sorted(int(x) for x in pd.to_numeric(online_df["_quarter_key"], errors="coerce").dropna().unique())
-    if len(quarter_keys) < 2 and cached_latest is None:
+    if not quarter_keys and cached_latest is None:
         raise RuntimeError(f"未获取到足够季度用于对比: fund={fund_code}, quarters={quarter_keys}")
 
     latest = cached_latest
@@ -623,19 +456,19 @@ def _pick_periods(
                 for x in pd.to_numeric(online_df["_quarter_key"], errors="coerce").dropna().unique()
             )
         except Exception as exc:
-            raise RuntimeError(
+            raise HoldingComparisonError(
                 f"未获取到相邻上一期持仓：最新期={latest.quarter_label}，"
                 f"期望上一期={_quarter_label_from_key(expected_previous_key)}，"
                 f"本次可用季度={[_quarter_label_from_key(key) for key in quarter_keys]}；"
-                f"定向重试失败：{exc}"
+                f"定向重试失败：{exc}", latest=latest,
             ) from exc
 
         if expected_previous_key not in quarter_keys:
-            raise RuntimeError(
+            raise HoldingComparisonError(
                 f"未获取到相邻上一期持仓：最新期={latest.quarter_label}，"
                 f"期望上一期={_quarter_label_from_key(expected_previous_key)}，"
                 f"本次可用季度={[_quarter_label_from_key(key) for key in quarter_keys]}；"
-                "请稍后重试东方财富接口。"
+                "请稍后重试东方财富接口。", latest=latest,
             )
     previous_key = int(expected_previous_key)
     previous_df = online_df[online_df["_quarter_key"] == previous_key].copy()
@@ -779,7 +612,10 @@ def build_holding_change(
     fund_code = _normalize_fund_code(fund_code)
     fund_name = _fund_name_from_cache_or_fallback(fund_code)
     latest, previous = _pick_periods(fund_code=fund_code, top_n=top_n, cache_only=cache_only)
-    change_df, latest_table_df, previous_table_df, summary = _compare_holdings(latest, previous)
+    try:
+        change_df, latest_table_df, previous_table_df, summary = _compare_holdings(latest, previous)
+    except Exception as exc:
+        raise HoldingComparisonError(f"持仓对比失败: {exc}", latest=latest) from exc
     return HoldingChangeResult(
         fund_code=fund_code,
         fund_name=fund_name,
@@ -1208,178 +1044,125 @@ def _default_output_for_fund(fund_code: str) -> Path:
     return _manual_output_for_fund(fund_code)
 
 
-def _generate_and_record_change(
-    *,
-    fund_code: str,
-    top_n: int,
-    state: dict[str, Any],
-    state_key: str,
-    force: bool,
-    batch_state: dict[str, Any] | None = None,
-    fund_pool_count: int = 0,
-) -> Path:
-    result = build_holding_change(fund_code=fund_code, top_n=top_n, cache_only=False)
-    generated_at = datetime.now().isoformat(timespec="seconds")
-    if force:
-        image_path = save_holding_change_image(result, _manual_output_for_fund(fund_code))
-        print(f"[HOLDING_CHANGE] 手动生成: {fund_code} -> {relative_path_str(image_path)}", flush=True)
-        return image_path
-
-    if batch_state is None:
-        raise RuntimeError("自动批次状态缺失，无法生成披露批次编号图")
-
-    image_path, batch_index = _batch_output_for_fund(
-        batch_state=batch_state,
-        result=result,
-        top_n=top_n,
-        fund_pool_count=fund_pool_count,
-        generated_at=generated_at,
-    )
-    image_path = save_holding_change_image(result, image_path)
-    _record_batch_image(
-        batch_state=batch_state,
-        result=result,
-        image_path=image_path,
-        index=batch_index,
-        fund_pool_count=fund_pool_count,
-        generated_at=generated_at,
-    )
-    state[state_key] = _state_entry_from_period(
-        fund_code=fund_code,
-        top_n=top_n,
-        period=result.latest,
-        image_path=image_path,
-        generated_at=generated_at,
-    )
-    action = "手动生成" if force else "检测到变动并生成"
-    print(f"[HOLDING_CHANGE] {action}: {fund_code} -> {relative_path_str(image_path)}", flush=True)
-    return image_path
-
-
 def run_auto_holding_change(*, top_n: int, force_fund_code: str = "") -> int:
     ensure_runtime_dirs()
-    state_key_suffix = f":top{top_n}"
     holdings_cache = _load_json(FUND_HOLDINGS_CACHE, {})
     if not isinstance(holdings_cache, dict):
         raise RuntimeError(f"持仓缓存格式异常: {relative_path_str(FUND_HOLDINGS_CACHE)}")
-
-    pool_fund_codes = [_normalize_fund_code(code) for code in HAIWAI_FUND_CODES]
-    active_fund_codes = set(pool_fund_codes)
-    if force_fund_code:
-        active_fund_codes.add(_normalize_fund_code(force_fund_code))
-    state, removed_state_keys = prune_inactive_fund_records(
-        _load_change_state(),
-        active_fund_codes=active_fund_codes,
-    )
-    if removed_state_keys:
-        print(f"[HOLDING_CHANGE] 回收基金池外超期状态 {len(removed_state_keys)} 条", flush=True)
-    batch_state = {} if force_fund_code else _load_batch_state()
-    fund_pool_count = len(pool_fund_codes)
-    fund_codes = [force_fund_code] if force_fund_code else pool_fund_codes
-    initialized = 0
-    unchanged = 0
-    generated = 0
-    missing_cache = 0
+    pool = list(dict.fromkeys(_normalize_fund_code(code) for code in HAIWAI_FUND_CODES))
+    codes = pool + ([force_fund_code] if force_fund_code and force_fund_code not in pool else [])
+    state, _ = prune_inactive_fund_records(_load_change_state(), active_fund_codes=set(codes))
+    batch_state = merge_batch_states(_load_batch_state(), {})
+    current = batch_state.get("current") or {}
+    periods: dict[str, HoldingPeriod] = {}
     failures: list[str] = []
-
-    if force_fund_code:
-        print_stage(f"持仓变化图手动模式: {force_fund_code}")
-    else:
-        print_stage(f"持仓变化图自动检测 开始，共 {len(fund_codes)} 只基金")
-
-    for fund_code in fund_codes:
-        state_key = f"{fund_code}{state_key_suffix}"
-        period: HoldingPeriod | None = None
-        item = holdings_cache.get(state_key)
+    known_quarters = [valid_quarter(current.get("quarter_key"))]
+    for code in codes:
+        key = f"{code}:top{top_n}"
+        previous = state.get(key)
+        if isinstance(previous, dict):
+            known_quarters.append(valid_quarter(previous.get("latest_quarter_key")))
+        item = holdings_cache.get(key)
         if isinstance(item, dict):
             try:
-                period = _cached_period_from_item(fund_code, top_n, item)
+                period = _cached_period_from_item(code, top_n, item)
+                if period is not None and valid_quarter(period.quarter_key) > 0:
+                    periods[code] = period
+                    known_quarters.append(period.quarter_key)
             except Exception as exc:
-                failures.append(f"{fund_code}: 持仓缓存解析失败: {exc}")
-                continue
+                failures.append(f"{code}: 持仓缓存解析失败: {exc}")
+    target = max(known_quarters, default=-1)
+    initial_target = target
+    migration = current.get("rules_version") != RULES_VERSION
+    prepared: dict[str, HoldingChangeResult] = {}
+    discovered: dict[str, HoldingPeriod] = {}
+    requested: set[str] = set()
+    print_stage(f"持仓变化图最新季度检测，共 {len(codes)} 只基金")
 
-        if force_fund_code:
-            try:
-                _generate_and_record_change(
-                    fund_code=fund_code,
-                    top_n=top_n,
-                    state=state,
-                    state_key=state_key,
-                    force=True,
-                )
-                generated += 1
-            except Exception as exc:
-                failures.append(f"{fund_code}: 手动生成失败: {exc}")
+    # 先取得所有候选的分析结果，再统一决定季度，避免半轮三季度、半轮四季度。
+    for code in ([force_fund_code] if force_fund_code else codes):
+        period = periods.get(code)
+        previous = state.get(f"{code}:top{top_n}") or {}
+        batch_item = (current.get("funds") or {}).get(code) or {}
+        eligible = (period is not None and period.quarter_key == initial_target)
+        eligible = eligible or (batch_item.get("needs_rebuild") and valid_quarter(batch_item.get("quarter_key")) == initial_target)
+        eligible = eligible or ((migration or not batch_item)
+                                 and valid_quarter(previous.get("latest_quarter_key")) == initial_target)
+        if not force_fund_code and not eligible:
             continue
-
-        if period is None:
-            missing_cache += 1
+        fingerprint = _holding_fingerprint(period, top_n=top_n) if period is not None else ""
+        same = (valid_quarter(previous.get("latest_quarter_key")) == initial_target
+                and previous.get("fingerprint") == fingerprint)
+        # 联网比缓存更早取得新季度后，缓存短暂落后不能触发重复出图。
+        if (not force_fund_code and not migration and not batch_item.get("needs_rebuild")
+                and batch_item and (same or (period is not None and period.quarter_key < initial_target))):
             continue
-
-        new_entry = _state_entry_from_period(fund_code=fund_code, top_n=top_n, period=period)
-        previous = state.get(state_key)
-        if not isinstance(previous, dict):
-            state[state_key] = new_entry
-            initialized += 1
-            print(
-                f"[HOLDING_CHANGE] 初始化持仓状态: {fund_code} {period.quarter_label}",
-                flush=True,
-            )
-            continue
-
-        same_quarter = int(previous.get("latest_quarter_key") or -1) == int(period.quarter_key)
-        same_fingerprint = str(previous.get("fingerprint") or "") == str(new_entry.get("fingerprint") or "")
-        if same_quarter and same_fingerprint:
-            # 只读持仓缓存且指纹未变时，不改检查时间，避免制造 Git 缓存提交。
-            unchanged += 1
-            continue
-
+        requested.add(code)
         try:
-            _generate_and_record_change(
-                fund_code=fund_code,
-                top_n=top_n,
-                state=state,
-                state_key=state_key,
-                force=False,
-                batch_state=batch_state,
-                fund_pool_count=fund_pool_count,
-            )
-            generated += 1
+            result = build_holding_change(fund_code=code, top_n=top_n, cache_only=False)
+            if valid_quarter(result.latest.quarter_key) < 0:
+                raise RuntimeError("取得的持仓季度无效")
+            prepared[code] = result
+            target = max(target, result.latest.quarter_key)
         except Exception as exc:
-            failures.append(f"{fund_code}: 变动图生成失败: {exc}")
+            if isinstance(exc, HoldingComparisonError):
+                # 数据已经披露，就提升季度并保留重试；不能因缺上一期而发送旧季度。
+                discovered[code] = exc.latest
+                target = max(target, valid_quarter(exc.latest.quarter_key))
+            failures.append(f"{code}: 持仓变化分析失败: {exc}")
 
-    _save_change_state(state)
-    current_count = 0
-    deleted_previous_images = 0
-    if not force_fund_code:
-        current = batch_state.get("current")
-        if isinstance(current, dict) and isinstance(current.get("funds"), dict):
-            current_count = len(current["funds"])
-        deleted_previous_images = _maybe_cleanup_previous_batch(batch_state, now=datetime.now())
+    images: list[dict[str, Any]] = []
+    if target > 0:
+        now = datetime.now().isoformat(timespec="seconds")
+        target_period = HoldingPeriod(target, _quarter_label_from_key(target), pd.DataFrame(), "batch")
+        current = _current_batch_for_period(batch_state=batch_state, period=target_period,
+                                            top_n=top_n, fund_pool_count=len(pool), now=now)
+        # 首次升级按基金池顺序重建；失败的分析也保留编号等待下一次重试。
+        for code in codes:
+            result = prepared.get(code)
+            period = result.latest if result is not None else discovered.get(code, periods.get(code))
+            wanted = period is not None and period.quarter_key == target
+            wanted = wanted or (code in requested and initial_target == target)
+            if wanted and (not force_fund_code or code == force_fund_code):
+                item = _reserve_batch_fund(current, code)
+                if code in requested:
+                    item["needs_rebuild"] = True
         _save_batch_state(batch_state)
-
-    print_key_values(
-        "持仓变化图自动检测完成",
-        [
-            ("生成图片", generated),
-            ("初始化状态", initialized),
-            ("无变化", unchanged),
-            ("缺持仓缓存", missing_cache),
-            ("失败", len(failures)),
-            ("状态缓存", relative_path_str(FUND_HOLDING_CHANGE_STATE_CACHE)),
-        ],
-    )
-    print_key_values(
-        "持仓变化图批次",
-        [
-            ("本轮持仓变化图", f"{current_count}/{fund_pool_count}" if not force_fund_code else "手动模式"),
-            ("批次缓存", relative_path_str(FUND_HOLDING_CHANGE_BATCH_STATE_CACHE)),
-            ("清理上一轮图片", deleted_previous_images),
-        ],
-    )
-    for item in failures:
-        print(f"[HOLDING_CHANGE][WARN] {item}", flush=True)
-    return 1 if force_fund_code and failures else 0
+        for code in codes:
+            result = prepared.get(code)
+            if result is None or result.latest.quarter_key != target:
+                continue
+            item = _reserve_batch_fund(current, code)
+            index = int(item["index"])
+            path = HOLDING_CHANGE_LATEST_DIR / holding_image_name(index, target, code)
+            try:
+                path = save_holding_change_image(result, path)
+                generated_at = datetime.now().isoformat(timespec="seconds")
+                item.update({"fund_name": result.fund_name, "image": relative_path_str(path),
+                             "fingerprint": _holding_fingerprint(result.latest, top_n=top_n),
+                             "generated_at": generated_at, "needs_rebuild": False})
+                current["updated_at"] = generated_at
+                state[f"{code}:top{top_n}"] = _state_entry_from_period(
+                    fund_code=code, top_n=top_n, period=result.latest, image_path=path, generated_at=generated_at)
+                # 每张图成功后落盘，进程中断也不会整轮重新汇总。
+                _save_change_state(state)
+                _save_batch_state(batch_state)
+                images.append({"path": relative_path_str(path), "quarter_key": target, "index": index})
+                print(f"[HOLDING_CHANGE] 最新季度出图: {code} -> {relative_path_str(path)}", flush=True)
+            except Exception as exc:
+                failures.append(f"{code}: 变化图生成失败: {exc}")
+        _save_change_state(state)
+        _save_batch_state(batch_state)
+    for failure in failures:
+        print(f"[HOLDING_CHANGE][WARN] {failure}", flush=True)
+    print_key_values("持仓变化图最新季度检测完成", [
+        ("目标季度", _quarter_label_from_key(target) if target > 0 else "无有效披露"),
+        ("生成图片", len(images)), ("失败", len(failures)),
+    ])
+    # 最后一行提供总入口唯一可信的图片清单，旧图/归档图不再依赖修改时间入选。
+    report = {"quarter_key": target, "images": sorted(images, key=lambda item: item["index"]), "failures": failures}
+    print(RESULT_PREFIX + json.dumps(report, ensure_ascii=False), flush=True)
+    return 1 if failures else 0
 
 
 def _display_change_rows(change_df: pd.DataFrame) -> list[dict[str, Any]]:

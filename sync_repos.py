@@ -21,6 +21,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Sequence
 
+from tools.holding_change_batch import merge_batch_states
+
 
 DEFAULT_BRANCH = "main"
 DEFAULT_GITHUB_REMOTE = "origin"
@@ -665,121 +667,13 @@ def merge_fund_holdings_cache(ours_text: str, theirs_text: str) -> str:
     return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
 
 
-def _batch_quarter(record: Any) -> int:
-    if not isinstance(record, dict):
-        return -1
-    try:
-        return int(record.get("quarter_key"))
-    except (TypeError, ValueError):
-        return -1
-
-
-def _batch_record_time(record: dict[str, Any]) -> datetime | None:
-    values = [record.get("generated_at"), record.get("updated_at")]
-    parsed = [dt for value in values if (dt := parse_datetime_like(value))]
-    return max(parsed) if parsed else None
-
-
-def choose_holding_change_batch_fund_record(ours: Any, theirs: Any) -> Any:
-    if not isinstance(ours, dict):
-        return theirs
-    if not isinstance(theirs, dict):
-        return ours
-
-    ours_quarter = _batch_quarter(ours)
-    theirs_quarter = _batch_quarter(theirs)
-    if theirs_quarter != ours_quarter:
-        chosen = theirs if theirs_quarter > ours_quarter else ours
-        other = ours if chosen is theirs else theirs
-    else:
-        ours_time = _batch_record_time(ours)
-        theirs_time = _batch_record_time(theirs)
-        if ours_time and theirs_time and theirs_time != ours_time:
-            chosen = theirs if theirs_time > ours_time else ours
-            other = ours if chosen is theirs else theirs
-        else:
-            chosen, other = theirs, ours
-
-    merged = dict(chosen)
-    for key, value in other.items():
-        merged.setdefault(key, value)
-    return merged
-
-
-def merge_holding_change_batch_record(ours: Any, theirs: Any) -> Any:
-    """合并同一披露季度的批次清单，避免两端发现的基金更新互相丢失。"""
-    if not isinstance(ours, dict):
-        return theirs
-    if not isinstance(theirs, dict):
-        return ours
-
-    ours_quarter = _batch_quarter(ours)
-    theirs_quarter = _batch_quarter(theirs)
-    if theirs_quarter != ours_quarter:
-        return theirs if theirs_quarter > ours_quarter else ours
-
-    ours_time = _batch_record_time(ours)
-    theirs_time = _batch_record_time(theirs)
-    chosen = theirs if (theirs_time or datetime.min) >= (ours_time or datetime.min) else ours
-    base = dict(chosen)
-    other = ours if chosen is theirs else theirs
-    for key, value in other.items():
-        base.setdefault(key, value)
-
-    ours_funds = ours.get("funds") if isinstance(ours.get("funds"), dict) else {}
-    theirs_funds = theirs.get("funds") if isinstance(theirs.get("funds"), dict) else {}
-    merged_funds: dict[str, Any] = {}
-    for fund_code in sorted(set(ours_funds) | set(theirs_funds)):
-        if fund_code in ours_funds and fund_code in theirs_funds:
-            merged_funds[fund_code] = choose_holding_change_batch_fund_record(
-                ours_funds[fund_code], theirs_funds[fund_code]
-            )
-        elif fund_code in theirs_funds:
-            merged_funds[fund_code] = theirs_funds[fund_code]
-        else:
-            merged_funds[fund_code] = ours_funds[fund_code]
-    base["funds"] = merged_funds
-
-    # 首张图时间取更早值，保证三天清理保护期不会被后一次同步无限推迟。
-    first_values = [value for value in (ours.get("first_generated_at"), theirs.get("first_generated_at")) if value]
-    if first_values:
-        base["first_generated_at"] = min(
-            first_values,
-            key=lambda value: parse_datetime_like(value) or datetime.max,
-        )
-    updated_values = [value for value in (ours.get("updated_at"), theirs.get("updated_at")) if value]
-    if updated_values:
-        base["updated_at"] = max(
-            updated_values,
-            key=lambda value: parse_datetime_like(value) or datetime.min,
-        )
-    base["fund_pool_count"] = max(
-        int(ours.get("fund_pool_count") or 0),
-        int(theirs.get("fund_pool_count") or 0),
-    )
-    return base
-
-
 def merge_fund_holding_change_batch_state_cache(ours_text: str, theirs_text: str) -> str:
     ours = json.loads(ours_text)
     theirs = json.loads(theirs_text)
     if not isinstance(ours, dict) or not isinstance(theirs, dict):
         raise SyncError("持仓变化批次缓存不是 JSON object，无法自动合并。")
 
-    merged: dict[str, Any] = {}
-    for key in sorted(set(ours) | set(theirs)):
-        ours_value = ours.get(key)
-        theirs_value = theirs.get(key)
-        if key in {"current", "previous"}:
-            merged[key] = merge_holding_change_batch_record(ours_value, theirs_value)
-        elif key in ours and key in theirs:
-            ours_time = latest_datetime_from_record(ours_value) if isinstance(ours_value, dict) else None
-            theirs_time = latest_datetime_from_record(theirs_value) if isinstance(theirs_value, dict) else None
-            merged[key] = theirs_value if (theirs_time or datetime.min) >= (ours_time or datetime.min) else ours_value
-        elif key in theirs:
-            merged[key] = theirs_value
-        else:
-            merged[key] = ours_value
+    merged = merge_batch_states(ours, theirs)
     return json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
 
 

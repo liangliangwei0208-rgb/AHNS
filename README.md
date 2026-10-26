@@ -165,7 +165,13 @@ Set-Location G:\AHNS
 & F:\anaconda\envs\py310\python.exe .\fund_holding_change.py --auto
 ```
 
-`--auto` 用于总入口：读取基金库和 `cache/fund_holdings_cache.json`，只有持仓季度或真实披露字段指纹变化时才生成图片并纳入邮件。首次没有 `cache/fund_holding_change_state.json` 时只初始化状态，不批量出图；需要手动强制某只基金时可设置 `AHNS_HOLDING_CHANGE_FUND_CODE=012922` 后运行 `--auto`。
+`--auto` 用于总入口：只生成和发送**已发现的最新披露季度**的持仓变化图。基金池有效持仓、已有状态及本轮联网取得的数据一起确定季度，按年份和季度比较，不能回退；例如出现三季度后跳过仍停留在二季度的基金，出现四季度后只处理四季度，跨年同理，不按当前月份推测披露进度。图内仍保留最新一期与相邻上一期的对比。
+
+- 首次升级到此规则时，按基金池顺序重新汇总最新季度一次；以后仅新增披露或真实持仓字段变化时出图。缺少上一期或绘图失败会报告错误，保留待处理状态，后续仅重试未完成基金，不使用旧季度图片替代。
+- 本地文件与邮件附件统一命名为 `1_三季度_017437.png`，序号按整个季度累计；同基金同季度重绘沿用序号，新增基金接续编号，新季度从 1 开始。失败基金预留序号，因此一封邮件中可能暂时缺号。
+- 总入口只采用持仓步骤最后报告的成功图片清单，校验目标季度、文件名、位置和本轮更新状态，并按数字序号排列；归档、遗留文件和旧季度手动图不进入邮件。历史文件不会自动搬移或删除。
+- `cache/fund_holding_change_batch_state.json` 的 `rules_version` 标识升级规则，`current.funds` 保存序号、成功指纹和 `needs_rebuild`。多端同步选择最高季度，优先保留同版本成功记录，重复序号按生成时间、基金代码确定保留者，其余接续编号并等待重绘。
+- 需要强制某只基金时，可设置 `AHNS_HOLDING_CHANGE_FUND_CODE=012922` 后运行 `--auto`；仍遵守全基金池最新季度限制，并使用该季度累计序号。直接运行不带 `--auto` 的单基金命令仍用于本地手动分析。
 
 生成晨星公开页的海外基金**股票地区分布**图（不包含现金、债券等非股票资产）：
 
@@ -608,8 +614,8 @@ Update runtime cache [skip ci]
 - `output/shangzheng_analysis.png`
 - `output/shangzheng.png`
 - `output/haiwai_fund.png`（详细版当前在主流程中暂不输出，旧文件可能仍存在）
-- `output/fund_holding_change/latest/1_012922.png`（自动检测到披露变化时按本轮批次编号生成，示例为第 1 张）
-- `output/fund_holding_change/manual/012922.png`（手动指定基金时生成，不计入自动披露批次编号）
+- `output/fund_holding_change/latest/1_三季度_012922.png`（自动/强制检测仅处理已发现的最新季度，季度内累计编号；本地名称与邮件附件一致）
+- `output/fund_holding_change/manual/012922.png`（不带 `--auto` 的本地手动分析，不进入总入口持仓邮件清单）
 - `output/fund_region_allocation/latest/1_海外基金地区分布.png`（晨星地区数据变化时更新对应稳定页码）
 - `output/fund_region_allocation/manual/012922_基金地区分布.png`（手动指定基金的单页图）
 - `output/safe_haiwai_afterhours.png`（盘后观察图，手动运行 `afterhours_fund.py` 生成）

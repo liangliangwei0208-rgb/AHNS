@@ -16,6 +16,8 @@ def build_image_names(image_paths, step_names=None):
             base = "股债利差"
         elif "index_fund_limit_change" in parts and re.fullmatch(r"\d{6}", path.stem):
             base = "指数限购_" + path.stem
+        elif "fund_holding_change" in parts and re.fullmatch(r"[1-9]\d*_[一二三四]季度_\d{6}", path.stem):
+            base = path.stem
         elif "fund_holding_change" in parts or "fund_limit_change" in parts:
             code = re.search(r"(?:^|_)(\d{6})(?:_|$)", path.stem)
             if code:
