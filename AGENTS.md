@@ -18,6 +18,7 @@
 
 ## 操作约束
 
+- 默认直接在 `main` 主分支撰写、修改、验证和提交代码；除非用户明确要求，不得新建其他分支或隔离 worktree。完成修改后按用户要求运行 `sync_repos.py`，同步本地、GitHub 和 Gitee 的 `main`。
 - 禁止批量删除文件或目录。
 - 不要使用 `del /s`、`rd /s`、`rmdir /s`、`Remove-Item -Recurse`、`rm -rf`。
 - 需要删除文件时，只能一次删除一个明确路径的文件，例如：
