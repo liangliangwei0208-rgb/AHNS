@@ -506,10 +506,13 @@ NDX 基准与走势图共用 `cache/dot_NDX_index_daily.csv`。基准入口虽�
 
 safe 公开图的样式集中在 `tools/configs/safe_image_style_configs.py`。这个文件只管“怎么画图”，不拉行情、不读缓存、不出图，适合后续日常微调。
 
+盘前、盘后、收盘、盘中、富途夜盘五类观察图固定输出 **2329 × 3939 像素 PNG**。共享水印流程先统一画布：优先裁掉纯白外边距，内容像素不缩放；较小图片居中补白、不放大。完整内容仍放不下时才用 Lanczos 等比缩小，并保留至少 24 像素安全边距，随后按最终画布叠加 logo、品牌水印和场景字。假期图、节后图、持仓图等不采用这项固定尺寸；历史文件不自动批量转换或清理。
+
 常用配置项：
 
 - `SAFE_TITLE_STYLE`：标题字号、颜色、粗细、标题和表格的间距。`cumulative_gap` 控制 `safe_holidays.png` / `safe_sum_holidays.png` 的标题到表格距离，数值越小越贴近。
 - `SAFE_CANVAS_STYLE`：每日图导出外边距。最上方留白偏大时调 `daily_top_pad_inches`；底部留白偏大时调 `daily_bottom_pad_inches`；左右留白调 `daily_left_pad_inches` / `daily_right_pad_inches`。
+- `SAFE_OBSERVATION_CANVAS_STYLE`：五类观察图的最终宽高、适用文件名和安全边距。由 `tools/safe_display.py` 的 `normalize_safe_observation_canvas()` 在水印前应用；不在名单内的图片保留原尺寸。
 - `SAFE_DAILY_TABLE_STYLE`：`safe_haiwai_fund.png` 和节后第 1 天单日观察图的表格样式，包括正文/表头字号、表头底色、表头文字色、正文底色、整图底色、网格线、行高、缩放。
 - `SAFE_CUMULATIVE_TABLE_STYLE`：节假日累计图和节后第 2 天累计图的表格样式。
 - `SAFE_RETURN_COLORS`：涨跌颜色。当前按国内习惯红涨绿跌，无法获取或无效数据为黑色。

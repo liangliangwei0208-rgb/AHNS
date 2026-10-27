@@ -74,6 +74,22 @@ SAFE_CANVAS_STYLE = {
 }
 
 
+# 日常五类观察图固定像素画布。先裁纯白边或补白，内容放不下时才等比缩小；
+# 在叠加水印之前执行，假期图、节后图和其它类型的图片不在此名单内。
+SAFE_OBSERVATION_CANVAS_STYLE = {
+    "width_px": 2329,
+    "height_px": 3939,
+    "min_margin_px": 24,
+    "filenames": (
+        "safe_haiwai_premarket.png",
+        "safe_haiwai_afterhours.png",
+        "safe_haiwai_fund.png",
+        "safe_haiwai_intraday.png",
+        "safe_haiwai_night.png",
+    ),
+}
+
+
 # 表格主体样式。
 # 影响范围：
 # - safe 系列主表
@@ -484,6 +500,7 @@ def safe_scene_text_style() -> dict:
 
 __all__ = [
     "SAFE_TITLE_STYLE",
+    "SAFE_OBSERVATION_CANVAS_STYLE",
     "SAFE_DAILY_TABLE_STYLE",
     "SAFE_CUMULATIVE_TABLE_STYLE",
     "SAFE_RETURN_COLORS",

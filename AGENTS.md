@@ -1,6 +1,6 @@
 # AHNS 项目接手说明
 
-更新时间：2026-10-26
+更新时间：2026-10-27
 
 本项目用于生成每日市场分析图、海外/全球基金模型估算表、盘前/盘中/盘后/富途夜盘观察图、安全版公开发布图、海外基金节假日累计观察图、节后补更新观察图，以及面向小白的科普说明图。国内基金收益预估业务线已停用，但 A 股/港股/韩国行情能力仍保留用于海外/全球基金持仓估算。正式主流程只使用完整日线；四个实时观察入口均不写正式基金估算缓存。
 
@@ -318,6 +318,7 @@ Matplotlib 表格和 RSI 图默认使用 `180 DPI`，用于降低图片体积并
 
 safe 公开图的视觉样式已集中到 `tools/configs/safe_image_style_configs.py`。后续如果要改标题和表格间距、图片四周留白、文字大小、颜色、底色、水印文字、水印透明度、表格行距或列宽，优先改这个配置文件：
 
+- 五类日常观察图：盘前、盘后、收盘、盘中、富途夜盘固定输出 `2329 × 3939` 像素 PNG；`SAFE_OBSERVATION_CANVAS_STYLE` 维护宽高、适用文件名和 24 像素安全边距。共享 `apply_safe_public_watermarks()` 先调用 `normalize_safe_observation_canvas()`，再绘制水印和场景字。优先裁纯白边保持原始内容像素，小图居中补白不放大；内容仍放不下才以 Lanczos 等比缩小、完整保留并居中。假期/节后/持仓等图片不在名单中；不要批量转换、搬移或删除历史图片。
 - 标题：`SAFE_TITLE_STYLE` 控制字号、颜色、粗细、每日图标题 gap 和累计图标题 gap。`cumulative_gap` 越小，`safe_sum_holidays.png` / `safe_holidays.png` 的标题和主表越近。
 - 画布：`SAFE_CANVAS_STYLE` 控制每日图导出外边距；顶部留白调 `daily_top_pad_inches`，底部留白调 `daily_bottom_pad_inches`，左右留白调 `daily_left_pad_inches` / `daily_right_pad_inches`。
 - 表格：`SAFE_DAILY_TABLE_STYLE`、`SAFE_CUMULATIVE_TABLE_STYLE` 控制正文/表头字号、表头底色、表头文字色、正文底色、画布底色、网格色、行高、横纵向缩放。

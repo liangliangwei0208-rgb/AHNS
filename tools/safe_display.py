@@ -12,7 +12,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from PIL import Image, ImageColor, ImageDraw, ImageFont
+from PIL import Image, ImageChops, ImageColor, ImageDraw, ImageFont
 
 from tools.paths import MARK_IMAGE
 
@@ -518,15 +518,67 @@ def add_scene_text_watermark(
     Image.alpha_composite(image, overlay).convert("RGB").save(path)
 
 
+def normalize_safe_observation_canvas(output_file: str | Path) -> None:
+    """为五类日常观察图统一画布；裁白边优先，保留完整内容和原始像素。"""
+    from tools.configs.safe_image_style_configs import SAFE_OBSERVATION_CANVAS_STYLE
+
+    style = SAFE_OBSERVATION_CANVAS_STYLE
+    path = Path(output_file)
+    if path.name not in style["filenames"] or not path.exists():
+        return
+
+    target = (int(style["width_px"]), int(style["height_px"]))
+    margin = int(style["min_margin_px"])
+    if margin < 0 or min(target) <= margin * 2:
+        raise ValueError("观察图目标尺寸必须为正数，且每边安全留白不能占满画布。")
+
+    with Image.open(path) as source:
+        # 已符合尺寸时完全不重新编码，夜盘图也不会因此缩小或改变像素。
+        if source.size == target:
+            return
+        metadata = {key: source.info[key] for key in ("dpi", "icc_profile") if key in source.info}
+        rgba = source.convert("RGBA")
+    # 透明边在白底上的视觉效果才是真正的内容边界，不能直接按黑色透明像素裁切。
+    image = Image.alpha_composite(Image.new("RGBA", rgba.size, "white"), rgba).convert("RGB")
+    width, height = image.size
+    bounds = ImageChops.difference(image, Image.new("RGB", image.size, "white")).getbbox()
+    canvas = Image.new("RGB", target, "white")
+
+    if bounds is not None:
+        left, top, right, bottom = bounds
+        # 只把完全纯白的像素当作留白；浅灰细线、备注和抗锯齿边缘也会保留。
+        protected = (max(0, left - margin), max(0, top - margin),
+                     min(width, right + margin), min(height, bottom + margin))
+        if protected[2] - protected[0] <= target[0] and protected[3] - protected[1] <= target[1]:
+            crop_width, crop_height = min(width, target[0]), min(height, target[1])
+            crop_left = min(max((width - crop_width) // 2, protected[2] - crop_width), protected[0])
+            # 优先减少底部留白，当前四类已有图片的标题和表格位置因此保持不变。
+            crop_top = max(0, protected[3] - crop_height)
+            content = image.crop((crop_left, crop_top, crop_left + crop_width, crop_top + crop_height))
+        else:
+            # 去除外围空白后仍放不下：只缩小内容一次，并在最终画布保留安全边距。
+            content = image.crop(bounds)
+            scale = min(1.0, (target[0] - 2 * margin) / content.width,
+                        (target[1] - 2 * margin) / content.height)
+            size = (max(1, int(content.width * scale)), max(1, int(content.height * scale)))
+            content = content.resize(size, Image.Resampling.LANCZOS)
+        canvas.paste(content, ((target[0] - content.width) // 2, (target[1] - content.height) // 2))
+
+    # PNG 压缩只影响体积和保存耗时，不丢失图片像素。
+    canvas.save(path, format="PNG", compress_level=6, **metadata)
+
+
 def apply_safe_public_watermarks(output_file: str | Path) -> None:
     """
     Apply the standard public-safe watermark stack.
 
-    Order matters: the centered logo is placed first, then the light diagonal
-    brand text is layered over it, and finally the scene label is drawn on top.
+    Normalize the observation canvas first, then add the centered logo, the
+    light diagonal brand text, and finally the scene label on top.
     Safe scripts should call this helper instead of repeating the watermark
     calls.
     """
+    normalize_safe_observation_canvas(output_file)
+
     try:
         from tools.configs.safe_image_style_configs import safe_scene_text_style, safe_watermark_style
 
@@ -567,5 +619,6 @@ __all__ = [
     "add_center_image_watermark",
     "add_brand_text_watermark",
     "add_scene_text_watermark",
+    "normalize_safe_observation_canvas",
     "apply_safe_public_watermarks",
 ]
