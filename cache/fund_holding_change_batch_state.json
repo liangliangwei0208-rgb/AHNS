@@ -51,53 +51,6 @@
       }
     }
   },
-  "previous": {
-    "batch_key": "top10:20263",
-    "top_n": 10,
-    "quarter_key": 20263,
-    "quarter_label": "2026年3季度股票投资明细",
-    "fund_pool_count": 38,
-    "first_generated_at": "2026-10-26T12:45:35",
-    "updated_at": "2026-10-26T12:45:40",
-    "funds": {
-      "016702": {
-        "fund_code": "016702",
-        "fund_name": "银华海外数字经济量化选股混合发起式(QDII)C",
-        "index": 1,
-        "image": "output/fund_holding_change/latest/1_016702.png",
-        "quarter_key": 20263,
-        "quarter_label": "2026年3季度股票投资明细",
-        "generated_at": "2026-10-26T12:45:35"
-      },
-      "539002": {
-        "fund_code": "539002",
-        "fund_name": "建信新兴市场混合(QDII)A",
-        "index": 2,
-        "image": "output/fund_holding_change/latest/2_539002.png",
-        "quarter_key": 20263,
-        "quarter_label": "2026年3季度股票投资明细",
-        "generated_at": "2026-10-26T12:45:37"
-      },
-      "017654": {
-        "fund_code": "017654",
-        "fund_name": "创金合信全球芯片产业股票发起(QDII)C",
-        "index": 3,
-        "image": "output/fund_holding_change/latest/3_017654.png",
-        "quarter_key": 20263,
-        "quarter_label": "2026年3季度股票投资明细",
-        "generated_at": "2026-10-26T12:45:38"
-      },
-      "015205": {
-        "fund_code": "015205",
-        "fund_name": "银华全球新能源车量化优选股票(QDII)C",
-        "index": 4,
-        "image": "output/fund_holding_change/latest/4_015205.png",
-        "quarter_key": 20263,
-        "quarter_label": "2026年3季度股票投资明细",
-        "generated_at": "2026-10-26T12:45:40"
-      }
-    },
-    "rules_version": 0
-  },
+  "previous": null,
   "rules_version": 1
 }

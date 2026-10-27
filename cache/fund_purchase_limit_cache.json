@@ -510,8 +510,11 @@
     "sale_availability_source": "eastmoney_html:https://fund.eastmoney.com/021000.html"
   },
   "080006": {
-    "fetched_at": "2026-10-24T08:18:54+08:00",
+    "fetched_at": "2026-10-27T09:22:27+08:00",
     "value": "100元",
-    "source": "eastmoney_html:https://fund.eastmoney.com/080006.html"
+    "source": "eastmoney_purchase_status_bulk",
+    "raw_purchase_status": "限大额",
+    "raw_redeem_status": "开放赎回",
+    "raw_daily_limit_amount": "100.0"
   }
 }
