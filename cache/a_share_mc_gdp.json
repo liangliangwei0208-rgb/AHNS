@@ -2032,8 +2032,8 @@
       "source": "https://data.eastmoney.com/cjsj/gdp.html",
       "unit": "亿元",
       "seed": "china_nominal_gdp_quarterly.csv",
-      "last_attempt_at": "2026-10-23T06:36:01.795479+00:00",
-      "last_success_at": "2026-10-23T06:36:01.795479+00:00",
+      "last_attempt_at": "2026-10-28T00:40:39.025876+00:00",
+      "last_success_at": "2026-10-28T00:40:39.025876+00:00",
       "error": null
     }
   },
