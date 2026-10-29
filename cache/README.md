@@ -3,6 +3,10 @@
 本文件由 `tools/cache_metadata.py` 生成，用于说明各缓存文件的用途、刷新策略和读取方。
 不要在 CSV 缓存或 key-map JSON 顶层手工添加注释字段，可能破坏现有读取逻辑。
 
+## 基准本机短状态
+
+`market_benchmark_local/` 由共享基准模块读写：VIX 实时/完整收盘分开保存，实时缓存 5 分钟，收盘最多落后 1 个交易日；同时记录源冷却和 Service ETF 短结果。文件采用原子写入与 OS 锁，整个目录忽略 Git/三方同步。403/429 默认冷却 15 分钟（429 Retry-After 优先）；VIX 单源 5 秒、整次联网 20 秒。旧业务缓存结构不变，失败不覆盖有效点位，不把实时数据当收盘导入。详见 `tools/cache_metadata.py` 的 `BENCHMARK_LOCAL_CACHE_DOCUMENTATION`。
+
 ## 当前缓存文件
 
 ### `159561_index_daily.csv`

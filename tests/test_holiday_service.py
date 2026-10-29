@@ -325,14 +325,16 @@ class HolidayServiceTests(unittest.TestCase):
             code = git_main.main(["--no-send"], entry_name="service_main.py",
                                  workflow_steps=SERVICE_WORKFLOW_STEPS, service_mode=True)
         self.assertEqual(code, 0)
-        self.assertIn(("main.py", {"AHNS_HOLIDAY_COMPLETE_SESSION": "1"}), observed)
-        self.assertIn(("safe_holidays.py", None), observed)
+        self.assertIn(("main.py", {"AHNS_SERVICE_BENCHMARK_FUTU": "1", "AHNS_HOLIDAY_COMPLETE_SESSION": "1"}), observed)
+        self.assertIn(("safe_holidays.py", {"AHNS_SERVICE_BENCHMARK_FUTU": "1"}), observed)
+        self.assertTrue(all(env["AHNS_SERVICE_BENCHMARK_FUTU"] == "1" for _, env in observed))
+        self.assertTrue(all("AHNS_HOLIDAY_COMPLETE_SESSION" not in env for name, env in observed if name != "main.py"))
 
     def test_unverified_calendar_is_reported_without_stopping_normal_steps(self):
         context = fund_history_io.AShareHolidayContext(reason="无法核实A股交易日历")
         observed = []
 
-        def run_step(step):
+        def run_step(step, *, extra_env=None):
             observed.append(step.script_path.name)
             return git_main.ScriptResult(step.name, step.script_path.name, step.script_path,
                                          0, 0.0, [], step.collect_images, [])

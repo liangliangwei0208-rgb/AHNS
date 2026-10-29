@@ -36,6 +36,18 @@ BREADTH_CACHE_DOCUMENTATION += "\n- 临时收盘复用observed_at保存行情证
 CACHE_INFO_VERSION = 1
 CACHE_README_FILENAME = "README.md"
 
+BENCHMARK_LOCAL_CACHE_DOCUMENTATION = """## 基准本机短状态
+
+- `market_benchmark_local/state.json`：共享 VIX 实时点位、最近两期完整收盘、ETF 短结果和源冷却；`state.lock` 为 OS 进程锁。目录不参与 Git/三方同步。
+- 生产者和读取方：`tools/market_benchmark_quotes.py`；正式估算及五类观察图通过兼容入口复用。
+- 实时短缓存 5 分钟；403/429 默认冷却 15 分钟，429 有效 Retry-After 优先。VIX 每源最多 5 秒、每轮联网最多 20 秒，工作进程不写业务缓存。
+- VIX 实时与收盘分开保存，收盘最多落后最近应完成交易日 1 个交易日；实际日期及“收盘缓存”保留在公开图中。未来、过旧、非正数或非有限值均拒绝。
+- 旧 security_return / fund_estimate 缓存仅只读导入可信 CBOE/FRED 收盘；实时数据不作为收盘导入。原 key-map 结构不变。
+- ETF 短结果最多保留两天；仅 Service 启用同标的富途兜底，不替换真实指数、VIX 或现货黄金，不影响 50D 广度缓存。
+- `output/diagnostics/<场景>_benchmark_latest.json` 保存源耗时、失败、跳过和命中信息，不作为行情依据，不随邮件发送。
+"""
+
+
 SERVICE_DAILY_CACHE_DOCUMENTATION = """## Service每日出图本机状态
 
 - `service_daily_steps/*.json`：`tools/service_daily_step.py` 记录步骤最近成功出图的北京时间日期、启动及完成时间。仅 `once_per_day=True` 的Service步骤读取，目前为十年MC/GDP图。
@@ -497,6 +509,8 @@ def build_cache_readme(cache_dir: str | Path) -> str:
     ]
 
     lines.extend(BREADTH_CACHE_DOCUMENTATION.splitlines())
+    lines.append("")
+    lines.extend(BENCHMARK_LOCAL_CACHE_DOCUMENTATION.splitlines())
     lines.append("")
     lines.extend(SERVICE_DAILY_CACHE_DOCUMENTATION.splitlines())
     lines.append("")

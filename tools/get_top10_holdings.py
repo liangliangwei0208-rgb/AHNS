@@ -4889,21 +4889,10 @@ def _extract_latest_vix_close(df: pd.DataFrame, source: str) -> dict:
 
 
 def fetch_latest_complete_vix_close() -> dict:
-    """
-    获取 VIX 恐慌指数“最新完整交易日”的收盘点位。
-
-    优先 CBOE 官方历史 CSV；CBOE 不可用时回退 FRED。这里返回的是点位，
-    不是涨跌幅，调用方必须把 return_pct 保持为空。
-    """
-    errors = []
-    for source_name, url in VIX_CSV_SOURCES:
-        try:
-            df = _read_csv_from_url(url)
-            return _extract_latest_vix_close(df, source_name)
-        except Exception as exc:
-            errors.append(f"{source_name}: {repr(exc)}")
-
-    raise RuntimeError("所有 VIX 数据源均失败：" + " | ".join(errors))
+    """共享完整收盘读取器；保持 date/close/source 旧接口，失败不重复请求。"""
+    from tools.market_benchmark_quotes import get_vix_quote
+    item = get_vix_quote(realtime=False)
+    return {"date": item["trade_date"], "close": item["value"], "source": item["source"]}
 
 
 def _get_vix_level_by_anchor_date(symbol, valuation_anchor_date, cache_enabled=True) -> dict:
@@ -4914,15 +4903,6 @@ def _get_vix_level_by_anchor_date(symbol, valuation_anchor_date, cache_enabled=T
     保留点位供每日图观察，同时把 status 标为 stale，方便后续自动刷新。
     """
     cache_key, ticker_norm, anchor = _anchor_security_cache_key("VIX_LEVEL", symbol, valuation_anchor_date)
-
-    if cache_enabled and anchor:
-        cached = _get_fresh_anchor_cache_entry(
-            cache_key,
-            market="VIX_LEVEL",
-            ticker=ticker_norm,
-        )
-        if cached is not None:
-            return cached
 
     try:
         latest = fetch_latest_complete_vix_close()
@@ -7793,18 +7773,25 @@ def _fetch_configured_market_benchmark(spec: dict, cache_enabled=True, valuation
             )
             status = _configured_benchmark_status_from_trade_date(trade_date, anchor)
     elif kind == "us_security":
-        if anchor:
-            anchor_result = get_security_return_by_anchor_date(
-                market="US",
-                ticker=symbol,
-                valuation_anchor_date=anchor,
-                allow_intraday=False,
-                security_return_cache_enabled=cache_enabled,
-            )
-            return_pct, source, trade_date, status = _return_from_anchor_result(anchor_result)
-        else:
-            return_pct, trade_date, source = fetch_us_return_pct_daily_with_date(symbol)
-            status = _configured_benchmark_status_from_trade_date(trade_date, anchor)
+        try:
+            if anchor:
+                anchor_result = get_security_return_by_anchor_date(
+                    market="US", ticker=symbol, valuation_anchor_date=anchor,
+                    allow_intraday=False, security_return_cache_enabled=cache_enabled)
+                return_pct, source, trade_date, status = _return_from_anchor_result(anchor_result)
+            else:
+                return_pct, trade_date, source = fetch_us_return_pct_daily_with_date(symbol)
+                status = _configured_benchmark_status_from_trade_date(trade_date, anchor)
+        except Exception as exc:
+            return_pct, source, trade_date, status = None, "daily_source_failed", "", "missing"
+            anchor_result = {"error":str(exc)}
+        if symbol == "XOP" and anchor and (status not in ANCHOR_COMPLETE_STATUSES or return_pct is None):
+            from tools.market_benchmark_quotes import get_futu_etf_quote
+            try:
+                quote = get_futu_etf_quote(symbol, mode="daily", target_date=anchor)
+                return_pct, source, trade_date, status = quote["return_pct"], quote["source"], quote["trade_date"], quote["status"]
+            except RuntimeError:
+                pass  # 非 Service/无权限/未收盘继续保留原失败状态，不填零或旧收益。
     elif kind == "yahoo":
         # Yahoo 用于 VIX 等特殊海外资产；仍然只取日线收盘数据。
         if anchor:
@@ -7910,11 +7897,10 @@ def get_us_index_benchmark_items(cache_enabled=True, valuation_anchor_date=None)
         symbol = str(spec.get("symbol", "")).strip().upper()
         try:
             items.append(
-                _fetch_configured_market_benchmark(
-                    spec,
-                    cache_enabled=cache_enabled,
-                    valuation_anchor_date=anchor,
-                )
+                timed_market_call(
+                    lambda: _fetch_configured_market_benchmark(spec, cache_enabled=cache_enabled, valuation_anchor_date=anchor),
+                    action="benchmark_resolve", source=str(spec.get("kind", "")), market="US", ticker=symbol)
+
             )
         except Exception as e:
             print(f"[WARN] 指数基准 {label}({symbol}) 获取失败: {e}", flush=True)
@@ -7937,6 +7923,8 @@ def get_us_index_benchmark_items(cache_enabled=True, valuation_anchor_date=None)
                 "include_in_cumulative": bool(spec.get("include_in_cumulative", True)),
             })
 
+    from tools.market_benchmark_quotes import write_benchmark_diagnostics
+    write_benchmark_diagnostics("daily")
     return items
 
 

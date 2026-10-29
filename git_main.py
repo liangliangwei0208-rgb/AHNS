@@ -914,10 +914,11 @@ def main(
             error_message=calendar_error,
         ))
     for step in steps:
+        # 仅 Service 子进程启用同标的 ETF 富途兜底；云端/主机显式关闭，避免环境残留。
+        extra_env = {"AHNS_SERVICE_BENCHMARK_FUTU": "1" if service_mode else "0"}
         if (service_holiday or service_first_reopen) and step.script_path.name == "main.py":
-            result = run_script(step, extra_env={"AHNS_HOLIDAY_COMPLETE_SESSION": "1"})
-        else:
-            result = run_script(step)
+            extra_env["AHNS_HOLIDAY_COMPLETE_SESSION"] = "1"
+        result = run_script(step, extra_env=extra_env)
         results.append(result)
 
         if not result.success:

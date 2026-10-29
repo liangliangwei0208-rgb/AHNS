@@ -48,6 +48,14 @@
 # 正常估算入口仅用本地缓存自愈最近两周的指数基准缺口，不增加行情请求。
 BENCHMARK_REPAIR_LOOKBACK_DAYS = 14
 
+# VIX 的读取超时不是总耗时；父进程还会按预算终止独立取数进程。
+VIX_SOURCE_TIMEOUT_SECONDS = 5
+VIX_REFRESH_BUDGET_SECONDS = 20
+VIX_REALTIME_CACHE_SECONDS = 300
+BENCHMARK_SOURCE_COOLDOWN_SECONDS = 900
+BENCHMARK_FUTU_ENV = "AHNS_SERVICE_BENCHMARK_FUTU"
+BENCHMARK_FUTU_ETFS = frozenset({"QQQ", "SPY", "XOP", "SMH", "GLD", "IBB"})
+
 
 def canonical_market_benchmark_symbol(symbol) -> str:
     """统一历史基准别名；不改证券持仓、补偿基准或其它市场的代码口径。"""

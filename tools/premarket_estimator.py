@@ -1223,47 +1223,9 @@ def _fetch_latest_close_vix_level(today: str, *, errors: list[str] | None = None
 
 
 def _fetch_realtime_vix_level(today: str, *, timeout: int = 8) -> dict[str, Any]:
-    """
-    Fetch the latest available VIX level.
-
-    Priority is aligned with premarket/intraday/afterhours/night observations:
-    Yahoo 1m realtime first, slower Yahoo/yfinance fallbacks next, and complete
-    daily close sources last.
-    """
-    chart_urls = [
-        ("query1", "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX"),
-        ("query2", "https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX"),
-    ]
-    chart_params = [
-        ("1d_1m", {"range": "1d", "interval": "1m", "includePrePost": "true"}),
-        ("1d_5m", {"range": "1d", "interval": "5m", "includePrePost": "true"}),
-        ("5d_5m", {"range": "5d", "interval": "5m", "includePrePost": "true"}),
-    ]
-    errors = []
-    for range_label, params in chart_params:
-        for host_label, url in chart_urls:
-            try:
-                return _fetch_yahoo_chart_vix_level(
-                    url=url,
-                    params=params,
-                    today=today,
-                    timeout=timeout,
-                    source=f"yahoo_chart_realtime_vix_{host_label}_{range_label}",
-                )
-            except Exception as exc:
-                errors.append(f"yahoo {host_label} {range_label}: {repr(exc)}")
-
-    try:
-        return _fetch_yfinance_vix_level(today)
-    except Exception as exc:
-        errors.append(f"yfinance: {repr(exc)}")
-
-    try:
-        return _fetch_latest_close_vix_level(today, errors=errors)
-    except Exception as exc:
-        errors.append(f"latest_close: {repr(exc)}")
-
-    raise RuntimeError("VIX 实时点位获取失败: " + " | ".join(errors))
+    """兼容旧调用；共享层统一缓存、限流和20秒硬预算，today不冒充报价日期。"""
+    from tools.market_benchmark_quotes import get_vix_quote
+    return get_vix_quote()
 
 
 def _parse_us_eastern_quote_time(value: Any, *, default_year: int | None = None) -> datetime | None:
@@ -2120,6 +2082,11 @@ def fetch_us_premarket_return_pct(
             if _network_error_message(message):
                 disabled_sources.add("yahoo_intraday")
 
+    from tools.market_benchmark_quotes import get_futu_etf_quote
+    try:
+        return get_futu_etf_quote(symbol_norm, mode="premarket", target_date=target_us_date, now=coerce_bj_datetime(as_of_bj))
+    except RuntimeError as exc:
+        errors.append(f"futu: {exc}")
     raise RuntimeError(" | ".join(errors))
 
 
@@ -2151,6 +2118,11 @@ def fetch_us_afterhours_return_pct(
             if source_key == "yahoo_afterhours" and _network_error_message(message):
                 disabled_sources.add(source_key)
 
+    from tools.market_benchmark_quotes import get_futu_etf_quote
+    try:
+        return get_futu_etf_quote(symbol_norm, mode="afterhours", target_date=target_us_date, now=coerce_bj_datetime(as_of_bj))
+    except RuntimeError as exc:
+        errors.append(f"futu: {exc}")
     raise RuntimeError(" | ".join(errors))
 
 
@@ -2182,6 +2154,11 @@ def fetch_us_intraday_return_pct(
             if source_key == "yahoo_intraday_regular" and _network_error_message(message):
                 disabled_sources.add(source_key)
 
+    from tools.market_benchmark_quotes import get_futu_etf_quote
+    try:
+        return get_futu_etf_quote(symbol_norm, mode="intraday", target_date=target_us_date, now=coerce_bj_datetime(as_of_bj))
+    except RuntimeError as exc:
+        errors.append(f"futu: {exc}")
     raise RuntimeError(" | ".join(errors))
 
 
@@ -2212,7 +2189,7 @@ def fetch_premarket_benchmark_quote(
             "error": f"{session.window_word}基准配置不存在: {benchmark_key}",
         }
 
-    cached = _get_valid_cached_observation_quote(
+    cached = None if spec["kind"] == "vix_level" else _get_valid_cached_observation_quote(
         quote_cache,
         persistent_quote_cache,
         market=spec["market"],
@@ -2236,25 +2213,7 @@ def fetch_premarket_benchmark_quote(
 
     try:
         if spec["kind"] == "vix_level":
-            try:
-                item = _fetch_realtime_vix_level(today)
-            except Exception as realtime_exc:
-                vix = fetch_latest_complete_vix_close()
-                item = {
-                    "benchmark_key": spec["key"],
-                    "label": spec["label"],
-                    "ticker": spec["ticker"],
-                    "market": spec["market"],
-                    "kind": spec["kind"],
-                    "return_pct": None,
-                    "value": _safe_float(vix.get("close")),
-                    "display_value": f"{float(vix['close']):.2f}",
-                    "trade_date": str(vix.get("date") or today),
-                    "source": f"vix_latest_close_fallback:{vix.get('source', '')}",
-                    "status": "traded",
-                    "value_type": "level",
-                    "error": str(realtime_exc),
-                }
+            item = _fetch_realtime_vix_level(today)
         elif spec["market"] == "US":
             if session.us_quote_mode == "afterhours":
                 quote = fetch_us_afterhours_return_pct(
@@ -2346,12 +2305,13 @@ def build_premarket_benchmark_footer_items(
         out = dict(item)
         out["order"] = order
         out["label"] = session.footer_labels.get(benchmark_key, str(out.get("label", "") or benchmark_key))
-        if str(session.us_quote_mode).lower() == "intraday":
+        if benchmark_key != "vix" and str(session.us_quote_mode).lower() == "intraday":
             out["trade_date"] = _target_intraday_us_date(cache_now)
-        elif benchmark_key in {"gold", "vix"}:
+        elif benchmark_key == "gold":
             quote_time = _parse_premarket_cache_time(out.get("quote_time_bj"))
             out["trade_date"] = (quote_time or cache_now).astimezone(BJ_TZ).date().isoformat()
         if benchmark_key == "vix":
+            out["label"] = "VIX恐慌指数（" + str(out.get("label_suffix", "实时")) + "）"
             out["value_type"] = "level"
             out["return_pct"] = None
         else:
@@ -3520,6 +3480,8 @@ def run_observation_session(
         benchmark_footer_items=benchmark_footer_items,
         session=session,
     )
+    from tools.market_benchmark_quotes import write_benchmark_diagnostics
+    write_benchmark_diagnostics(session.mode)
     _write_report(
         report_path,
         generated_at=generated_at,

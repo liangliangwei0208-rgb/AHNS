@@ -109,14 +109,14 @@ def refresh_vix_footer_item_for_daily(item: dict[str, Any], *, valuation_date: s
         out = dict(item)
         out.update(
             {
-                "label": str(item.get("label", "")).strip() or realtime.get("label", "VIX恐慌指数"),
+                "label": "VIX恐慌指数（" + str(realtime.get("label_suffix", "实时")) + "）",
                 "symbol": "VIX",
                 "kind": "vix_level",
                 "return_pct": None,
                 "value": safe_float_or_none(realtime.get("value")),
                 "display_value": str(realtime.get("display_value", "")).strip(),
                 "value_type": "level",
-                "trade_date": normalize_date_string(realtime.get("trade_date")) or valuation_date,
+                "trade_date": normalize_date_string(realtime.get("trade_date")),
                 "source": str(realtime.get("source", "")).strip(),
                 "status": str(realtime.get("status", "traded")).strip() or "traded",
                 "error": str(realtime.get("error", "")).strip(),
@@ -124,9 +124,9 @@ def refresh_vix_footer_item_for_daily(item: dict[str, Any], *, valuation_date: s
         )
         return out
     except Exception as exc:
+        # 共享层已用允许的一期收盘兜底；仍失败意味着旧值不再可信，不能保留原值。
         out = dict(item)
-        old_error = str(out.get("error", "")).strip()
-        out["error"] = (old_error + " | " if old_error else "") + f"realtime_vix_failed: {exc}"
+        out.update(value=None, display_value="", return_pct=None, trade_date="", status="missing", error=str(exc))
         return out
 
 
@@ -524,6 +524,8 @@ def build_and_save_haiwai(cache: dict[str, Any]) -> bool:
         purchase_limit_cache=purchase_limit_cache,
     )
     benchmark_footer_items = get_benchmark_footer_items(cache, haiwai_date)
+    from tools.market_benchmark_quotes import write_benchmark_diagnostics
+    write_benchmark_diagnostics("safe_daily")
 
     save_haiwai_safe_table(
         haiwai_df,

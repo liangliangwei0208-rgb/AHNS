@@ -174,52 +174,14 @@ def _fetch_vix_footer_item(
     generated_at: datetime,
     return_cache: FutuNightReturnCache,
 ) -> dict[str, Any]:
-    cached = return_cache.get("VIX_LEVEL", "VIX", target_date, generated_at)
-    if cached is not None:
-        return {
-            **cached,
-            "benchmark_key": "vix",
-            "label": "VIX恐慌指数",
-            "ticker": "VIX",
-            "market": "VIX_LEVEL",
-            "kind": "vix_level",
-        }
+    # 不绕过共享层的交易日/时间校验；旧夜盘短缓存不作为实时 VIX 依据。
     try:
         item = _fetch_realtime_vix_level(target_date)
-    except Exception as realtime_exc:
-        try:
-            vix = fetch_latest_complete_vix_close()
-            item = {
-                "benchmark_key": "vix",
-                "label": "VIX恐慌指数",
-                "ticker": "VIX",
-                "market": "VIX_LEVEL",
-                "kind": "vix_level",
-                "return_pct": None,
-                "value": _safe_float(vix.get("close")),
-                "display_value": f"{float(vix['close']):.2f}",
-                "trade_date": str(vix.get("date") or target_date),
-                "source": f"vix_latest_close_fallback:{vix.get('source', '')}",
-                "status": "traded",
-                "value_type": "level",
-                "error": str(realtime_exc),
-            }
-        except Exception as fallback_exc:
-            item = {
-                "benchmark_key": "vix",
-                "label": "VIX恐慌指数",
-                "ticker": "VIX",
-                "market": "VIX_LEVEL",
-                "kind": "vix_level",
-                "return_pct": None,
-                "value": None,
-                "display_value": "",
-                "trade_date": target_date,
-                "source": "failed",
-                "status": "missing",
-                "value_type": "level",
-                "error": f"{realtime_exc!r} | {fallback_exc!r}",
-            }
+    except Exception as exc:
+        item = {"benchmark_key":"vix", "label":"VIX恐慌指数", "ticker":"VIX",
+                "market":"VIX_LEVEL", "kind":"vix_level", "return_pct":None,
+                "value":None, "display_value":"", "trade_date":"", "source":"failed",
+                "status":"missing", "value_type":"level", "error":str(exc)}
     return_cache.remember("VIX_LEVEL", "VIX", target_date, item, fetched_at_bj=generated_at)
     return item
 
@@ -713,6 +675,7 @@ def build_futu_night_table(
         out["order"] = order
         out["label"] = FUTU_NIGHT_SESSION.footer_labels.get(benchmark_key, str(out.get("label", "") or benchmark_key))
         if benchmark_key == "vix":
+            out["label"] = "VIX恐慌指数（" + str(out.get("label_suffix", "实时")) + "）"
             out["value_type"] = "level"
             out["return_pct"] = None
         benchmark_footer_items.append(out)
@@ -874,6 +837,8 @@ def run_futu_night_observation(
             benchmark_footer_items=benchmark_footer_items,
             session=FUTU_NIGHT_SESSION,
         )
+        from tools.market_benchmark_quotes import write_benchmark_diagnostics
+        write_benchmark_diagnostics("futu_night")
         _write_futu_night_report(
             report_path,
             generated_at=generated_at,

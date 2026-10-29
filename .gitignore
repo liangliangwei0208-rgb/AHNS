@@ -24,5 +24,8 @@ cache/market_breadth/**/*.tmp
 # 小电脑每日出图的成功状态和操作系统锁，仅供当前机器使用
 cache/service_daily_steps/
 
+# 基准短缓存、源冷却及OS锁仅供本机，不参与Git三方同步。
+cache/market_benchmark_local/
+
 # 指数跟踪离线/真实验收图在邮件扫描目录之外，不作为正式事件提交。
 tests/artifacts/index_fund_tracking/
